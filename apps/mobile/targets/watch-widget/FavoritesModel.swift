@@ -23,7 +23,7 @@ struct FavoritesModel {
   private var _routes: [FavoriteRoute]
   var routes: [FavoriteRoute] {
     get {
-      return _routes.sorted { $0.id < $1.id }
+      return _routes
     }
     set {
       _routes = newValue
@@ -47,8 +47,10 @@ struct FavoritesModel {
     
     // Data comes formatted as:
     // "1" (index) : "originId:3600,destinationId:3500,label:Home"
+    // The key is the position in the iPhone favorites list.
+    let orderedRoutes = routes.sorted { (Int($0.key) ?? 0) < (Int($1.key) ?? 0) }
     
-    for (key, value) in routes {
+    for (_, value) in orderedRoutes {
       // TODO: Extract information using Decodable?
       let route = String(describing: value).split(separator: ",")
       let originId = String(route[0].split(separator: ":")[1])
@@ -70,6 +72,15 @@ struct FavoritesModel {
     #else
     self.routes = favoriteRoutes
     #endif
+  }
+  
+  /// Moves `ids` so they sit before `beforeId`, or at the end when nil.
+  mutating func move(ids: [String], before beforeId: String?) {
+    let moving = _routes.filter { ids.contains($0.id) }
+    var remaining = _routes.filter { !ids.contains($0.id) }
+    let index = beforeId.flatMap { id in remaining.firstIndex { $0.id == id } } ?? remaining.count
+    remaining.insert(contentsOf: moving, at: index)
+    self.routes = remaining
   }
   
   static func getRoutesFromUserDefaults() -> [FavoriteRoute] {

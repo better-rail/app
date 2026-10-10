@@ -3,6 +3,7 @@ import { Image, View } from "react-native"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { useWidgetPreviewRoute } from "./use-widget-preview-route"
+import { formatClockTime } from "@/utils/helpers/date-helpers"
 import { styles } from "./widget-preview.styles"
 
 const arrowIcon = require("../../../../../assets/arrow-left.png")
@@ -39,10 +40,10 @@ export function WidgetPreviewWide() {
               {translate("settings.widgetPreviewNextTrain")}
             </Text>
             <View style={styles.wideTimesRow}>
-              <Text style={styles.wideTrainTime}>08:15</Text>
+              <Text style={styles.wideTrainTime}>{formatClockTime("08:15")}</Text>
               <View style={styles.arrivalCol}>
                 <Text style={styles.arrivalLabel}>{translate("settings.widgetPreviewArrival")}</Text>
-                <Text style={styles.arrivalTime}>08:52</Text>
+                <Text style={styles.arrivalTime}>{formatClockTime("08:52")}</Text>
               </View>
             </View>
           </View>
@@ -70,20 +71,20 @@ export function WidgetPreviewWide() {
 
           <View style={styles.upcomingList}>
             <View style={styles.upcomingRow}>
-              <Text style={styles.upcomingDeparture}>08:45</Text>
-              <Text style={styles.upcomingArrival}>09:22</Text>
+              <Text style={styles.upcomingDeparture}>{formatClockTime("08:45")}</Text>
+              <Text style={styles.upcomingArrival}>{formatClockTime("09:22")}</Text>
             </View>
             <View style={styles.upcomingRow}>
-              <Text style={styles.upcomingDeparture}>09:15</Text>
-              <Text style={styles.upcomingArrival}>09:52</Text>
+              <Text style={styles.upcomingDeparture}>{formatClockTime("09:15")}</Text>
+              <Text style={styles.upcomingArrival}>{formatClockTime("09:52")}</Text>
             </View>
             <View style={styles.upcomingRow}>
-              <Text style={styles.upcomingDeparture}>09:45</Text>
-              <Text style={styles.upcomingArrival}>10:22</Text>
+              <Text style={styles.upcomingDeparture}>{formatClockTime("09:45")}</Text>
+              <Text style={styles.upcomingArrival}>{formatClockTime("10:22")}</Text>
             </View>
             <View style={styles.upcomingRow}>
-              <Text style={styles.upcomingDeparture}>10:15</Text>
-              <Text style={styles.upcomingArrival}>10:52</Text>
+              <Text style={styles.upcomingDeparture}>{formatClockTime("10:15")}</Text>
+              <Text style={styles.upcomingArrival}>{formatClockTime("10:52")}</Text>
             </View>
           </View>
         </View>

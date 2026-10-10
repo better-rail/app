@@ -5,14 +5,15 @@ import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
+import { faresRouter } from "./fares"
 import { siriDebugRouter } from "./siri-debug"
 import { handleServiceStatusRequest } from "./service-status"
 import { delayGuardsRouter } from "./delay-guards"
 import { stationAlertsRouter } from "./station-alerts"
 import { handleStationDeparturesRequest } from "./station-departures"
 import { handleStationInfoRequest } from "./station-info"
-import { DeleteRideBody, UpdateRideTokenBody, bodyValidator } from "./validations"
-import { endRideNotifications, startRideNotifications, updateRideToken } from "../rides"
+import { DeleteRideBody, RemoveRideAlarmBody, SetRideAlarmBody, UpdateRideTokenBody, bodyValidator } from "./validations"
+import { endRideNotifications, removeRideAlarm, setRideAlarm, startRideNotifications, updateRideToken } from "../rides"
 
 const router = Router()
 
@@ -25,35 +26,81 @@ const requireEnabled =
   }
 
 const rideRouter = Router()
+const rideRateLimitWindowMs = 10 * 60 * 1000
 // Every route below reads or writes the shared rides state, so they're closed while ride tracking is off.
 rideRouter.use(requireEnabled(ridesEnabled, "rides_disabled"))
-rideRouter.use(createRateLimiter(10 * 60 * 1000, 10))
+// Separate devices sharing a mobile carrier IP into independent buckets.
+rideRouter.use(createRateLimiter(rideRateLimitWindowMs, 1000))
 
-rideRouter.post("/", bodyValidator(RideRequestSchema), async (req, res) => {
-  const ride = buildRide(req.body)
-  const result = await startRideNotifications(ride)
-  res.status(result.success ? 200 : 500).json(result)
-})
+rideRouter.post(
+  "/",
+  bodyValidator(RideRequestSchema),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.token),
+  async (req, res) => {
+    const ride = buildRide(req.body)
+    const result = await startRideNotifications(ride)
+    res.status(result.success ? 200 : 500).json(result)
+  },
+)
 
-rideRouter.patch("/updateToken", bodyValidator(UpdateRideTokenBody), async (req, res) => {
-  const { rideId, token } = req.body
-  const success = await updateRideToken(rideId, token)
-  res.status(success ? 200 : 500).send({ success })
-})
+rideRouter.patch(
+  "/updateToken",
+  bodyValidator(UpdateRideTokenBody),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId, token } = req.body
+    const success = await updateRideToken(rideId, token)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
 
-rideRouter.delete("/", bodyValidator(DeleteRideBody), async (req, res) => {
-  const { rideId } = req.body
-  const success = await endRideNotifications(rideId)
-  res.status(success ? 200 : 500).send({ success })
-})
+rideRouter.delete(
+  "/",
+  bodyValidator(DeleteRideBody),
+  createRateLimiter(rideRateLimitWindowMs, 10, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId } = req.body
+    const success = await endRideNotifications(rideId)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
+
+// The app re-sends the alarm whenever it comes to the foreground, so allow more than the other ride routes.
+rideRouter.put(
+  "/alarm",
+  bodyValidator(SetRideAlarmBody),
+  createRateLimiter(rideRateLimitWindowMs, 30, (request) => request.body.rideId),
+  async (req, res) => {
+    const { rideId, ...alarm } = req.body
+    const fireDate = await setRideAlarm(rideId, alarm)
+    res.status(fireDate === undefined ? 404 : 200).send({ success: fireDate !== undefined, fireDate })
+  },
+)
+
+rideRouter.delete(
+  "/alarm",
+  bodyValidator(RemoveRideAlarmBody),
+  createRateLimiter(rideRateLimitWindowMs, 30, (request) => request.body.rideId),
+  async (req, res) => {
+    const success = await removeRideAlarm(req.body.rideId)
+    res.status(success ? 200 : 500).send({ success })
+  },
+)
 
 router.use("/ride", rideRouter)
+// Fares, from the Israel Railways snapshot `bun run rail:pull` keeps in redis (see routes/fares.ts)
+router.use("/fares", faresRouter)
 
 // Push subscriptions — station alerts (a device's stations and lines) and Delay Notifications (the trains it
-// wants to hear about when they run late). Both closed while the watchers are off, like the rides.
+// wants to hear about when they run late). Both closed while the watchers are off, like the rides. As there,
+// devices sharing a carrier IP get a loose shared bucket and a tight one each, keyed by their push token.
 const pushAlertsGate = requireEnabled(stationAlertsEnabled, "station_alerts_disabled")
-router.use("/station-alerts", pushAlertsGate, createRateLimiter(10 * 60 * 1000, 30), stationAlertsRouter)
-router.use("/delay-guards", pushAlertsGate, createRateLimiter(10 * 60 * 1000, 30), delayGuardsRouter)
+const pushRateLimitWindowMs = 10 * 60 * 1000
+const pushTokenOf = (request: { body?: { token?: unknown } }) =>
+  typeof request.body?.token === "string" ? request.body.token : undefined
+const pushRateLimits = [createRateLimiter(pushRateLimitWindowMs, 1000), createRateLimiter(pushRateLimitWindowMs, 30, pushTokenOf)]
+router.use("/station-alerts", pushAlertsGate, ...pushRateLimits, stationAlertsRouter)
+router.use("/delay-guards", pushAlertsGate, ...pushRateLimits, delayGuardsRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
 // Network health per line (read-only: GTFS timetable + SIRI snapshot)

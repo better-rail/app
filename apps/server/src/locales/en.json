@@ -17,6 +17,13 @@
       "unsafeChange": "This change isn't guaranteed.",
       "stayOnPlatform": "Stay on Platform %{platform}.",
       "changePlatform": "Change to Platform %{platform}."
+    },
+    "alarm": {
+      "moved": {
+        "title": "Alarm moved to %{time}",
+        "description": "It will ring %{minutes} minutes before arriving at %{station}."
+      },
+      "failed": "Your arrival time changed. Open Better Rail to update the arrival alarm."
     }
   },
   "stationAlerts": {

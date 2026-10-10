@@ -1,4 +1,4 @@
-import { I18nManager, Platform } from "react-native"
+import { I18nManager, NativeModules, Platform, Settings } from "react-native"
 import RNRestart from "react-native-restart-newarch"
 import { setAnalyticsUserProperty } from "@/services/analytics"
 import { setStationLocale } from "@/data/stations"
@@ -32,6 +32,13 @@ export let dateFnsLocalization = enUS
 export let dateDelimiter = " "
 export let dateLocale = "en-US"
 export const deviceLocale = Localization.getLocales()[0].languageCode
+/** AM/PM for an English app on an English device whose clock is set to 12-hour. Resolved per launch; a language change restarts the app. */
+export let use12HourClock = false
+
+export function resolveUse12HourClock(languageCode: LanguageCode) {
+  const uses24hourClock = Localization.getCalendars()[0]?.uses24hourClock ?? true
+  return languageCode === "en" && !!deviceLocale?.startsWith("en") && !uses24hourClock
+}
 
 setAnalyticsUserProperty("device_locale", deviceLocale)
 
@@ -49,6 +56,22 @@ export function getInitialLanguage(): LanguageCode {
   }
 }
 
+// The language last written to the app's iOS language, to tell apart a change made in iOS Settings
+const SYNCED_IOS_LANGUAGE_KEY = "syncedAppleLanguage"
+
+/** The language picked in iOS Settings → Better Rail → Language since the app last synced it, if any. */
+export function getLanguageChangedInIOSSettings(): LanguageCode | undefined {
+  if (Platform.OS !== "ios" || IS_E2E) return
+
+  const syncedLanguage = Settings.get(SYNCED_IOS_LANGUAGE_KEY)
+  if (!syncedLanguage) return
+
+  const iosLanguage = Settings.get("AppleLanguages")?.[0]?.split("-")[0]
+  if (!iosLanguage || iosLanguage === syncedLanguage || !(iosLanguage in railApiLocales)) return
+
+  return iosLanguage as LanguageCode
+}
+
 export function setInitialLanguage() {
   const languageCode = getInitialLanguage()
   changeUserLanguage(languageCode)
@@ -60,13 +83,18 @@ export function changeUserLanguage(languageCode: LanguageCode) {
   })
 }
 
+export const isRTLLanguage = (languageCode: LanguageCode) => languageCode === "he" || languageCode === "ar"
+
 export function setUserLanguage(languageCode: LanguageCode, allowRestart = false) {
-  if (languageCode === "he" || languageCode === "ar") {
-    I18nManager.allowRTL(true)
-    I18nManager.forceRTL(true)
-  } else {
-    I18nManager.allowRTL(false)
-    I18nManager.forceRTL(false)
+  const isRTLLanguageCode = isRTLLanguage(languageCode)
+  I18nManager.allowRTL(isRTLLanguageCode)
+  I18nManager.forceRTL(isRTLLanguageCode)
+
+  if (Platform.OS === "ios") {
+    // UIKit (headers, back button, alerts) follows the app's iOS language, not forceRTL. The per-app
+    // language applies from the next launch; the layout direction override covers this session.
+    Settings.set({ AppleLanguages: [languageCode], [SYNCED_IOS_LANGUAGE_KEY]: languageCode })
+    NativeModules.RNBetterRail?.setLayoutDirection?.(isRTLLanguageCode)
   }
 
   if (languageCode === "ar") {
@@ -83,6 +111,7 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
   }
 
   userLocale = languageCode
+  use12HourClock = resolveUse12HourClock(languageCode)
   i18n.locale = languageCode
   setStationLocale(languageCode)
 
@@ -91,9 +120,9 @@ export function setUserLanguage(languageCode: LanguageCode, allowRestart = false
   }
 
   if (allowRestart) {
-    // Tearing down the React instance cancels in-flight expo/fetch requests, which used
-    // to crash in Expo's RuntimeScheduler (BETTER-RAIL-2G). Keep the expo and
-    // expo-modules-core patches while we restart from JS; the fault isn't in RNRestart.
+    // Tearing down the React instance cancels in-flight expo/fetch requests, which used to
+    // crash in Expo's RuntimeScheduler (BETTER-RAIL-2G). Fixed upstream in SDK 57, so the
+    // local expo patches are gone; the fault was never in RNRestart.
     //
     // On Android, SharedPreferences.apply() is asynchronous. Without a delay,
     // Runtime.exit(0) in RNRestart can race with the async write and lose the

@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { logNames, logger } from "../logs"
 import { railDataSource } from "../data/config"
-import { proxySearchTrainRequest, railProxy } from "./proxy"
+import { proxySearchTrainRequest, proxyViaSearch, railProxy, toViaSearch } from "./proxy"
 import { searchTrain, ScheduleType } from "../requests/gtfs-route-api"
 
 const toScheduleType = (value: unknown): ScheduleType =>
@@ -83,10 +83,14 @@ const legacyEnvelope = (result: unknown) => ({
  * Under `RAIL_DATA_SOURCE=gtfs` (the default) it's served in-house: the timetable
  * search endpoints run on GTFS/Postgres, and everything else (railupdates,
  * PopUpMessages, station info) is retired and answers with an empty legacy
- * envelope. Under `RAIL_DATA_SOURCE=rail` every path proxies upstream instead.
+ * envelope. Under `RAIL_DATA_SOURCE=rail` every path proxies upstream instead,
+ * except change-station searches, which the rail API can't answer on its own.
  */
 const handleRailApiRequest = async (req: Request, res: Response) => {
-  if (railDataSource === "rail") return railProxy(req, res)
+  if (railDataSource === "rail") {
+    const viaSearch = req.method === "POST" && isTimetableSearchPath(req.path) ? toViaSearch(req.body) : undefined
+    return viaSearch ? proxyViaSearch(res, viaSearch) : railProxy(req, res)
+  }
 
   if (req.method === "POST" && isTimetableSearchPath(req.path)) {
     const { fromStation, toStation, date, hour, scheduleType, hideSlowTrains, viaStation } = req.body ?? {}

@@ -8,15 +8,16 @@ dayjs.extend(isSameOrBefore)
 
 import { logNames } from "../logs"
 import { env } from "../data/config"
-import { Ride } from "../types/ride"
+import { Ride, RideAlarmRequest } from "../types/ride"
 import { RouteItem } from "../types/rail"
-import { sendNotification } from "./notify"
+import { sendAlarmMovedNotification, sendNotification } from "./notify"
 import { getRouteForRide } from "../requests"
 import { endRideNotifications } from "./index"
 import { NotificationPayload } from "../types/notification"
 import { NotFoundRouteForRide, RideNotInTimeError } from "../utils/errors"
 import { buildNotifications, getUpdatedLastNotification } from "../utils/ride-utils"
-import { addRide, deleteRide, updateLastRideNotification, updateRideToken } from "../data/redis"
+import { getAlarmFireDate, getAlarmMove } from "../utils/alarm-utils"
+import { addRide, deleteRide, updateLastRideNotification, updateRideAlarm, updateRideToken } from "../data/redis"
 import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond } from "../utils/notify-utils"
 
 export class Scheduler {
@@ -143,6 +144,41 @@ export class Scheduler {
     return success
   }
 
+  /** Saves the arrival alarm and returns when it should ring, or undefined when it couldn't be saved */
+  async setAlarm(request: RideAlarmRequest) {
+    const alarm = { ...request, fireDate: getAlarmFireDate(this.route, request.leadMinutes) }
+    const success = await updateRideAlarm(this.ride.rideId, alarm)
+    if (!success) return undefined
+
+    this.ride.alarm = alarm
+    return alarm.fireDate
+  }
+
+  async removeAlarm() {
+    const success = await updateRideAlarm(this.ride.rideId, undefined)
+    if (success) {
+      this.ride.alarm = undefined
+    }
+
+    return success
+  }
+
+  /** Moves the device's arrival alarm when the delay changed. A failed push is retried on the next delay update. */
+  private async syncAlarm() {
+    const alarm = this.ride.alarm
+    if (!alarm) return
+
+    const fireDate = getAlarmMove(alarm, this.route, Date.now())
+    if (fireDate === undefined) return
+
+    const sent = await sendAlarmMovedNotification(this.ride, alarm, this.route, fireDate, this.logger)
+    // The rider changed or removed the alarm while the push was in flight.
+    if (!sent || this.ride.alarm !== alarm) return
+
+    this.ride.alarm = { ...alarm, fireDate }
+    await updateRideAlarm(this.ride.rideId, this.ride.alarm)
+  }
+
   /**
    * @param isInitialRun Should be true only when called from `this.start()`, used to get the initial
    *                     values for last send notification
@@ -198,6 +234,7 @@ export class Scheduler {
 
       this.route = newRoute
       this.notificationsToSend = this.buildRideNotifications()
+      await this.syncAlarm()
 
       if (!isEmpty(this.notificationsToSend)) {
         this.logger.info(logNames.scheduler.updateDelay.updated, {

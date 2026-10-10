@@ -1,4 +1,5 @@
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { Pressable, Image, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
@@ -12,9 +13,9 @@ export function HeaderBackButton() {
   if (isLiquidGlassSupported) {
     return (
       <Pressable testID="header-back-button" onPress={() => router.back()}>
-        <LiquidGlassView interactive colorScheme="dark" style={styles.liquidWrapper}>
+        <GlassView isInteractive colorScheme="dark" style={styles.liquidWrapper}>
           <Image source={CHEVRON} style={styles.icon} />
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }

@@ -1,5 +1,7 @@
 import express from "express"
+import * as Sentry from "@sentry/bun"
 
+import { initSentry } from "./sentry"
 import { router } from "./routes/api"
 import { applySchema, getActiveFeed } from "./db"
 import { isRailApiConfigured } from "./requests/rail-api"
@@ -13,6 +15,8 @@ import { scheduleExistingRides } from "./utils/ride-utils"
 import { startStationAlerts } from "./station-alerts/watcher"
 import { startDelayGuards } from "./delay-guards/watcher"
 
+initSentry()
+
 const app = express()
 app.use(express.json())
 
@@ -21,6 +25,9 @@ app.use("/api/v1", router)
 app.get("/isAlive", (req, res) => {
   res.status(200).send("App is ready! 🚂")
 })
+
+// After the routes, so it sees their unhandled errors.
+Sentry.setupExpressErrorHandler(app)
 
 app.listen(port, async () => {
   startLogger()

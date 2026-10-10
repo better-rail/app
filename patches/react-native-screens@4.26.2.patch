@@ -1,8 +1,8 @@
 diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-index 04c53160789e9ef19529c532f83331859630d5f9..b8a06a6f29837379983406bd93ca921c8eb69035 100644
+index 76bb694854b29d7f779f38244cd48113b429ea1f..5cae7e4869fc14c74eeabf3a8ab818fa879556ce 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-@@ -450,27 +450,21 @@ class Screen(
+@@ -451,27 +451,21 @@ class Screen(
              return
          }
          isBeingRemoved = false
@@ -41,7 +41,7 @@ index 04c53160789e9ef19529c532f83331859630d5f9..b8a06a6f29837379983406bd93ca921c
  
                  if (parent is SwipeRefreshLayout && child is ImageView) {
                      // SwipeRefreshLayout class which has CircleImageView as a child,
-@@ -479,9 +473,12 @@ class Screen(
+@@ -480,9 +474,12 @@ class Screen(
                      // wrong index if we called `startViewTransition` on the views on new arch.
                      // We add a simple View to bump the number of children to make it work.
                      // TODO: find a better way to handle this scenario
@@ -56,7 +56,7 @@ index 04c53160789e9ef19529c532f83331859630d5f9..b8a06a6f29837379983406bd93ca921c
                  }
  
                  if (child is ScreenStackHeaderConfig) {
-@@ -497,6 +494,21 @@ class Screen(
+@@ -498,6 +495,21 @@ class Screen(
          }
      }
  
@@ -79,16 +79,14 @@ index 04c53160789e9ef19529c532f83331859630d5f9..b8a06a6f29837379983406bd93ca921c
      @SuppressLint("ClickableViewAccessibility")
      override fun onTouchEvent(event: MotionEvent?): Boolean =
 diff --git a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
-index bffd9c7c72f6f56e499f51d92e8ad3e597a63687..3e7e7e9028e1a55be72b8f3962162e0636f3d43c 100644
+index 9f9f8647a50a537d9eec0643db5be69d05089688..b9afc3c873c9e43c1921ddd039f2f365d20cf482 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
-@@ -76,6 +76,10 @@ class ScreenStack(
-     }
+@@ -83,6 +83,8 @@ class ScreenStack(
+             return
+         }
  
-     override fun endViewTransition(view: View) {
-+        if (view is ScreensCoordinatorLayout) {
-+            view.fragment.screen.endRemovalTransition()
-+        }
++        view.fragment.screen.endRemovalTransition()
 +
          super.endViewTransition(view)
  

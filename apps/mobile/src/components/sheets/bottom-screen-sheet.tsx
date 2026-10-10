@@ -2,7 +2,8 @@ import type { ReactNode } from "react"
 import { Platform, PlatformColor, View, type ViewStyle, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { BlurView } from "expo-blur"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 interface BottomScreenSheetProps {
   children: ReactNode
@@ -24,7 +25,7 @@ export function BottomScreenSheet({ children, style }: BottomScreenSheetProps) {
         />
       )}
       {Platform.OS === "ios" && isLiquidGlassSupported && (
-        <LiquidGlassView
+        <GlassView
           style={styles.overlay}
           tintColor={isDarkMode ? PlatformColor("systemThickMaterialDark") : PlatformColor("systemThickMaterialLight")}
         />
@@ -42,7 +43,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "space-between",
     position: "absolute",
     width: "100%",
-    borderTopColor: Platform.OS === "ios" ? theme.colors.separator : rt.colorScheme === "dark" ? "#454545" : "#c6c6c6",
+    borderTopColor: Platform.OS === "ios" ? theme.colors.separator : rt.themeName === "dark" ? "#454545" : "#c6c6c6",
     borderTopWidth: 1,
     backgroundColor: Platform.OS === "android" ? theme.colors.tertiaryBackground : undefined,
     paddingBottom: rt.insets.bottom > 0 ? 25 : 0,

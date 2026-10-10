@@ -7,7 +7,7 @@ import { formatRouteDuration, routeDurationInMs } from "@/utils/helpers/date-hel
 interface RouteCardPreviewProps {
   /** Forces the train info header on/off regardless of the `showRouteCardHeader` setting. */
   showHeaderOverride?: boolean
-  style?: ViewStyle
+  cardStyle?: ViewStyle
 }
 
 /**
@@ -18,7 +18,7 @@ interface RouteCardPreviewProps {
  * module-level constant would freeze it to whatever locale was active when the
  * module was first imported — often English, before the user's language is set.
  */
-export function RouteCardPreview({ showHeaderOverride, style }: RouteCardPreviewProps) {
+export function RouteCardPreview({ showHeaderOverride, cardStyle }: RouteCardPreviewProps) {
   const routeItem = ((): RouteItem => {
     const now = new Date().getTime()
     const arrivalTime = now + 1000 * 60 * 26
@@ -70,7 +70,7 @@ export function RouteCardPreview({ showHeaderOverride, style }: RouteCardPreview
       delay={0}
       routeItem={routeItem}
       showHeaderOverride={showHeaderOverride}
-      style={style}
+      cardStyle={cardStyle}
     />
   )
 }

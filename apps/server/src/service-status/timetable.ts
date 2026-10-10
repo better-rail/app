@@ -24,7 +24,8 @@ import { timetableCheckSeconds, timetableWindowMinutes } from "../data/config"
 import { getActiveFeed } from "../db"
 import { logNames, logger } from "../logs"
 import { type DayTrips, type StopNode, type TripData, loadDayTrips } from "../requests/gtfs-route-api"
-import { isRailApiConfigured, searchTrainOnRailApi } from "../requests/rail-api"
+import { isRailApiConfigured, searchTimetableOnRailApi } from "../requests/rail-api"
+import { LanguageCode, railApiLocales } from "../locales/i18n"
 import { naiveNowMs } from "../siri/correlate"
 import type { RailApiGetRoutesResult, Train } from "../types/rail-response"
 import { addDays, toIsoString } from "../utils/gtfs-time"
@@ -275,7 +276,15 @@ export type CheckDeps = {
 }
 
 const defaultDeps: CheckDeps = {
-  search: (pair, date, hour) => searchTrainOnRailApi(pair.from, pair.to, date, hour),
+  search: (pair, date, hour) =>
+    searchTimetableOnRailApi({
+      fromStation: pair.from,
+      toStation: pair.to,
+      date,
+      hour,
+      scheduleType: "ByDeparture",
+      languageId: railApiLocales[LanguageCode.he],
+    }),
   loadTrips: loadDayTrips,
   feedId: async () => (await getActiveFeed())?.feedId ?? null,
   nowNaiveMs: naiveNowMs,

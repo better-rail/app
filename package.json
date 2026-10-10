@@ -19,6 +19,7 @@
     "server:test": "bun run --filter @better-rail/server test",
     "server:siri": "bun run --filter @better-rail/server siri",
     "server:ingest": "bun run --filter @better-rail/server ingest",
+    "server:rail:pull": "bun run --filter @better-rail/server rail:pull",
     "website:dev": "bun run --filter @better-rail/website dev",
     "test": "bun run mobile:test && bun run server:test",
     "lint": "oxlint && oxfmt --check",
@@ -41,9 +42,8 @@
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
-    "react-native-screens@4.25.2": "patches/react-native-screens@4.25.2.patch",
-    "expo-modules-core@56.0.17": "patches/expo-modules-core@56.0.17.patch",
-    "expo@56.0.12": "patches/expo@56.0.12.patch",
+    "react-native-screens@4.26.2": "patches/react-native-screens@4.26.2.patch",
+    "expo-notifications@57.0.21": "patches/expo-notifications@57.0.21.patch",
     "@bacons/apple-targets@4.0.7": "patches/@bacons%2Fapple-targets@4.0.7.patch"
   }
 }

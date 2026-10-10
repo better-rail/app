@@ -4,7 +4,8 @@ import { AccessibilityState } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { translate } from "@/i18n"
 import { TouchableOpacity } from "react-native-gesture-handler"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const starImage = require("../../../assets/star.png")
 
@@ -31,9 +32,9 @@ export function StarIcon(props: StarIconProps) {
         accessibilityLabel={translate("favorites.title") ?? undefined}
         accessibilityState={{ selected: filled } as AccessibilityState}
       >
-        <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
+        <GlassView isInteractive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
           <Image source={starImage} style={[styles.starIcon, styles.starState(filled)]} accessible={false} />
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }

@@ -15,11 +15,18 @@ struct BetterRailLiveActivity: Widget {
   }
   
   var body: some WidgetConfiguration {
+    // Opts the activity into the Apple Watch Smart Stack card; without it watchOS falls
+    // back to the minimal Dynamic Island view.
+    if #available(iOS 18.0, *) {
+      return configuration.supplementalActivityFamilies([.small])
+    } else {
+      return configuration
+    }
+  }
+
+  private var configuration: some WidgetConfiguration {
       ActivityConfiguration(for: BetterRailActivityAttributes.self) { context in
-        // Lock screen/banner UI goes here
-        LockScreenLiveActivityView(vm: ActivityViewModel(context: context))
-          .padding()
-          .background(Color(UIColor.systemBackground))
+        LiveActivityContentView(vm: ActivityViewModel(context: context))
           .widgetURL(deepLinkURL(context.attributes.trainNumbers))
 
       } dynamicIsland: { context in

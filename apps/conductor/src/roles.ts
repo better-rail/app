@@ -1,0 +1,69 @@
+import type { ConductorConfig } from "./config"
+import type { DiscordApi, DiscordMember, DiscordRole } from "./discord"
+import { platforms } from "./messages"
+
+// Renamed roles, or roles later given permissions, are never self-assignable.
+// Discord breaks equal-position ties by snowflake: the older role is higher.
+export const isBelowRole = (role: DiscordRole, higher: DiscordRole) =>
+  role.position < higher.position || (role.position === higher.position && BigInt(role.id) > BigInt(higher.id))
+
+export const isFlairRole = (role: DiscordRole, name: string, botRoles: DiscordRole[]) =>
+  role.name === name && role.permissions === "0" && !role.managed && botRoles.some((botRole) => isBelowRole(role, botRole))
+
+export class OnboardingRoles {
+  private pending = new Map<string, Promise<unknown>>()
+
+  constructor(
+    private config: ConductorConfig,
+    private api: DiscordApi,
+  ) {}
+
+  async choose(userId: string, platformId: string) {
+    const operation = (this.pending.get(userId) ?? Promise.resolve()).catch(() => {}).then(() => this.update(userId, platformId))
+    this.pending.set(userId, operation)
+    try {
+      return await operation
+    } finally {
+      if (this.pending.get(userId) === operation) this.pending.delete(userId)
+    }
+  }
+
+  private async update(userId: string, platformId: string) {
+    const guild = `/guilds/${this.config.guildId}`
+    const memberPath = `${guild}/members/${userId}`
+    const [roles, bot, member] = await Promise.all([
+      this.api.call<DiscordRole[]>("GET", `${guild}/roles`),
+      this.api.call<DiscordMember>("GET", `${guild}/members/${this.config.applicationId}`),
+      this.api.call<DiscordMember>("GET", memberPath),
+    ])
+    const botRoles = roles.filter((role) => bot.roles.includes(role.id))
+    const options = platforms.flatMap((platform) => {
+      const role = roles.find((candidate) => candidate.id === this.config.platformRoles[platform.id])
+      return role && isFlairRole(role, platform.name, botRoles) ? [{ platform, role }] : []
+    })
+    const target = options.find(({ platform }) => platform.id === platformId)
+    if (!target) throw new Error("That role is unavailable")
+    // Record compensation before each request: a timeout can follow a successful mutation.
+    const undo: { method: "PUT" | "DELETE"; roleId: string }[] = []
+    async function mutate(api: DiscordApi, method: "PUT" | "DELETE", roleId: string) {
+      undo.push({ method: method === "PUT" ? "DELETE" : "PUT", roleId })
+      await api.call(method, `${memberPath}/roles/${roleId}`)
+    }
+    try {
+      // Add first to preserve the old choice if assignment fails.
+      if (!member.roles.includes(target.role.id)) await mutate(this.api, "PUT", target.role.id)
+      for (const { role } of options) {
+        if (role.id !== target.role.id && member.roles.includes(role.id)) await mutate(this.api, "DELETE", role.id)
+      }
+    } catch (error) {
+      const failures: unknown[] = []
+      for (const { method, roleId } of undo.reverse()) {
+        await this.api.call(method, `${memberPath}/roles/${roleId}`).catch((rollbackError: unknown) => {
+          failures.push(rollbackError)
+        })
+      }
+      if (failures.length) throw new AggregateError([error, ...failures], "Role update failed and rollback was incomplete")
+      throw error
+    }
+  }
+}

@@ -4,8 +4,9 @@ import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/rea
 import { RideState, RideStatus, getStatusEndDate, rideProgress } from "@/hooks/use-ride-progress"
 import { RideApi, RouteItem } from "@/services/api"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { addMinutes, addSeconds, differenceInMinutes, format } from "date-fns"
-import { getInitialLanguage, translate } from "@/i18n"
+import { addMinutes, addSeconds, differenceInMinutes } from "date-fns"
+import { formatTime } from "./helpers/date-helpers"
+import { getInitialLanguage, resolveUse12HourClock, translate, type LanguageCode } from "@/i18n"
 import i18n from "i18n-js"
 import {
   getRideRoute,
@@ -20,11 +21,13 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
+import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
 import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
-import { getPushToken } from "./push-subscription-sync"
 import { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL } from "./push-channels"
+import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
+import { trackEvent } from "@/services/analytics"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -50,11 +53,12 @@ Notifications.setNotificationHandler({
 export { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL }
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
+const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
 // Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
 // differs between the background task and the foreground listener, so probe the known
 // locations. VERIFY the resolved shape on a real device (see migration notes).
-const extractDataPayload = (raw: any): Record<string, string> | null => {
+const extractFcmData = (raw: any): Record<string, string> | null => {
   const data =
     raw?.notification?.request?.content?.data ??
     raw?.notification?.request?.trigger?.remoteMessage?.data ??
@@ -65,11 +69,10 @@ const extractDataPayload = (raw: any): Record<string, string> | null => {
   return data && typeof data === "object" && typeof data.type === "string" ? data : null
 }
 
-/** A data message from the server, of whichever kind: live-ride updates, or a station alert. */
-const handleDataMessage = async (raw: any): Promise<void> => {
-  const data = extractDataPayload(raw)
-  if (!data) return
-  if (data.type === "live-ride") return handleLiveRideNotification(data)
+/** A data message from the server: live-ride and arrival-alarm updates, a station alert or a Delay Notification. */
+const handleFcmData = (data: Record<string, string> | null) => {
+  if (data?.type === "live-ride") return handleLiveRideNotification(data)
+  if (data?.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
   if (isStationAlertPayload(data)) return handleAlertNotification(data, STATION_ALERTS_CHANNEL)
   if (isDelayGuardPayload(data)) return handleAlertNotification(data, DELAY_GUARD_CHANNEL)
 }
@@ -78,10 +81,66 @@ const handleDataMessage = async (raw: any): Promise<void> => {
 // the app is woken from a killed/background state to process a live-ride data message.
 TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
   if (error) return
-  await handleDataMessage(data)
+  return handleFcmData(extractFcmData(data))
+})
+
+const ARRIVAL_ALARM_UPDATES_CHANNEL = "better-rail-alarm-updates"
+
+// Android: the server sends a data message when the arrival time changed. Move the alarm, then tell
+// the rider quietly, like the passive notification iOS shows.
+const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
+  const push = { rideId: data.rideId, alarmId: data.alarmId, fireDate: Number(data.fireDate) }
+  if (!push.rideId || !push.alarmId || !Number.isFinite(push.fireDate)) return
+
+  // A push for an alarm the rider turned off or changed, or that already rang.
+  const current = await getArrivalAlarm().catch(() => null)
+  if (current?.alarmId !== push.alarmId || !current.isScheduled) return
+
+  const moved = await moveArrivalAlarm(push).catch(() => false)
+  await notifee.displayNotification({
+    id: `arrival-alarm-${push.rideId}`,
+    title: data.title,
+    body: moved ? data.body : data.failedBody,
+    android: {
+      channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
+      smallIcon: "notification_icon",
+      pressAction: { id: "default" },
+      // Pointless once the alarm rang.
+      timeoutAfter: Math.max(push.fireDate * 1000 - Date.now(), 60 * 1000),
+    },
+  })
+}
+
+type ArrivalAlarmPush = { rideId: string; alarmId: string; fireDate: number }
+
+// Finds the `alarm` object of an arrival-alarm push, wherever expo-notifications nested it.
+const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null => {
+  if (!raw || typeof raw !== "object" || depth > 5) return null
+  const alarm = (raw as Record<string, any>).alarm
+  if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && typeof alarm.fireDate === "number") {
+    return alarm
+  }
+
+  for (const value of Object.values(raw)) {
+    const found = findArrivalAlarmPush(value, depth + 1)
+    if (found) return found
+  }
+  return null
+}
+
+// iOS: the arrival-alarm push also wakes a suspended app, a fallback for when the notification
+// service extension couldn't move the alarm. Moving it twice to the same time is harmless.
+TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, ({ data, error }) => {
+  if (error || Platform.OS !== "ios") return
+  const push = findArrivalAlarmPush(data)
+  if (push) return moveArrivalAlarm(push).catch(() => {})
 })
 
 export const configureNotifications = async () => {
+  if (Platform.OS === "ios" && isArrivalAlarmSupported()) {
+    await Notifications.registerTaskAsync(BACKGROUND_ARRIVAL_ALARM_TASK)
+  }
+
   if (Platform.OS === "android") {
     // Awaited: Android 13+ shows the notification permission prompt only once a channel exists,
     // and the alerts' channels have to be there before the first alert arrives.
@@ -120,9 +179,19 @@ export const configureNotifications = async () => {
     // Background / killed: expo-notifications wakes the JS task defined at module scope.
     await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
+    if (isArrivalAlarmSupported()) {
+      notifee.createChannel({
+        id: ARRIVAL_ALARM_UPDATES_CHANNEL,
+        name: "Better Rail Alarm Updates",
+        description: "Tells you when the arrival alarm moved because of a delay",
+        importance: AndroidImportance.LOW,
+        vibration: false,
+      })
+    }
+
     // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
-      handleDataMessage(notification).catch(() => {})
+      handleFcmData(extractFcmData(notification))?.catch(() => {})
     })
 
     notifee.onBackgroundEvent(async ({ type, detail }) => {
@@ -207,7 +276,10 @@ export const startRideNotifications = async (route: RouteItem) => {
   // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
   let token: string
   try {
-    token = await getPushToken()
+    const pushToken = await getDevicePushTokenWithAuthRetry(Notifications.getDevicePushTokenAsync, (outcome) =>
+      trackEvent("push_token_auth_retry", { outcome }),
+    )
+    token = String(pushToken.data)
   } catch (error) {
     throw new RideStartError("push_token", "Couldn't get a device push token", {
       cause: error,
@@ -329,10 +401,9 @@ const getTitleText = (route: RouteItem, state: RideState) => {
     return translate("plan.rideTo", { destination: getRideDestination(route) })
   }
 
-  const minutes = differenceInMinutes(targetDate, Date.now(), {
-    roundingMethod: "ceil",
-  })
-  const time = format(targetDate, "HH:mm")
+  const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
+  // a background wake never runs setUserLanguage, so resolve the clock style here
+  const time = formatTime(targetDate, resolveUse12HourClock(i18n.locale as LanguageCode))
   const timeText = "(" + time + ")"
 
   if (state.status === "stale") {

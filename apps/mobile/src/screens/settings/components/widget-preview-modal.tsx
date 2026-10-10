@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Dimensions, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
+import { Dimensions, I18nManager, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { TxKeyPath } from "@/i18n"
 import { WidgetFamily } from "@/utils/widget-helpers"
-import { WidgetPreviewCompact, WidgetPreviewWide } from "./widget-previews"
+import { WidgetPreviewCompact, WidgetPreviewLarge, WidgetPreviewWide } from "./widget-previews"
 
 const CARD_WIDTH = Math.min(Dimensions.get("window").width - 48, 340)
 
@@ -17,16 +17,22 @@ interface WidgetOption {
 
 const WIDGETS: WidgetOption[] = [
   {
+    family: "compact",
+    titleTx: "settings.widgetSizeCompact",
+    descTx: "settings.widgetCompactDesc",
+    component: WidgetPreviewCompact,
+  },
+  {
     family: "wide",
     titleTx: "settings.widgetSizeWide",
     descTx: "settings.widgetWideDesc",
     component: WidgetPreviewWide,
   },
   {
-    family: "compact",
-    titleTx: "settings.widgetSizeCompact",
-    descTx: "settings.widgetCompactDesc",
-    component: WidgetPreviewCompact,
+    family: "large",
+    titleTx: "settings.widgetSizeLarge",
+    descTx: "settings.widgetLargeDesc",
+    component: WidgetPreviewLarge,
   },
 ]
 
@@ -39,34 +45,64 @@ interface WidgetPreviewModalProps {
 export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewModalProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const scrollRef = useRef<ScrollView>(null)
+  const isRTLAndroid = Platform.OS === "android" && I18nManager.isRTL
+
+  const getScrollXForIndex = (index: number) => {
+    return isRTLAndroid
+      ? (WIDGETS.length - 1 - index) * CARD_WIDTH
+      : index * CARD_WIDTH
+  }
+
+  const getIndexFromScrollEvent = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent
+    const rawX = contentOffset.x
+    const totalWidth = contentSize?.width && contentSize.width > 0 ? contentSize.width : WIDGETS.length * CARD_WIDTH
+    const viewWidth = layoutMeasurement?.width && layoutMeasurement.width > 0 ? layoutMeasurement.width : CARD_WIDTH
+    const maxScroll = Math.max(0, totalWidth - viewWidth)
+
+    let scrollX = rawX
+    if (isRTLAndroid) {
+      if (rawX < 0) {
+        scrollX = Math.abs(rawX)
+      } else if (maxScroll > 0) {
+        scrollX = maxScroll - rawX
+      } else {
+        scrollX = (WIDGETS.length - 1) * CARD_WIDTH - rawX
+      }
+    }
+    const nextIndex = Math.round(scrollX / CARD_WIDTH)
+    return Math.max(0, Math.min(WIDGETS.length - 1, nextIndex))
+  }
 
   useEffect(() => {
     if (visible) {
       setActiveIndex(0)
-      scrollRef.current?.scrollTo({ x: 0, animated: false })
+      const initialX = isRTLAndroid ? getScrollXForIndex(0) : 0
+      scrollRef.current?.scrollTo({ x: initialX, animated: false })
     }
   }, [visible])
 
   const scrollTo = (index: number) => {
     setActiveIndex(index)
-    scrollRef.current?.scrollTo({ x: index * CARD_WIDTH, animated: true })
+    scrollRef.current?.scrollTo({ x: getScrollXForIndex(index), animated: true })
   }
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextIndex = Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH)
-    if (nextIndex >= 0 && nextIndex < WIDGETS.length && nextIndex !== activeIndex) {
+    const nextIndex = getIndexFromScrollEvent(e)
+    if (nextIndex !== activeIndex) {
       setActiveIndex(nextIndex)
     }
   }
 
   const handleClose = () => {
     setActiveIndex(0)
-    scrollRef.current?.scrollTo({ x: 0, animated: false })
+    const initialX = isRTLAndroid ? getScrollXForIndex(0) : 0
+    scrollRef.current?.scrollTo({ x: initialX, animated: false })
     onClose()
   }
 
   const handlePin = () => {
-    const selected = WIDGETS[activeIndex]?.family ?? "wide"
+    const selected = WIDGETS[activeIndex]?.family ?? "compact"
     onPin(selected)
     handleClose()
   }
@@ -84,6 +120,7 @@ export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewMod
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
               onMomentumScrollEnd={handleScroll}
               onScrollEndDrag={handleScroll}
               scrollEventThrottle={16}
@@ -158,7 +195,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   carouselWrapper: {
     width: CARD_WIDTH,
-    height: 236,
+    height: 300,
   },
   card: {
     width: CARD_WIDTH,
@@ -168,7 +205,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   imageWrapper: {
     width: "100%",
-    height: 140,
+    height: 214,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: theme.spacing[2],

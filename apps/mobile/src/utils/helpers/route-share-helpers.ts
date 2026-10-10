@@ -1,6 +1,7 @@
 import * as Clipboard from "expo-clipboard"
 import Share from "react-native-share"
 import { format } from "date-fns"
+import { formatTime } from "./date-helpers"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import * as Sentry from "@sentry/react-native"
@@ -19,8 +20,8 @@ function buildRouteData(routeItem: RouteItem, originId: string, destinationId: s
   const originName = stationsObject[originId]?.[stationLocale] || "Unknown Station"
   const destinationName = stationsObject[destinationId]?.[stationLocale] || "Unknown Station"
 
-  const departureTime = format(new Date(routeItem.departureTime), "HH:mm")
-  const arrivalTime = format(new Date(routeItem.arrivalTime), "HH:mm")
+  const departureTime = formatTime(routeItem.departureTime)
+  const arrivalTime = formatTime(routeItem.arrivalTime)
   const departureDate = format(new Date(routeItem.departureTime), "dd/MM/yyyy")
 
   const exchangeInfo = routeItem.isExchange
@@ -36,8 +37,8 @@ function buildRouteData(routeItem: RouteItem, originId: string, destinationId: s
   const trainDetails = routeItem.trains.map((train, index) => ({
     index: index + 1,
     trainNumber: train.trainNumber,
-    departureTime: format(new Date(train.departureTime), "HH:mm"),
-    arrivalTime: format(new Date(train.arrivalTime), "HH:mm"),
+    departureTime: formatTime(train.departureTime),
+    arrivalTime: formatTime(train.arrivalTime),
   }))
 
   return {

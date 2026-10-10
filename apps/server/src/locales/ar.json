@@ -17,6 +17,13 @@
       "unsafeChange": "هذا التغيير غير مضمون.",
       "stayOnPlatform": "ابق في المنصة %{platform}.",
       "changePlatform": "انتقل إلى المنصة %{platform}."
+    },
+    "alarm": {
+      "moved": {
+        "title": "تم نقل المنبه إلى %{time}",
+        "description": "سيرن قبل %{minutes} دقائق من الوصول إلى %{station}."
+      },
+      "failed": "تغيّر وقت وصولك. افتح Better Rail لتحديث المنبه."
     }
   },
   "stationAlerts": {

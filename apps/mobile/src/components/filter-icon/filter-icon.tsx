@@ -4,12 +4,15 @@ import { StyleSheet } from "react-native-unistyles"
 import { Svg, Line, Circle } from "react-native-svg"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 export interface FilterIconProps {
   style?: ViewStyle
   onPress: () => void
   active: boolean
+  /** How many filters are on. Announced by screen readers; the dot carries it visually. */
+  count?: number
 }
 
 const ICON_COLOR = "lightgrey"
@@ -27,7 +30,8 @@ function FilterGlyph({ active }: { active: boolean }) {
 }
 
 export function FilterIcon(props: FilterIconProps) {
-  const { onPress, active, style } = props
+  const { onPress, active, style, count = 0 } = props
+  const label = active && count > 0 ? translate("routes.filtersActive", { count }) : translate("routes.filter")
 
   if (isLiquidGlassSupported) {
     return (
@@ -36,12 +40,12 @@ export function FilterIcon(props: FilterIconProps) {
         onPress={onPress}
         style={[styles.container, style]}
         accessibilityRole="button"
-        accessibilityLabel={translate("routes.filter")}
+        accessibilityLabel={label}
         accessibilityState={{ selected: active }}
       >
-        <LiquidGlassView interactive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
+        <GlassView isInteractive colorScheme="dark" tintColor="rgba(51, 51, 51, 0.9)" style={styles.liquidGlass}>
           <FilterGlyph active={active} />
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }
@@ -52,7 +56,7 @@ export function FilterIcon(props: FilterIconProps) {
       onPress={onPress}
       style={[styles.container, style]}
       accessibilityRole="button"
-      accessibilityLabel={translate("routes.filter")}
+      accessibilityLabel={label}
       accessibilityState={{ selected: active }}
       hitSlop={10}
     >

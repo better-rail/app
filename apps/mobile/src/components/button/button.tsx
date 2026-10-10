@@ -1,16 +1,17 @@
 import React, { useState, ReactNode } from "react"
 import { View, Pressable, ViewStyle, TextStyle, ButtonProps, Platform, ActivityIndicator } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
-import { LiquidGlassView, isLiquidGlassSupported } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
  *
  * Kept as a plain object because it's shared cross-file (e.g. the paywall subscribe button
  * layers it under a `LinearGradient`) and merged imperatively via `Object.assign` below.
- * Colors here are platform-adaptive (`color.primary`), so they still react to appearance natively.
+ * The component replaces the base color with the active Unistyles theme at render time.
  */
 export const PRESSABLE_BASE: ViewStyle = {
   flexGrow: 1,
@@ -40,11 +41,12 @@ export interface CustomButtonProps extends ButtonProps {
 }
 
 export const Button = function Button(props: CustomButtonProps) {
+  const { theme } = useUnistyles()
   const [isPressed, setIsPressed] = useState(false)
   const { title, onPress, loading = false, disabled, textStyle, containerStyle, size, icon, style, variant = "primary" } = props
 
   const PRESSABLE_STYLE = (() => {
-    let modifiedStyles = Object.assign({}, PRESSABLE_BASE, style)
+    let modifiedStyles = Object.assign({}, PRESSABLE_BASE, { backgroundColor: theme.colors.primary }, style)
     if (size === "small") modifiedStyles = Object.assign({}, modifiedStyles, smallButtonStyle)
     if (Platform.OS === "ios") {
       if (isPressed && !disabled) {
@@ -57,14 +59,14 @@ export const Button = function Button(props: CustomButtonProps) {
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled} testID={props.testID}>
-        <LiquidGlassView
-          interactive={!!onPress}
-          style={[styles.liquidGlass, style]}
-          tintColor={disabled ? color.disabled : (style?.backgroundColor ?? color[variant])}
+        <GlassView
+          isInteractive={!!onPress}
+          style={[styles.liquidGlass, style, styles.liquidGlassNoFill]}
+          tintColor={disabled ? theme.colors.disabled : (style?.backgroundColor ?? theme.colors[variant])}
         >
           <View style={styles.textWrapper}>
             {loading ? (
-              <ActivityIndicator color={color.whiteText} />
+              <ActivityIndicator color={theme.colors.whiteText} />
             ) : (
               <>
                 {icon}
@@ -74,7 +76,7 @@ export const Button = function Button(props: CustomButtonProps) {
               </>
             )}
           </View>
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   } else {
@@ -82,10 +84,10 @@ export const Button = function Button(props: CustomButtonProps) {
       <View style={[styles.buttonWrapper, containerStyle]}>
         <Pressable
           testID={props.testID}
-          style={[PRESSABLE_STYLE, disabled && { backgroundColor: color.disabled }]}
+          style={[PRESSABLE_STYLE, disabled && { backgroundColor: theme.colors.disabled }]}
           onPressIn={() => setIsPressed(true)}
           onPressOut={() => setIsPressed(false)}
-          android_ripple={{ color: color.primaryLighter }}
+          android_ripple={{ color: theme.colors.primaryLighter }}
           onPress={(e) => {
             if (disabled) {
               if (props.onDisabledPress) props.onDisabledPress()
@@ -95,7 +97,7 @@ export const Button = function Button(props: CustomButtonProps) {
           }}
         >
           {loading ? (
-            <ActivityIndicator color={color.whiteText} />
+            <ActivityIndicator color={theme.colors.whiteText} />
           ) : (
             <View style={styles.textWrapper}>
               {icon}
@@ -149,5 +151,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: 16,
     borderCurve: "continuous",
     justifyContent: "center",
+  },
+  // A caller's `backgroundColor` becomes the glass tint; painting it too shows a solid fill behind the glass.
+  liquidGlassNoFill: {
+    backgroundColor: "transparent",
   },
 }))

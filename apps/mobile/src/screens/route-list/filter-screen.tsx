@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import type { MaxChanges } from "@/models/settings/settings"
 import { SettingBox } from "@/screens/settings/components/settings-box"
-import { SETTING_GROUP, SETTING_GROUP_TITLE } from "@/screens/settings/settings-styles"
+import { settingsStyles } from "@/screens/settings/settings-styles"
 import { translate, TxKeyPath } from "@/i18n"
 
 const CHANGES_OPTIONS: { label: TxKeyPath; value: MaxChanges }[] = [
@@ -28,7 +28,7 @@ export function FilterScreen() {
     <View testID="route-filter-screen" style={styles.wrapper}>
       <Text style={styles.title}>{translate("routes.filter")}</Text>
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="filter-hide-slow-trains"
           first
@@ -42,8 +42,8 @@ export function FilterScreen() {
 
       <Text style={styles.description}>{translate("routes.slowTrainsDescription")}</Text>
 
-      <Text style={SETTING_GROUP_TITLE}>{translate("routes.changesFilterTitle")}</Text>
-      <View style={SETTING_GROUP}>
+      <Text style={styles.groupTitle}>{translate("routes.changesFilterTitle")}</Text>
+      <View style={settingsStyles.group}>
         {CHANGES_OPTIONS.map((option, index) => (
           <SettingBox
             testID={`filter-changes-${option.value ?? "any"}`}
@@ -78,5 +78,11 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 14,
     paddingHorizontal: theme.spacing[2],
     opacity: 0.8,
+  },
+  groupTitle: {
+    marginStart: theme.spacing[3],
+    color: theme.colors.label,
+    fontSize: 16,
+    fontWeight: "600",
   },
 }))

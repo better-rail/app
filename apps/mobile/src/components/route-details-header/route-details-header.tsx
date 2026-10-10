@@ -1,9 +1,9 @@
 import { useRef, useEffect } from "react"
-import { Image, ImageBackground, View, Animated as RNAnimated, Pressable } from "react-native"
+import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
 import { openDelayGuardSheet } from "@/utils/helpers/delay-guard-helpers"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter, useNavigation } from "expo-router"
+import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -11,23 +11,38 @@ import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
 import { IS_E2E } from "@/config/e2e"
 import { FilterIcon } from "@/components/filter-icon/filter-icon"
+import { FaresIcon } from "@/components/fares-icon/fares-icon"
 import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
-import { useFavoritesStore, useRoutePlanStore, useSettingsStore } from "@/models"
+import { useFavoritesStore, useRoutePlanStore, useSettingsStore, activeFilterCount } from "@/models"
 import * as Burnt from "burnt"
 import type { RouteItem } from "@/services/api"
 import { ContextMenu } from "@/components/context-menu/context-menu"
 import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "@/utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "@/components/route-card/route-context-menu-actions"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
+
+/** A plain Image, not `MenuIcon`: a Touchable child would swallow the menu's tap. */
+function HeaderMenuIcon({ active }: { active?: boolean }) {
+  return (
+    <Image
+      source={ellipsisIcon}
+      accessible
+      accessibilityRole="button"
+      accessibilityLabel={translate("routes.routeActions")}
+      style={[styles.headerMenuIcon, active && styles.headerMenuIconActive]}
+    />
+  )
+}
 
 export interface RouteDetailsHeaderProps {
   originId: string
@@ -55,7 +70,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     destination: routePlanDestination,
     switchDirection,
   } = useRoutePlanStore(useShallow((s) => ({ origin: s.origin, destination: s.destination, switchDirection: s.switchDirection })))
-  const isFilterActive = useSettingsStore((s) => s.hideSlowTrains || s.maxChanges !== null)
+  const filterCount = useSettingsStore(activeFilterCount)
+  const isFilterActive = filterCount > 0
   const router = useRouter()
   const navigation = useNavigation()
   const insets = useSafeAreaInsets()
@@ -71,6 +87,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const destinationName = destinationStation?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
+  const useNativeRouteListToolbar = screenName === "routeList" && Platform.OS === "ios" && isLiquidGlassSupported
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -112,6 +129,30 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       // Error handling is already done in the helper
       console.error("Failed to add to calendar:", error)
     }
+  }
+
+  const openFaresSheet = () => {
+    HapticFeedback.trigger("impactMedium")
+    router.push({ pathname: "/fares", params: { originId, destinationId } })
+  }
+
+  const handleFavoritePress = () => {
+    const favorite = { id: routeId, originId, destinationId }
+    if (!isFavorite) {
+      if (!IS_E2E) Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
+      HapticFeedback.trigger("impactMedium")
+      addFavorite(favorite)
+      trackEvent("favorite_route_added")
+    } else {
+      HapticFeedback.trigger("impactLight")
+      removeFavorite(favorite.id)
+      trackEvent("favorite_route_removed")
+    }
+  }
+
+  const openFilterSheet = () => {
+    HapticFeedback.trigger("impactMedium")
+    router.push("/filter")
   }
 
   const routeMenuActions = (() => {
@@ -159,6 +200,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           onPress: () => setShowEntireRoute((prev) => !prev),
         },
         {
+          title: translate("fares.title"),
+          systemIcon: "shekelsign.circle",
+          onPress: openFaresSheet,
+        },
+        {
           title: translate("delayGuard.title") ?? "",
           systemIcon: "bell.badge",
           onPress: () => routeItem && openDelayGuardSheet(routeItem, "route_details"),
@@ -168,67 +214,116 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       if (isLiquidGlassSupported) {
         return (
           <ContextMenu mode="tap" actions={actions}>
-            <LiquidGlassView interactive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
+            <GlassView isInteractive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
               <MenuIcon />
-            </LiquidGlassView>
+            </GlassView>
           </ContextMenu>
         )
       }
 
       return (
         <ContextMenu mode="tap" actions={actions}>
-          <Image
-            source={ellipsisIcon}
-            style={{
-              width: 23,
-              height: 23,
-              resizeMode: "contain",
-              tintColor: "lightgrey",
-              opacity: 0.9,
-            }}
-          />
+          <HeaderMenuIcon />
         </ContextMenu>
       )
-    }
-
-    const handleFavoritePress = () => {
-      const favorite = { id: routeId, originId, destinationId }
-      if (!isFavorite) {
-        if (!IS_E2E) Burnt.alert({ title: translate("favorites.added"), duration: 1.5 })
-        HapticFeedback.trigger("impactMedium")
-        addFavorite(favorite)
-        trackEvent("favorite_route_added")
-      } else {
-        HapticFeedback.trigger("impactLight")
-        removeFavorite(favorite.id)
-        trackEvent("favorite_route_removed")
-      }
-    }
-
-    const openFilterSheet = () => {
-      HapticFeedback.trigger("impactMedium")
-      router.push("/filter")
     }
 
     if (isLiquidGlassSupported) {
       return (
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
           <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <FilterIcon active={isFilterActive} onPress={openFilterSheet} />
+          <FaresIcon onPress={openFaresSheet} />
+          <FilterIcon active={isFilterActive} count={filterCount} onPress={openFilterSheet} />
         </View>
       )
     }
 
+    // Mirrors the iOS 26 toolbar: fares and filter sit behind one ellipsis menu.
+    const routeListActions = [
+      {
+        title: translate("fares.title"),
+        systemIcon: "shekelsign.circle",
+        onPress: openFaresSheet,
+      },
+      {
+        title: isFilterActive ? `${translate("routes.filter")} (${filterCount})` : translate("routes.filter"),
+        systemIcon: "line.3.horizontal.decrease",
+        selected: isFilterActive,
+        onPress: openFilterSheet,
+      },
+    ]
+
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <FilterIcon style={{ marginLeft: spacing[2] }} active={isFilterActive} onPress={openFilterSheet} />
+        <ContextMenu mode="tap" style={{ marginLeft: spacing[3] }} actions={routeListActions}>
+          <HeaderMenuIcon active={isFilterActive} />
+        </ContextMenu>
       </>
     )
   }
 
   return (
     <>
+      {useNativeRouteListToolbar && (
+        <Stack.Screen
+          options={{
+            headerShown: true,
+            headerTransparent: true,
+            headerTitle: "",
+            unstable_headerRightItems: () => [
+              {
+                type: "button",
+                label: "",
+                sharesBackground: false,
+                tintColor: isFavorite ? color.palette.orangeMuted : undefined,
+                icon: { type: "sfSymbol", name: "star" },
+                accessibilityLabel: translate("favorites.title") ?? undefined,
+                onPress: handleFavoritePress,
+              },
+              {
+                type: "menu",
+                label: "",
+                sharesBackground: false,
+                // The default red reads as an alert, so use the filter icon's orange instead.
+                badge: isFilterActive
+                  ? {
+                      value: String(filterCount),
+                      style: {
+                        backgroundColor: color.palette.orange,
+                        color: color.palette.black,
+                        fontSize: 12,
+                        fontWeight: "600",
+                      },
+                    }
+                  : undefined,
+                icon: { type: "sfSymbol", name: "ellipsis" },
+                accessibilityLabel: translate("routes.routeActions") ?? undefined,
+                menu: {
+                  items: [
+                    {
+                      type: "action",
+                      label: translate("fares.title") ?? "",
+                      icon: { type: "sfSymbol", name: "shekelsign" },
+                      onPress: openFaresSheet,
+                    },
+                    {
+                      type: "action",
+                      label: isFilterActive
+                        ? `${translate("routes.filter")} (${filterCount})`
+                        : (translate("routes.filter") ?? ""),
+                      icon: { type: "sfSymbol", name: "line.3.horizontal.decrease" },
+                      state: isFilterActive ? "on" : "off",
+                      onPress: openFilterSheet,
+                    },
+                  ],
+                },
+              },
+            ],
+          }}
+        />
+      )}
+
       <ImageBackground
         source={originStation?.image}
         style={{
@@ -239,7 +334,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && (
+        {screenName !== "activeRide" && !useNativeRouteListToolbar && (
           <View
             style={{
               position: "absolute",
@@ -292,9 +387,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <LiquidGlassView interactive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
+            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
               <Image source={arrowIcon} style={styles.arrowIcon} />
-            </LiquidGlassView>
+            </GlassView>
           </Pressable>
 
           <RouteStationNameButton
@@ -313,6 +408,18 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 }
 
 const styles = StyleSheet.create((theme, rt) => ({
+  headerMenuIcon: {
+    width: 23,
+    height: 23,
+    resizeMode: "contain",
+    tintColor: "lightgrey",
+    opacity: 0.9,
+  },
+  // No badge outside iOS 26, so the glyph itself carries the active filter.
+  headerMenuIconActive: {
+    tintColor: theme.colors.palette.orange,
+    opacity: 1,
+  },
   routeDetailsWrapper: {
     flexDirection: "row",
     justifyContent: "center",
@@ -327,7 +434,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { width: 0, height: 1 },
     shadowColor: theme.colors.dim,
     shadowRadius: 1,
-    shadowOpacity: rt.colorScheme === "dark" ? 0 : 0.45,
+    shadowOpacity: rt.themeName === "dark" ? 0 : 0.45,
     elevation: 3,
     zIndex: 0,
   },
@@ -340,7 +447,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     height: 34,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.secondary,
+    // Glass takes its color from `tintColor`; a fill would show as a solid disc behind it.
+    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.secondary,
     borderRadius: 25,
     elevation: 3,
   },

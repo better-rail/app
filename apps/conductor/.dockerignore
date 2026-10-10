@@ -1,0 +1,4 @@
+.env*
+.conductor-setup.json
+node_modules
+src/*.test.ts

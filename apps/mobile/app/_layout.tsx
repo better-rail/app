@@ -1,13 +1,13 @@
 import "@/i18n"
 import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform, useColorScheme } from "react-native"
+import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
@@ -22,7 +22,13 @@ import * as storage from "@/utils/storage"
 import { setupRootStore, RoutesNotFoundError } from "@/models"
 import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
-import { setInitialLanguage, setUserLanguage } from "@/i18n/i18n"
+import {
+  changeUserLanguage,
+  getLanguageChangedInIOSSettings,
+  isRTLLanguage,
+  setInitialLanguage,
+  setUserLanguage,
+} from "@/i18n/i18n"
 import { translate } from "@/i18n"
 import { posthog } from "@/services/analytics"
 import { identifyPosthogUser, setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
@@ -55,10 +61,13 @@ Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
   enabled: !__DEV__ && !IS_E2E,
   enableTombstone: true,
+  anrProfilingSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false }),
+    // Replay is pointless while Sentry is disabled, and its native video encoder
+    // segfaults in the simulator (SentryOnDemandReplay -> AVAssetWriterInput).
+    ...(__DEV__ ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),
@@ -107,6 +116,13 @@ export const queryClient = new QueryClient({
       })
     },
   }),
+})
+
+// React Native has no window focus events: treat returning to the app as focus,
+// so live data (delays, platforms) refetches right away instead of on the next interval
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener("change", (state) => handleFocus(state === "active"))
+  return () => subscription.remove()
 })
 
 function AppStack() {
@@ -243,11 +259,19 @@ function RootLayout() {
   }, [])
 
   useEffect(() => {
-    identifyPosthogUser()
-    trackInstalledWidgets()
+    // After the widget lookup, so its properties are sent this launch
+    trackInstalledWidgets().finally(identifyPosthogUser)
 
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode) {
+    storage.load("appLanguage").then(async (storedLanguageCode) => {
+      const iosSettingsLanguage = getLanguageChangedInIOSSettings()
+      const languageCode = iosSettingsLanguage ?? storedLanguageCode
+
+      // forceRTL only applies after a reload
+      if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
+        changeUserLanguage(iosSettingsLanguage)
+      } else if (languageCode) {
+        // Saved before setUserLanguage marks it synced, or a lost write reverts the choice next launch
+        if (iosSettingsLanguage) await storage.save("appLanguage", iosSettingsLanguage)
         setUserLanguage(languageCode)
         setLocaleReady(true)
         setAnalyticsUserProperty("user_locale", languageCode)

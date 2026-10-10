@@ -32,6 +32,7 @@ export const logNames = {
     connect: {
       success: "Connected to redis",
       failed: "Couldn't connect to redis",
+      skipped: "REDIS_URL is not set, skipping redis",
     },
     rides: {
       get: {
@@ -57,6 +58,10 @@ export const logNames = {
       updateToken: {
         success: "Updated token for ride in redis",
         failed: "Failed to update token for ride in redis",
+      },
+      updateAlarm: {
+        success: "Updated arrival alarm for ride in redis",
+        failed: "Failed to update arrival alarm for ride in redis",
       },
     },
   },
@@ -85,9 +90,18 @@ export const logNames = {
       success: "Updated ride token for ride",
       failed: "Failed to update ride token for ride",
     },
+    setAlarm: {
+      success: "Set arrival alarm for ride",
+      failed: "Failed to set arrival alarm for ride",
+    },
+    removeAlarm: {
+      success: "Removed arrival alarm for ride",
+      failed: "Failed to remove arrival alarm for ride",
+    },
   },
   notifications: {
     log: "Got notification",
+    notConfigured: "Push credentials are missing, notifications are disabled",
     apple: {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",
@@ -95,6 +109,10 @@ export const logNames = {
     android: {
       success: "Sent notification to FCM successully!",
       failed: "Failed to send notificaiton to FCM",
+    },
+    alarm: {
+      success: "Sent arrival alarm update",
+      failed: "Failed to send arrival alarm update",
     },
   },
   routeApi: {
@@ -114,6 +132,12 @@ export const logNames = {
       error: "Postgres pool error",
     },
   },
+  fares: {
+    pulled: "Pulled fares from the Israel Railways API into redis",
+    pullFailed: "Failed to pull fares from the Israel Railways API",
+    readFailed: "Failed to read the fares snapshot from redis",
+    notAvailable: "No fares snapshot in redis — run `bun run rail:pull`",
+  },
   platforms: {
     writeFailed: "Failed to record SIRI-observed platforms",
   },
@@ -121,6 +145,7 @@ export const logNames = {
     started: "SIRI poller started",
     disabled: "SIRI poller disabled (SIRI_URL / SIRI_KEY not set)",
     pollFailed: "SIRI poll cycle failed",
+    outage: "SIRI poller keeps failing — live data is stale",
     recovered: "SIRI poller recovered",
     notAuthorized: "SIRI API key is not authorized — check the egress IP allow-list",
     badStop: "SIRI rejected a stop code; evicting it for this feed",

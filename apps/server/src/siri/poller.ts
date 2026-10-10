@@ -29,6 +29,8 @@ import { MatchedVisit, buildSnapshot, readSnapshot, writeRaw, writeSnapshot, wri
 import { NormalizedVisit, SiriSnapshot, UnmatchedSample } from "./types"
 
 const MAX_BACKOFF_MS = 300_000
+// MOT's API often times out for a cycle or two; only a sustained outage is an error.
+const OUTAGE_FAILURES = 3
 const CHUNK_GAP_MS = 1_000
 const MAX_UNMATCHED_SAMPLES = 50
 const UNMATCHED_LOG_INTERVAL_MS = 10 * 60_000
@@ -279,7 +281,10 @@ const runLoop = async () => {
   } catch (error) {
     consecutiveFailures++
     lastError = redactKey(String((error as Error)?.message ?? error))
-    if (consecutiveFailures === 1) logger?.error(logNames.siri.pollFailed, { error: lastError })
+    if (consecutiveFailures === 1) logger?.warn(logNames.siri.pollFailed, { error: lastError })
+    if (consecutiveFailures === OUTAGE_FAILURES) {
+      logger?.error(logNames.siri.outage, { error: lastError, failures: consecutiveFailures })
+    }
     delayMs = Math.min(siriPollSeconds * 1000 * 2 ** consecutiveFailures, MAX_BACKOFF_MS)
   }
   await publishStatus(delayMs).catch(() => undefined)

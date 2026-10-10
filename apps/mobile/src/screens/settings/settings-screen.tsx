@@ -1,24 +1,23 @@
 import { useState } from "react"
-import { Alert, Linking, Platform, PlatformColor, View } from "react-native"
+import { Alert, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { getVersion, getBuildNumber } from "react-native-device-info"
 import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
-import { SETTING_GROUP } from "./settings-styles"
+import { settingsStyles } from "./settings-styles"
 import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
+import { openStoreReviewPage } from "@/utils/helpers/store-review-helpers"
 import { trackEvent } from "@/services/analytics"
 import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
 import { WidgetPreviewModal } from "./components/widget-preview-modal"
-
-const storeLink = Platform.select({
-  ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
-  android: "market://details?id=com.betterrail",
-})
+import { SocialLinks } from "./components/social-links"
+import { scheduleTestArrivalAlarm } from "@/models/ride/arrival-alarm"
+import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 
 export function SettingsScreen() {
   const router = useRouter()
@@ -49,7 +48,7 @@ export function SettingsScreen() {
       statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
       translucent
     >
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="settings-language"
           first
@@ -88,7 +87,7 @@ export function SettingsScreen() {
         />
       </View>
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         {Platform.OS === "ios" ? (
           <SettingBox
             first
@@ -114,7 +113,7 @@ export function SettingsScreen() {
       </View>
 
       {Platform.OS === "ios" && userLocale !== "ar" && (
-        <View style={SETTING_GROUP}>
+        <View style={settingsStyles.group}>
           <SettingBox
             first
             last
@@ -126,17 +125,17 @@ export function SettingsScreen() {
       )}
 
       {Platform.OS === "android" && (
-        <View style={SETTING_GROUP}>
+        <View style={settingsStyles.group}>
           <SettingBox first last title={translate("settings.addWidget") ?? ""} icon="📱" onPress={handleAddAndroidWidget} />
         </View>
       )}
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox first title={translate("settings.share") ?? ""} icon="🕺" onPress={shareApp} />
         <SettingBox
           title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") }) ?? ""}
           icon="⭐️"
-          onPress={() => storeLink && Linking.openURL(storeLink)}
+          onPress={openStoreReviewPage}
         />
         <SettingBox
           testID="settings-about"
@@ -148,6 +147,12 @@ export function SettingsScreen() {
         />
       </View>
 
+      {__DEV__ && isArrivalAlarmSupported() && (
+        <View style={settingsStyles.group}>
+          <SettingBox first last title="Test arrival alarm (10s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
+        </View>
+      )}
+
       <Text
         style={[
           styles.versionText,
@@ -156,6 +161,8 @@ export function SettingsScreen() {
       >
         Better Rail {isBetaTester && "Beta "}v{getVersion()} (Build {getBuildNumber()})
       </Text>
+
+      <SocialLinks />
 
       {Platform.OS === "android" && showWidgetModal && (
         <WidgetPreviewModal visible={showWidgetModal} onClose={() => setShowWidgetModal(false)} onPin={pinWidget} />

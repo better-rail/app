@@ -31,6 +31,7 @@ const stations: Station[] = [
     lat: 32.083715,
     lon: 34.798247,
     image: require("../../assets/station-images/tlv-center.jpg"),
+    alias: ["ארלוזרוב"],
   },
   {
     id: "3500",
@@ -341,6 +342,7 @@ const stations: Station[] = [
     lat: 32.102938,
     lon: 34.830131,
     image: require("../../assets/station-images/bnei-brak.jpg"),
+    alias: ["רמת החייל", "Ramat HaHayal", "Рамат-ха-Хаяль", "رمات هحيال"],
   },
   {
     id: "3600",
@@ -612,6 +614,7 @@ const stations: Station[] = [
     lat: 32.622003,
     lon: 35.294721,
     image: require("../../assets/station-images/afula.jpg"),
+    alias: ["רפאל איתן", "רפול", "Rafael Eitan", "Raful", "Рафаэль Эйтан", "رفائيل إيتان"],
   },
   {
     id: "1280",

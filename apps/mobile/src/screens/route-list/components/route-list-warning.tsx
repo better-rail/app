@@ -1,106 +1,119 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Platform, View } from "react-native"
-import Animated, { FadeInDown } from "react-native-reanimated"
-import { BottomScreenSheet, Text } from "@/components"
+import { StyleSheet } from "react-native-unistyles"
+import { Stack, useIsFocused } from "expo-router"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { Text } from "@/components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "@/i18n"
 import * as Burnt from "burnt"
 import { RouteListWarningModal, type WarningType } from "./route-list-warning-modal"
 
-const shouldDisplayModal = Platform.OS === "android"
-
 export type { WarningType }
 
 export interface RouteListModalProps {
+  requestedTime: number
   routesDate: number
   warningType: WarningType
 }
 
-/**
- * A modal that warns that no trains were found for the provided date, so we show
- * trains for the next day which has trains.
- *
- * For iOS we'll display a native alert, for Android we'll show modal
- */
-export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
+export function RouteListWarning({ requestedTime, routesDate, warningType }: RouteListModalProps) {
+  const useNativeToolbar = Platform.OS === "ios" && isLiquidGlassSupported
+  const isFocused = useIsFocused()
+  const hasPresentedPopup = useRef(false)
   const [warningVisible, setWarningVisible] = useState(false)
-  const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
+  const formattedRequestedDate = format(requestedTime, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
+  const title =
+    (warningType === "different-hour"
+      ? translate("modals.noTrainsFoundForHour")
+      : translate("modals.noTrainsFoundForRequestedDate", { date: formattedRequestedDate })) ?? ""
+  const message =
+    (warningType === "different-hour"
+      ? translate("modals.foundTrainsAtHour")
+      : translate("modals.showingTrainsForDate", { date: formattedRoutesDate })) ?? ""
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (shouldDisplayModal) {
-      setTimeout(() => setWarningVisible(true), 250)
-    }
-  }, [])
+    if (!isFocused || hasPresentedPopup.current) return
+    // Let the push transition settle; the persistent banner is already visible.
+    const timeout = setTimeout(() => {
+      hasPresentedPopup.current = true
+      if (Platform.OS === "android") {
+        setWarningVisible(true)
+      } else {
+        Burnt.alert({
+          title,
+          message,
+          duration: 3.5,
+          preset: "custom",
+          icon: { ios: { name: "exclamationmark.triangle.fill", color: "#FF9F0AFF" } },
+        })
+      }
+    }, 600)
+    return () => clearTimeout(timeout)
+  }, [isFocused, title, message])
 
-  useEffect(() => {
-    if (!shouldDisplayModal) {
-      const duration = 3.5 // seconds
-      Burnt.alert({
-        title:
-          warningType === "different-hour" ? translate("modals.noTrainsFoundForHour") : translate("modals.noTrainsFoundForDate"),
-        message:
-          warningType === "different-hour"
-            ? translate("modals.foundTrainsAtHour")
-            : `${translate("modals.foundTrainsAtDate")}${formattedRoutesDate}`,
-        duration,
-        preset: "custom",
-        icon: {
-          ios: {
-            name: "exclamationmark.triangle.fill",
-            color: "#FF9F0AFF",
-          },
-        },
-      })
-
-      // display sheet after the alert has disappeared
-      setTimeout(
-        () => {
-          setDisplayWarningSheet(true)
-        },
-        duration * 1000 + 350,
-      )
-    }
-  }, [])
-
-  const handleClose = () => {
-    setWarningVisible(false)
-    setTimeout(() => setDisplayWarningSheet(true), 350)
-  }
+  const warningContent = (
+    <>
+      <Text preset="bold" text={title} style={useNativeToolbar ? styles.glassText : styles.warningText} />
+      <Text text={message} style={useNativeToolbar ? styles.glassText : styles.warningText} />
+    </>
+  )
 
   return (
     <>
-      {shouldDisplayModal && (
+      {Platform.OS === "android" && (
         <RouteListWarningModal
-          visible={warningVisible}
-          warningType={warningType}
-          formattedRoutesDate={formattedRoutesDate}
-          onClose={handleClose}
+          visible={warningVisible && isFocused}
+          title={title}
+          message={message}
+          onClose={() => setWarningVisible(false)}
         />
       )}
-      {displayWarningSheet && (
-        <Animated.View entering={FadeInDown}>
-          <BottomScreenSheet style={{ backgroundColor: "orange" }}>
-            <View>
-              <Text
-                preset="bold"
-                tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
-              />
-              <Text style={{ fontSize: 14 }}>
-                {warningType === "different-hour" ? (
-                  translate("modals.foundTrainsAtHour")
-                ) : (
-                  <>
-                    {translate("modals.foundTrainsAtDate")}
-                    {formattedRoutesDate}
-                  </>
-                )}
-              </Text>
-            </View>
-          </BottomScreenSheet>
-        </Animated.View>
+      {useNativeToolbar ? (
+        <Stack.Toolbar>
+          <Stack.Toolbar.View hidesSharedBackground>
+            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+              <View testID="route-list-warning" accessible accessibilityRole="alert" accessibilityLabel={`${title}. ${message}`}>
+                {warningContent}
+              </View>
+            </GlassView>
+          </Stack.Toolbar.View>
+        </Stack.Toolbar>
+      ) : (
+        <View testID="route-list-warning" accessibilityRole="alert" style={styles.banner}>
+          {warningContent}
+        </View>
       )}
     </>
   )
 }
+
+const styles = StyleSheet.create((theme, rt) => ({
+  toolbarContent: {
+    // The native toolbar host needs an explicit width for its custom content.
+    width: rt.screen.width - 32,
+    minHeight: 64,
+    justifyContent: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  glassText: {
+    color: theme.colors.text,
+    fontSize: 14,
+  },
+  banner: {
+    backgroundColor: "#FFF0C2",
+    borderTopColor: "#D4A029",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: theme.spacing[3],
+    paddingBottom: Math.max(rt.insets.bottom, theme.spacing[3]),
+  },
+  warningText: {
+    color: "#4D3400",
+    fontSize: 14,
+  },
+}))

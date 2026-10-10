@@ -3,6 +3,8 @@ export const palette = {
   white: "#fff",
   offWhite: "#f2f2f7",
   orange: "#FBA928",
+  /** `orange` at 80% — a native tint takes a color, not an opacity. */
+  orangeMuted: "rgba(251, 169, 40, 0.8)",
   orangeDarker: "#EB9918",
   orangeLighter: "#F6EAE3",
   pinky: "#FA827E",

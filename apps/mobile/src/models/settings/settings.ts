@@ -1,11 +1,12 @@
 import { create } from "zustand"
-import { TxKeyPath } from "@/i18n"
 import { DAY_TYPES, type DayType } from "@/data/rail-service-patterns"
 import { DEFAULT_GUARD_MINUTES, type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
 
 export type { DelayGuard }
 
 export type MaxChanges = 0 | 1 | null
+export type ColorSchemePreference = "automatic" | "light" | "dark"
+export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 /**
  * A station to get pushed about when it is disrupted: on every line calling there (null) or only on
@@ -21,12 +22,16 @@ export { DAY_TYPES }
 
 export interface SettingsState {
   seenUrgentMessagesIds: number[]
+  /** The rider's Israel Railways fare profile id (0 = general), shown on the fares sheet. */
   profileCode: number
   totalTip: number
   recordedTipTransactionIds: string[]
   showRouteCardHeader: boolean
+  showHourIndex: boolean
+  colorScheme: ColorSchemePreference
   hideSlowTrains: boolean
   maxChanges: MaxChanges
+  trainSearchCount: number
   seenTrainInfoPrompt: boolean
   seenLawsuitAnnouncement: boolean
   stationAlerts: StationAlert[]
@@ -45,8 +50,11 @@ export interface SettingsActions {
   setProfileCode: (code: number) => void
   recordTip: (transactionId: string, amount: number) => void
   setShowRouteCardHeader: (show: boolean) => void
+  setShowHourIndex: (show: boolean) => void
+  setColorScheme: (colorScheme: ColorSchemePreference) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
+  recordTrainSearch: () => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
   setSeenLawsuitAnnouncement: (seen: boolean) => void
@@ -62,14 +70,22 @@ export interface SettingsActions {
 
 export type SettingsStore = SettingsState & SettingsActions
 
+// Israel Railways' "general" profile. The retired fares feature stored 1 for it,
+// an id the rail API never lists — hydration maps that onto 0.
+const GENERAL_PROFILE_CODE = 0
+const migrateProfileCode = (code: unknown): number => (typeof code === "number" && code !== 1 ? code : GENERAL_PROFILE_CODE)
+
 const initialSettingsState: SettingsState = {
   seenUrgentMessagesIds: [],
-  profileCode: 1,
+  profileCode: GENERAL_PROFILE_CODE,
   totalTip: 0,
   recordedTipTransactionIds: [],
   showRouteCardHeader: false,
+  showHourIndex: false,
+  colorScheme: "automatic",
   hideSlowTrains: false,
   maxChanges: null,
+  trainSearchCount: 0,
   seenTrainInfoPrompt: false,
   seenLawsuitAnnouncement: false,
   stationAlerts: [],
@@ -99,12 +115,25 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ showRouteCardHeader: show })
   },
 
+  setShowHourIndex(show) {
+    set({ showHourIndex: show })
+  },
+
+  setColorScheme(colorScheme) {
+    set({ colorScheme })
+  },
+
   setHideSlowTrains(hide) {
     set({ hideSlowTrains: hide })
   },
 
   setMaxChanges(maxChanges) {
     set({ maxChanges })
+  },
+
+  recordTrainSearch() {
+    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return
+    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
   setSeenUrgentMessagesIds(messagesIds) {
@@ -164,6 +193,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 }))
 
+/** How many route filters the user has turned on — the toolbar shows the number, not just that one is on. */
+export const activeFilterCount = (state: Pick<SettingsState, "hideSlowTrains" | "maxChanges">): number =>
+  (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0)
+
 /** The guard for a train boarded at a station, when there is one. */
 export const delayGuardFor = (guards: DelayGuard[], trainNumber: number, originStationId: string): DelayGuard | undefined =>
   guards.find((g) => g.trainNumber === trainNumber && g.originStationId === originStationId)
@@ -204,8 +237,11 @@ export function getSettingsSnapshot(state: SettingsState) {
     totalTip: state.totalTip,
     recordedTipTransactionIds: state.recordedTipTransactionIds,
     showRouteCardHeader: state.showRouteCardHeader,
+    showHourIndex: state.showHourIndex,
+    colorScheme: state.colorScheme,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
+    trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
     seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
     stationAlerts: state.stationAlerts,
@@ -281,14 +317,23 @@ export function hydrateSettingsStore(data: any) {
   }
   delete processedData.hideCollectorTrains
 
+  const persistedTrainSearchCount = processedData.trainSearchCount
+  const trainSearchCount =
+    Number.isSafeInteger(persistedTrainSearchCount) && persistedTrainSearchCount >= 0
+      ? Math.min(persistedTrainSearchCount, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD)
+      : 0
+
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
-    profileCode: processedData.profileCode ?? 1,
+    profileCode: migrateProfileCode(processedData.profileCode),
     totalTip: processedData.totalTip ?? 0,
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
+    showHourIndex: processedData.showHourIndex ?? false,
+    colorScheme: ["automatic", "light", "dark"].includes(processedData.colorScheme) ? processedData.colorScheme : "automatic",
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
+    trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
     seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
     stationAlerts: normalizeStationAlerts(processedData),
@@ -297,13 +342,3 @@ export function hydrateSettingsStore(data: any) {
     delayGuardsToken: normalizeRegisteredToken(processedData.delayGuardsToken, processedData.delayGuardsRegistered),
   })
 }
-
-export const PROFILE_CODES: { label: TxKeyPath; value: number }[] = [
-  { label: "profileCodes.general", value: 1 },
-  { label: "profileCodes.studentRegular", value: 19 },
-  { label: "profileCodes.studentExtended", value: 3 },
-  { label: "profileCodes.seniorCitizen", value: 4 },
-  { label: "profileCodes.disabled", value: 5 },
-  { label: "profileCodes.youth", value: 33 },
-  { label: "profileCodes.socialSecurity", value: 40 },
-]

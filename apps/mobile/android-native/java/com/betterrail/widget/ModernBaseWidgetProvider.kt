@@ -19,6 +19,9 @@ import com.betterrail.widget.lifecycle.WidgetCoroutineManager
 import com.betterrail.widget.state.WidgetState
 import com.betterrail.widget.scheduler.WidgetUpdateScheduler
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.CancellationException
 import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -273,6 +276,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Exception in loadScheduleData for widget $appWidgetId", e)
                 showErrorState(context, appWidgetManager, appWidgetId, widgetData, e.message ?: "Unknown error")
             }
@@ -350,6 +354,45 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
         }
         
         updateWidgetUI(context, appWidgetManager, appWidgetId, state)
+
+        if (isFromTomorrowRequest || daysAway != 0) return
+        if (!isEffective4x3(context, appWidgetId)) return
+
+        val maxNeeded = WidgetSize.MAX_UPCOMING_TRAINS_4X3 + 1
+        if (upcomingTrains.size >= maxNeeded) return
+
+        try {
+            val tomorrowResource = scheduleRepository.getTomorrowSchedule(appWidgetId, widgetData)
+                .filter { it !is Resource.Loading }
+                .firstOrNull()
+
+            if (tomorrowResource is Resource.Success && tomorrowResource.data.routes.isNotEmpty()) {
+                val tomorrowUpcoming = filterUpcomingTrains(tomorrowResource.data.routes)
+                if (tomorrowUpcoming.isNotEmpty()) {
+                    val neededCount = maxNeeded - upcomingTrains.size
+                    val combinedTrains = upcomingTrains + tomorrowUpcoming.take(neededCount)
+                    val updatedState = WidgetState.Schedule(
+                        widgetData.originId,
+                        originName,
+                        destinationName,
+                        firstTrain,
+                        combinedTrains.drop(1)
+                    )
+                    updateWidgetUI(context, appWidgetManager, appWidgetId, updatedState)
+                }
+            }
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.w(getLogTag(), "Could not append tomorrow trains for widget $appWidgetId: ${e.message}")
+        }
+    }
+
+    private fun isEffective4x3(context: Context, appWidgetId: Int): Boolean {
+        return if (this is UnifiedWidgetProvider) {
+            getEffectiveWidgetSize(context, appWidgetId) == WidgetSize.COMPACT_4X3
+        } else {
+            getLayoutResource() == R.layout.widget_compact_4x3
+        }
     }
     
     /**
@@ -419,6 +462,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                     }
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Exception in loadTomorrowSchedule for widget $appWidgetId", e)
                 showTomorrowFallbackState(context, appWidgetManager, appWidgetId, widgetData)
             }
@@ -561,6 +605,7 @@ abstract class ModernBaseWidgetProvider : AppWidgetProvider() {
                 appWidgetManager.updateAppWidget(appWidgetId, views)
                 Log.d(getLogTag(), "Updated widget $appWidgetId UI with state: ${state::class.simpleName}")
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 Log.e(getLogTag(), "Error updating widget $appWidgetId UI", e)
             }
         }

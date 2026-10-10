@@ -18,6 +18,11 @@ func shouldShowUpcomingTrain(_ isTomorrow: Bool, _ departureDate: String) -> Boo
   }
 }
 
+/// Minutes between two ISO date strings
+func minutesBetween(_ from: String, _ to: String) -> Int {
+  Int(isoDateStringToDate(to).timeIntervalSince(isoDateStringToDate(from)) / 60)
+}
+
 func getNoTrainsMessage(statusCode: String, date: Date) -> String? {
   if statusCode == "300" {
     if (NSCalendar(identifier: .hebrew)!.isDateInWeekend(date)) {

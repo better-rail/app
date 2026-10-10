@@ -11,9 +11,6 @@ import { useRouter } from "expo-router"
 import { getBuildNumber, getDeviceId, getSystemVersion, getVersion } from "react-native-device-info"
 import { settingsBorderRadius } from "./settings-styles"
 
-const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
-const TWITTER_WEB_URL = "https://x.com/better_rail"
-
 // TODO: Add mail body to iOS - need to understand how to add newlines correctly
 const emailBody = Platform.select({
   android: `\n\n\n\n\n\n\n\n\n\n---
@@ -43,29 +40,6 @@ export function AboutScreen() {
         </View>
 
         <Text style={styles.aboutText} tx="settings.aboutText" />
-      </View>
-
-      <Text style={styles.followLabel} tx="settings.follow" preset="fieldLabel" />
-
-      <View style={styles.settingGroup}>
-        <SettingBox
-          first
-          last
-          title={translate("settings.twitter")}
-          icon="🐦"
-          externalLink
-          onPress={async () => {
-            try {
-              if (await Linking.canOpenURL(TWITTER_DEEP_LINK)) {
-                await Linking.openURL(TWITTER_DEEP_LINK)
-              } else {
-                await openLink(TWITTER_WEB_URL)
-              }
-            } catch {
-              await openLink(TWITTER_WEB_URL)
-            }
-          }}
-        />
       </View>
 
       <View style={styles.settingGroup}>
@@ -152,8 +126,5 @@ const styles = StyleSheet.create((theme) => ({
     marginBottom: theme.spacing[2],
     fontSize: 18,
     textAlign: "center",
-  },
-  followLabel: {
-    marginBottom: theme.spacing[1],
   },
 }))

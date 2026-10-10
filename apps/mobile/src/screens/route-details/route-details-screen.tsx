@@ -1,16 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
-import { format } from "date-fns"
 
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { useRideProgress } from "@/hooks/use-ride-progress"
 import { spacing } from "@/theme"
-import { RouteDetailsHeader, Screen } from "@/components"
+import { RouteDetailsHeader, Screen, WebsiteHandoff } from "@/components"
 import {
   LiveRideSheet,
   LongRouteWarning,
@@ -28,12 +27,15 @@ import { RouteApi } from "@/services/api/route-api"
 import { useRouter, usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
-import { calculateDelayedTime, formatDateForAPI } from "@/utils/helpers/date-helpers"
-import { getSelectedRide } from "@/utils/helpers/ride-helpers"
+import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
+import { getCurrentTrainIndex, getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { publishFreshRoutes } from "@/screens/route-list/route-list-query"
 
 const routeApi = new RouteApi()
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+const preventLongPressNavigation = () => undefined
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
@@ -53,14 +55,13 @@ export function RouteDetailsScreen() {
   const {
     rideRoute,
     id: rideId,
-    isRouteActive,
     stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide })))
+  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
 
-  // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
+  // Derived from both inputs: openActiveRide can swap the params under a mounted screen
+  const isRideOnThisRoute = isSameRoute(rideRoute, paramsRouteItem)
 
   const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
@@ -70,9 +71,11 @@ export function RouteDetailsScreen() {
     ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
-      const originId = paramsRouteItem.trains[0].originStationId.toString()
-      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fromId = paramsRouteItem.trains[0].originStationId.toString()
+      const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
+      const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
+      // A change-station search isn't what the list shows
+      if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
       return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
@@ -95,7 +98,7 @@ export function RouteDetailsScreen() {
 
   const insets = useSafeAreaInsets()
 
-  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
+  const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
 
@@ -120,6 +123,15 @@ export function RouteDetailsScreen() {
       statusBarBackgroundColor="transparent"
       translucent
     >
+      {routeItem && originId && destinationId && (
+        <WebsiteHandoff
+          originId={originId}
+          destinationId={destinationId}
+          time={routeItem.departureTime}
+          trainNumbers={routeItem.trains.map((train) => train.trainNumber)}
+          viaStationId={routeItem.viaStationId}
+        />
+      )}
       <View style={{ flex: 1 }}>
         <RouteDetailsHeader
           routeItem={routeItem}
@@ -159,11 +171,7 @@ export function RouteDetailsScreen() {
                         <View key={`before-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx, opacity: 0.7 }}
                             topLineState={isFirstStation ? "hidden" : "idle"}
@@ -178,7 +186,7 @@ export function RouteDetailsScreen() {
                     {/* Origin station */}
                     <RouteStationCard
                       stationName={train.originStationName}
-                      stopTime={format(train.departureTime, "HH:mm")}
+                      stopTime={formatTime(train.departureTime)}
                       platform={train.originPlatform}
                       platformChanged={train.originPlatformChanged}
                       trainNumber={train.trainNumber}
@@ -193,11 +201,7 @@ export function RouteDetailsScreen() {
                         <View key={`between-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx }}
                             topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
@@ -216,7 +220,7 @@ export function RouteDetailsScreen() {
                     {/* Destination station */}
                     <RouteStationCard
                       stationName={train.destinationStationName}
-                      stopTime={format(train.arrivalTime, "HH:mm")}
+                      stopTime={formatTime(train.arrivalTime)}
                       delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                       platform={train.destinationPlatform}
                       platformChanged={train.destinationPlatformChanged}
@@ -229,11 +233,7 @@ export function RouteDetailsScreen() {
                         <View key={`after-${station.stationId}`}>
                           <RouteStopCard
                             stationName={allStations.find((c) => c.id === station.stationId.toString())?.name ?? ""}
-                            stopTime={
-                              typeof station.arrivalTime === "string"
-                                ? station.arrivalTime
-                                : format(new Date(station.arrivalTime), "HH:mm")
-                            }
+                            stopTime={formatClockTime(station.arrivalTime)}
                             delayedTime={calculateDelayedTime(station.arrivalTime, train.delay)}
                             style={{ zIndex: 20 - idx, opacity: 0.7 }}
                             topLineState="idle"
@@ -252,6 +252,7 @@ export function RouteDetailsScreen() {
                         departurePlatform={routeItem.trains[index + 1].originPlatform}
                         firstTrain={train}
                         secondTrain={routeItem.trains[index + 1]}
+                        isRideOnThisRoute={isRideOnThisRoute}
                       />
                     )}
                   </View>
@@ -265,7 +266,7 @@ export function RouteDetailsScreen() {
 
                   <RouteStationCard
                     stationName={train.originStationName}
-                    stopTime={format(train.departureTime, "HH:mm")}
+                    stopTime={formatTime(train.departureTime)}
                     platform={train.originPlatform}
                     platformChanged={train.originPlatformChanged}
                     trainNumber={train.trainNumber}
@@ -279,7 +280,7 @@ export function RouteDetailsScreen() {
                         <View key={stop.stationId}>
                           <RouteStopCard
                             stationName={stop.stationName}
-                            stopTime={format(stop.departureTime, "HH:mm")}
+                            stopTime={formatTime(stop.departureTime)}
                             delayedTime={calculateDelayedTime(stop.departureTime, train.delay)}
                             style={{ zIndex: 20 - idx }}
                             topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
@@ -299,7 +300,7 @@ export function RouteDetailsScreen() {
 
                   <RouteStationCard
                     stationName={train.destinationStationName}
-                    stopTime={format(train.arrivalTime, "HH:mm")}
+                    stopTime={formatTime(train.arrivalTime)}
                     delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                     platform={train.destinationPlatform}
                     platformChanged={train.destinationPlatformChanged}
@@ -312,6 +313,7 @@ export function RouteDetailsScreen() {
                       departurePlatform={routeItem.trains[index + 1].originPlatform}
                       firstTrain={train}
                       secondTrain={routeItem.trains[index + 1]}
+                      isRideOnThisRoute={isRideOnThisRoute}
                     />
                   )}
                 </View>
@@ -349,11 +351,14 @@ export function RouteDetailsScreen() {
           >
             <Pressable
               testID="train-info-button"
+              // Without an onLongPress handler, Pressable treats a long hold as
+              // a regular press on release and presents the sheet mid-gesture.
+              onLongPress={preventLongPressNavigation}
               onPress={() => {
                 if (hasWagonData) {
                   trackEvent("train_info_sheet_opened")
                   HapticFeedback.trigger("impactLight")
-                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
+                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains, getCurrentTrainIndex(routeItem))
                   router.push("/train-info")
                 } else {
                   Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
@@ -362,14 +367,14 @@ export function RouteDetailsScreen() {
               accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
               accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
             >
-              <LiquidGlassView
+              <GlassView
                 style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                interactive={hasWagonData}
-                effect="regular"
-                tintColor={PlatformColor("tertiarySystemBackground")}
+                isInteractive={hasWagonData}
+                glassEffectStyle="regular"
+                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
               >
                 <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </LiquidGlassView>
+              </GlassView>
             </Pressable>
 
             <StartRideButton route={routeItem} screenName={screenName} />
@@ -401,8 +406,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "center",
     borderRadius: Platform.select({ ios: 16, android: 6 }),
     borderCurve: "continuous",
-    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.tertiaryBackground,
-    elevation: 1,
+    // Android's tertiaryBackground is the screen background — inputBackground is the raised one.
+    backgroundColor: isLiquidGlassSupported
+      ? undefined
+      : Platform.OS === "android"
+        ? theme.colors.inputBackground
+        : theme.colors.tertiaryBackground,
+    elevation: 3,
   },
   infoButtonDisabled: {
     opacity: 0.5,

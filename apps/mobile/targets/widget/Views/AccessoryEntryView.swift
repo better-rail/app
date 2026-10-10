@@ -32,6 +32,9 @@ struct AccessoryEntryView: View {
             .padding(12)
         } else {
           Text(entry.departureTime)
+            .lineLimit(1)
+            .minimumScaleFactor(0.6)
+            .padding(.horizontal, 4)
         }
       }
       .widgetBackground(WidgetBackground(image: entry.origin.image).frame(height: 170))
@@ -97,7 +100,8 @@ struct AccessoryEntryView: View {
                   Text(entry.departureTime)
                     .bold()
                     .font(.system(size: geometry.size.width * 0.145, design: .rounded))
-                    .fixedSize()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 }
                 
                 if let upcomingTrains = entry.upcomingTrains?.prefix(2), !upcomingTrains.isEmpty {

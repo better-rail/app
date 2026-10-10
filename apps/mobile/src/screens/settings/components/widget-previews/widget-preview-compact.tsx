@@ -3,6 +3,7 @@ import { Image, View } from "react-native"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { useWidgetPreviewRoute } from "./use-widget-preview-route"
+import { formatClockTime } from "@/utils/helpers/date-helpers"
 import { styles } from "./widget-preview.styles"
 
 const arrowIcon = require("../../../../../assets/arrow-left.png")
@@ -36,7 +37,7 @@ export function WidgetPreviewCompact() {
           <Text style={styles.trainLabel} numberOfLines={1}>
             {translate("settings.widgetPreviewNextTrain")}
           </Text>
-          <Text style={styles.compactTrainTime}>08:15</Text>
+          <Text style={styles.compactTrainTime}>{formatClockTime("08:15")}</Text>
         </View>
 
         {/* Bottom: Platform ‧ Train */}

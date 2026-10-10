@@ -26,6 +26,7 @@ import { create } from "zustand"
 import { userLocale } from "@/i18n"
 import { useSettingsStore } from "@/models/settings/settings"
 import type { PushDevice } from "@/services/api"
+import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 
 export type AlertsPermission = "granted" | "denied" | "undetermined"
 
@@ -53,7 +54,9 @@ export const requestPushPermission = async (channelId?: string): Promise<AlertsP
   return permission === "granted" ? getPushPermission(channelId) : permission
 }
 
-export const getPushToken = async (): Promise<string> => String((await Notifications.getDevicePushTokenAsync()).data)
+/** The device push token, retried once on a passing Firebase Installations error (see push-token-auth-retry.ts). */
+export const getPushToken = async (): Promise<string> =>
+  String((await getDevicePushTokenWithAuthRetry(Notifications.getDevicePushTokenAsync)).data)
 
 // --- the outcome, for the settings screen ---------------------------------------------
 

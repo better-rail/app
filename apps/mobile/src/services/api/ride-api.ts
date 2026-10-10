@@ -3,21 +3,14 @@ import { RouteItem } from "./rail-api.types"
 import { userLocale } from "@/i18n"
 import { head, last } from "lodash"
 import { RideStartError, toRideApiError } from "@/utils/helpers/ride-errors"
+import { serverBaseURL } from "@/config/api-config"
 
 export class RideApi {
   axiosInstance: AxiosInstance
 
   constructor() {
-    const env: string = "production"
-    const envPath = env === "production" ? "" : "-" + env
-    let baseURL = "https://api.better-rail.co.il/api/v1"
-
-    if (env !== "production") {
-      baseURL = `https://better-rail${envPath}.up.railway.app/api/v1`
-    }
-
     this.axiosInstance = axios.create({
-      baseURL,
+      baseURL: serverBaseURL,
       timeout: 30000,
       headers: {
         "Content-Type": "application/json",
@@ -75,6 +68,28 @@ export class RideApi {
         token,
       })
 
+      return response.data?.success
+    } catch {
+      return false
+    }
+  }
+
+  /** Lets the server move the arrival alarm when the delay changes. Resolves with when it should ring, in ms. */
+  async setRideAlarm(
+    rideId: string,
+    alarm: { token: string; alarmId: string; leadMinutes: number },
+  ): Promise<number | undefined> {
+    try {
+      const response = await this.axiosInstance.put("/ride/alarm", { rideId, ...alarm, locale: userLocale })
+      return response.data?.success && typeof response.data.fireDate === "number" ? response.data.fireDate : undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  async removeRideAlarm(rideId: string): Promise<boolean> {
+    try {
+      const response = await this.axiosInstance.delete("/ride/alarm", { data: { rideId } })
       return response.data?.success
     } catch {
       return false

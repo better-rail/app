@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -7,11 +7,17 @@ import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
-import { isLiquidGlassSupported, LiquidGlassView } from "@callstack/liquid-glass"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
+import { formatTime } from "@/utils/helpers/date-helpers"
+import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
 // TODO: add typings to progress
 export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
-  const { id, stopRide } = useRideStore(useShallow((s) => ({ id: s.id, stopRide: s.stopRide })))
+  const { id, stopRide, arrivalAlarm } = useRideStore(
+    useShallow((s) => ({ id: s.id, stopRide: s.stopRide, arrivalAlarm: s.arrivalAlarm })),
+  )
   const { progress, screenName } = props
 
   const router = useRouter()
@@ -37,21 +43,31 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   return (
     <BottomScreenSheet>
-      <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
-        {progressText}
-      </Text>
+      <View style={styles.progress}>
+        <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
+          {progressText}
+        </Text>
+        {arrivalAlarm && (
+          <Text style={styles.alarmText} maxFontSizeMultiplier={1.2}>
+            {translate("ride.alarmSetFor", { time: formatTime(arrivalAlarm.fireDate) })}
+          </Text>
+        )}
+      </View>
 
-      <StopButton
-        loading={!id}
-        onPress={() => {
-          stopRide(id)
-          trackEvent("stop_live_ride")
+      <View style={styles.buttons}>
+        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && <ArrivalAlarmButton />}
+        <StopButton
+          loading={!id}
+          onPress={() => {
+            stopRide(id)
+            trackEvent("stop_live_ride")
 
-          if (screenName === "activeRide") {
-            router.back()
-          }
-        }}
-      />
+            if (screenName === "activeRide") {
+              router.back()
+            }
+          }}
+        />
+      </View>
     </BottomScreenSheet>
   )
 }
@@ -86,13 +102,13 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <LiquidGlassView interactive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
+        <GlassView isInteractive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
             <Image source={require("../../../../assets/stop-rect.png")} style={{ width: 17.5, height: 17.5 }} />
           )}
-        </LiquidGlassView>
+        </GlassView>
       </Pressable>
     )
   }
@@ -109,6 +125,19 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
 }
 
 const styles = StyleSheet.create((theme) => ({
+  progress: {
+    flexShrink: 1,
+  },
+  alarmText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    opacity: 0.6,
+  },
+  buttons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[3],
+  },
   progressText: {
     fontSize: 20,
     fontWeight: "bold",
@@ -119,7 +148,7 @@ const styles = StyleSheet.create((theme) => ({
     height: 42.5,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: theme.colors.stop,
+    backgroundColor: isLiquidGlassSupported ? undefined : theme.colors.stop,
     borderRadius: 30,
   },
 }))

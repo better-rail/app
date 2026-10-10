@@ -80,6 +80,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
       ]}
       previewBorderRadius={12}
       style={styles.contextMenu}
+      fillWidth
     >
       <TouchableScale
         testID={`favorite-route-${id}`}

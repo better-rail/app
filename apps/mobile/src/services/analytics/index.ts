@@ -48,6 +48,11 @@ export const setAnalyticsUserProperties = (properties: Record<string, string>) =
   setCachedPosthogProperties(properties)
 }
 
+export const syncAnalyticsUserProperties = (properties: Record<string, string>) => {
+  const changed = setCachedPosthogProperties(properties)
+  if (Object.keys(changed).length > 0) posthog.setPersonProperties(changed)
+}
+
 export const identifyPosthogUser = async () => {
   await ensurePosthogPropertiesHydrated()
   const props = getCachedPosthogProperties()

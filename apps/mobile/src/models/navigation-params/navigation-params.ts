@@ -6,21 +6,23 @@ export type DelayGuardDraft = Omit<DelayGuard, "thresholdMinutes"> & { threshold
 
 type NavigationParamsStore = {
   routeItem: RouteItem | null
-  train: Train | null
+  trains: Train[]
+  initialTrainIndex: number
   delayGuardDraft: DelayGuardDraft | null
   originId: string | null
   destinationId: string | null
   presentation: "modal" | "push" | null
   setRouteDetails: (params: { routeItem: RouteItem; originId: string; destinationId: string }) => void
   setRouteItem: (routeItem: RouteItem) => void
-  setTrainInfo: (train: Train) => void
+  setTrainInfo: (trains: Train[], initialTrainIndex: number) => void
   setDelayGuardDraft: (draft: DelayGuardDraft) => void
   setPaywallPresentation: (presentation: "modal" | "push") => void
 }
 
 export const useNavigationParamsStore = create<NavigationParamsStore>((set) => ({
   routeItem: null,
-  train: null,
+  trains: [],
+  initialTrainIndex: 0,
   delayGuardDraft: null,
   originId: null,
   destinationId: null,
@@ -28,7 +30,7 @@ export const useNavigationParamsStore = create<NavigationParamsStore>((set) => (
   setRouteDetails: ({ routeItem, originId, destinationId }) =>
     set({ routeItem, originId: String(originId), destinationId: String(destinationId) }),
   setRouteItem: (routeItem) => set({ routeItem }),
-  setTrainInfo: (train) => set({ train }),
+  setTrainInfo: (trains, initialTrainIndex) => set({ trains, initialTrainIndex }),
   setDelayGuardDraft: (delayGuardDraft) => set({ delayGuardDraft }),
   setPaywallPresentation: (presentation) => set({ presentation }),
 }))
