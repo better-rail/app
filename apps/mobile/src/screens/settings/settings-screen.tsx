@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Alert, Linking, Platform, PlatformColor, View } from "react-native"
+import { Alert, Platform, PlatformColor, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
@@ -11,17 +11,13 @@ import { useIsDarkMode, useIsBetaTester } from "@/hooks"
 import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
+import { openStoreReviewPage } from "@/utils/helpers/store-review-helpers"
 import { trackEvent } from "@/services/analytics"
 import { requestPinAndroidWidget, WidgetFamily } from "@/utils/widget-helpers"
 import { WidgetPreviewModal } from "./components/widget-preview-modal"
 import { SocialLinks } from "./components/social-links"
 import { scheduleTestArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
-
-const storeLink = Platform.select({
-  ios: "https://apps.apple.com/app/better-rail/id1562982976?action=write-review",
-  android: "market://details?id=com.betterrail",
-})
 
 export function SettingsScreen() {
   const router = useRouter()
@@ -119,7 +115,7 @@ export function SettingsScreen() {
         <SettingBox
           title={Platform.select({ ios: translate("settings.rateIOS"), android: translate("settings.rateAndroid") }) ?? ""}
           icon="⭐️"
-          onPress={() => storeLink && Linking.openURL(storeLink)}
+          onPress={openStoreReviewPage}
         />
         <SettingBox
           testID="settings-about"
