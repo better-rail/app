@@ -12,22 +12,22 @@
  * through its stations without stopping included (`corridorOf`).
  *
  * Two halves, so the tests can run without a model:
- * - `extractDisruptions` builds the prompt and calls OpenAI (structured output);
+ * - `extractDisruptions` builds the prompt and calls Claude (structured output);
  * - `normalizeExtraction` and `announcedDisruptionsForLine` are pure.
  */
 import { createHash } from "node:crypto"
-import OpenAI from "openai"
-import { zodTextFormat } from "openai/helpers/zod"
-import { z } from "zod"
+import Anthropic from "@anthropic-ai/sdk"
+import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod"
+// The SDK's zod helper takes zod 4 schemas; the rest of the server is on the zod 3 API.
+import { z } from "zod/v4"
 
-import { openaiApiKey, openaiModel, openaiReasoningEffort } from "../data/config"
+import { anthropicApiKey, anthropicEffort, anthropicModel } from "../data/config"
 import { stations } from "../data/stations"
 import { logNames, logger } from "../logs"
 import {
   type Disruption,
   type DisruptionSection,
   type LocalizedText,
-  LocalizedTextSchema,
   type ServiceStatusLevel,
   TRANSPORT_MODES,
   type TravelAlternative,
@@ -56,6 +56,14 @@ export const ANNOUNCED_KINDS = ["suspension", "skippedStops"] as const
 export type AnnouncedKind = (typeof ANNOUNCED_KINDS)[number]
 
 // Strict structured output: every field required, `null` where there is nothing to say.
+// The four languages, as types/service-status.ts LocalizedTextSchema has them (zod 4 here, see the import).
+const LocalizedTextSchema = z.object({
+  he: z.string(),
+  en: z.string(),
+  ru: z.string(),
+  ar: z.string(),
+})
+
 const NaiveIsoDescription = 'Israel local wall-clock time as "YYYY-MM-DDTHH:MM:SS", no timezone'
 
 const WindowSchema = z.object({
@@ -408,24 +416,34 @@ export const userPrompt = (items: AnnouncementItem[]): string => {
 
 export type Extractor = (items: AnnouncementItem[], nowNaiveMs: number) => Promise<Extraction>
 
-let client: OpenAI | undefined
+let client: Anthropic | undefined
+
+const EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const
+type Effort = (typeof EFFORTS)[number]
+const effort = EFFORTS.find((e) => e === anthropicEffort) as Effort | undefined
 
 /** The disruptions the model reads out of the updates, before validation. */
 export const extractDisruptions: Extractor = async (items, nowNaiveMs) => {
-  client ??= new OpenAI({ apiKey: openaiApiKey, maxRetries: 2, timeout: 120_000 })
-  const response = await client.responses.parse({
-    model: openaiModel,
-    ...(openaiReasoningEffort ? { reasoning: { effort: openaiReasoningEffort as "low" | "medium" | "high" } } : {}),
-    input: [
-      { role: "system", content: systemPrompt(nowNaiveMs) },
-      { role: "user", content: userPrompt(items) },
-    ],
-    text: { format: zodTextFormat(ExtractionSchema, "rail_disruptions") },
+  client ??= new Anthropic({ apiKey: anthropicApiKey, maxRetries: 2, timeout: 300_000 })
+  const response = await client.beta.messages.parse({
+    model: anthropicModel,
+    max_tokens: 16000,
+    // A request a safety classifier declines is re-run server-side on Anthropic's recommended fallback model.
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",
+    system: systemPrompt(nowNaiveMs),
+    messages: [{ role: "user", content: userPrompt(items) }],
+    output_config: {
+      ...(effort ? { effort } : {}),
+      format: betaZodOutputFormat(ExtractionSchema),
+    },
   })
-  const parsed = response.output_parsed
-  if (!parsed)
+  const parsed = response.parsed_output
+  if (response.stop_reason === "refusal" || !parsed)
     throw new Error(
-      `OpenAI returned no structured output (status ${response.status}, ${response.incomplete_details?.reason ?? "no detail"})`,
+      `Claude returned no structured output (model ${response.model}, stop reason ${response.stop_reason}${
+        response.stop_details?.explanation ? `: ${response.stop_details.explanation}` : ""
+      })`,
     )
   return parsed
 }

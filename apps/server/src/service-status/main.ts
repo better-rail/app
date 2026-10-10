@@ -6,7 +6,7 @@
  * it to redis, where the web service lays it over the status (status/service-status.ts):
  *
  * - announcements.ts: Israel Railways' published service updates, read into planned
- *   disruptions by an OpenAI model whenever they change;
+ *   disruptions by a Claude model whenever they change;
  * - timetable.ts: Israel Railways' own timetable compared with the GTFS schedule, for
  *   trains that have gone missing (cancelled), lost stops or gained a run.
  *

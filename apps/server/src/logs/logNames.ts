@@ -143,7 +143,7 @@ export const logNames = {
   },
   announcements: {
     started: "Announcements poller started",
-    disabled: "Announcements poller idle (OPENAI_API_KEY / RAIL_URL / RAIL_API_KEY not set)",
+    disabled: "Announcements poller idle (ANTHROPIC_API_KEY / RAIL_URL / RAIL_API_KEY not set)",
     fetchFailed: "Failed to fetch Israel Railways service updates",
     extractFailed: "Failed to extract disruptions from Israel Railways service updates",
     extracted: "Extracted disruptions from Israel Railways service updates",

@@ -16,7 +16,7 @@
  */
 import { createHash } from "node:crypto"
 
-import { announcementsPollSeconds, openaiApiKey, openaiModel } from "../data/config"
+import { announcementsPollSeconds, anthropicApiKey, anthropicModel } from "../data/config"
 import { logNames, logger } from "../logs"
 import { isRailApiConfigured, railApiFetch } from "../requests/rail-api"
 import { naiveNowMs } from "../siri/correlate"
@@ -113,7 +113,7 @@ export const pollAnnouncements = async (overrides: Partial<PollDeps> = {}): Prom
   const fingerprint = fingerprintOf(items)
   const fetchedAt = deps.nowReal().toISOString()
 
-  if (previous && previous.fingerprint === fingerprint && previous.model === openaiModel) {
+  if (previous && previous.fingerprint === fingerprint && previous.model === anthropicModel) {
     const state = { ...previous, fetchedAt }
     await deps.write(state)
     return state
@@ -126,7 +126,7 @@ export const pollAnnouncements = async (overrides: Partial<PollDeps> = {}): Prom
     fingerprint,
     fetchedAt,
     extractedAt: fetchedAt,
-    model: openaiModel,
+    model: anthropicModel,
     disruptions,
     items: items.map((i) => ({ id: i.id, header: i.he.header })),
   }
@@ -151,10 +151,10 @@ const loop = createPollLoop({
 
 /** Start polling Israel Railways' updates, when there is a model and a rail API to read them with. */
 export const startAnnouncementsPoller = () => {
-  if (!openaiApiKey || !isRailApiConfigured()) {
+  if (!anthropicApiKey || !isRailApiConfigured()) {
     logger?.warn(logNames.announcements.disabled)
     return
   }
-  logger?.info(logNames.announcements.started, { model: openaiModel, everySeconds: announcementsPollSeconds })
+  logger?.info(logNames.announcements.started, { model: anthropicModel, everySeconds: announcementsPollSeconds })
   loop.start()
 }

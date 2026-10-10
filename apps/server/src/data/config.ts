@@ -100,13 +100,13 @@ export const siriPollerMode = process.env.SIRI_POLLER_MODE
  * Israel Railways' published service updates → announced disruptions on the status
  * screens, read by the service-status service (`bun run service-status`, its own Railway
  * process like the SIRI poller). It fetches the updates from the rail API (RAIL_URL +
- * RAIL_API_KEY, and PROXY_URL off-shore, like the timetable proxy) and has an OpenAI
- * model turn them into the status schema, so it idles without OPENAI_API_KEY.
+ * RAIL_API_KEY, and PROXY_URL off-shore, like the timetable proxy) and has a Claude
+ * model turn them into the status schema, so it idles without ANTHROPIC_API_KEY.
  */
-export const openaiApiKey = process.env.OPENAI_API_KEY as string
-export const openaiModel = process.env.OPENAI_MODEL || "gpt-5.6-luna"
-// Reasoning effort for the extraction ("minimal" … "high"); empty to send none (non-reasoning models).
-export const openaiReasoningEffort = process.env.OPENAI_REASONING_EFFORT ?? "medium"
+export const anthropicApiKey = process.env.ANTHROPIC_API_KEY as string
+export const anthropicModel = process.env.ANTHROPIC_MODEL || "claude-opus-5-5"
+// Effort for the extraction ("low" … "max"); the model's default ("medium" on Opus 5.5) when empty.
+export const anthropicEffort = process.env.ANTHROPIC_EFFORT ?? "medium"
 export const announcementsPollSeconds = Number(process.env.ANNOUNCEMENTS_POLL_SECONDS) || 300
 
 /**

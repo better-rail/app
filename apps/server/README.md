@@ -25,7 +25,7 @@ To follow these steps, ensure that [Bun](https://bun.sh) is installed (the serve
 - `/rides`: notification scheduler
 - `/routes`: express router (incl. the `/rail-api` legacy surface served from GTFS, and the token-guarded `/siri` debug routes)
 - `/siri`: SIRI-SM real-time pipeline — poller (standalone entrypoint `main.ts`), correlation and the redis snapshot
-- `/service-status`: the service-status service (standalone entrypoint `main.ts`) — Israel Railways' service updates read into announced disruptions by an LLM, and their timetable compared with the schedule; publishes to redis
+- `/service-status`: the service-status service (standalone entrypoint `main.ts`) — Israel Railways' service updates read into announced disruptions by Claude, and their timetable compared with the schedule; publishes to redis
 - `/status`: the Service Status derivation and the line catalogue
 - `/scripts`: standalone CLIs — `download-feed`, `ingest-gtfs`, `build-station-mapping`, `verify-mapping`
 - `/tests`: all the tests are here
@@ -218,14 +218,14 @@ the status. It needs the rail API (`RAIL_URL`, `RAIL_API_KEY` and, off-shore,
 come from Israel Railways' own `railupdates` feed (the notices the old app
 listed under "service updates"; the `PopUpMessages` endpoint is gone). Every
 `ANNOUNCEMENTS_POLL_SECONDS` (default 5 minutes) the feed is fetched in Hebrew
-and English and fingerprinted, and only when the content changed an OpenAI
-model (`OPENAI_MODEL`, structured output) reads the whole list into
+and English and fingerprinted, and only when the content changed a Claude
+model (`ANTHROPIC_MODEL`, structured output) reads the whole list into
 disruptions: kind (`suspension` of a stretch, or `skippedStops` for closed
 stations), station ids, validity windows, a reason and any alternatives in all
 four languages. Everything the model returns is checked against the line
 catalogue (`service-status/extraction.ts`) and dropped when it does not fit.
 The result goes to `status:announcements` (3-day TTL, refreshed every poll).
-Without `OPENAI_API_KEY` this half idles.
+Without `ANTHROPIC_API_KEY` this half idles.
 
 **Timetable check.** Israel Railways does not announce every cancellation, and
 SIRI only sees a train once it reports, but their timetable search always
@@ -273,7 +273,8 @@ guard as the other debug routes) show the stored states.
 - `SIRI_DEBUG_TOKEN`: secret for the `/api/v1/siri/*` debug routes; unset = routes 404
 - `RIDES_ENABLED`: `true`/`false` — whether this process tracks rides; see [Ride tracking](#ride-tracking)
 - `SIRI_POLLER_MODE`: set to `in-process` to run the poller inside the web service instead of the standalone `bun run siri` service
-- `OPENAI_API_KEY`: turns the announcements half of the service-status service on; `OPENAI_MODEL` (default `gpt-5-mini`) and `OPENAI_REASONING_EFFORT` (default `medium`, empty to omit) pick the model
+- `ANTHROPIC_API_KEY`: turns the announcements half of the service-status service on; `ANTHROPIC_MODEL` (default `claude-opus-5-5`) and `ANTHROPIC_EFFORT` (default `medium`, empty for the model's default) pick the model
+- `STATION_ALERTS_ENABLED`: `true`/`false` — whether this process watches station alerts and Delay Notifications and accepts their subscriptions (default: on when deployed on Railway); `STATION_ALERTS_CHECK_SECONDS` sets the check interval (default 60)
 - `ANNOUNCEMENTS_POLL_SECONDS`: how often the service-status service reads Israel Railways' updates (default 300)
 - `TIMETABLE_CHECK_SECONDS` / `TIMETABLE_WINDOW_MINUTES` / `TIMETABLE_STALE_SECONDS`: the timetable check's cadence, lookahead and freshness (defaults 300 / 120 / 900)
 - `SIRI_POLL_SECONDS` / `SIRI_PREVIEW_INTERVAL` / `SIRI_CHUNK_SIZE` / `SIRI_STALE_SECONDS` / `SIRI_CARRY_SECONDS`: optional tuning (defaults 30 / PT90M / 70 / 600 / 86400)
