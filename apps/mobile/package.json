@@ -11,6 +11,7 @@
     "prebuild": "expo prebuild",
     "compile": "tsc --noEmit -p . --pretty",
     "test": "bun test",
+    "update:sourcemaps": "sentry-expo-upload-sourcemaps dist",
     "e2e": "bun run e2e:ios",
     "e2e:ios": "maestro test -e MAESTRO_APP_ID=il.co.better-rail .maestro/flows",
     "e2e:android": "maestro test -e MAESTRO_APP_ID=com.betterrail .maestro/flows",
