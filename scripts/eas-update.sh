@@ -12,13 +12,19 @@ fi
 
 cd "$(dirname "$0")/../apps/mobile"
 
+# The release tag must match what's published, and eas update bundles uncommitted files too.
+if [ -n "$(git status --porcelain)" ]; then
+  echo "❌ Working tree has uncommitted changes. Commit or stash them first."
+  exit 1
+fi
+
 # Tag the release as v<app-version>-update.<n>, where n is one more than the
 # highest existing update tag for this version (e.g. v2.8.4-update.1).
 VERSION=$(bunx expo config --type public --json 2>/dev/null | node -e '
 let s = "";
 process.stdin.on("data", (d) => (s += d)).on("end", () => process.stdout.write(JSON.parse(s).version));
 ')
-git fetch --tags --quiet || true
+git fetch --tags --quiet
 LAST=$(git tag --list "v${VERSION}-update.*" | sed "s/^v${VERSION}-update\.//" | sort -n | tail -1)
 NEXT=$(( ${LAST:-0} + 1 ))
 TAG="v${VERSION}-update.${NEXT}"
