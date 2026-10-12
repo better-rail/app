@@ -35,6 +35,7 @@ import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
+import { retryOnNetworkError } from "@/utils/helpers/network-errors"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
@@ -226,7 +227,8 @@ export function RouteListScreen() {
     },
     {
       enabled: canSearchForTrains,
-      retry: false,
+      // The refetch interval fires as soon as iOS resumes the app, often before the network is back
+      retry: retryOnNetworkError,
       // Periodically refresh to catch platform changes and delays
       refetchInterval: 60_000,
       // Don't show stale data while refetching
