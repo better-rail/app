@@ -63,6 +63,9 @@ struct BetterRailLiveActivity: Widget {
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
+        // Keeps the ring and minutes clear of the island's rounded ends.
+        .contentMargins(.horizontal, 10, for: .compactLeading)
+        .contentMargins(.horizontal, 10, for: .compactTrailing)
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))
     }
