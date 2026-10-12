@@ -1,6 +1,5 @@
 import { isEmpty } from "lodash"
 import winston from "winston"
-import "winston-mongodb"
 
 import { SentryTransport } from "../sentry"
 
