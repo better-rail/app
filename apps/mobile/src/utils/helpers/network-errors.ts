@@ -4,7 +4,3 @@ import axios from "axios"
 export function isNetworkError(error: unknown): boolean {
   return axios.isAxiosError(error) && error.code === "ERR_NETWORK"
 }
-
-export function retryOnNetworkError(failureCount: number, error: unknown): boolean {
-  return isNetworkError(error) && failureCount < 2
-}
