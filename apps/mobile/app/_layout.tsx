@@ -37,6 +37,7 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
+import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -84,6 +85,11 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
+// Usually just a connectivity blip, so group them into one warning issue. A spike there can
+// still mean the API is unreachable (DNS, TLS, outage), since those fail the same way.
+const networkErrorContext = (error: unknown) =>
+  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -99,6 +105,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -107,6 +114,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
+        ...networkErrorContext(error),
       })
     },
   }),
