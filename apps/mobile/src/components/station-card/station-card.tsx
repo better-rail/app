@@ -36,6 +36,8 @@ export interface StationCardProps extends TouchableScaleProps {
   style?: ViewStyle
   loading?: boolean
   badges?: StationCardBadge[]
+  subtitle?: string
+  selected?: boolean
 }
 
 export type StationCardBadge = {
@@ -44,7 +46,27 @@ export type StationCardBadge = {
   tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, loading, badges, ...rest } = props
+  const { name, image, style, loading, badges, subtitle, selected, ...rest } = props
+
+  const selectionMark = selected && (
+    <>
+      <View pointerEvents="none" style={styles.selectionRing} />
+      <View style={styles.selectionMark}>
+        <Image source={require("../../../assets/checkmark.png")} style={styles.selectionMarkIcon} />
+      </View>
+    </>
+  )
+
+  const title = (
+    <View style={styles.titleWrapper}>
+      <Text style={styles.text}>{name}</Text>
+      {!!subtitle && (
+        <Text style={styles.subtitle} maxFontSizeMultiplier={1.3}>
+          {subtitle}
+        </Text>
+      )}
+    </View>
+  )
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
@@ -91,7 +113,8 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ThemedTouchableScale>
     )
@@ -102,7 +125,11 @@ export function StationCard(props: StationCardProps) {
       style={[styles.container, style]}
       activeScale={0.95}
       friction={9}
-      accessibilityLabel={badges?.length ? [name, ...badges.map((b) => b.label)].join(", ") : undefined}
+      accessibilityLabel={
+        badges?.length || subtitle
+          ? [name, ...(badges ?? []).map((b) => b.label), subtitle].filter(Boolean).join(", ")
+          : undefined
+      }
       {...rest}
     >
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
@@ -112,7 +139,8 @@ export function StationCard(props: StationCardProps) {
         />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ImageBackground>
     </ThemedTouchableScale>
@@ -127,6 +155,12 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { height: 1, width: 0 },
     shadowOpacity: 0.2,
     elevation: 3,
+  },
+  selectionRing: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 3,
+    borderColor: theme.colors.link,
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
   imagelessCard: {
     height: getCardHeight(rt.screen.height),
@@ -153,9 +187,11 @@ const styles = StyleSheet.create((theme, rt) => ({
   imageBackgroundImage: {
     borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
-  text: {
+  titleWrapper: {
     marginStart: theme.spacing[3],
     marginBottom: theme.spacing[2],
+  },
+  text: {
     color: theme.colors.palette.white,
     fontFamily: theme.typography.primary,
     fontSize: 22,
@@ -164,6 +200,35 @@ const styles = StyleSheet.create((theme, rt) => ({
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+  },
+  subtitle: {
+    color: "rgba(255, 255, 255, 0.85)",
+    fontSize: 14,
+    fontWeight: "500",
+    textAlign: "left",
+    textShadowColor: theme.colors.palette.black,
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  selectionMark: {
+    position: "absolute",
+    top: theme.spacing[2],
+    start: theme.spacing[2],
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: theme.colors.link,
+    borderWidth: 2,
+    borderColor: theme.colors.palette.white,
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+  },
+  selectionMarkIcon: {
+    width: 13,
+    height: 13,
+    resizeMode: "contain",
+    tintColor: theme.colors.palette.white,
   },
   badges: {
     position: "absolute",
