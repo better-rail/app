@@ -3,7 +3,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-list"
+import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
@@ -166,7 +166,7 @@ export function RouteListScreen() {
     setLoadedDates(new Set())
   }, [originId, destinationId])
 
-  const flashListRef = useRef<FlashListRef<RouteData>>(null)
+  const listRef = useRef<LegendListRef>(null)
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -343,7 +343,7 @@ export function RouteListScreen() {
   const scrollToHour = ({ index }: HourIndexEntry) => {
     // Keep the date header in view when jumping to the first train of the day
     const target = typeof displayData[index - 1] === "string" ? index - 1 : index
-    flashListRef.current?.scrollToIndex({ index: target, animated: false })
+    listRef.current?.scrollToIndex({ index: target, animated: false })
   }
 
   // Start over from the requested date
@@ -374,8 +374,10 @@ export function RouteListScreen() {
 
   // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
   // returns a route list for the whole day.
+  // Not gated on the query state: LegendList re-runs its initial scroll when this flips to
+  // undefined and back, which happens while the next day is loading.
   const initialScrollIndex = (() => {
-    if (!trains.isSuccess || displayData.length === 0) return undefined
+    if (displayData.length === 0) return undefined
 
     // Get only the route items (not date headers)
     const routeItems = displayData.filter((item): item is RouteItem => typeof item !== "string")
@@ -408,7 +410,7 @@ export function RouteListScreen() {
       return
     }
     if (initialScrollIndex === undefined) return
-    flashListRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
+    listRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxChanges])
 
@@ -589,9 +591,9 @@ export function RouteListScreen() {
 
       {displayData.length > 0 && (
         <View style={styles.listContainer}>
-          <FlashList
+          <LegendList
             key={`route-list-${hideSlowTrains}`}
-            ref={flashListRef}
+            ref={listRef}
             renderItem={renderRouteCard}
             keyExtractor={(item) =>
               typeof item === "string"
@@ -599,6 +601,8 @@ export function RouteListScreen() {
                 : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
             }
             data={displayData}
+            getItemType={(item) => (typeof item === "string" ? "date" : "route")}
+            recycleItems
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={VIEWABILITY_CONFIG}
             // The native scroll indicator would sit on top of the hour index

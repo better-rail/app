@@ -11,7 +11,7 @@ import { isDarkMode } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
-import { FlashList, FlashListRef } from "@shopify/flash-list"
+import { LegendList, type LegendListRef } from "@legendapp/list/react-native"
 import { useFilteredStations } from "@/hooks"
 import { fetchChangeStationRoute, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
 import { useQueryClient } from "react-query"
@@ -55,7 +55,7 @@ export function SelectStationScreen() {
   const setRouteItem = useNavigationParamsStore((s) => s.setRouteItem)
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
-  const listRef = useRef<FlashListRef<NormalizedStation>>(null)
+  const listRef = useRef<LegendListRef>(null)
 
   useEffect(() => {
     if (selectionType !== "via" || !allowedStations) return
@@ -166,17 +166,16 @@ export function SelectStationScreen() {
       </View>
 
       <View style={styles.listContainer}>
-        <FlashList
+        <LegendList
           ref={listRef}
           data={listData}
           renderItem={({ item }) => renderItem(item)}
           keyExtractor={(item) => item.id}
+          recycleItems
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.listContent}
           ListFooterComponent={<View style={styles.listFooter} />}
           extraData={replacingStationId}
-          // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-          maintainVisibleContentPosition={{ disabled: true }}
           ListEmptyComponent={() =>
             allowedStations ? null : (
               <View>
@@ -204,7 +203,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   listContent: {
     paddingBottom: theme.spacing[0],
   },
-  // A native view, since FlashList doesn't apply contentContainerStyle changes without a re-render.
+  // A native view, since the list doesn't apply contentContainerStyle changes without a re-render.
   listFooter: {
     height: rt.insets.ime > 0 ? 0 : rt.insets.bottom,
   },
