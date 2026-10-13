@@ -19,6 +19,7 @@ import * as Burnt from "burnt"
 import { translate } from "@/i18n"
 
 const STAR_ICON = require("../../../assets/star-fill.png")
+const CHECKMARK_ICON = require("../../../assets/checkmark.png")
 const INFO_ICON = require("../../../assets/info.circle.png")
 
 export type SelectionType = "origin" | "destination" | "via"
@@ -105,13 +106,12 @@ export function SelectStationScreen() {
         tone: "highlight",
       })
     }
+    if (samePlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.samePlatform") ?? "", icon: CHECKMARK_ICON })
+    } else if (acrossPlatformSet.has(stationId)) {
+      badges.push({ label: translate("routeDetails.acrossPlatform") ?? "", icon: CHECKMARK_ICON })
+    }
     return badges
-  }
-  const platformSubtitle = (stationId: string) => {
-    if (selectionType !== "via") return undefined
-    if (samePlatformSet.has(stationId)) return translate("routeDetails.samePlatform") ?? undefined
-    if (acrossPlatformSet.has(stationId)) return translate("routeDetails.acrossPlatform") ?? undefined
-    return undefined
   }
 
   const renderItem = (station: NormalizedStation) => (
@@ -120,7 +120,6 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       badges={changeBadges(station.id)}
-      subtitle={platformSubtitle(station.id)}
       selected={selectionType === "via" && station.id === currentStationId}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
