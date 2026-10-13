@@ -7,7 +7,7 @@ import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
@@ -37,6 +37,7 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
+import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -84,6 +85,11 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
+// Usually just a connectivity blip, so group them into one warning issue. A spike there can
+// still mean the API is unreachable (DNS, TLS, outage), since those fail the same way.
+const networkErrorContext = (error: unknown) =>
+  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -99,6 +105,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -107,9 +114,17 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
+        ...networkErrorContext(error),
       })
     },
   }),
+})
+
+// React Native has no window focus events: treat returning to the app as focus,
+// so live data (delays, platforms) refetches right away instead of on the next interval
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener("change", (state) => handleFocus(state === "active"))
+  return () => subscription.remove()
 })
 
 function AppStack() {

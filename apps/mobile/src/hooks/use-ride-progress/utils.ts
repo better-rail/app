@@ -12,7 +12,7 @@ export type RideState = {
 /**
  * Returns the end date for the current ride state.
  */
-export const getStatusEndDate = (route: RouteItem, state: RideState): Date | null => {
+export const getStatusEndDate = (route: RouteItem, state: RideState, now: number = Date.now()): Date | null => {
   const train = getTrainFromStationId(route, state.nextStationId)
   if (!train) return null
 
@@ -22,11 +22,7 @@ export const getStatusEndDate = (route: RouteItem, state: RideState): Date | nul
   const endDate = (() => {
     if (state.status === "waitForTrain" || state.status === "inExchange") {
       return departureDate
-    } else if (
-      state.status === "inTransit" &&
-      train.originStationId == state.nextStationId &&
-      departureDate.getTime() > Date.now()
-    ) {
+    } else if (state.status === "inTransit" && train.originStationId == state.nextStationId && departureDate.getTime() > now) {
       const previousTrain = getPreviousTrainFromStationId(route, state.nextStationId) ?? train
       return addMinutes(previousTrain.arrivalTime, state.delay)
     } else {

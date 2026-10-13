@@ -23,13 +23,20 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
   const title = translate("plan.rideTo", { destination })
   const notes = routeItem.trains
     .flatMap((train, index) => {
-      const leg = translate("plan.trainFromToStation", {
-        trainNumber: train.trainNumber,
-        origin: train.originStationName,
-        destination: train.destinationStationName,
-      })
+      const leg = [
+        translate("plan.trainFromToStation", {
+          trainNumber: train.trainNumber,
+          origin: train.originStationName,
+          destination: train.destinationStationName,
+        }),
+      ]
 
-      return index === 0 ? [leg] : [`${translate("routeDetails.changeAt")}${train.originStationName}`, leg]
+      // Platform 0 means the platform wasn't set yet
+      if (train.originPlatform !== 0) {
+        leg.push(`${translate("routeDetails.platform")} ${train.originPlatform}`)
+      }
+
+      return index === 0 ? leg : [`${translate("routeDetails.changeAt")}${train.originStationName}`, ...leg]
     })
     .join("\n")
 

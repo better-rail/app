@@ -62,6 +62,7 @@
     "updates": "Обновления из поезда",
     "updatesError": "Произошла ошибка при загрузке обновлений от Железных дорог Израиля",
     "shortRoute": "короткий маршрут",
+    "shortRouteCompact": "короткий",
     "maxBackwardsDate": "Нельзя вернуться более чем на 3 дня",
     "routeDetails": "Детали маршрута",
     "routeActions": "Действия",
@@ -235,6 +236,8 @@
     "noFareForRoute": "Цена для этого маршрута не найдена."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "Поезда не найдены — %{date}",
+    "showingTrainsForDate": "Показаны поезда — %{date}",
     "noTrainsFoundForDate": "Нет поездов на указанную дату",
     "foundTrainsAtDate": "Отображены поезда на ",
     "noTrainsFoundForHour": "Поезда не найдены в указанное время",

@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["UE6BVYPPFX.il.co.better-rail"],
+        "components": [{ "/": "/routes/*" }, { "/": "/en/routes/*" }]
+      }
+    ]
+  },
+  "activitycontinuation": {
+    "apps": ["UE6BVYPPFX.il.co.better-rail"]
+  }
+}

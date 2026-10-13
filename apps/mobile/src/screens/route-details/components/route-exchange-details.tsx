@@ -35,7 +35,11 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
 
   const onChangeStationPress = () => {
-    const platformChanges = Object.entries(easyPlatformChanges(firstTrain, secondTrain, alternatives))
+    const currentStationId = String(firstTrain.destinationStationId)
+    // Keep the stations in the order the first train reaches them
+    const runOrder = firstTrain.routeStations.map((s) => String(s.stationId))
+    const stationIds = [currentStationId, ...alternatives].sort((a, b) => runOrder.indexOf(a) - runOrder.indexOf(b))
+    const platformChanges = Object.entries(easyPlatformChanges(firstTrain, secondTrain, stationIds))
     const idsWith = (change: string) =>
       platformChanges
         .filter(([, c]) => c === change)
@@ -51,7 +55,8 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
       pathname: "/select-station",
       params: {
         selectionType: "via",
-        stationIds: alternatives.join(","),
+        stationIds: stationIds.join(","),
+        currentStationId,
         trainStartId: trainStartStation(secondTrain),
         samePlatformIds: idsWith("same"),
         acrossPlatformIds: idsWith("across"),

@@ -61,7 +61,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.8.3",
+  version: "2.8.5",
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
@@ -91,6 +91,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Consumed by @bacons/apple-targets for signing the generated extension/widget/watch targets.
     appleTeamId: APPLE_TEAM_ID,
     supportsTablet: false,
+    associatedDomains: ["applinks:better-rail.co.il", "activitycontinuation:better-rail.co.il"],
     // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
     // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
     // light/dark/tinted PNG object. Named "AppIcon" (not "Icon") so the project-wide
@@ -166,6 +167,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         action: "VIEW",
         category: ["DEFAULT", "BROWSABLE"],
         data: [{ scheme: "betterrail" }],
+      },
+      {
+        action: "VIEW",
+        autoVerify: true,
+        category: ["DEFAULT", "BROWSABLE"],
+        data: [
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/routes/" },
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/en/routes/" },
+        ],
       },
     ],
   },

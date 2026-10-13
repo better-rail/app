@@ -65,6 +65,7 @@
     "updates": "Updates from Israel Railways",
     "updatesError": "An error occurred while attempting to load updates from Israel Railways",
     "shortRoute": "Short Route",
+    "shortRouteCompact": "Short",
     "maxBackwardsDate": "Cannot go back more than 3 days",
     "routeDetails": "Route Details",
     "routeActions": "Actions",
@@ -249,6 +250,8 @@
     "noFareForRoute": "No fare found for this route."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "No trains found for %{date}",
+    "showingTrainsForDate": "Showing trains for %{date}",
     "noTrainsFoundForDate": "No trains found for the requested date",
     "foundTrainsAtDate": "Showing trains departing at ",
     "noTrainsFoundForHour": "No trains found at the requested time",

@@ -28,7 +28,7 @@ function replacementQuery(stationId: string) {
   return { queryKey, queryFn }
 }
 
-// getRoutes also returns [] on network errors, so an empty result shouldn't stick
+// A timetable can change, so an empty replacement should not stick in the cache.
 function forgetIfEmpty(queryClient: QueryClient, queryKey: unknown[]) {
   if (queryClient.getQueryData(queryKey) === null) queryClient.removeQueries(queryKey, { exact: true })
 }

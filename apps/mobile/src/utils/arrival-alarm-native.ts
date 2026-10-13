@@ -1,13 +1,15 @@
 import { NativeModules, Platform } from "react-native"
+import { getVersion } from "react-native-device-info"
 
 // iOS: AlarmKit, in the RNBetterRail module. Android: an exact AlarmManager alarm that rings from a foreground service.
 const native = Platform.OS === "ios" ? NativeModules.RNBetterRail : NativeModules.ArrivalAlarm
 
 export type ArrivalAlarmAuthorization = "unsupported" | "notDetermined" | "denied" | "authorized"
 
-/** AlarmKit needs iOS 26. Both need a binary that has the native module (an OTA update can reach an older one). */
+/** AlarmKit needs iOS 26. Both need a binary that has the native module (an OTA update can reach an older one). Ships with v3. */
 export const isArrivalAlarmSupported = () => {
   if (typeof native?.scheduleArrivalAlarm !== "function") return false
+  if (Number(getVersion().split(".")[0]) < 3) return false
   if (Platform.OS === "ios") return parseFloat(String(Platform.Version)) >= 26
   return Platform.OS === "android"
 }

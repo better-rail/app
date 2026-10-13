@@ -153,7 +153,7 @@ export class RouteApi {
       return routesWithWarning
     } catch (err) {
       console.error(err)
-      return []
+      throw err
     }
   }
 }

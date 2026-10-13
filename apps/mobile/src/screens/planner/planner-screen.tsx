@@ -19,16 +19,16 @@ import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
 import { translate, useFormattedDate } from "@/i18n"
 import { useQuery } from "react-query"
-import { isWeekend } from "@/utils/helpers/date-helpers"
 import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
-import { useRouter, useFocusEffect, useIsFocused } from "expo-router"
+import { useRouter, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
+import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
 export function PlannerScreen() {
   const router = useRouter()
@@ -45,9 +45,7 @@ export function PlannerScreen() {
   const dateTypeDisplayName = useDateTypeDisplayName()
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const isFocused = useIsFocused()
-  const { updateResultType, getRoutes } = useTrainRoutesStore(
-    useShallow((s) => ({ updateResultType: s.updateResultType, getRoutes: s.getRoutes })),
-  )
+  const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
   const formattedDate = useFormattedDate(date)
@@ -164,24 +162,15 @@ export function PlannerScreen() {
     markInteractive()
   })
 
-  useFocusEffect(() => {
-    // if the result type is not "normal", it'll be the initial type upon navigating to the
-    // route list - so we need to ensure we reset it back to it's normal state once back to the
-    // planner screen.
-    updateResultType("normal")
-  })
-
-  // Prefetch routes so the route list loads instantly.
+  // Prefetch the complete search result, including any automatic date change.
+  const queryKey = routeListDayQueryKey(origin?.id, destination?.id, date.getTime(), hideSlowTrains)
   useQuery(
-    ["origin", origin?.id, "destination", destination?.id, "time", date.getTime(), "hideSlowTrains", hideSlowTrains],
-    () => getRoutes(origin?.id, destination?.id, date.getTime()),
-    /**
-     *  TODO: Temporary fix for displaying "no trains found" modal, omitting cache during the weekend.
-     *  Usually on weekends there are no trains, and the results are displayed for a different day.
-     *  Those results will be cached and the "no trains modal" modal won't be displayed for them. Therefor we omit caching during
-     *  for weekend requests.
-     */
-    { cacheTime: isWeekend(date) ? 0 : 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
+    queryKey,
+    () =>
+      getRoutes(origin?.id, destination?.id, date.getTime(), {
+        hideSlowTrains,
+      }),
+    { cacheTime: 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
   )
 
   return (

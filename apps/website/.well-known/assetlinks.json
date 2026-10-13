@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.betterrail",
+      "sha256_cert_fingerprints": [
+        "5B:93:26:1E:7A:FC:CF:43:94:A5:2F:98:EA:04:90:3C:49:BE:5D:4A:C5:EC:EC:C3:5A:E9:7D:1D:77:68:F6:8B",
+        "8E:68:4F:A1:7D:8C:D2:D3:46:7D:F2:1A:EF:6C:F3:17:E9:40:87:B4:D1:63:EB:80:4A:3A:67:76:56:EF:0A:61"
+      ]
+    }
+  }
+]
