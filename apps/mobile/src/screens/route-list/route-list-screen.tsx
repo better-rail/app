@@ -3,7 +3,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList, type FlashListRef, type ViewToken } from "@shopify/flash-list"
+import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { addDays } from "date-fns"
@@ -142,7 +142,7 @@ function RouteListResults({
     [originId, destinationId],
   )
 
-  const flashListRef = useRef<FlashListRef<RouteData>>(null)
+  const listRef = useRef<LegendListRef>(null)
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -275,7 +275,7 @@ function RouteListResults({
   const scrollToHour = ({ index }: HourIndexEntry) => {
     // Keep the date header in view when jumping to the first train of the day
     const target = typeof displayData[index - 1] === "string" ? index - 1 : index
-    flashListRef.current?.scrollToIndex({ index: target, animated: false })
+    listRef.current?.scrollToIndex({ index: target, animated: false })
   }
 
   // Signal TTI after the results or an empty/error state has resolved.
@@ -295,7 +295,7 @@ function RouteListResults({
       return
     }
     if (initialScrollIndex === undefined) return
-    flashListRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
+    listRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maxChanges])
 
@@ -468,9 +468,9 @@ function RouteListResults({
 
       {displayData.length > 0 && (
         <View style={styles.listContainer}>
-          <FlashList
+          <LegendList
             key={`route-list-${hideSlowTrains}`}
-            ref={flashListRef}
+            ref={listRef}
             renderItem={renderRouteCard}
             keyExtractor={(item) =>
               typeof item === "string"
@@ -479,10 +479,10 @@ function RouteListResults({
             }
             data={displayData}
             getItemType={(item) => (typeof item === "string" ? "date" : "route")}
+            recycleItems
             stickyHeaderIndices={displayData.flatMap((item, index) =>
               typeof item === "string" && item !== todayDate ? [index] : [],
             )}
-            stickyHeaderConfig={{ hideRelatedCell: true }}
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={VIEWABILITY_CONFIG}
             // The native scroll indicator would sit on top of the hour index
