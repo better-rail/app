@@ -89,8 +89,10 @@ export function RouteCard(props: RouteCardProps) {
     return `${stops} ${translate("routes.changes")}`
   })()
 
-  // Check if indicators are bloated (short route badge with delay or changes shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && (delay > 0 || stops > 0) && !hideSlowTrains
+  // More than one of short route badge, delay and changes crowds the row; cancelled cards show only their badge
+  const isCancelled = routeItem?.isCancelled ?? false
+  const showShortRouteBadge = isMuchShorter && !isMuchLonger && !hideSlowTrains
+  const isBloatedIndicators = !isCancelled && [showShortRouteBadge, delay > 0, stops > 0].filter(Boolean).length > 1
   // "12:08 PM" needs the room the dashed lines take at the default font size
   const showDashedLine = shouldShowDashedLine && !isBloatedIndicators && !use12HourClock
 
@@ -106,7 +108,6 @@ export function RouteCard(props: RouteCardProps) {
 
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
-  const isCancelled = routeItem?.isCancelled ?? false
   const timeTextStyle = [styles.timeText, use12HourClock && styles.timeText12h, isCancelled && styles.cancelledTimeText]
 
   const getTrainType = (train: any): string => {

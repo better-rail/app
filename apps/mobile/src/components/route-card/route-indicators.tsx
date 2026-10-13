@@ -22,32 +22,39 @@ export const RouteIndicators = ({
   }
 
   // Show short route badge only when filter is off (hideShortRouteBadge is false)
-  if (isMuchShorter && !isMuchLonger && !hideShortRouteBadge) {
-    return (
-      <View style={styles.wrapper}>
-        <View style={[styles.shortRouteBadge, isRideActive && styles.shortRouteBadgeActive]}>
-          <Text style={styles.shortRouteBadgeText} tx="routes.shortRoute" />
-        </View>
-        {delay > 0 ? (
-          <DelayBadge delay={delay} onlyNumber />
-        ) : (
-          hasChanges && (
-            <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
-              {stopsText}
-            </Text>
-          )
-        )}
-      </View>
-    )
-  } else if (delay > 0) {
-    return <DelayBadge delay={delay} />
-  } else {
+  const showShortRouteBadge = isMuchShorter && !isMuchLonger && !hideShortRouteBadge
+
+  if (!showShortRouteBadge && !(delay > 0)) {
     return (
       <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
         {stopsText}
       </Text>
     )
   }
+
+  if (!showShortRouteBadge && !hasChanges) {
+    return <DelayBadge delay={delay} />
+  }
+
+  // Several indicators share the row, so the delay shrinks to "+X", and with all three the badge too
+  const isCrowded = showShortRouteBadge && delay > 0 && hasChanges
+  return (
+    <View style={styles.wrapper}>
+      <View style={styles.badges}>
+        {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
+        {showShortRouteBadge && (
+          <View style={[styles.shortRouteBadge, isRideActive && styles.shortRouteBadgeActive]}>
+            <Text style={styles.shortRouteBadgeText} tx={isCrowded ? "routes.shortRouteCompact" : "routes.shortRoute"} />
+          </View>
+        )}
+      </View>
+      {hasChanges && (
+        <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
+          {stopsText}
+        </Text>
+      )}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create((theme) => ({
@@ -56,6 +63,11 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: "row",
     alignItems: "center",
     gap: theme.spacing[2],
+  },
+  badges: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[1],
   },
   shortRouteBadge: {
     paddingVertical: 1,
