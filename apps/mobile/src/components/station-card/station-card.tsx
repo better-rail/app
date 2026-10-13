@@ -36,7 +36,6 @@ export interface StationCardProps extends TouchableScaleProps {
   style?: ViewStyle
   loading?: boolean
   badges?: StationCardBadge[]
-  subtitle?: string
   selected?: boolean
 }
 
@@ -46,7 +45,7 @@ export type StationCardBadge = {
   tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, loading, badges, subtitle, selected, ...rest } = props
+  const { name, image, style, loading, badges, selected, ...rest } = props
 
   const selectionMark = selected && (
     <>
@@ -57,16 +56,7 @@ export function StationCard(props: StationCardProps) {
     </>
   )
 
-  const title = (
-    <View style={styles.titleWrapper}>
-      <Text style={styles.text}>{name}</Text>
-      {!!subtitle && (
-        <Text style={styles.subtitle} maxFontSizeMultiplier={1.3}>
-          {subtitle}
-        </Text>
-      )}
-    </View>
-  )
+  const title = <Text style={styles.text}>{name}</Text>
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
@@ -125,11 +115,7 @@ export function StationCard(props: StationCardProps) {
       style={[styles.container, style]}
       activeScale={0.95}
       friction={9}
-      accessibilityLabel={
-        badges?.length || subtitle
-          ? [name, ...(badges ?? []).map((b) => b.label), subtitle].filter(Boolean).join(", ")
-          : undefined
-      }
+      accessibilityLabel={badges?.length ? [name, ...badges.map((b) => b.label)].join(", ") : undefined}
       {...rest}
     >
       <ImageBackground imageStyle={styles.imageBackgroundImage} source={image} style={styles.background}>
@@ -187,24 +173,13 @@ const styles = StyleSheet.create((theme, rt) => ({
   imageBackgroundImage: {
     borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
-  titleWrapper: {
+  text: {
     marginStart: theme.spacing[3],
     marginBottom: theme.spacing[2],
-  },
-  text: {
     color: theme.colors.palette.white,
     fontFamily: theme.typography.primary,
     fontSize: 22,
     fontWeight: "700",
-    textAlign: "left",
-    textShadowColor: theme.colors.palette.black,
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  subtitle: {
-    color: "rgba(255, 255, 255, 0.85)",
-    fontSize: 14,
-    fontWeight: "500",
     textAlign: "left",
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },
