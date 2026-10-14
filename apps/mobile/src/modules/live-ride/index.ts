@@ -13,7 +13,8 @@ export { extractFcmData } from "./fcm-payload"
 export { LiveRideController, STALE_AFTER_MS } from "./live-ride-controller"
 export * from "./types"
 
-export const isLiveRideSupported = (): boolean => Platform.OS === "android"
+export const isLiveRideSupported = (): boolean =>
+  Platform.OS === "android" && Boolean(NativeModules.LiveRideNotificationModule)
 
 class AndroidNativeBridge implements LiveRideNativeBridge {
   private get nativeModule() {

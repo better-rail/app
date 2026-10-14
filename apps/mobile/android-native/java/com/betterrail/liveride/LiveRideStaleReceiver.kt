@@ -22,8 +22,10 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
             shortCriticalText = intent.getStringExtra(EXTRA_SHORT_CRITICAL_TEXT),
             countdownTargetMs = if (intent.hasExtra(EXTRA_COUNTDOWN_TARGET_MS)) intent.getLongExtra(EXTRA_COUNTDOWN_TARGET_MS, 0L).takeIf { it > 0 } else null,
             stopActionText = intent.getStringExtra(EXTRA_STOP_ACTION_TEXT),
+            titleSemanticStyle = if (intent.hasExtra(EXTRA_TITLE_SEMANTIC_STYLE)) intent.getIntExtra(EXTRA_TITLE_SEMANTIC_STYLE, 0) else null,
+            bodySemanticStyle = if (intent.hasExtra(EXTRA_BODY_SEMANTIC_STYLE)) intent.getIntExtra(EXTRA_BODY_SEMANTIC_STYLE, 0) else null,
         )
-        LiveRideNotifier.showProgress(context, content)
+        LiveRideNotifier.showProgress(context, content, staleUntil)
     }
 
     companion object {
@@ -38,6 +40,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
         private const val EXTRA_COUNTDOWN_TARGET_MS = "countdownTargetMs"
         private const val EXTRA_STOP_ACTION_TEXT = "stopActionText"
         private const val EXTRA_UNTIL = "staleUntil"
+        private const val EXTRA_TITLE_SEMANTIC_STYLE = "titleSemanticStyle"
+        private const val EXTRA_BODY_SEMANTIC_STYLE = "bodySemanticStyle"
 
         fun toIntent(context: Context, content: LiveRideContent, staleUntil: Long): Intent =
             Intent(context, LiveRideStaleReceiver::class.java)
@@ -51,6 +55,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
                     content.shortCriticalText?.let { putExtra(EXTRA_SHORT_CRITICAL_TEXT, it) }
                     content.countdownTargetMs?.let { putExtra(EXTRA_COUNTDOWN_TARGET_MS, it) }
                     content.stopActionText?.let { putExtra(EXTRA_STOP_ACTION_TEXT, it) }
+                    content.titleSemanticStyle?.let { putExtra(EXTRA_TITLE_SEMANTIC_STYLE, it) }
+                    content.bodySemanticStyle?.let { putExtra(EXTRA_BODY_SEMANTIC_STYLE, it) }
                 }
                 .putExtra(EXTRA_UNTIL, staleUntil)
     }

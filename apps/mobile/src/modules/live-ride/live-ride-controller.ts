@@ -1,22 +1,31 @@
+import { addMinutes, differenceInMinutes } from "date-fns"
+import i18n from "i18n-js"
+import { last } from "lodash"
+import type { RideStatus } from "@/hooks/use-ride-progress/use-ride-progress"
+import { getStatusEndDate, type RideState, rideProgress } from "@/hooks/use-ride-progress/utils"
+import { getInitialLanguage, type LanguageCode, resolveUse12HourClock, type TxKeyPath, translate } from "@/i18n"
 import type { RouteItem, Train } from "@/services/api/rail-api.types"
+import { formatTime } from "@/utils/helpers/date-helpers"
+import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
+import { extractFcmData } from "./fcm-payload"
 import {
-  SemanticColor,
+  type AndroidAlert,
   type LiveRideNativeBridge,
   type LiveRideSession,
   type LiveRideUpdatePayload,
   type NotificationPermissionState,
+  SemanticColor,
+  type SemanticColorType,
 } from "./types"
-import { extractFcmData } from "./fcm-payload"
-import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
-import { getStatusEndDate, rideProgress, type RideState } from "@/hooks/use-ride-progress/utils"
-import type { RideStatus } from "@/hooks/use-ride-progress/use-ride-progress"
-import { formatTime } from "@/utils/helpers/date-helpers"
-import { getInitialLanguage, resolveUse12HourClock, translate, type LanguageCode, type TxKeyPath } from "@/i18n"
-import i18n from "i18n-js"
-import { addMinutes, differenceInMinutes } from "date-fns"
-import { last } from "lodash"
 
 export const STALE_AFTER_MS = 135_000
+
+export type LiveRideStatus = RideStatus | "prepareToExit" | "getOff"
+
+export interface LiveRideState extends Omit<RideState, "status"> {
+  status: LiveRideStatus
+  rawStatus?: string
+}
 
 export interface LiveRideDependencies {
   bridge: LiveRideNativeBridge
@@ -30,7 +39,7 @@ export interface LiveRideDependencies {
   now?: () => number
 }
 
-const toRideStatus = (status: string): RideStatus => (status === "getOff" ? "inTransit" : (status as RideStatus))
+const toRideStatus = (status: string): LiveRideStatus => (status as LiveRideStatus)
 
 export const getLiveRideSemanticStyle = (state: LiveRideState): SemanticColorType => {
   if (state.delay > 0) {
@@ -46,15 +55,19 @@ const getRideDestination = (route: RouteItem) => route.trains[route.trains.lengt
 
 const getArrivalTime = (route: RouteItem) => route.arrivalTime ?? last(route.trains)?.arrivalTime
 
-const getTargetDate = (route: RouteItem, state: RideState): Date | null => {
+const getTargetDate = (route: RouteItem, state: LiveRideState): Date | null => {
   const firstTrain = route.trains[0]
-  return getStatusEndDate(route, state) ?? (firstTrain ? addMinutes(firstTrain.departureTime, state.delay) : null)
+  return (
+    getStatusEndDate(route, state as unknown as RideState) ??
+    (firstTrain ? addMinutes(firstTrain.departureTime, state.delay) : null)
+  )
 }
 
 const getMinutesUntil = (targetDate: Date | null, now: number): number | null =>
   targetDate ? differenceInMinutes(targetDate, now, { roundingMethod: "ceil" }) : null
 
-const isBoarding = (status: RideStatus): boolean => status === "waitForTrain" || status === "inExchange" || status === "loading"
+const isBoarding = (status: LiveRideStatus): boolean =>
+  status === "waitForTrain" || status === "inExchange" || status === "loading"
 
 const formatTrainInfo = (train: Train) =>
   translate("ride.trainInfo", {
@@ -108,7 +121,7 @@ export const formatArrivingIn = (minutes: number, locale?: string): string =>
 export const formatDepartsIn = (minutes: number, locale?: string): string =>
   formatDuration(DURATION_KEYS.departsIn, minutes, locale)
 
-const getChipText = (state: RideState, minutes: number | null): string => {
+const getChipText = (state: LiveRideState, minutes: number | null): string => {
   const text = (() => {
     if (state.status === "stale") return translate("ride.chipNoSignal")
     if (state.status === "arrived") return translate("ride.arrived")
@@ -133,10 +146,6 @@ const getChipText = (state: RideState, minutes: number | null): string => {
 interface StationProgress {
   currentIndex: number
   totalStations: number
-}
-
-interface LiveRideState extends RideState {
-  rawStatus?: string
 }
 
 export class LiveRideController {
@@ -167,7 +176,7 @@ export class LiveRideController {
 
     const nextStationId = findClosestStationInRoute(route)
     const train = getTrainFromStationId(route, nextStationId)
-    const state: RideState = {
+    const state: LiveRideState = {
       status: getRideStatus(route, train, nextStationId),
       nextStationId,
       delay: train?.delay ?? 0,
@@ -330,12 +339,12 @@ export class LiveRideController {
     }
   }
 
-  private getStaleContent(route: RouteItem, state: RideState, barProgress?: { progress: number; maxProgress: number }) {
+  private getStaleContent(route: RouteItem, state: LiveRideState, barProgress?: { progress: number; maxProgress: number }) {
     const arrivalTime = getArrivalTime(route)
     const lastTrain = last(route.trains)
     if (!arrivalTime || !lastTrain) return undefined
 
-    const stale: RideState = { status: "stale", delay: state.delay, nextStationId: lastTrain.destinationStationId }
+    const stale: LiveRideState = { status: "stale", delay: state.delay, nextStationId: lastTrain.destinationStationId }
     const untilMs = addMinutes(arrivalTime, state.delay).getTime()
     const { title, body } = this.getNotificationText(route, stale)
     return {
@@ -351,7 +360,7 @@ export class LiveRideController {
     }
   }
 
-  private getNotificationText(route: RouteItem, state: RideState, stations?: StationProgress): { title: string; body: string } {
+  private getNotificationText(route: RouteItem, state: LiveRideState, stations?: StationProgress): { title: string; body: string } {
     const currentIndex = stations?.currentIndex ?? 0
     const totalStations = stations?.totalStations ?? 0
     const targetDate = getTargetDate(route, state)
@@ -397,7 +406,7 @@ export class LiveRideController {
 
     const stopsLeft = totalStations - currentIndex
     let body: string
-    if (state.status === "getOff" || (state as LiveRideState).rawStatus === "getOff") {
+    if (state.status === "getOff" || state.rawStatus === "getOff") {
       body = translate("ride.getOff")
     } else if (stopsLeft <= 0) {
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]

@@ -41,14 +41,15 @@ object LiveRideNotifier {
     private const val COLOR_ON_TIME_GREEN = 0xFF34C759.toInt()
     private const val COLOR_STATION_POINT = 0xFFC8E1FF.toInt()
 
-    fun showProgress(context: Context, content: LiveRideContent) {
+    fun showProgress(context: Context, content: LiveRideContent, staleUntil: Long? = null) {
         ensureChannel(context)
         dismissAlerts(context)
+        val remainingMs = staleUntil?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) }
         val notification = if (Build.VERSION.SDK_INT >= 36) {
-            runCatching { buildLiveUpdate(context, content) }.getOrNull()
+            runCatching { buildLiveUpdate(context, content, remainingMs) }.getOrNull()
         } else {
             null
-        } ?: buildCompatProgress(context, content)
+        } ?: buildCompatProgress(context, content, remainingMs)
 
         notificationManager(context).notify(NOTIFICATION_ID, notification)
     }
@@ -157,7 +158,7 @@ object LiveRideNotifier {
         else -> SemanticPresentation(COLOR_TRACK_SEGMENT, SemanticColorCompat.SEMANTIC_STYLE_INFO)
     }
 
-    private fun buildLiveUpdate(context: Context, content: LiveRideContent): Notification {
+    private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val (numSegments, max, clampedProgress) = computeProgressBounds(content)
 
         val style = Notification.ProgressStyle()
@@ -224,13 +225,16 @@ object LiveRideNotifier {
         }
 
         builder.setShowWhen(false)
+        if (timeoutMs != null && timeoutMs > 0) {
+            builder.setTimeoutAfter(timeoutMs)
+        }
 
         val notification = builder.build()
         notification.flags = notification.flags or Notification.FLAG_PROMOTED_ONGOING
         return notification
     }
 
-    private fun buildCompatProgress(context: Context, content: LiveRideContent): Notification {
+    private fun buildCompatProgress(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val (_, max, clampedProgress) = computeProgressBounds(content)
         val compatColor = resolveSemanticPresentation(content.titleSemanticStyle).color
 
@@ -246,6 +250,10 @@ object LiveRideNotifier {
             .setShowWhen(false)
             .setProgress(max, clampedProgress, false)
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
+
+        if (timeoutMs != null && timeoutMs > 0) {
+            builder.setTimeoutAfter(timeoutMs)
+        }
 
         content.stopActionText?.takeIf { it.isNotBlank() }?.let { actionTitle ->
             builder.addAction(0, actionTitle, stopIntent(context))
