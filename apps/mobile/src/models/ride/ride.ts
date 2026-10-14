@@ -144,15 +144,15 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 
   async checkLiveRideAuthorization() {
-    const { canRunLiveActivities } = get()
-    if (!canRunLiveActivities) return
+    const isSupported = Platform.OS === "android" ? isLiveRideSupported() : get().canRunLiveActivities
+    if (!isSupported) return
 
     if (Platform.OS === "ios") {
       const info = await iOSHelpers.activityAuthorizationInfo()
       set({ activityAuthorizationInfo: info })
     } else if (Platform.OS === "android") {
       const state = await androidHelpers().getPermissionState()
-      set({ notificationPermissionState: state })
+      set({ notificationPermissionState: state, canRunLiveActivities: true })
     }
   },
 
@@ -276,7 +276,7 @@ export function hydrateRideStore(data: any) {
     activityAuthorizationInfo: data.activityAuthorizationInfo ?? undefined,
     notificationPermissionState: data.notificationPermissionState ?? undefined,
     rideCount: data.rideCount ?? 0,
-    canRunLiveActivities: data.canRunLiveActivities ?? false,
+    canRunLiveActivities: Platform.OS === "android" ? isLiveRideSupported() : (data.canRunLiveActivities ?? false),
     arrivalAlarm: data.arrivalAlarm ?? undefined,
     pendingArrivalAlarmRemoval: data.pendingArrivalAlarmRemoval ?? undefined,
     arrivalAlarmFullScreenPrompted: data.arrivalAlarmFullScreenPrompted ?? false,

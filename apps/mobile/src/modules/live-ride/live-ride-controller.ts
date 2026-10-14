@@ -56,10 +56,13 @@ const getRideDestination = (route: RouteItem) => route.trains[route.trains.lengt
 const getArrivalTime = (route: RouteItem) => route.arrivalTime ?? last(route.trains)?.arrivalTime
 
 const getTargetDate = (route: RouteItem, state: LiveRideState): Date | null => {
-  const firstTrain = route.trains[0]
+  const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
+  if (state.status === "loading") {
+    return train ? addMinutes(train.departureTime, state.delay) : null
+  }
   return (
     getStatusEndDate(route, state as unknown as RideState) ??
-    (firstTrain ? addMinutes(firstTrain.departureTime, state.delay) : null)
+    (train ? addMinutes(train.departureTime, state.delay) : null)
   )
 }
 
@@ -224,8 +227,8 @@ export class LiveRideController {
   }
 
   async stop(): Promise<void> {
-    await this.deps.bridge.cancelLiveRide().catch(() => false)
     await this.deps.storage.clear()
+    await this.deps.bridge.cancelLiveRide().catch(() => false)
   }
 
   private async render(route: RouteItem, state: LiveRideState, alert?: { title?: string; body?: string }) {

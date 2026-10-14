@@ -24,12 +24,26 @@ Notifications.setNotificationHandler({
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
+const recentFcmPushes = new Map<string, number>()
+
+const isDuplicateFcmData = (data: Record<string, string>): boolean => {
+  const id = data.messageId ?? data["google.message_id"] ?? data.id ?? `${data.type}:${JSON.stringify(data)}`
+  const now = Date.now()
+  for (const [key, ts] of recentFcmPushes) {
+    if (now - ts > 5000) recentFcmPushes.delete(key)
+  }
+  if (recentFcmPushes.has(id)) return true
+  recentFcmPushes.set(id, now)
+  return false
+}
+
 const handleFcmData = (data: Record<string, string> | null) => {
-  if (data?.type === "live-ride") {
+  if (!data || isDuplicateFcmData(data)) return
+  if (data.type === "live-ride") {
     if (!isLiveRideSupported()) return
     return liveRideNotifications.processIncomingPush(data)
   }
-  if (data?.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
+  if (data.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
 }
 
 TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
