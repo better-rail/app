@@ -4,14 +4,13 @@ import type AndroidHelpersModule from "@/utils/notification-helpers"
 import iOSHelpers, { ActivityAuthorizationInfo } from "@/utils/ios-helpers"
 import { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
-import { RideApi } from "@/services/api/ride-api"
 import { cancelArrivalAlarm } from "@/utils/arrival-alarm-native"
+import { addStopRideListener, isLiveRideSupported, type NotificationPermissionState } from "@/modules/live-ride"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
 import { translate } from "@/i18n"
 import * as Sentry from "@sentry/react-native"
-import notifee, { NotificationSettings } from "@notifee/react-native"
 import { trackEvent } from "@/services/analytics"
 import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
@@ -32,7 +31,6 @@ const reportRideStartFailure = (error: unknown, route: RouteItem) => {
       departureDate: route.departureTimeString,
       delay: route.delay,
     })
-    // Group these in Sentry by stage + reason. Without it they'd group by the axios message, which includes the URL.
     scope.setFingerprint(["live-ride-start-failed", tags.ride_start_stage, tags.ride_start_reason])
     Sentry.captureException(error)
   })
@@ -40,8 +38,6 @@ const reportRideStartFailure = (error: unknown, route: RouteItem) => {
   trackEvent("start_live_ride_failed", tags)
 }
 
-// Loaded lazily to avoid a require cycle (notification-helpers imports back into the ride hooks/models).
-// The Android helpers are only used at runtime on Android, so a deferred require is safe here.
 const androidHelpers = () => (require("@/utils/notification-helpers") as { default: typeof AndroidHelpersModule }).default
 
 const startRideHandler = (route: RouteItem): Promise<string> =>
@@ -63,7 +59,7 @@ export interface RideState {
   id: string | undefined
   route: RouteItem | undefined
   activityAuthorizationInfo: { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean } | undefined
-  notifeeSettings: { notifications: number; alarms: number } | undefined
+  notificationPermissionState: NotificationPermissionState | undefined
   rideCount: number
   canRunLiveActivities: boolean
   arrivalAlarm: ArrivalAlarm | undefined
@@ -74,7 +70,7 @@ export interface RideState {
 }
 
 export interface RideActions {
-  setNotifeeSettings: (newSettings: NotificationSettings) => void
+  setNotificationPermissionState: (newSettings: NotificationPermissionState) => void
   setActivityAuthorizationInfo: (newInfo: ActivityAuthorizationInfo) => void
   setCanRunLiveActivities: (value: boolean) => void
   checkLiveActivitiesSupported: () => Promise<boolean>
@@ -98,9 +94,9 @@ const initialRideState: RideState = {
   id: undefined,
   route: undefined,
   activityAuthorizationInfo: undefined,
-  notifeeSettings: undefined,
+  notificationPermissionState: undefined,
   rideCount: 0,
-  canRunLiveActivities: false,
+  canRunLiveActivities: isLiveRideSupported(),
   arrivalAlarm: undefined,
   pendingArrivalAlarmRemoval: undefined,
   arrivalAlarmFullScreenPrompted: false,
@@ -108,7 +104,6 @@ const initialRideState: RideState = {
 
 export const resetRideStore = () => {
   const { id, arrivalAlarm } = useRideStore.getState()
-  // Deleting all data mustn't leave an alarm that rings, or that the server keeps moving.
   if (arrivalAlarm) {
     cancelArrivalAlarm()
     if (id) new RideApi().removeRideAlarm(id)
@@ -120,13 +115,8 @@ export const resetRideStore = () => {
 export const useRideStore = create<RideStore>((set, get) => ({
   ...initialRideState,
 
-  setNotifeeSettings(newSettings) {
-    set({
-      notifeeSettings: {
-        notifications: newSettings.authorizationStatus,
-        alarms: newSettings.android.alarm,
-      },
-    })
+  setNotificationPermissionState(newSettings) {
+    set({ notificationPermissionState: newSettings })
   },
 
   setActivityAuthorizationInfo(newInfo) {
@@ -143,23 +133,31 @@ export const useRideStore = create<RideStore>((set, get) => ({
       set({ canRunLiveActivities: supported })
       return supported
     }
+    if (Platform.OS === "android") {
+      const supported = isLiveRideSupported()
+      set({ canRunLiveActivities: supported })
+      return supported
+    }
+    set({ canRunLiveActivities: false })
     return false
   },
 
   async checkLiveRideAuthorization() {
     const { canRunLiveActivities } = get()
-    if (canRunLiveActivities) {
+    if (!canRunLiveActivities) return
+
+    if (Platform.OS === "ios") {
       const info = await iOSHelpers.activityAuthorizationInfo()
       set({ activityAuthorizationInfo: info })
     } else if (Platform.OS === "android") {
-      const settings = await notifee.getNotificationSettings()
-      get().setNotifeeSettings(settings)
+      const state = await androidHelpers().getPermissionState()
+      set({ notificationPermissionState: state })
     }
   },
 
   startRide(route) {
     const { canRunLiveActivities } = get()
-    if (Platform.OS === "ios" && !canRunLiveActivities) return
+    if (!canRunLiveActivities) return
 
     set({ loading: true, route })
 
@@ -181,9 +179,8 @@ export const useRideStore = create<RideStore>((set, get) => ({
 
   async stopRide(rideId) {
     const { canRunLiveActivities } = get()
-    if (Platform.OS === "ios" && !canRunLiveActivities) return
+    if (!canRunLiveActivities) return
 
-    // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
       cancelArrivalAlarm()
     }
@@ -213,7 +210,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
   isRideActive(rideId) {
     const { canRunLiveActivities, route, id } = get()
 
-    if (canRunLiveActivities) {
+    if (Platform.OS === "ios" && canRunLiveActivities) {
       iOSHelpers.isRideActive(rideId).then((tokens) => {
         if (tokens && tokens.length === 0) {
           get().stopRide(rideId)
@@ -222,8 +219,10 @@ export const useRideStore = create<RideStore>((set, get) => ({
     } else if (Platform.OS === "android") {
       if (!route || !id) return
 
-      const originId = head(route.trains).originStationId
-      const destinationId = last(route.trains).destinationStationId
+      const originId = head(route.trains)?.originStationId
+      const destinationId = last(route.trains)?.destinationStationId
+      if (!originId || !destinationId) return
+
       const [date, time] = formatDateForAPI(route.departureTime)
 
       const options = { viaStation: route.viaStationId }
@@ -233,7 +232,10 @@ export const useRideStore = create<RideStore>((set, get) => ({
           const currentRouteTrains = route.trains.map((train) => train.trainNumber).join()
           const currentRoute = routes.find((r) => currentRouteTrains === r.trains.map((train) => train.trainNumber).join())
 
-          if (currentRoute && Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains).delay).getTime()) {
+          if (
+            currentRoute &&
+            Date.now() >= addMinutes(currentRoute.arrivalTime, last(currentRoute.trains)?.delay ?? 0).getTime()
+          ) {
             get().stopRide(rideId)
           }
         })
@@ -259,7 +261,6 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 }))
 
-// Exclude loading from persistence (transient state)
 export function getRideSnapshot(state: RideState) {
   const { loading, ...rest } = state
   return rest
@@ -272,7 +273,7 @@ export function hydrateRideStore(data: any) {
     id: data.id ?? undefined,
     route: data.route ?? undefined,
     activityAuthorizationInfo: data.activityAuthorizationInfo ?? undefined,
-    notifeeSettings: data.notifeeSettings ?? undefined,
+    notificationPermissionState: data.notificationPermissionState ?? undefined,
     rideCount: data.rideCount ?? 0,
     canRunLiveActivities: data.canRunLiveActivities ?? false,
     arrivalAlarm: data.arrivalAlarm ?? undefined,
@@ -280,6 +281,8 @@ export function hydrateRideStore(data: any) {
     arrivalAlarmFullScreenPrompted: data.arrivalAlarmFullScreenPrompted ?? false,
   })
 }
+
+let stopListenerRegistered = false
 
 /**
  * Run afterCreate logic - checks if ride is still active and authorization.
@@ -291,4 +294,14 @@ export function initializeRideStore() {
     state.isRideActive(state.id)
   }
   state.checkLiveRideAuthorization()
+
+  if (!stopListenerRegistered) {
+    stopListenerRegistered = true
+    addStopRideListener(() => {
+      const currentId = useRideStore.getState().id
+      if (currentId) {
+        useRideStore.getState().stopRide(currentId)
+      }
+    })
+  }
 }

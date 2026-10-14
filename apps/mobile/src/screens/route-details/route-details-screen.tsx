@@ -333,7 +333,7 @@ export function RouteDetailsScreen() {
           </Animated.View>
         )}
 
-        {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
+        {canRunLiveActivities && !isRideOnThisRoute && (
           <Animated.View
             entering={shouldFadeRideButton && FadeInDown.delay(100)}
             exiting={FadeOutDown}

@@ -161,6 +161,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.USE_FULL_SCREEN_INTENT",
       "android.permission.READ_CALENDAR",
       "android.permission.WRITE_CALENDAR",
+      "android.permission.POST_NOTIFICATIONS",
+      "android.permission.POST_PROMOTED_NOTIFICATIONS",
     ],
     intentFilters: [
       {
@@ -217,7 +219,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     ["expo-font", { ios: { fonts: HEEBO_FONTS_IOS }, android: { fonts: [HEEBO_FONT_ANDROID] } }],
-    // Sole FCM receiver on Android — delivers live-ride data messages (Notifee renders them).
+    // Sole FCM receiver on Android — delivers live-ride data messages (native LiveRideNotificationModule renders them).
     // The Google Services gradle plugin FCM needs is applied by ./plugins/withBetterRailAndroid
     // (previously came from the @react-native-firebase/app plugin).
     "expo-notifications",

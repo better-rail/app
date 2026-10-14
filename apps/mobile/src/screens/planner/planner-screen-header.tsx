@@ -71,7 +71,7 @@ export function PlannerScreenHeader() {
     // and they haven't seen the live announcement screen yet,
     // and the user can run live activities (iOS only)
     if (origin && destination) {
-      if (Platform.OS === "android" || canRunLiveActivities) {
+      if (canRunLiveActivities) {
         storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
           if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
         })

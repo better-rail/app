@@ -1,6 +1,5 @@
 const { withAppBuildGradle, withProjectBuildGradle } = require("@expo/config-plugins")
 const { mergeContents } = require("@expo/config-plugins/build/utils/generateCode")
-const path = require("node:path")
 
 const HILT_VERSION = "2.53.1"
 const GOOGLE_SERVICES_VERSION = "4.4.2"
@@ -110,25 +109,6 @@ const withProjectGradle = (config) =>
       src,
       newSrc: `        classpath("com.google.gms:google-services:${GOOGLE_SERVICES_VERSION}")`,
       anchor: /dependencies\s*{/,
-      offset: 1,
-      comment: "//",
-    }).contents
-
-    // Gradle 9 ignores rootProject.allprojects{} from subproject build files, so
-    // notifee's local AAR repo must be declared at the root level. Resolve the package
-    // instead of assuming ../node_modules — in the monorepo it is hoisted to the repo root.
-    const notifeeLibsFromAndroidRoot = path
-      .relative(
-        cfg.modRequest.platformProjectRoot,
-        path.join(path.dirname(require.resolve("@notifee/react-native/package.json")), "android", "libs"),
-      )
-      .split(path.sep)
-      .join("/")
-    src = mergeContents({
-      tag: "better-rail-android-notifee-maven",
-      src,
-      newSrc: `    maven { url "$rootDir/${notifeeLibsFromAndroidRoot}" }`,
-      anchor: /maven \{ url 'https:\/\/www\.jitpack\.io' \}/,
       offset: 1,
       comment: "//",
     }).contents

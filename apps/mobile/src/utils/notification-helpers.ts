@@ -1,37 +1,17 @@
 import * as Notifications from "expo-notifications"
 import * as TaskManager from "expo-task-manager"
-import notifee, { AndroidImportance, EventType, TriggerType } from "@notifee/react-native"
-import { RideState, RideStatus, getStatusEndDate, rideProgress } from "@/hooks/use-ride-progress"
-import { RideApi, RouteItem } from "@/services/api"
-import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "./helpers/ride-helpers"
-import { addMinutes, addSeconds, differenceInMinutes } from "date-fns"
-import { formatTime } from "./helpers/date-helpers"
-import { getInitialLanguage, resolveUse12HourClock, translate, type LanguageCode } from "@/i18n"
-import i18n from "i18n-js"
-import {
-  getRideRoute,
-  setRideRoute,
-  setRideDelay,
-  getUserLocale,
-  getRideDelay,
-  setStaleNotificationId,
-  getStaleNotificationId,
-  getRideNotificationId,
-  setRideNotificationId,
-  clearBackgroundStorage,
-} from "./storage/background-storage"
 import { Platform } from "react-native"
+import { RideApi } from "@/services/api/ride-api"
+import type { RouteItem } from "@/services/api/rail-api.types"
 import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
+import { extractFcmData, isLiveRideSupported, liveRideNotifications } from "@/modules/live-ride"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
 
-// expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
-// data-only FCM messages; Notifee owns all display, so suppress expo-notifications from
-// rendering anything itself (prevents an empty/duplicate notification).
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: false,
@@ -44,27 +24,14 @@ Notifications.setNotificationHandler({
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
 const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
-// Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
-// differs between the background task and the foreground listener, so probe the known
-// locations. VERIFY the resolved shape on a real device (see migration notes).
-const extractFcmData = (raw: any): Record<string, string> | null => {
-  const data =
-    raw?.notification?.request?.content?.data ??
-    raw?.notification?.request?.trigger?.remoteMessage?.data ??
-    raw?.request?.content?.data ??
-    raw?.notification?.data ??
-    raw?.data ??
-    raw
-  return typeof data?.type === "string" ? data : null
-}
-
 const handleFcmData = (data: Record<string, string> | null) => {
-  if (data?.type === "live-ride") return handleLiveRideNotification(data)
+  if (data?.type === "live-ride") {
+    if (!isLiveRideSupported()) return
+    return liveRideNotifications.processIncomingPush(data)
+  }
   if (data?.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
 }
 
-// Defined at module scope so it registers when index.js loads this file — including when
-// the app is woken from a killed/background state to process a live-ride data message.
 TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
   if (error) return
   return handleFcmData(extractFcmData(data))
@@ -72,39 +39,30 @@ TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
 
 const ARRIVAL_ALARM_UPDATES_CHANNEL = "better-rail-alarm-updates"
 
-// Android: the server sends a data message when the arrival time changed. Move the alarm, then tell
-// the rider quietly, like the passive notification iOS shows.
 const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
   const push = { rideId: data.rideId, alarmId: data.alarmId, fireDate: Number(data.fireDate) }
   if (!push.rideId || !push.alarmId || !Number.isFinite(push.fireDate)) return
 
-  // A push for an alarm the rider turned off or changed, or that already rang.
   const current = await getArrivalAlarm().catch(() => null)
   if (current?.alarmId !== push.alarmId || !current.isScheduled) return
 
   const moved = await moveArrivalAlarm(push).catch(() => false)
-  await notifee.displayNotification({
-    id: `arrival-alarm-${push.rideId}`,
+  await liveRideNotifications.postAlert({
+    tag: `arrival-alarm-${push.rideId}`,
+    channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
     title: data.title,
     body: moved ? data.body : data.failedBody,
-    android: {
-      channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
-      smallIcon: "notification_icon",
-      pressAction: { id: "default" },
-      // Pointless once the alarm rang.
-      timeoutAfter: Math.max(push.fireDate * 1000 - Date.now(), 60 * 1000),
-    },
+    timeoutMs: Math.max(push.fireDate * 1000 - Date.now(), 60 * 1000),
   })
 }
 
 type ArrivalAlarmPush = { rideId: string; alarmId: string; fireDate: number }
 
-// Finds the `alarm` object of an arrival-alarm push, wherever expo-notifications nested it.
 const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null => {
   if (!raw || typeof raw !== "object" || depth > 5) return null
-  const alarm = (raw as Record<string, any>).alarm
+  const alarm = (raw as Record<string, unknown>).alarm as Record<string, unknown> | undefined
   if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && typeof alarm.fireDate === "number") {
-    return alarm
+    return alarm as ArrivalAlarmPush
   }
 
   for (const value of Object.values(raw)) {
@@ -114,8 +72,6 @@ const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null 
   return null
 }
 
-// iOS: the arrival-alarm push also wakes a suspended app, a fallback for when the notification
-// service extension couldn't move the alarm. Moving it twice to the same time is harmless.
 TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, ({ data, error }) => {
   if (error || Platform.OS !== "ios") return
   const push = findArrivalAlarmPush(data)
@@ -128,99 +84,49 @@ export const configureNotifications = async () => {
   }
 
   if (Platform.OS === "android") {
-    notifee.createChannel({
-      id: "better-rail",
+    await Notifications.setNotificationChannelAsync("better-rail", {
       name: "Better Rail",
-      description: "Get live ride notifications",
-      importance: AndroidImportance.HIGH,
-      sound: "default",
+      importance: Notifications.AndroidImportance.HIGH,
     })
 
-    notifee.createChannel({
-      id: "better-rail-live",
-      name: "Better Rail Live",
-      description: "Get live ride persistent notification",
-      vibration: false,
-    })
+    if (isLiveRideSupported()) {
+      await Notifications.deleteNotificationChannelAsync("better-rail-live").catch(() => {})
 
-    // Background / killed: expo-notifications wakes the JS task defined at module scope.
-    await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
+      await Notifications.setNotificationChannelAsync("better-rail-live-v2", {
+        name: "Better Rail Live",
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: null,
+        vibrationPattern: [0, 250, 200, 250],
+        enableVibrate: true,
+      })
+
+      await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
+    }
 
     if (isArrivalAlarmSupported()) {
-      notifee.createChannel({
-        id: ARRIVAL_ALARM_UPDATES_CHANNEL,
+      await Notifications.setNotificationChannelAsync(ARRIVAL_ALARM_UPDATES_CHANNEL, {
         name: "Better Rail Alarm Updates",
-        description: "Tells you when the arrival alarm moved because of a delay",
-        importance: AndroidImportance.LOW,
-        vibration: false,
+        importance: Notifications.AndroidImportance.LOW,
+        vibrationPattern: [0],
+        enableVibrate: false,
       })
     }
 
-    // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
       handleFcmData(extractFcmData(notification))?.catch(() => {})
     })
-
-    notifee.onBackgroundEvent(async ({ type, detail }) => {
-      if (type === EventType.DELIVERED && detail.notification?.data?.type === "live-ride-stale") {
-        const rideRoute = await getRideRoute()
-        if (!rideRoute) return
-        const rideDelay = await getRideDelay()
-        if (addMinutes(rideRoute.arrivalTime, rideDelay).getTime() > Date.now()) {
-          const state: RideState = {
-            status: "stale",
-            delay: rideDelay,
-            nextStationId: rideRoute.trains[rideRoute.trains.length - 1].destinationStationId,
-          }
-
-          updateNotification(rideRoute, state)
-        }
-      }
-    })
   }
 }
 
-/// Maps the server's ride status onto the one we compute locally. The server sends `getOff` a
-/// minute before arrival, which has no local equivalent - it's still the same in-transit phase,
-/// and leaving it unmapped falls through to the "you have arrived" title while the train moves.
-const toRideStatus = (status: string): RideStatus => (status === "getOff" ? "inTransit" : (status as RideStatus))
+export const getPermissionState = () => liveRideNotifications.checkPermissions()
 
-const handleLiveRideNotification = async (data: Record<string, string>) => {
-  if (!data) return
+const isDevRide = (rideId: string) => Boolean(__DEV__ && rideId.startsWith("dev-ride-"))
 
-  if (data.notifee) {
-    notifee.displayNotification({
-      ...JSON.parse(data.notifee),
-      android: {
-        channelId: "better-rail",
-        smallIcon: "notification_icon",
-        timeoutAfter: 60 * 1000,
-        pressAction: {
-          id: "default",
-        },
-      },
-    })
+export const startRideNotifications = async (route: RouteItem): Promise<string> => {
+  if (!isLiveRideSupported()) {
+    throw new RideStartError("unsupported", "Live notifications are only supported on Android")
   }
 
-  const state: RideState = {
-    status: toRideStatus(data.status),
-    delay: Number(data.delay),
-    nextStationId: Number(data.nextStationId),
-  }
-
-  await setRideDelay(state.delay)
-  scheduleStaleNotification()
-
-  const rideNotificationId = await getRideNotificationId()
-  if (rideNotificationId && state) {
-    const rideRoute = await getRideRoute()
-    if (!rideRoute) return
-    updateNotification(rideRoute, state)
-  }
-}
-
-export const startRideNotifications = async (route: RouteItem) => {
-  // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
   let token: string
   try {
     const pushToken = await getDevicePushTokenWithAuthRetry(Notifications.getDevicePushTokenAsync, (outcome) =>
@@ -228,36 +134,34 @@ export const startRideNotifications = async (route: RouteItem) => {
     )
     token = String(pushToken.data)
   } catch (error) {
+    console.error("[BetterRail] getDevicePushToken error:", error)
     throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }
 
-  const rideId = await rideApi.startRide(route, token)
+  let rideId: string
+  try {
+    rideId = await rideApi.startRide(route, token)
+  } catch (error) {
+    if (__DEV__) {
+      console.warn("[BetterRail DEV] Backend rejected off-hours ride, using dev ride ID for e2e testing:", error)
+      rideId = "dev-ride-" + Date.now()
+    } else {
+      console.error("[BetterRail] rideApi.startRide error:", error)
+      throw error
+    }
+  }
 
   tokenSubscription?.remove()
   tokenSubscription = Notifications.addPushTokenListener((newToken) => {
+    if (isDevRide(rideId)) return
     rideApi.updateRideToken(rideId, String(newToken.data))
   })
 
   try {
-    await setRideRoute(route)
-    const nextStationId = findClosestStationInRoute(route)
-    const train = getTrainFromStationId(route, nextStationId)
-    const status = getRideStatus(route, train, nextStationId)
-
-    const state: RideState = {
-      status,
-      nextStationId,
-      delay: train?.delay ?? 0,
-    }
-
-    await setRideDelay(state.delay)
-    const rideNotificationId = await updateNotification(route, state)
-    await setRideNotificationId(rideNotificationId)
-    scheduleStaleNotification()
+    await liveRideNotifications.start(route, rideId)
   } catch (error) {
-    // The server already created the ride, so end it and drop everything we stored for it. Settle
-    // both: one failing must not skip the other, nor replace the tagged error the reporter needs.
-    await Promise.allSettled([cancelNotifications(), rideApi.endRide(rideId)])
+    console.error("[BetterRail] liveRideNotifications.start error:", error)
+    await Promise.allSettled([cancelNotifications(), isDevRide(rideId) ? Promise.resolve() : rideApi.endRide(rideId)])
     throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }
 
@@ -270,135 +174,20 @@ export const cancelNotifications = async () => {
     tokenSubscription = undefined
   }
 
-  const rideNotificationId = await getRideNotificationId()
-  if (rideNotificationId) {
-    notifee.cancelNotification(rideNotificationId)
-  }
-
-  // Always clear: a start that failed before the notification id was stored still wrote the route,
-  // which a leftover stale-notification trigger would otherwise resurrect.
-  await clearBackgroundStorage()
+  await liveRideNotifications.stop()
 }
 
 export const endRideNotifications = async (rideId: string) => {
   await cancelNotifications()
+  if (isDevRide(rideId)) {
+    return
+  }
   return rideApi.endRide(rideId)
-}
-
-const scheduleStaleNotification = async () => {
-  try {
-    const staleNotificationId = await getStaleNotificationId()
-    if (staleNotificationId) {
-      notifee.cancelTriggerNotification(staleNotificationId)
-    }
-
-    const notificationId = await notifee.createTriggerNotification(
-      {
-        android: {
-          channelId: "better-rail-live",
-          timeoutAfter: 1,
-        },
-        data: {
-          type: "live-ride-stale",
-        },
-      },
-      {
-        type: TriggerType.TIMESTAMP,
-        timestamp: addSeconds(Date.now(), 135).getTime(),
-      },
-    )
-
-    await setStaleNotificationId(notificationId)
-  } catch {}
-}
-
-const updateNotification = async (route: RouteItem, state: RideState) => {
-  const rideNotificationId = await getRideNotificationId()
-  const userLanguage = (await getUserLocale()) || getInitialLanguage()
-  i18n.locale = userLanguage
-
-  return notifee.displayNotification({
-    [rideNotificationId && "id"]: rideNotificationId,
-    title: getTitleText(route, state),
-    body: getBodyText(route, state),
-    android: {
-      channelId: "better-rail-live",
-      smallIcon: "notification_icon",
-      ongoing: state.status !== "arrived",
-      autoCancel: state.status === "arrived",
-      timeoutAfter: state.status === "arrived" ? 3 * 60 * 1000 : undefined,
-      pressAction: {
-        id: "default",
-      },
-    },
-  })
-}
-
-/// The route destination, used as a fallback when we can't resolve the ride's current position
-const getRideDestination = (route: RouteItem) => route.trains[route.trains.length - 1].destinationStationName
-
-const getTitleText = (route: RouteItem, state: RideState) => {
-  const targetDate = getStatusEndDate(route, state)
-
-  // the next station couldn't be matched to a train, so there's no time to show.
-  // fall back to the ride destination instead of rendering an invalid date.
-  if (!targetDate || state.status === "loading") {
-    return translate("plan.rideTo", { destination: getRideDestination(route) })
-  }
-
-  const minutes = differenceInMinutes(targetDate, Date.now(), { roundingMethod: "ceil" })
-  // a background wake never runs setUserLanguage, so resolve the clock style here
-  const time = formatTime(targetDate, resolveUse12HourClock(i18n.locale as LanguageCode))
-  const timeText = "(" + time + ")"
-
-  if (state.status === "stale") {
-    const delayText = state.delay > 0 ? ` (${state.delay} ${translate("routes.delayTime")})` : ""
-    return translate("ride.arrivingAt", { time }) + delayText
-  } else if (state.status === "waitForTrain" || state.status === "inExchange") {
-    if (minutes < 2) return translate("ride.departsNow") + " " + timeText
-    else return translate("ride.departsIn", { minutes }) + " " + timeText
-  } else if (state.status === "inTransit") {
-    return translate("ride.arrivingIn", { minutes }) + " " + timeText
-  } else {
-    return translate("ride.arrived")
-  }
-}
-
-const getBodyText = (route: RouteItem, state: RideState) => {
-  if (state.status === "stale") {
-    const destination = getRideDestination(route)
-    return translate("plan.rideTo", { destination }) + " | " + translate("ride.connectionIssues")
-  } else if (state.status === "loading") {
-    return translate("ride.activatingRide")
-  } else if (state.status === "waitForTrain" || state.status === "inExchange") {
-    const train = getTrainFromStationId(route, state.nextStationId)
-
-    // the status comes from the server while the lookup runs against the locally cached route,
-    // so the two can disagree - fall back rather than reading a missing train's details.
-    if (!train) return translate("ride.activatingRide")
-
-    return translate("ride.trainInfo", {
-      trainNumber: train.trainNumber,
-      lastStop: train.lastStop,
-      platform: train.originPlatform,
-    })
-  } else if (state.status === "inTransit") {
-    const [currentIndex, totalStations] = rideProgress(route, state.nextStationId)
-    const stopsLeft = totalStations - currentIndex
-
-    // rideProgress reports [0, 0] when the station isn't in the route, which would render
-    // "get off in 0 stops" - fall back rather than showing a nonsense count
-    if (stopsLeft <= 0) return translate("plan.rideTo", { destination: getRideDestination(route) })
-
-    if (stopsLeft === 1) return translate("ride.getOffNextStop")
-    else return translate("ride.getOffInStops", { stopsLeft })
-  } else {
-    return translate("ride.greeting")
-  }
 }
 
 export default {
   startRideNotifications,
   endRideNotifications,
   cancelNotifications,
+  getPermissionState,
 }
