@@ -86,7 +86,7 @@ struct BetterRailWidget: Widget {
       #if os(watchOS)
         return [.accessoryCircular, .accessoryInline, .accessoryRectangular, .accessoryCorner]
       #else
-        var families: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge, .accessoryCircular, .accessoryInline, .accessoryRectangular]
+        var families: [WidgetFamily] = [.systemSmall, .systemLarge, .accessoryCircular, .accessoryInline, .accessoryRectangular]
         if #available(iOS 27.0, *) {
           families.append(.systemExtraLargePortrait)
         }
