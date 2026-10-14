@@ -60,7 +60,7 @@ public/              static assets (fonts, images, press logos, generated statio
 
 ## Deployment
 
-The site is a single Cloudflare Worker (`wrangler.jsonc`, name `better-rail-web`): `@cloudflare/vite-plugin` bundles the
+The site is a single Cloudflare Worker (`wrangler.jsonc`, name `web`): `@cloudflare/vite-plugin` bundles the
 TanStack Start server entry as the Worker and uploads `dist/client` as its static assets. `src/server.ts` wraps the default
 handler to add the security headers to server-rendered responses and to cache them at the edge (Cache API) according to
 each route's `CDN-Cache-Control` header (`s-maxage` fresh, then `stale-while-revalidate` served stale while a background
@@ -75,10 +75,11 @@ Builds run on [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/b
 | Deploy command                       | `bunx wrangler deploy`                                                       |
 | Non-production branch deploy command | `bunx wrangler versions upload`                                              |
 | Build variable                       | `BUN_VERSION` = `1.3.9` (the image's default Bun is older than our lockfile) |
+| Build watch paths (include)          | `apps/web/*` (pushes that don't touch this folder skip the build)            |
 
-Pushes to `main` deploy production. With **Builds for non-production branches** enabled (Settings → Build → Branch
-control), every other branch gets a preview version at `https://<branch>-better-rail-web.<account>.workers.dev`, and
-Cloudflare comments the URL on the pull request. The Cache API is inert on `workers.dev` hosts, so previews always render
+Pushes to the production branch (`web-app` until it merges, then `main`) deploy production. With **Builds for
+non-production branches** enabled (Settings → Build → Branch control), every other branch gets a preview version at
+`https://<branch>-web.<account>.workers.dev`, and Cloudflare comments the URL on the pull request. The Cache API is inert on `workers.dev` hosts, so previews always render
 fresh.
 
 Manual deploy from a machine that has run `bunx wrangler login`: `bun run deploy`.
