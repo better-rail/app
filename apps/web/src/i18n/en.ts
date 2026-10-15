@@ -24,7 +24,6 @@ export const en: Record<TranslationKey, string> = {
   "home.downloadAndroid": "Get it on Google Play",
   "appBanner.title": "Get the Better Rail app",
   "home.announcement": "Israel Railways threatens to sue Better Rail",
-  "home.recentEmpty": "Routes you search will show up here",
 
   "promo.title": "Better Rail, in your pocket",
   "promo.subtitle": "Timetables, changes and platforms in an app built for the daily commute.",

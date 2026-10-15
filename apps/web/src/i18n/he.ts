@@ -21,7 +21,6 @@ export const he = {
   "home.downloadAndroid": "הורדה לאנדרואיד",
   "appBanner.title": "הורידו את אפליקציית בטר רייל",
   "home.announcement": "רכבת ישראל מאיימת לתבוע את בטר רייל",
-  "home.recentEmpty": "מסלולים שתחפשו יופיעו כאן",
 
   "promo.title": "בטר רייל גם בכיס",
   "promo.subtitle": "לוח הזמנים, ההחלפות והרציפים - באפליקציה שנבנתה בשביל הנסיעה היומיומית.",
