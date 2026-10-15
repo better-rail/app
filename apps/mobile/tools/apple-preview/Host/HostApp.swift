@@ -31,6 +31,7 @@ private struct HostView: View {
             Text("Get off").tag(ActivityStatus.getOff)
             Text("Arrived").tag(ActivityStatus.arrived)
           }
+          .disabled(activity != nil)
           Stepper("Delay: \(delay) min", value: $delay, in: 0...30)
           Picker("Time remaining (min)", selection: $minutesRemaining) {
             ForEach([1, 6, 12, 99, 120, 999], id: \.self) { minutes in
@@ -61,7 +62,11 @@ private struct HostView: View {
       }
       .navigationTitle("Live Activity Preview")
       .task {
-        activity = Activity<BetterRailActivityAttributes>.activities.first
+        if let existingActivity = Activity<BetterRailActivityAttributes>.activities.first {
+          status = existingActivity.content.state.status
+          delay = existingActivity.content.state.delay
+          activity = existingActivity
+        }
       }
     }
   }
