@@ -446,6 +446,7 @@
     "phoneTitle": "מה מספר הנייד?",
     "upTo": "ניתן להזמין עד %{count} שוברים לרכבת זו",
     "cancelHint": "לביטול, יש להשתמש בקישור שב-SMS מרכבת ישראל",
-    "trainOnDate": "רכבת %{trainNumber} · %{date}"
+    "trainOnDate": "רכבת %{trainNumber} · %{date}",
+    "privacyNote": "הפרטים נשלחים ישירות לרכבת ישראל"
   }
 }

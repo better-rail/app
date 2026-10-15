@@ -358,6 +358,7 @@
     "phoneTitle": "ما رقم هاتفك المحمول؟",
     "upTo": "يمكنك طلب حتى %{count} قسائم لهذا القطار",
     "cancelHint": "للإلغاء، استخدم الرابط في رسالة SMS من سكك حديد إسرائيل",
-    "trainOnDate": "قطار %{trainNumber} · %{date}"
+    "trainOnDate": "قطار %{trainNumber} · %{date}",
+    "privacyNote": "تُرسل بياناتك مباشرة إلى سكك حديد إسرائيل"
   }
 }

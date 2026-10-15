@@ -99,6 +99,8 @@ export function VoucherOrderScreen() {
         disabled={isSending || !phone}
         containerStyle={styles.button}
       />
+
+      <Text style={styles.privacyNote}>{translate("voucher.privacyNote")}</Text>
     </ScrollView>
   )
 }
@@ -150,5 +152,11 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   button: {
     marginTop: theme.spacing[2],
+  },
+  privacyNote: {
+    marginTop: theme.spacing[3],
+    fontSize: 13,
+    textAlign: "center",
+    color: theme.colors.label,
   },
 }))

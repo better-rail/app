@@ -444,6 +444,7 @@
     "phoneTitle": "What's your mobile number?",
     "upTo": "You can order up to %{count} vouchers for this train",
     "cancelHint": "To cancel, use the link in Israel Railways' SMS",
-    "trainOnDate": "Train %{trainNumber} · %{date}"
+    "trainOnDate": "Train %{trainNumber} · %{date}",
+    "privacyNote": "Your details are sent directly to Israel Railways"
   }
 }
