@@ -31,24 +31,8 @@ apps/mobile/tools/apple-preview/preview.sh   # xcodegen + open (needs: brew inst
   `ActivityPreviewViewKind`, and a widget extension can only host widget previews.
 
 **A real Live Activity** — run `PreviewHost`, pick a status and delay, and start the
-activity. Use **Time remaining** to check 1, 6, 12, 99, 120, or 999 minutes before starting;
-end the activity before changing this value. It controls departure for waiting,
-the next departure for an exchange, and arrival for in-transit states.
-Lock the device (⌘L) for the lock-screen card. The sample route's times are
+activity. Lock the device (⌘L) for the lock-screen card. The sample route's times are
 generated relative to now, so the countdown and progress ring behave.
-
-**On a physical iPhone** — connect it by USB, unlock it, trust the Mac, and enable
-Developer Mode in Settings → Privacy & Security if needed. Open
-`ApplePreview.xcodeproj`, choose the `PreviewHost` scheme and your iPhone as the run
-destination. Under Signing & Capabilities, select the Apple Developer team that owns
-`group.il.co.better-rail` for the four iOS targets (`PreviewHost`, `WidgetExt`,
-`StationIntent`, and `NotificationServiceExt`), then Run. Xcode uses automatic
-development signing for the phone; the simulator still uses ad-hoc signing. This
-builds only the native preview and extensions, without React Native or CocoaPods.
-Start a new Live Activity after installing each build so an older activity doesn't
-confuse comparisons. Compare the same language, time remaining, and orientation;
-record the app language, iOS language, iOS version, and Display Zoom setting when
-reporting clipping that occurs only on hardware.
 
 **On a watch** — run `WatchApp` or `WatchCardPreview` on a watchOS simulator.
 
