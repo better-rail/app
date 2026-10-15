@@ -1,13 +1,18 @@
-import { Pressable, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { View } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import HapticFeedback from "react-native-haptic-feedback"
+import { FilledIconButton, Host, Icon } from "@expo/ui/jetpack-compose"
+import { size } from "@expo/ui/jetpack-compose/modifiers"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import type { PassengerStepperProps } from "./passenger-stepper.types"
 
+const ADD_ICON = require("../../../../assets/add.xml")
+const REMOVE_ICON = require("../../../../assets/remove.xml")
+
+/** Material filled icon buttons (Jetpack Compose) around the count. */
 export function PassengerStepper({ value, max, onChange }: PassengerStepperProps) {
-  const canDecrement = value > 1
-  const canIncrement = value < max
+  const { theme } = useUnistyles()
 
   const change = (next: number) => {
     if (next < 1 || next > max) return
@@ -15,7 +20,23 @@ export function PassengerStepper({ value, max, onChange }: PassengerStepperProps
     onChange(next)
   }
 
+  const buttonColors = {
+    containerColor: theme.colors.primary,
+    contentColor: theme.colors.whiteText,
+    disabledContainerColor: theme.colors.disabled,
+    disabledContentColor: theme.colors.whiteText,
+  }
+
+  const stepButton = (icon: number, label: string | null, next: number, isEnabled: boolean) => (
+    <Host matchContents>
+      <FilledIconButton onClick={() => change(next)} enabled={isEnabled} colors={buttonColors} modifiers={[size(48, 48)]}>
+        <Icon source={icon} size={24} contentDescription={label ?? undefined} />
+      </FilledIconButton>
+    </Host>
+  )
+
   return (
+    // The wrapper is the single adjustable element, as on iOS
     <View
       style={styles.container}
       accessible
@@ -25,31 +46,12 @@ export function PassengerStepper({ value, max, onChange }: PassengerStepperProps
       accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
       onAccessibilityAction={(event) => change(event.nativeEvent.actionName === "increment" ? value + 1 : value - 1)}
     >
-      <Pressable
-        onPress={() => change(value - 1)}
-        disabled={!canDecrement}
-        hitSlop={8}
-        style={[styles.button, !canDecrement && styles.buttonDisabled]}
-        accessibilityLabel={translate("voucher.removePassenger") ?? undefined}
-      >
-        <View style={styles.bar} />
-      </Pressable>
-
+      {stepButton(REMOVE_ICON, translate("voucher.removePassenger"), value - 1, value > 1)}
+      {/* RN Text, since Compose only loads Heebo's regular weight */}
       <Text style={styles.value} maxFontSizeMultiplier={1.4}>
         {value}
       </Text>
-
-      <Pressable
-        onPress={() => change(value + 1)}
-        disabled={!canIncrement}
-        hitSlop={8}
-        style={[styles.button, !canIncrement && styles.buttonDisabled]}
-        accessibilityLabel={translate("voucher.addPassenger") ?? undefined}
-      >
-        {/* Drawn rather than typed, since font metrics push the glyphs off-center */}
-        <View style={styles.bar} />
-        <View style={[styles.bar, styles.barVertical]} />
-      </Pressable>
+      {stepButton(ADD_ICON, translate("voucher.addPassenger"), value + 1, value < max)}
     </View>
   )
 }
@@ -60,27 +62,6 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing[5],
-  },
-  button: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: theme.colors.primary,
-  },
-  buttonDisabled: {
-    backgroundColor: theme.colors.disabled,
-  },
-  bar: {
-    position: "absolute",
-    width: 16,
-    height: 2.5,
-    borderRadius: 1.25,
-    backgroundColor: theme.colors.whiteText,
-  },
-  barVertical: {
-    transform: [{ rotate: "90deg" }],
   },
   value: {
     minWidth: 40,
