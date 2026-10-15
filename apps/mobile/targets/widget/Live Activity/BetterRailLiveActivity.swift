@@ -48,24 +48,27 @@ struct BetterRailLiveActivity: Widget {
           }
         } compactLeading: {
           CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
+            .frame(width: 20, height: 20)
+            // Include edge clearance in the measured size, including in RTL layouts.
+            .padding(.horizontal, 6)
         } compactTrailing: {
           let endDate = getStatusEndDate(context: context)
-          
-          if (vm.isStale) {
-            Text(formatDateHour(endDate))
-              .foregroundColor(tintColor(context: context))
-          } else {
-            Text("\(String(getMinutesLeft(targetDate: endDate))) min")
-              .foregroundColor(tintColor(context: context))
-              .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
-              .contentTransition(.numericText())
+
+          Group {
+            if (vm.isStale) {
+              Text(formatDateHour(endDate))
+                .foregroundColor(tintColor(context: context))
+            } else {
+              Text("\(String(getMinutesLeft(targetDate: endDate))) min")
+                .foregroundColor(tintColor(context: context))
+                .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+                .contentTransition(.numericText())
+            }
           }
+          .padding(.horizontal, 6)
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
-        // Keeps the ring and minutes clear of the island's rounded ends.
-        .contentMargins(.leading, 10, for: .compactLeading)
-        .contentMargins(.trailing, 10, for: .compactTrailing)
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))
     }
