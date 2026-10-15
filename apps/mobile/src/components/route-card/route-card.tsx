@@ -49,6 +49,8 @@ export interface RouteCardProps extends TouchableScaleProps {
    * Used to render side-by-side preview cards (e.g. the train info prompt).
    */
   showHeaderOverride?: boolean
+  /** The rider holds a Jerusalem voucher for this route. */
+  hasVoucher?: boolean
 }
 
 export function RouteCard(props: RouteCardProps) {
@@ -69,6 +71,7 @@ export function RouteCard(props: RouteCardProps) {
     originId,
     destinationId,
     showHeaderOverride,
+    hasVoucher,
   } = props
 
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
@@ -156,6 +159,7 @@ export function RouteCard(props: RouteCardProps) {
       style={[
         styles.containerBase,
         containerStyle,
+        hasVoucher && styles.voucherContainer,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
         props.cardStyle,
@@ -192,7 +196,16 @@ export function RouteCard(props: RouteCardProps) {
       {/* Main route content */}
       <View style={styles.routeContent}>
         <View style={{ marginEnd: spacing[3] }}>
-          <Text style={styles.timeTypeText} tx="routes.departure" />
+          <View style={styles.departureLabel}>
+            <Text style={styles.timeTypeText} tx="routes.departure" />
+            {hasVoucher && (
+              <Image
+                source={require("../../../assets/station-ticket.png")}
+                style={styles.voucherIcon}
+                accessibilityLabel={translate("voucher.title") ?? undefined}
+              />
+            )}
+          </View>
           <Text style={timeTextStyle}>{formattedDepatureTime}</Text>
         </View>
 
@@ -321,6 +334,22 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.greenBackground,
     shadowOpacity: 0.15,
     elevation: 2,
+  },
+  voucherContainer: {
+    backgroundColor: theme.colors.voucherBackground,
+    borderWidth: 1,
+    borderColor: theme.colors.voucherBorder,
+  },
+  departureLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[1],
+  },
+  voucherIcon: {
+    width: 15,
+    height: 15,
+    marginBottom: -2,
+    tintColor: theme.colors.voucherText,
   },
   pastRideContainer: {
     opacity: 0.4,

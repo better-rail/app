@@ -141,6 +141,7 @@ function AppStack() {
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
+        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="lawsuit"
           options={{

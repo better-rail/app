@@ -99,6 +99,10 @@ const createColors = (appearance: Appearance) => {
     greenBackground: nativeColor(dark ? palette.greenDarkBg : palette.greenLightBg, android.greenBackground),
     contrastedGreenBackground: nativeColor(dark ? "#5D7557" : "#C7EEBE", android.contrastedGreenBackground),
     stop: nativeColor(dark ? "#bb645b" : palette.pinky, android.stop),
+    // A gold ticket, set apart from the green live ride
+    voucherText: (dark ? "#FFC45C" : "#A35C00") as ColorValue,
+    voucherBackground: (dark ? "#3D3020" : "#FFF1D6") as ColorValue,
+    voucherBorder: (dark ? "#8A6526" : palette.orange) as ColorValue,
   }
 }
 

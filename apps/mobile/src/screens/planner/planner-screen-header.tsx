@@ -17,6 +17,7 @@ import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useFeatureFlag } from "posthog-react-native"
+import { UpcomingVoucherChip } from "./upcoming-voucher-chip"
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
@@ -122,6 +123,7 @@ export function PlannerScreenHeader() {
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
           </Chip>
         )}
+        <UpcomingVoucherChip />
         {(DEBUG_FORCE_NEW_BADGE || (showNewBadge && !showLawsuitBar)) && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
