@@ -33,6 +33,7 @@
         "@react-native-masked-view/masked-view": "0.3.2",
         "@rnrepo/expo-config-plugin": "0.3.5",
         "@sentry/react-native": "8.26.0",
+        "@ttsalpha/qrcode": "3.1.0",
         "axios": "1.20.0",
         "babel-plugin-module-resolver": "5.0.3",
         "burnt": "0.12.2",
@@ -872,6 +873,8 @@
     "@so-ric/colorspace": ["@so-ric/colorspace@1.1.6", "", { "dependencies": { "color": "^5.0.2", "text-hex": "1.0.x" } }, "sha512-/KiKkpHNOBgkFJwu9sh48LkHSMYGyuTcSFK/qMBdnOAlrRJzRSXAOFB5qwzaVQuDl8wAvHVMkaASQDReTahxuw=="],
 
     "@tootallnate/once": ["@tootallnate/once@2.0.1", "", {}, "sha512-HqmEUIGRJ5fSXchkVgR5F7qn48bDBzv0kWj/Kfu5e6uci4UlEeng4331LnBkWffb++Ei3FOVLxo8JJWMFBDMeQ=="],
+
+    "@ttsalpha/qrcode": ["@ttsalpha/qrcode@3.1.0", "", { "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0", "react-native-svg": ">=14.0.0" }, "optionalPeers": ["react-dom", "react-native-svg"] }, "sha512-uhAqzRhIjIoa9F+ZsqzFiXhGbu0kWFK42qnvLJTwoqxGspDViNmtXv8XfrSHo1WaJUy/PPfdcfbDGhUXKtrPpQ=="],
 
     "@types/body-parser": ["@types/body-parser@1.19.6", "", { "dependencies": { "@types/connect": "*", "@types/node": "*" } }, "sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g=="],
 

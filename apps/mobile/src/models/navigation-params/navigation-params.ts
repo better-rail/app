@@ -8,10 +8,12 @@ type NavigationParamsStore = {
   originId: string | null
   destinationId: string | null
   presentation: "modal" | "push" | null
+  voucherTrain: Train | null
   setRouteDetails: (params: { routeItem: RouteItem; originId: string; destinationId: string }) => void
   setRouteItem: (routeItem: RouteItem) => void
   setTrainInfo: (trains: Train[], initialTrainIndex: number) => void
   setPaywallPresentation: (presentation: "modal" | "push") => void
+  setVoucherTrain: (train: Train) => void
 }
 
 export const useNavigationParamsStore = create<NavigationParamsStore>((set) => ({
@@ -21,9 +23,11 @@ export const useNavigationParamsStore = create<NavigationParamsStore>((set) => (
   originId: null,
   destinationId: null,
   presentation: null,
+  voucherTrain: null,
   setRouteDetails: ({ routeItem, originId, destinationId }) =>
     set({ routeItem, originId: String(originId), destinationId: String(destinationId) }),
   setRouteItem: (routeItem) => set({ routeItem }),
   setTrainInfo: (trains, initialTrainIndex) => set({ trains, initialTrainIndex }),
   setPaywallPresentation: (presentation) => set({ presentation }),
+  setVoucherTrain: (voucherTrain) => set({ voucherTrain }),
 }))
