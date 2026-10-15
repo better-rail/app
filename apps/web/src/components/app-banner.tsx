@@ -24,8 +24,8 @@ const STORES = [
 ]
 
 /**
- * A one-time nudge to install the app, rising from the bottom on the first visit. Dismissing it is remembered, so
- * riders who use the site for timetables are not asked again.
+ * A one-time nudge to install the app, rising from the bottom on the first visit from a phone. Dismissing it is
+ * remembered, so riders who use the site for timetables are not asked again.
  */
 export function AppBanner() {
   const t = useT()
@@ -35,12 +35,12 @@ export function AppBanner() {
   const [closing, setClosing] = useState(false)
 
   useEffect(() => {
-    if (dismissed) return
+    if (dismissed || !platform) return
     const timer = window.setTimeout(() => setReady(true), SHOW_DELAY_MS)
     return () => window.clearTimeout(timer)
-  }, [dismissed])
+  }, [dismissed, platform])
 
-  if (dismissed || !ready) return null
+  if (dismissed || !ready || !platform) return null
 
   const close = (reason: "dismiss" | "download") => {
     if (closing) return
@@ -49,17 +49,17 @@ export function AppBanner() {
     window.setTimeout(() => dismiss(true), HIDE_MS)
   }
 
-  const stores = STORES.filter((store) => platform === null || store.platform === platform)
+  const stores = STORES.filter((store) => store.platform === platform)
 
   return (
     <aside
       aria-label={t("appBanner.title")}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-30 px-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:inset-x-auto sm:end-6 sm:bottom-6 sm:p-0",
+        "fixed inset-x-0 bottom-0 z-30 px-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:hidden",
         closing ? "animate-banner-down" : "animate-banner-up",
       )}
     >
-      <div className="relative rounded-2xl border border-line bg-surface p-4 shadow-pop sm:w-[380px]">
+      <div className="relative rounded-2xl border border-line bg-surface p-4 shadow-pop">
         <p className="text-center text-[16px] font-bold leading-tight">{t("appBanner.title")}</p>
         {/* Quiet secondary buttons: the page's blue is reserved for the planner's primary actions. */}
         <div className="mt-4 grid grid-flow-col auto-cols-fr gap-2.5">
