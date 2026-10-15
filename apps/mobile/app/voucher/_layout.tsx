@@ -4,7 +4,7 @@ import { useNavigation, useRouter } from "expo-router"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
 import { closeVoucherFlow } from "@/screens/voucher/close-voucher-flow"
-import { color, typography } from "@/theme"
+import { color, spacing, typography } from "@/theme"
 
 export default function VoucherLayout() {
   const router = useRouter()
@@ -23,7 +23,11 @@ export default function VoucherLayout() {
             },
           ],
         }
-      : { headerLeft: () => <CloseButton onPress={() => closeVoucherFlow(navigation, router)} /> }
+      : {
+          headerLeft: () => (
+            <CloseButton onPress={() => closeVoucherFlow(navigation, router)} style={{ marginEnd: spacing[3] }} />
+          ),
+        }
 
   return (
     <Stack
