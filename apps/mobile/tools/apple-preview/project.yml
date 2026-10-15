@@ -16,6 +16,10 @@ settings:
     CODE_SIGNING_REQUIRED: "YES"
     CODE_SIGN_IDENTITY: "-"
     CODE_SIGN_STYLE: Manual
+    # Physical iPhones need a development certificate and provisioning profiles.
+    # Select your team in Xcode; simulator builds keep the ad-hoc settings above.
+    "CODE_SIGN_IDENTITY[sdk=iphoneos*]": "Apple Development"
+    "CODE_SIGN_STYLE[sdk=iphoneos*]": Automatic
     ENABLE_USER_SCRIPT_SANDBOXING: "NO"
     TARGETED_DEVICE_FAMILY: "1"
     # RouteIntent.swift / INStation.swift are checked in; don't generate a second set.

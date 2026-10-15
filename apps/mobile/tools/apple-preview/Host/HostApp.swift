@@ -18,6 +18,7 @@ private struct HostView: View {
   @State private var activity: Activity<BetterRailActivityAttributes>?
   @State private var status: ActivityStatus = .waitForTrain
   @State private var delay = 0
+  @State private var minutesRemaining = 6
 
   var body: some View {
     NavigationStack {
@@ -31,6 +32,13 @@ private struct HostView: View {
             Text("Arrived").tag(ActivityStatus.arrived)
           }
           Stepper("Delay: \(delay) min", value: $delay, in: 0...30)
+          Picker("Time remaining (min)", selection: $minutesRemaining) {
+            ForEach([1, 6, 12, 99, 120, 999], id: \.self) { minutes in
+              Text("\(minutes)").tag(minutes)
+            }
+          }
+          .pickerStyle(.segmented)
+          .disabled(activity != nil)
         }
 
         Section {
@@ -52,11 +60,18 @@ private struct HostView: View {
         }
       }
       .navigationTitle("Live Activity Preview")
+      .task {
+        activity = Activity<BetterRailActivityAttributes>.activities.first
+      }
     }
   }
 
   private var contentState: BetterRailActivityAttributes.ContentState {
-    .init(delay: delay, nextStationId: status == .waitForTrain ? 2300 : 2500, status: status)
+    .init(
+      delay: delay,
+      nextStationId: status == .waitForTrain ? 2300 : status == .inExchange ? 2800 : 2500,
+      status: status
+    )
   }
 
   private func startOrUpdate() async {
@@ -69,7 +84,7 @@ private struct HostView: View {
 
     let attributes = BetterRailActivityAttributes(
       activityStartDate: Date(),
-      route: SampleRoute.route
+      route: SampleRoute.route(minutesRemaining: minutesRemaining, status: status)
     )
 
     activity = try? Activity.request(
