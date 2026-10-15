@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Platform, ScrollView, TextInput } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useRouter } from "expo-router"
@@ -21,6 +21,8 @@ export function VoucherOrderScreen() {
 
   const [phone, setPhone] = useState(savedPhone)
   const [isSending, setIsSending] = useState(false)
+  // The keyboard's send key bypasses the disabled button, and state lags a fast second tap
+  const sendingRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -30,6 +32,7 @@ export function VoucherOrderScreen() {
   if (!train) return null
 
   const sendCode = async () => {
+    if (sendingRef.current) return
     const normalizedPhone = normalizeIsraeliMobile(phone)
     if (!normalizedPhone) {
       setError(translate("voucher.invalidPhone"))
@@ -37,6 +40,7 @@ export function VoucherOrderScreen() {
     }
 
     setError(null)
+    sendingRef.current = true
     setIsSending(true)
     try {
       await voucherApi.sendCode(normalizedPhone)
@@ -47,6 +51,7 @@ export function VoucherOrderScreen() {
       setError(voucherErrorText(sendError))
       trackEvent("voucher_failed", { step: "send_code" })
     } finally {
+      sendingRef.current = false
       setIsSending(false)
     }
   }

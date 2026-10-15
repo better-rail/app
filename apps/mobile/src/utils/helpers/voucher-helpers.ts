@@ -15,7 +15,17 @@ export function getVoucherTrain(route: Pick<RouteItem, "trains">): Train | undef
 /** The voucher the rider holds for the route's Yitzhak Navon leg, if any. */
 export function findRouteVoucher(vouchers: Voucher[], route: Pick<RouteItem, "trains">) {
   const train = getVoucherTrain(route)
-  return train ? findVouchers(vouchers, train.trainNumber, getVoucherDate(train))[0] : undefined
+  return train ? findVouchers(vouchers, getVoucherTrip(train))[0] : undefined
+}
+
+/** The trip a voucher for this train leg is ordered for. */
+export function getVoucherTrip(train: Pick<Train, "trainNumber" | "departureTime" | "originStationId" | "destinationStationId">) {
+  return {
+    trainNumber: train.trainNumber,
+    departureDate: getVoucherDate(train),
+    fromStationId: train.originStationId,
+    toStationId: train.destinationStationId,
+  }
 }
 
 /** The date Israel Rail keys a train's vouchers by (yyyy-MM-dd). */

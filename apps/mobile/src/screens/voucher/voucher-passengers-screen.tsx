@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { ActivityIndicator, ScrollView, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useLocalSearchParams, useRouter } from "expo-router"
@@ -28,6 +28,8 @@ export function VoucherPassengersScreen() {
 
   const [selectedPassengers, setSelectedPassengers] = useState(1)
   const [isOrdering, setIsOrdering] = useState(false)
+  // A double tap would order twice, and the extra vouchers can only be cancelled by SMS
+  const orderingRef = useRef(false)
   const [error, setError] = useState<string | null>(null)
 
   const limit = useQuery(
@@ -46,6 +48,8 @@ export function VoucherPassengersScreen() {
   const passengers = Math.max(1, Math.min(selectedPassengers, max))
 
   const order = async () => {
+    if (orderingRef.current) return
+    orderingRef.current = true
     setError(null)
     setIsOrdering(true)
     try {
@@ -76,6 +80,7 @@ export function VoucherPassengersScreen() {
     } catch (orderError) {
       setError(voucherErrorText(orderError))
       trackEvent("voucher_failed", { step: "order" })
+      orderingRef.current = false
       setIsOrdering(false)
     }
   }

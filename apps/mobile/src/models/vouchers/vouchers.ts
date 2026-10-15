@@ -23,6 +23,7 @@ export interface VouchersState {
 
 export interface VouchersActions {
   add: (voucher: Voucher) => void
+  remove: (confirmationCode: string) => void
   setPhone: (phone: string) => void
 }
 
@@ -45,15 +46,27 @@ export const useVouchersStore = create<VouchersStore>((set) => ({
     set((state) => ({ vouchers: [...state.vouchers, voucher] }))
   },
 
+  remove(confirmationCode) {
+    set((state) => ({ vouchers: state.vouchers.filter((voucher) => voucher.confirmationCode !== confirmationCode) }))
+  },
+
   setPhone(phone) {
     set({ phone })
   },
 }))
 
-/** Vouchers the rider holds for a train on a given day, newest first. */
-export function findVouchers(vouchers: Voucher[], trainNumber: number, departureDate: string) {
+type VoucherTrip = Pick<Voucher, "trainNumber" | "departureDate" | "fromStationId" | "toStationId">
+
+/** Vouchers the rider holds for a trip, newest first. Israel Railways orders them per boarding and alighting station. */
+export function findVouchers(vouchers: Voucher[], trip: VoucherTrip) {
   return vouchers
-    .filter((voucher) => voucher.trainNumber === trainNumber && voucher.departureDate === departureDate)
+    .filter(
+      (voucher) =>
+        voucher.trainNumber === trip.trainNumber &&
+        voucher.departureDate === trip.departureDate &&
+        voucher.fromStationId === trip.fromStationId &&
+        voucher.toStationId === trip.toStationId,
+    )
     .sort((a, b) => b.createdAt - a.createdAt)
 }
 

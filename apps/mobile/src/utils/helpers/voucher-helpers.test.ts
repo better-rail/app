@@ -62,6 +62,8 @@ describe("upcoming vouchers", () => {
     ({
       trainNumber,
       departureDate: "2026-10-15",
+      fromStationId: 4600,
+      toStationId: VOUCHER_STATION_ID,
       departureTime: now + departureOffset,
       arrivalTime: now + departureOffset + HOUR,
       createdAt: now,
@@ -82,5 +84,14 @@ describe("upcoming vouchers", () => {
     })
     expect(findRouteVoucher([voucher(2, 0)], route(1))?.trainNumber).toBe(2)
     expect(findRouteVoucher([voucher(1, 0)], route(1))).toBeUndefined()
+  })
+
+  test("doesn't match a voucher ordered for other stations on the same train", () => {
+    const route = {
+      trains: [
+        { originStationId: 3700, destinationStationId: VOUCHER_STATION_ID, trainNumber: 2, departureTime: now },
+      ] as Train[],
+    }
+    expect(findRouteVoucher([voucher(2, 0)], route)).toBeUndefined()
   })
 })

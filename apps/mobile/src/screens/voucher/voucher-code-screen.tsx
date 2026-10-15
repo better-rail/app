@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ActivityIndicator, Platform, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useLocalSearchParams, useRouter } from "expo-router"
@@ -26,6 +26,9 @@ export function VoucherCodeScreen() {
   const [error, setError] = useState<string | null>(null)
   const [resendIn, setResendIn] = useState(RESEND_COOLDOWN_SECONDS)
   const [resendNotice, setResendNotice] = useState<string | null>(null)
+  // SMS autofill can report the full code twice; a second verify of a spent code fails
+  const verifyingRef = useRef(false)
+  const resendingRef = useRef(false)
 
   useEffect(() => {
     if (resendIn <= 0) return
@@ -34,6 +37,8 @@ export function VoucherCodeScreen() {
   }, [resendIn])
 
   const verify = async (enteredCode: string) => {
+    if (verifyingRef.current) return
+    verifyingRef.current = true
     setError(null)
     setIsVerifying(true)
     try {
@@ -44,12 +49,15 @@ export function VoucherCodeScreen() {
       HapticFeedback.trigger("notificationError")
       setError(voucherErrorText(verifyError))
       setCode("")
+      verifyingRef.current = false
       setIsVerifying(false)
       trackEvent("voucher_failed", { step: "verify" })
     }
   }
 
   const resend = async () => {
+    if (resendingRef.current) return
+    resendingRef.current = true
     setError(null)
     setResendNotice(null)
     setResendIn(RESEND_COOLDOWN_SECONDS)
@@ -58,6 +66,10 @@ export function VoucherCodeScreen() {
       setResendNotice(translate("voucher.codeResent"))
     } catch (resendError) {
       setError(voucherErrorText(resendError))
+      // Nothing was sent, so there's nothing to wait for
+      setResendIn(0)
+    } finally {
+      resendingRef.current = false
     }
   }
 

@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { ScrollView, View } from "react-native"
+import { Alert, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { QRCode } from "@ttsalpha/qrcode/native"
@@ -21,6 +21,20 @@ export function VoucherScreen() {
   }, [])
 
   if (!voucher) return null
+
+  const confirmRemove = () =>
+    Alert.alert(translate("voucher.removeTitle") ?? "", translate("voucher.removeMessage") ?? "", [
+      { text: translate("common.cancel") ?? "", style: "cancel" },
+      {
+        text: translate("voucher.remove") ?? "",
+        style: "destructive",
+        onPress: () => {
+          trackEvent("voucher_removed")
+          useVouchersStore.getState().remove(voucher.confirmationCode)
+          closeVoucherFlow(navigation.getParent(), router)
+        },
+      },
+    ])
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
@@ -65,6 +79,10 @@ export function VoucherScreen() {
       </View>
 
       <Text style={styles.footnote}>{translate("voucher.cancelHint")}</Text>
+      {/* The app can't tell when a voucher was cancelled by SMS, so the rider clears it to order again */}
+      <Text style={styles.removeLink} onPress={confirmRemove} accessibilityRole="button">
+        {translate("voucher.removeCancelled")}
+      </Text>
 
       <View style={styles.doneButton}>
         <Button title={translate("common.done") ?? ""} onPress={() => closeVoucherFlow(navigation.getParent(), router)} />
@@ -158,6 +176,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     lineHeight: 20,
     textAlign: "center",
     color: theme.colors.label,
+  },
+  removeLink: {
+    marginTop: -theme.spacing[3],
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+    color: theme.colors.primary,
   },
   // Pinned to the bottom of the sheet, below the scrollable voucher
   doneButton: {

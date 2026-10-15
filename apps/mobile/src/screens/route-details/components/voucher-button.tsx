@@ -8,7 +8,7 @@ import { translate } from "@/i18n"
 import { findVouchers, useVouchersStore } from "@/models/vouchers/vouchers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useVoucherAvailability } from "@/hooks/use-voucher-availability"
-import { getVoucherDate } from "@/utils/helpers/voucher-helpers"
+import { getVoucherTrip } from "@/utils/helpers/voucher-helpers"
 import { trackEvent } from "@/services/analytics"
 import type { Train } from "@/services/api"
 
@@ -18,8 +18,7 @@ const preventLongPressNavigation = () => undefined
 export function VoucherButton({ train, style }: { train: Train; style: ViewStyle }) {
   const router = useRouter()
   const { isBookable, isSoldOut, isLow, remaining } = useVoucherAvailability(train)
-  const departureDate = getVoucherDate(train)
-  const voucher = useVouchersStore((s) => findVouchers(s.vouchers, train.trainNumber, departureDate)[0])
+  const voucher = useVouchersStore((s) => findVouchers(s.vouchers, getVoucherTrip(train))[0])
 
   useEffect(() => {
     if (isBookable && !voucher) trackEvent("voucher_offer_shown")
