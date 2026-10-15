@@ -2,7 +2,7 @@ import { useEffect } from "react"
 import { ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
-import QRCode from "react-native-qrcode-svg"
+import { QRCode } from "@ttsalpha/qrcode/native"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
@@ -48,7 +48,14 @@ export function VoucherScreen() {
 
           <View style={styles.passBody}>
             {/* Encodes the confirmation code, like the QR rail.co.il shows after ordering */}
-            <QRCode value={voucher.confirmationCode} size={180} backgroundColor="white" color="black" />
+            <QRCode
+              value={voucher.confirmationCode}
+              size={180}
+              margin={0}
+              qr={{ errorCorrectionLevel: "M" }}
+              backgroundColor="white"
+              dotColor="black"
+            />
             <Text style={styles.code} selectable>
               {formatConfirmationCode(voucher.confirmationCode)}
             </Text>
