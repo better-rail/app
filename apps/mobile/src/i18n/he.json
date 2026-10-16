@@ -362,6 +362,8 @@
     "alarmTurnOff": "ביטול התראת ההגעה",
     "alarmSetFor": "צלצול ב־%{time}",
     "alarmTitle": "מתקרבים ל%{station}",
+    "alarmTitleTransfer": "מתקרבים ל%{station}, יורדים להחלפה",
+    "alarmStopsTitle": "לצלצל לפני",
     "alarmStop": "עצירה",
     "alarmTooLateTitle": "ההגעה קרובה מדי",
     "alarmTooLateMessage": "הרכבת מגיעה בעוד פחות מ־%{minutes} דקות. בחרו זמן קצר יותר.",

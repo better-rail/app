@@ -299,6 +299,8 @@
     "alarmTurnOff": "إيقاف المنبّه",
     "alarmSetFor": "المنبّه في %{time}",
     "alarmTitle": "اقتربت من %{station}",
+    "alarmTitleTransfer": "اقتربت من %{station}، بدّل القطار",
+    "alarmStopsTitle": "المنبّه قبل",
     "alarmStop": "إيقاف",
     "alarmTooLateTitle": "الوصول قريب جدًا",
     "alarmTooLateMessage": "يصل القطار خلال أقل من %{minutes} دقائق. اختر وقتًا أقصر.",

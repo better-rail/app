@@ -144,14 +144,19 @@ export class Scheduler {
     return success
   }
 
-  /** Saves the arrival alarm and returns when it should ring, or undefined when it couldn't be saved */
+  /** Saves the arrival alarm and returns when each stop should ring, or undefined when it couldn't be saved */
   async setAlarm(request: RideAlarmRequest) {
-    const alarm = { ...request, fireDate: getAlarmFireDate(this.route, request.leadMinutes) }
+    const stops = request.stops
+      .filter((train) => this.route.trains[train])
+      .map((train) => ({ train, fireDate: getAlarmFireDate(this.route, train, request.leadMinutes) }))
+    if (stops.length === 0) return undefined
+
+    const alarm = { ...request, stops }
     const success = await updateRideAlarm(this.ride.rideId, alarm)
     if (!success) return undefined
 
     this.ride.alarm = alarm
-    return alarm.fireDate
+    return alarm.stops
   }
 
   async removeAlarm() {
@@ -163,19 +168,19 @@ export class Scheduler {
     return success
   }
 
-  /** Moves the device's arrival alarm when the delay changed. A failed push is retried on the next delay update. */
+  /** Moves the device's arrival alarms when the delay changed. A failed push is retried on the next delay update. */
   private async syncAlarm() {
     const alarm = this.ride.alarm
     if (!alarm) return
 
-    const fireDate = getAlarmMove(alarm, this.route, Date.now())
-    if (fireDate === undefined) return
+    const stops = getAlarmMove(alarm, this.route, Date.now())
+    if (!stops) return
 
-    const sent = await sendAlarmMovedNotification(this.ride, alarm, this.route, fireDate, this.logger)
+    const sent = await sendAlarmMovedNotification(this.ride, alarm, this.route, stops, this.logger)
     // The rider changed or removed the alarm while the push was in flight.
     if (!sent || this.ride.alarm !== alarm) return
 
-    this.ride.alarm = { ...alarm, fireDate }
+    this.ride.alarm = { ...alarm, stops }
     await updateRideAlarm(this.ride.rideId, this.ride.alarm)
   }
 

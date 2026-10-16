@@ -360,6 +360,8 @@
     "alarmTurnOff": "Turn Off Alarm",
     "alarmSetFor": "Alarm at %{time}",
     "alarmTitle": "Approaching %{station}",
+    "alarmTitleTransfer": "Approaching %{station}, change trains",
+    "alarmStopsTitle": "Ring before",
     "alarmStop": "Stop",
     "alarmTooLateTitle": "Arriving too soon",
     "alarmTooLateMessage": "The train arrives in less than %{minutes} minutes. Pick a shorter time.",

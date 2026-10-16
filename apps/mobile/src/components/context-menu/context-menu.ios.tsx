@@ -4,7 +4,7 @@ import { MenuView } from "@expo/ui/community/menu"
 import type { MenuAction } from "@expo/ui/community/menu"
 import { Button, ContextMenu as SwiftUIContextMenu, Group, Host, RNHostView, Section } from "@expo/ui/swift-ui"
 import type { ButtonProps } from "@expo/ui/swift-ui"
-import { contentShape, shapes } from "@expo/ui/swift-ui/modifiers"
+import { contentShape, disabled as disabledModifier, shapes } from "@expo/ui/swift-ui/modifiers"
 import { FillWidth } from "./fill-width"
 import type { ContextMenuProps } from "./types"
 
@@ -41,7 +41,7 @@ function NativeMenu(props: ContextMenuProps) {
       title: action.title,
       image: action.systemIcon as MenuAction["image"],
       state: action.selected ? "on" : undefined,
-      attributes: action.destructive ? { destructive: true } : undefined,
+      attributes: { destructive: action.destructive, disabled: action.disabled },
     }))
 
     return (
@@ -66,6 +66,7 @@ function NativeMenu(props: ContextMenuProps) {
       label={action.title}
       systemImage={action.systemIcon as ButtonProps["systemImage"]}
       role={action.destructive ? "destructive" : undefined}
+      modifiers={action.disabled ? [disabledModifier()] : undefined}
       onPress={() => {
         onPressAction?.()
         action.onPress()

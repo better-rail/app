@@ -303,6 +303,8 @@
     "alarmTurnOff": "Выключить сигнал",
     "alarmSetFor": "Сигнал в %{time}",
     "alarmTitle": "Подъезжаем к станции %{station}",
+    "alarmTitleTransfer": "Подъезжаем к станции %{station}, пересадка",
+    "alarmStopsTitle": "Сигнал перед",
     "alarmStop": "Стоп",
     "alarmTooLateTitle": "Поезд скоро прибывает",
     "alarmTooLateMessage": "Поезд прибудет менее чем через %{minutes} мин. Выберите меньшее время.",

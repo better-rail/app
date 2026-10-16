@@ -11,6 +11,7 @@ import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 import { formatTime } from "@/utils/helpers/date-helpers"
+import { getNextArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
 // TODO: add typings to progress
@@ -22,7 +23,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   const router = useRouter()
 
-  const { status, minutesLeft } = progress
+  const { status, minutesLeft, now } = progress
 
   const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
@@ -49,13 +50,15 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
         </Text>
         {arrivalAlarm && (
           <Text style={styles.alarmText} maxFontSizeMultiplier={1.2}>
-            {translate("ride.alarmSetFor", { time: formatTime(arrivalAlarm.fireDate) })}
+            {translate("ride.alarmSetFor", { time: formatTime(getNextArrivalAlarmStop(arrivalAlarm.stops, now).fireDate) })}
           </Text>
         )}
       </View>
 
       <View style={styles.buttons}>
-        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && <ArrivalAlarmButton />}
+        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && (
+          <ArrivalAlarmButton now={now} />
+        )}
         <StopButton
           loading={!id}
           onPress={() => {

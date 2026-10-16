@@ -16,6 +16,7 @@ import { trackEvent } from "@/services/analytics"
 import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
 import { isSameRoute } from "@/utils/helpers/ride-helpers"
+import type { ArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
 
 const routeApi = new RouteApi()
 
@@ -54,8 +55,8 @@ export type ArrivalAlarm = {
   rideId: string
   alarmId: string
   leadMinutes: number
-  /** When it rings, in ms */
-  fireDate: number
+  /** One alarm for each stop the rider gets off: a transfer, the destination, or both */
+  stops: ArrivalAlarmStop[]
 }
 
 export interface RideState {
@@ -67,6 +68,10 @@ export interface RideState {
   rideCount: number
   canRunLiveActivities: boolean
   arrivalAlarm: ArrivalAlarm | undefined
+  /** The stops the rider chose to ring before, by train. Undefined for the next stop. */
+  arrivalAlarmStops: number[] | undefined
+  /** The stops whose alarm already rang this ride, by train, so a changed alarm doesn't ring them again */
+  arrivalAlarmRangStops: number[]
   /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
   pendingArrivalAlarmRemoval: string | undefined
   /** Android: the rider was already asked to let the alarm take over the lock screen */
@@ -102,6 +107,8 @@ const initialRideState: RideState = {
   rideCount: 0,
   canRunLiveActivities: false,
   arrivalAlarm: undefined,
+  arrivalAlarmStops: undefined,
+  arrivalAlarmRangStops: [],
   pendingArrivalAlarmRemoval: undefined,
   arrivalAlarmFullScreenPrompted: false,
 }
@@ -161,7 +168,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities } = get()
     if (Platform.OS === "ios" && !canRunLiveActivities) return
 
-    set({ loading: true, route })
+    set({ loading: true, route, arrivalAlarmStops: undefined, arrivalAlarmRangStops: [] })
 
     startRideHandler(route)
       .then((rideId) => {
@@ -188,7 +195,15 @@ export const useRideStore = create<RideStore>((set, get) => ({
       cancelArrivalAlarm()
     }
 
-    set({ loading: true, id: undefined, route: undefined, arrivalAlarm: undefined, pendingArrivalAlarmRemoval: undefined })
+    set({
+      loading: true,
+      id: undefined,
+      route: undefined,
+      arrivalAlarm: undefined,
+      arrivalAlarmStops: undefined,
+      arrivalAlarmRangStops: [],
+      pendingArrivalAlarmRemoval: undefined,
+    })
 
     await endRideHandler(rideId)
     set({ loading: false })
@@ -276,6 +291,8 @@ export function hydrateRideStore(data: any) {
     rideCount: data.rideCount ?? 0,
     canRunLiveActivities: data.canRunLiveActivities ?? false,
     arrivalAlarm: data.arrivalAlarm ?? undefined,
+    arrivalAlarmStops: data.arrivalAlarmStops ?? undefined,
+    arrivalAlarmRangStops: data.arrivalAlarmRangStops ?? [],
     pendingArrivalAlarmRemoval: data.pendingArrivalAlarmRemoval ?? undefined,
     arrivalAlarmFullScreenPrompted: data.arrivalAlarmFullScreenPrompted ?? false,
   })
