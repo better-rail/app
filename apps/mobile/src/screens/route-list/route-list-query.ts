@@ -60,6 +60,14 @@ export function getInitialScrollIndex(data: RouteData[], time: number, dateType:
   return typeof data[index - 1] === "string" ? index - 1 : index
 }
 
+// Later days pin their date header over the top of the list, so a route scrolled to there needs room below it
+export function getScrollTarget(data: RouteData[], index: number, headerHeight: number, todayDate: string) {
+  const item = data[index]
+  if (item === undefined || typeof item === "string") return { index }
+  const isUnderStickyHeader = new Date(item.trains[0].departureTime).toDateString() !== todayDate
+  return { index, viewOffset: isUnderStickyHeader ? headerHeight : 0 }
+}
+
 // Merge fresh live data (delays, platforms, cancellations) into matching routes, keeping list-relative flags
 export function patchRoutes<T extends RouteItem | string>(items: T[], freshRoutes: RouteItem[]): T[] {
   const freshById = new Map(freshRoutes.map((route) => [routeId(route), route]))
