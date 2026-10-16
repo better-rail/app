@@ -3,6 +3,7 @@ import { Alert, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { QRCode } from "@ttsalpha/qrcode/native"
+import * as Sentry from "@sentry/react-native"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
@@ -61,18 +62,20 @@ export function VoucherScreen() {
           </View>
 
           <View style={styles.passBody}>
-            {/* Encodes the confirmation code, like the QR rail.co.il shows after ordering */}
-            <QRCode
-              value={voucher.confirmationCode}
-              size={180}
-              margin={0}
-              qr={{ errorCorrectionLevel: "M" }}
-              backgroundColor="white"
-              dotColor="black"
-            />
-            <Text style={styles.code} selectable>
-              {formatConfirmationCode(voucher.confirmationCode)}
-            </Text>
+            <Sentry.Mask style={styles.codeMask}>
+              {/* Encodes the confirmation code, like the QR rail.co.il shows after ordering */}
+              <QRCode
+                value={voucher.confirmationCode}
+                size={180}
+                margin={0}
+                qr={{ errorCorrectionLevel: "M" }}
+                backgroundColor="white"
+                dotColor="black"
+              />
+              <Text style={styles.code} selectable>
+                {formatConfirmationCode(voucher.confirmationCode)}
+              </Text>
+            </Sentry.Mask>
             <Text style={styles.passengers}>{translate("voucher.forPassengers", { count: voucher.passengers })}</Text>
           </View>
         </View>
@@ -157,6 +160,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: "center",
     paddingTop: theme.spacing[4],
     paddingBottom: theme.spacing[5],
+  },
+  codeMask: {
+    alignItems: "center",
   },
   code: {
     marginTop: theme.spacing[4],
