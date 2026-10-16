@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from "bun:test"
 import type { RouteItem, Train } from "@/services/api"
-import { patchRoutes, publishFreshRoutes, subscribeToFreshRoutes } from "./route-list-query"
+import { getScrollTarget, patchRoutes, publishFreshRoutes, subscribeToFreshRoutes } from "./route-list-query"
 
 const route = (departureTime: number, trainNumbers: number[], delay = 0) =>
   ({
@@ -52,5 +52,21 @@ describe("publishFreshRoutes", () => {
 
     expect(onRoutes).toHaveBeenCalledTimes(1)
     expect(onOtherRoutes).not.toHaveBeenCalled()
+  })
+})
+
+describe("getScrollTarget", () => {
+  const departingAt = (date: Date) => ({ trains: [{ departureTime: date.getTime() }] }) as RouteItem
+  const today = new Date(2026, 9, 16, 10)
+  const tomorrow = new Date(2026, 9, 17, 10)
+  const list = [today.toDateString(), departingAt(today), tomorrow.toDateString(), departingAt(tomorrow)]
+
+  test("leaves room for a later day's pinned date header", () => {
+    expect(getScrollTarget(list, 3, 40, today.toDateString())).toEqual({ index: 3, viewOffset: 40 })
+  })
+
+  test("needs no room under today's header, which isn't pinned, or when targeting a header", () => {
+    expect(getScrollTarget(list, 1, 40, today.toDateString())).toEqual({ index: 1, viewOffset: 0 })
+    expect(getScrollTarget(list, 2, 40, today.toDateString())).toEqual({ index: 2 })
   })
 })

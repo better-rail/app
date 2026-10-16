@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, Dimensions, useColorScheme } from "react-native"
+import { View, ActivityIndicator, Dimensions, Platform, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
@@ -17,13 +17,14 @@ import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from 
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
-import { Screen, RouteDetailsHeader, RouteCard, WebsiteHandoff } from "@/components"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, RouteCardHeightWithHeader, WebsiteHandoff } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
   RouteListError,
   RouteListWarning,
   ResultDateCard,
+  RESULT_DATE_CARD_HEIGHT,
   DateScroll,
   HourIndexBar,
   HOUR_INDEX_MAX_FONT_SCALE,
@@ -45,6 +46,7 @@ import { RoutesNotFoundError, type RouteSearchResult } from "@/models/train-rout
 import {
   getInitialScrollIndex,
   getRouteListWarning,
+  getScrollTarget,
   organizeRouteResults,
   patchRoutes,
   routeListDayQueryKey,
@@ -108,6 +110,7 @@ function RouteListResults({
   const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hourIndexEnabled = useSettingsStore((s) => s.showHourIndex)
+  const showRouteCardHeader = useSettingsStore((s) => s.showRouteCardHeader)
   const maxChanges = useSettingsStore((s) => s.maxChanges)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
   const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
@@ -146,6 +149,8 @@ function RouteListResults({
   )
 
   const listRef = useRef<LegendListRef>(null)
+  // LegendList hides rows until it has jumped to the closest train; hide the footer and scroll bar with them
+  const [isListReady, setIsListReady] = useState(false)
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -278,7 +283,10 @@ function RouteListResults({
   const scrollToHour = ({ index }: HourIndexEntry) => {
     // Keep the date header in view when jumping to the first train of the day
     const target = typeof displayData[index - 1] === "string" ? index - 1 : index
-    listRef.current?.scrollToIndex({ index: target, animated: false })
+    listRef.current?.scrollToIndex({
+      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, todayDate),
+      animated: false,
+    })
   }
 
   // Signal TTI after the results or an empty/error state has resolved.
@@ -288,18 +296,21 @@ function RouteListResults({
     }
   }, [displayData.length, trains.isLoading, trains.isError, allRoutesHiddenByFilter, markInteractive])
 
-  const initialScrollIndex = getInitialScrollIndex(displayData, time, dateType)
+  const closestIndex = getInitialScrollIndex(displayData, time, dateType)
+  const initialScrollTarget =
+    closestIndex === undefined ? undefined : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, todayDate)
 
   // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
+  const reanchorList = useEffectEvent(() => {
+    if (initialScrollTarget) listRef.current?.scrollToIndex({ ...initialScrollTarget, animated: true })
+  })
   const isFirstRender = useRef(true)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    if (initialScrollIndex === undefined) return
-    listRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    reanchorList()
   }, [maxChanges])
 
   const shouldShowDashedLine = (() => {
@@ -465,7 +476,8 @@ function RouteListResults({
       {displayData.length > 0 && (
         <View style={styles.listContainer}>
           <LegendList
-            key={`route-list-${hideSlowTrains}`}
+            // The list caches row sizes, so it starts over when the train info prompt changes the card height
+            key={`route-list-${showRouteCardHeader}`}
             ref={listRef}
             renderItem={renderRouteCard}
             keyExtractor={(item) =>
@@ -475,6 +487,12 @@ function RouteListResults({
             }
             data={displayData}
             getItemType={(item) => (typeof item === "string" ? "date" : "route")}
+            // Rows have fixed heights, so the list can jump to the closest train without measuring first
+            getFixedItemSize={(_, __, type) =>
+              type === "route"
+                ? (showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight) + spacing[3]
+                : RESULT_DATE_CARD_HEIGHT
+            }
             recycleItems
             stickyHeaderIndices={displayData.flatMap((item, index) =>
               typeof item === "string" && item !== todayDate ? [index] : [],
@@ -482,16 +500,28 @@ function RouteListResults({
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={VIEWABILITY_CONFIG}
             // The native scroll indicator would sit on top of the hour index
-            showsVerticalScrollIndicator={!showHourIndex}
+            showsVerticalScrollIndicator={isListReady && !showHourIndex}
             contentContainerStyle={{
               paddingTop: spacing[4],
               paddingStart: spacing[3],
               paddingEnd: showHourIndex ? spacing[5] + spacing[1] : spacing[3],
               paddingBottom: warning && isLiquidGlassSupported ? spacing[8] + spacing[5] : spacing[3],
             }}
-            initialScrollIndex={initialScrollIndex}
-            // so the list will re-render when the ride route changes, and so the item will be marked
-            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, vouchers]}
+            initialScrollIndex={initialScrollTarget}
+            // Rows only re-render when their item or this changes, so it lists everything else renderRouteCard reads.
+            // dataUpdatedAt re-renders them on each refetch, so departed trains grey out.
+            extraData={[
+              rideRoute,
+              routePlanDate,
+              trains.status,
+              trains.dataUpdatedAt,
+              loadingDate,
+              hideSlowTrains,
+              maxChanges,
+              vouchers,
+              shouldShowDashedLine,
+              colorScheme,
+            ]}
             ListFooterComponent={
               <DateScroll
                 setTime={loadNextDayData}
@@ -500,7 +530,17 @@ function RouteListResults({
                 isDisabled={trains.isFetching}
               />
             }
-            ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
+            ListFooterComponentStyle={{ paddingBottom: spacing[3], opacity: isListReady ? 1 : 0 }}
+            onLoad={() => {
+              setIsListReady(true)
+              // iOS sends no scroll event for the initial offset, which leaves the sticky date header unpinned
+              const list = listRef.current
+              if (Platform.OS === "ios" && list) {
+                const { scroll } = list.getState()
+                list.scrollToOffset({ offset: scroll + 1, animated: false })
+                list.scrollToOffset({ offset: scroll, animated: false })
+              }
+            }}
           />
           {showHourIndex && <HourIndexBar entries={hourIndexEntries} topHour={topHour} onSelect={scrollToHour} />}
         </View>
