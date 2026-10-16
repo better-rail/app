@@ -12,7 +12,7 @@ export const Route = createFileRoute("/{-$locale}/privacy-policy")({
       title: locale === "he" ? "Better Rail - מדיניות פרטיות" : "Better Rail - Privacy Policy",
       description:
         locale === "he"
-          ? "מדיניות הפרטיות של אפליקציית ואתר Better Rail: איזה מידע נאסף, לאיזו מטרה ומאיפה מגיעים הנתונים."
+          ? "מדיניות הפרטיות של אפליקציית ואתר בטר רייל: איזה מידע נאסף, לאיזו מטרה ומאיפה מגיעים הנתונים."
           : "The Better Rail privacy policy: what information is collected, why, and where our data comes from.",
     })
   },

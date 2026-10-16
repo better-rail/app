@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_site/terms")({
       localized: false,
       path: "/terms",
       title: "Better Rail - תקנון ותנאי שימוש",
-      description: "תקנון ותנאי השימוש באתר ובאפליקציית Better Rail, כולל תנאי התמיכה הכספית ומדיניות הביטול וההחזר.",
+      description: "תקנון ותנאי השימוש באתר ובאפליקציית בטר רייל, כולל תנאי התמיכה הכספית ומדיניות הביטול וההחזר.",
     }),
   headers: () => cacheHeaders(3600, 86400),
   component: () => (
