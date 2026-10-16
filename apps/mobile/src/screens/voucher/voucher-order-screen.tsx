@@ -10,7 +10,7 @@ import { voucherApi } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { normalizeIsraeliMobile } from "@/utils/helpers/voucher-helpers"
 import { VoucherHero } from "./components/voucher-hero"
-import { voucherErrorText } from "./voucher-error"
+import { voucherErrorReason, voucherErrorText } from "./voucher-error"
 
 /** First step: the mobile number Israel Rail texts the code and the voucher to. */
 export function VoucherOrderScreen() {
@@ -49,7 +49,7 @@ export function VoucherOrderScreen() {
       router.push({ pathname: "/voucher/code", params: { phone: normalizedPhone } })
     } catch (sendError) {
       setError(voucherErrorText(sendError))
-      trackEvent("voucher_failed", { step: "send_code" })
+      trackEvent("voucher_failed", { step: "send_code", reason: voucherErrorReason(sendError) })
     } finally {
       sendingRef.current = false
       setIsSending(false)
