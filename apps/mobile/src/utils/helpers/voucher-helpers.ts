@@ -53,3 +53,8 @@ export function normalizeIsraeliMobile(input: string) {
   if (digits.startsWith("972")) digits = "0" + digits.slice(3)
   return /^05\d{8}$/.test(digits) ? digits : null
 }
+
+/** The code in Israel Rail's SMS: exactly `length` digits, not part of a longer number. Null when there's none. */
+export function extractVoucherCode(message: string, length: number) {
+  return new RegExp(`(?:^|\\D)(\\d{${length}})(?!\\d)`).exec(message)?.[1] ?? null
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useEffectEvent, useRef, useState } from "react"
 import { ActivityIndicator, Platform, Pressable, ScrollView, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useLocalSearchParams, useRouter } from "expo-router"
@@ -8,11 +8,15 @@ import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { voucherApi } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
+import { extractVoucherCode } from "@/utils/helpers/voucher-helpers"
+import { startSmsUserConsent, stopSmsUserConsent, subscribeToSmsUserConsent } from "@/utils/sms-user-consent-native"
 import { CodeInput } from "./components/code-input"
 import { trackVoucherFailure, voucherErrorText } from "./voucher-error"
 
 const CODE_LENGTH = 5
 const RESEND_COOLDOWN_SECONDS = 30
+
+type CodeSource = "sms_consent" | "typed"
 
 // Isolated left-to-right, so the dashes don't reorder the groups inside right-to-left text
 const formatPhone = (phone: string) => `\u2066${phone.slice(0, 3)}-${phone.slice(3, 6)}-${phone.slice(6)}\u2069`
@@ -37,14 +41,14 @@ export function VoucherCodeScreen() {
     return () => clearTimeout(timer)
   }, [resendIn])
 
-  const verify = async (enteredCode: string) => {
+  const verify = async (enteredCode: string, source: CodeSource) => {
     if (verifyingRef.current) return
     verifyingRef.current = true
     setError(null)
     setIsVerifying(true)
     try {
       await voucherApi.verifyCode(phone, enteredCode)
-      trackEvent("voucher_code_verified")
+      trackEvent("voucher_code_verified", { source })
       // The code is spent, so going back from the next step returns to the phone number
       router.replace({ pathname: "/voucher/passengers", params: { phone } })
     } catch (verifyError) {
@@ -64,6 +68,7 @@ export function VoucherCodeScreen() {
     setResendNotice(null)
     setResendIn(RESEND_COOLDOWN_SECONDS)
     try {
+      void startSmsUserConsent()
       await voucherApi.sendCode(phone)
       setResendNotice(translate("voucher.codeResent"))
       trackEvent("voucher_code_resent")
@@ -77,10 +82,25 @@ export function VoucherCodeScreen() {
     }
   }
 
-  const onCodeChange = (value: string) => {
+  // Typed covers the keyboard's SMS autofill too
+  const onCodeChange = (value: string, source: CodeSource = "typed") => {
     setCode(value)
-    if (value.length === CODE_LENGTH) verify(value)
+    if (value.length === CODE_LENGTH) verify(value, source)
   }
+
+  const onSmsCode = useEffectEvent((smsCode: string) => onCodeChange(smsCode, "sms_consent"))
+
+  // Android: the SMS the rider shares from the system prompt. Listening starts before the code is sent.
+  useEffect(() => {
+    const unsubscribe = subscribeToSmsUserConsent((message) => {
+      const smsCode = extractVoucherCode(message, CODE_LENGTH)
+      if (smsCode) onSmsCode(smsCode)
+    })
+    return () => {
+      unsubscribe()
+      stopSmsUserConsent()
+    }
+  }, [])
 
   return (
     <ScrollView
