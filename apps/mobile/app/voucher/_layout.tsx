@@ -4,10 +4,13 @@ import { useNavigation, useRouter } from "expo-router"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
 import { closeVoucherFlow } from "@/screens/voucher/close-voucher-flow"
+import { usePauseReplayWhileTyping } from "@/screens/voucher/use-pause-replay-while-typing"
 import { color, spacing, typography } from "@/theme"
 
 export default function VoucherLayout() {
   const router = useRouter()
+  // Mounted for the whole sheet, so every keyboard in the flow is covered
+  usePauseReplayWhileTyping()
   // The layout is the sheet itself, a screen of the root stack
   const navigation = useNavigation()
 
