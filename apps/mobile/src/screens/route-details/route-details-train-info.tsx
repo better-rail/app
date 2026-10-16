@@ -1,5 +1,5 @@
 import { useRef, useState } from "react"
-import { View, ScrollView, Platform, Pressable, LayoutChangeEvent } from "react-native"
+import { View, ScrollView, Platform, Pressable, LayoutChangeEvent, type ScrollViewInstance } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import SegmentedControl from "@expo/ui/community/segmented-control"
 import { Text } from "@/components"
@@ -71,7 +71,7 @@ function TrainWagons({ train }: { train: Train }) {
     }
   })()
 
-  const scrollViewRef = useRef<ScrollView>(null)
+  const scrollViewRef = useRef<ScrollViewInstance>(null)
   const wagonLayoutsRef = useRef<Record<number, number>>({})
 
   const scrollToWagonIndex = (targetIndex: number) => {

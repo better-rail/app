@@ -6,14 +6,12 @@ import { uniqBy } from "lodash"
 import { userLocale } from "@/i18n"
 import { PopUpMessage, railApi } from "@/services/api"
 import { Screen, Text } from "@/components"
-import { useIsDarkMode } from "@/hooks"
 import { useSettingsStore, filterUnseenUrgentMessages } from "@/models"
 import { AnnouncementCard } from "./announcement-card"
 
 export const UrgentAnnouncements = () => {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const setSeenUrgentMessagesIds = useSettingsStore((s) => s.setSeenUrgentMessagesIds)
-  const isDarkMode = useIsDarkMode()
 
   const { data: messages } = useQuery(["announcements", "urgent"], () => railApi.getPopupMessages(userLocale))
   const [unseenUrgentMessages, setUnseenUrgentMessages] = useState<PopUpMessage[]>([])
@@ -34,7 +32,7 @@ export const UrgentAnnouncements = () => {
   }, [messages])
 
   return (
-    <Screen unsafe statusBar={Platform.select({ ios: "light-content" })} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
+    <Screen unsafe statusBar={Platform.select({ ios: "light-content" })}>
       <Text style={styles.emoji}>📣</Text>
       <View style={styles.messagesWrapper}>
         {/* we use uniqBy to avoid duplicate messages, as the API usually returns the same message twice */}

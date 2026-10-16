@@ -174,7 +174,7 @@ export function PlannerScreen() {
   )
 
   return (
-    <Screen testID="planner-screen" style={styles.root} statusBarBackgroundColor="transparent" translucent>
+    <Screen testID="planner-screen" style={styles.root}>
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
           <PlannerScreenHeader />

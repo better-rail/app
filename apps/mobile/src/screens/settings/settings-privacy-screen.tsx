@@ -5,7 +5,6 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
 import { settingsStyles } from "./settings-styles"
-import { isDarkMode } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useUserStore, clearAllData } from "@/models"
 import { translate } from "@/i18n"
@@ -56,13 +55,7 @@ export function PrivacyScreen() {
   }
 
   return (
-    <Screen
-      style={styles.root}
-      preset="scroll"
-      unsafe={true}
-      statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-    >
+    <Screen style={styles.root} preset="scroll" unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
       <View style={settingsStyles.group}>
         <SettingBox
           title={translate("settings.privacyPolicy")}
