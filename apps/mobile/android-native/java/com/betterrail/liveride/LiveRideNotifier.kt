@@ -163,10 +163,12 @@ object LiveRideNotifier {
             .setProgress(clampedProgress)
 
         val trackColor = resolveTrackColor(content.titleSemanticStyle)
+        val semanticStyle = content.titleSemanticStyle ?: SemanticColorCompat.SEMANTIC_STYLE_INFO
 
         val trackSegment = Notification.ProgressStyle.Segment(max)
         trackSegment.setColor(trackColor)
         trackSegment.setId(0)
+        SemanticColorCompat.applySemanticStyle(trackSegment, semanticStyle)
         style.addProgressSegment(trackSegment)
 
         val intermediateStops = numSegments - 1
@@ -175,17 +177,22 @@ object LiveRideNotifier {
             val point = Notification.ProgressStyle.Point(position)
             point.setColor(COLOR_STATION_POINT)
             point.setId(step)
+            val pointStyle = if (step == intermediateStops) semanticStyle else SemanticColorCompat.SEMANTIC_STYLE_INFO
+            SemanticColorCompat.applySemanticStyle(point, pointStyle)
             style.addProgressPoint(point)
         }
 
         style.setProgressTrackerIcon(Icon.createWithResource(context, R.drawable.progress_tracker_icon))
 
+        val titleText = SemanticColorCompat.formatText(content.title, content.titleSemanticStyle)
+        val bodyText = SemanticColorCompat.formatText(content.body, content.titleSemanticStyle)
+
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
             .setColor(trackColor)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .setContentTitle(content.title)
-            .setContentText(content.body)
+            .setContentTitle(titleText)
+            .setContentText(bodyText)
             .setStyle(style)
             .setOngoing(true)
             .setOnlyAlertOnce(content.alertOnce)
@@ -193,6 +200,7 @@ object LiveRideNotifier {
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
 
         builder.setRequestPromotedOngoing(true)
+        SemanticColorCompat.applySemanticStyle(builder, semanticStyle)
 
         content.shortCriticalText?.takeIf { it.isNotBlank() }?.let { chipText ->
             builder.setShortCriticalText(chipText)
