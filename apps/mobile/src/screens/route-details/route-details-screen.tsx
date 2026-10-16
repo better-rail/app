@@ -41,7 +41,6 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
-import { useVouchersEnabled } from "@/hooks/use-vouchers-enabled"
 
 export function RouteDetailsScreen() {
   const router = useRouter()
@@ -101,8 +100,7 @@ export function RouteDetailsScreen() {
 
   const insets = useSafeAreaInsets()
 
-  const vouchersEnabled = useVouchersEnabled()
-  const voucherTrain = vouchersEnabled ? getVoucherTrain(routeItem) : undefined
+  const voucherTrain = getVoucherTrain(routeItem)
   const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
