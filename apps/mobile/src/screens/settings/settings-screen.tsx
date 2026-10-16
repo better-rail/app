@@ -126,7 +126,7 @@ export function SettingsScreen() {
 
       {__DEV__ && isArrivalAlarmSupported() && (
         <View style={settingsStyles.group}>
-          <SettingBox first last title="Test arrival alarm (10s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
+          <SettingBox first last title="Test arrival alarms (10s, 40s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
         </View>
       )}
 
