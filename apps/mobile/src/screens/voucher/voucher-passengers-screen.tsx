@@ -14,7 +14,7 @@ import { useVoucherAvailability, voucherCapacityQueryKey } from "@/hooks/use-vou
 import { getVoucherDate } from "@/utils/helpers/voucher-helpers"
 import { PassengerStepper } from "./components/passenger-stepper"
 import { VoucherHero } from "./components/voucher-hero"
-import { voucherErrorText } from "./voucher-error"
+import { voucherErrorReason, voucherErrorText } from "./voucher-error"
 
 /** Last step, once signed in: how many vouchers to order, within what's left for this phone. */
 export function VoucherPassengersScreen() {
@@ -79,7 +79,7 @@ export function VoucherPassengersScreen() {
       router.replace({ pathname: "/voucher/ticket", params: { code: confirmationCode } })
     } catch (orderError) {
       setError(voucherErrorText(orderError))
-      trackEvent("voucher_failed", { step: "order" })
+      trackEvent("voucher_failed", { step: "order", reason: voucherErrorReason(orderError) })
       orderingRef.current = false
       setIsOrdering(false)
     }

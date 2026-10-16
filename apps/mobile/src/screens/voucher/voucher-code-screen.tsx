@@ -9,7 +9,7 @@ import { translate } from "@/i18n"
 import { voucherApi } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { CodeInput } from "./components/code-input"
-import { voucherErrorText } from "./voucher-error"
+import { voucherErrorReason, voucherErrorText } from "./voucher-error"
 
 const CODE_LENGTH = 5
 const RESEND_COOLDOWN_SECONDS = 30
@@ -44,6 +44,7 @@ export function VoucherCodeScreen() {
     setIsVerifying(true)
     try {
       await voucherApi.verifyCode(phone, enteredCode)
+      trackEvent("voucher_code_verified")
       // The code is spent, so going back from the next step returns to the phone number
       router.replace({ pathname: "/voucher/passengers", params: { phone } })
     } catch (verifyError) {
@@ -52,7 +53,7 @@ export function VoucherCodeScreen() {
       setCode("")
       verifyingRef.current = false
       setIsVerifying(false)
-      trackEvent("voucher_failed", { step: "verify" })
+      trackEvent("voucher_failed", { step: "verify", reason: voucherErrorReason(verifyError) })
     }
   }
 
@@ -65,7 +66,9 @@ export function VoucherCodeScreen() {
     try {
       await voucherApi.sendCode(phone)
       setResendNotice(translate("voucher.codeResent"))
+      trackEvent("voucher_code_resent")
     } catch (resendError) {
+      trackEvent("voucher_failed", { step: "resend", reason: voucherErrorReason(resendError) })
       setError(voucherErrorText(resendError))
       // Nothing was sent, so there's nothing to wait for
       setResendIn(0)

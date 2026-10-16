@@ -16,3 +16,15 @@ export function voucherErrorText(error: unknown): string {
   if (message && !/^[A-Z_]+$/.test(message)) return message
   return translate("voucher.genericError") ?? ""
 }
+
+/** Analytics-safe failure category; free-text server messages are dropped. */
+export function voucherErrorReason(error: unknown): string {
+  if (isConnectionError(error)) return "connection"
+  if (isAxiosError(error) && error.response?.status === 401) return "session_expired"
+
+  const message = voucherErrorMessage(error)
+  if (message && /^[A-Z_]+$/.test(message)) return message
+  if (message) return "server_message"
+  if (isAxiosError(error) && error.response) return `http_${error.response.status}`
+  return "unknown"
+}
