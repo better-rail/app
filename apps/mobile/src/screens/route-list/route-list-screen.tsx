@@ -476,7 +476,8 @@ function RouteListResults({
       {displayData.length > 0 && (
         <View style={styles.listContainer}>
           <LegendList
-            key={`route-list-${hideSlowTrains}`}
+            // The list caches row sizes, so it starts over when the train info prompt changes the card height
+            key={`route-list-${showRouteCardHeader}`}
             ref={listRef}
             renderItem={renderRouteCard}
             keyExtractor={(item) =>
