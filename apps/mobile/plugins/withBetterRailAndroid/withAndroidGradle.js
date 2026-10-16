@@ -1,7 +1,9 @@
 const { withAppBuildGradle, withProjectBuildGradle } = require("@expo/config-plugins")
 const { mergeContents } = require("@expo/config-plugins/build/utils/generateCode")
 
-const HILT_VERSION = "2.53.1"
+// 2.58 reads Kotlin 2.2 metadata (RN 0.88). 2.59+ only passes its kapt args to AGP's legacy-kapt,
+// not the kotlin-kapt this app applies, so Hilt codegen fails there.
+const HILT_VERSION = "2.58"
 const GOOGLE_SERVICES_VERSION = "4.4.2"
 
 const APP_PLUGINS = `apply plugin: "kotlin-kapt"
@@ -24,7 +26,8 @@ const DEPENDENCIES = `    implementation("androidx.preference:preference-ktx:1.2
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.room:room-runtime:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
-    kapt("androidx.room:room-compiler:2.7.0")`
+    kapt("androidx.room:room-compiler:2.7.0")
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.0.2")`
 
 const withAppGradle = (config) =>
   withAppBuildGradle(config, (cfg) => {
@@ -75,7 +78,7 @@ const withAppGradle = (config) =>
       }).contents
     }
 
-    // 4) Widget dependencies (Hilt, Room, DataStore, WorkManager, OkHttp, Gson, coroutines).
+    // 4) Widget dependencies (Hilt, Room, DataStore, WorkManager, OkHttp, Gson, coroutines), plus the SMS User Consent API.
     src = mergeContents({
       tag: "better-rail-android-dependencies",
       src,

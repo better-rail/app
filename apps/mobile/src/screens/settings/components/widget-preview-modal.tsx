@@ -1,5 +1,16 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Dimensions, I18nManager, Modal, NativeScrollEvent, NativeSyntheticEvent, Platform, Pressable, ScrollView, View } from "react-native"
+import {
+  Dimensions,
+  I18nManager,
+  Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  Pressable,
+  ScrollView,
+  type ScrollViewInstance,
+  View,
+} from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { TxKeyPath } from "@/i18n"
@@ -44,13 +55,11 @@ interface WidgetPreviewModalProps {
 
 export function WidgetPreviewModal({ visible, onClose, onPin }: WidgetPreviewModalProps) {
   const [activeIndex, setActiveIndex] = useState(0)
-  const scrollRef = useRef<ScrollView>(null)
+  const scrollRef = useRef<ScrollViewInstance>(null)
   const isRTLAndroid = Platform.OS === "android" && I18nManager.isRTL
 
   const getScrollXForIndex = (index: number) => {
-    return isRTLAndroid
-      ? (WIDGETS.length - 1 - index) * CARD_WIDTH
-      : index * CARD_WIDTH
+    return isRTLAndroid ? (WIDGETS.length - 1 - index) * CARD_WIDTH : index * CARD_WIDTH
   }
 
   const getIndexFromScrollEvent = (e: NativeSyntheticEvent<NativeScrollEvent>) => {

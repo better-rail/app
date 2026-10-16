@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react"
-import { Pressable, TextInput, View } from "react-native"
+import { Pressable, TextInput, type TextInputInstance, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 
@@ -13,7 +13,7 @@ type CodeInputProps = {
 
 /** Digit boxes over one hidden input, so the SMS code autofill (iOS/Android) fills it in one go. */
 export function CodeInput({ value, length, onChange, editable = true, hasError }: CodeInputProps) {
-  const inputRef = useRef<TextInput>(null)
+  const inputRef = useRef<TextInputInstance>(null)
 
   // The input blurs while a code is checked; bring the keyboard back for the next attempt
   useEffect(() => {

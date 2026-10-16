@@ -10,6 +10,7 @@ import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { voucherApi } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
 import { normalizeIsraeliMobile } from "@/utils/helpers/voucher-helpers"
+import { startSmsUserConsent, stopSmsUserConsent } from "@/utils/sms-user-consent-native"
 import { VoucherHero } from "./components/voucher-hero"
 import { trackVoucherFailure, voucherErrorText } from "./voucher-error"
 
@@ -28,6 +29,8 @@ export function VoucherOrderScreen() {
 
   useEffect(() => {
     trackEvent("voucher_started")
+    // Closing the sheet mid-send would otherwise leave the SMS prompt to show up later
+    return stopSmsUserConsent
   }, [])
 
   if (!train) return null
@@ -44,11 +47,14 @@ export function VoucherOrderScreen() {
     sendingRef.current = true
     setIsSending(true)
     try {
+      // Before sending, since the SMS can arrive before the code screen opens
+      void startSmsUserConsent()
       await voucherApi.sendCode(normalizedPhone)
       useVouchersStore.getState().setPhone(normalizedPhone)
       trackEvent("voucher_code_sent")
       router.push({ pathname: "/voucher/code", params: { phone: normalizedPhone } })
     } catch (sendError) {
+      stopSmsUserConsent()
       setError(voucherErrorText(sendError))
       trackVoucherFailure("send_code", sendError)
     } finally {

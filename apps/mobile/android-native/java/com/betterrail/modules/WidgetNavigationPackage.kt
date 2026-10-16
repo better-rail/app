@@ -11,7 +11,8 @@ class WidgetNavigationPackage : ReactPackage {
         return listOf(
             WidgetNavigationModule(reactContext),
             ArrivalAlarmModule(reactContext),
-            LiveRideNotificationModule(reactContext)
+            LiveRideNotificationModule(reactContext),
+            SmsUserConsentModule(reactContext)
         )
     }
 

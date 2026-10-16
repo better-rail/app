@@ -8,7 +8,6 @@ import { ColorSchemePicker } from "./components/color-scheme-picker"
 import { spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { settingsStyles } from "./settings-styles"
-import { useIsDarkMode } from "@/hooks"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import type { ColorSchemePreference } from "@/models/settings/settings"
@@ -17,7 +16,6 @@ import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 import { isHourIndexSupported } from "@/utils/hour-index"
 
 export function UISettingsScreen() {
-  const isDarkMode = useIsDarkMode()
   const { showRouteCardHeader, setShowRouteCardHeader, showHourIndex, setShowHourIndex, colorScheme, setColorScheme } =
     useSettingsStore(
       useShallow((s) => ({
@@ -81,8 +79,6 @@ export function UISettingsScreen() {
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
     >
       <View style={settingsStyles.group}>
         <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />

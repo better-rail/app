@@ -7,7 +7,6 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
-import { isDarkMode } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
@@ -146,13 +145,7 @@ export function SelectStationScreen() {
   )
 
   return (
-    <Screen
-      testID="select-station-screen"
-      style={styles.root}
-      preset="fixed"
-      unsafe={true}
-      statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
-    >
+    <Screen testID="select-station-screen" style={styles.root} preset="fixed" unsafe={true}>
       <View style={styles.searchBarWrapper}>
         {!allowedStations && (
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
