@@ -440,15 +440,7 @@ function RouteListResults({
   const noTrainsFound = trains.error instanceof RoutesNotFoundError
 
   return (
-    <Screen
-      testID="route-list-screen"
-      style={styles.root}
-      preset="fixed"
-      unsafe={true}
-      statusBar="light-content"
-      statusBarBackgroundColor="transparent"
-      translucent
-    >
+    <Screen testID="route-list-screen" style={styles.root} preset="fixed" unsafe={true} statusBar="light-content">
       <WebsiteHandoff originId={originId} destinationId={destinationId} time={handoffDate.getTime()} />
       <RouteDetailsHeader
         screenName="routeList"

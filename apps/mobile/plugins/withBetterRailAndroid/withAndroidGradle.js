@@ -2,7 +2,9 @@ const { withAppBuildGradle, withProjectBuildGradle } = require("@expo/config-plu
 const { mergeContents } = require("@expo/config-plugins/build/utils/generateCode")
 const path = require("node:path")
 
-const HILT_VERSION = "2.53.1"
+// 2.58 reads Kotlin 2.2 metadata (RN 0.88). 2.59+ only passes its kapt args to AGP's legacy-kapt,
+// not the kotlin-kapt this app applies, so Hilt codegen fails there.
+const HILT_VERSION = "2.58"
 const GOOGLE_SERVICES_VERSION = "4.4.2"
 
 const APP_PLUGINS = `apply plugin: "kotlin-kapt"

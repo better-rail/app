@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter } from "expo-router"
+import { enableLegacyHeaderAppearance, useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
@@ -49,6 +49,9 @@ enableScreens()
 Observe.configure({
   integrations: { "expo-router": { filteredParams: ["phone", "code"] } },
 })
+
+// SDK 58 made iOS 26+ stack headers transparent with system fonts; keep the opaque, themed headers.
+enableLegacyHeaderAppearance()
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 

@@ -124,8 +124,6 @@ export function RouteDetailsScreen() {
       unsafe={true}
       keyboardAvoiding={false}
       statusBar="light-content"
-      statusBarBackgroundColor="transparent"
-      translucent
     >
       {routeItem && originId && destinationId && (
         <WebsiteHandoff

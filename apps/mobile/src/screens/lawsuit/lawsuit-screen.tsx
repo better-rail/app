@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { useLocalSearchParams } from "expo-router"
 import { useHeaderHeight } from "expo-router/react-navigation"
 import { Screen, Text, Button } from "@/components"
-import { useIsDarkMode, useMountEffect } from "@/hooks"
+import { useMountEffect } from "@/hooks"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { openLink } from "@/utils/helpers/open-link"
@@ -13,7 +13,6 @@ const TWITTER_DEEP_LINK = "twitter://user?screen_name=better_rail"
 const TWITTER_WEB_URL = "https://x.com/better_rail"
 
 export function LawsuitScreen() {
-  const isDarkMode = useIsDarkMode()
   const { source } = useLocalSearchParams<{ source?: string }>()
   const headerHeight = useHeaderHeight()
 
@@ -45,7 +44,7 @@ export function LawsuitScreen() {
   }
 
   return (
-    <Screen unsafe statusBar={Platform.select({ ios: "light-content" })} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}>
+    <Screen unsafe statusBar={Platform.select({ ios: "light-content" })}>
       <View style={styles.contentWrapper}>
         <ScrollView
           style={styles.scroll}

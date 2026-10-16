@@ -21,7 +21,8 @@ export function ColorSchemePicker({ value, onChange }: ColorSchemePickerProps) {
   return (
     <FillWidth>
       {(width) => (
-        <Host matchContents>
+        // @expo/ui 58 mirrors Compose in RTL, which anchors the menu away from the value; keep 57's LTR.
+        <Host matchContents layoutDirection="leftToRight">
           <DropdownMenu expanded={expanded} onDismissRequest={() => setExpanded(false)}>
             <DropdownMenu.Trigger>
               <RNHostView matchContents>
