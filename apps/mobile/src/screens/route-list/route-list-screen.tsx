@@ -37,6 +37,8 @@ import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers
 import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { findRouteVoucher } from "@/utils/helpers/voucher-helpers"
+import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
 import { RoutesNotFoundError, type RouteSearchResult } from "@/models/train-routes/search-routes"
@@ -99,6 +101,7 @@ function RouteListResults({
   viaStationId?: string
 }) {
   const router = useRouter()
+  const vouchers = useVouchersStore((s) => s.vouchers)
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
@@ -416,6 +419,7 @@ function RouteListResults({
         arrivalTime={arrivalTime}
         delay={item.delay}
         isActiveRide={isRouteActive(item)}
+        hasVoucher={!!findRouteVoucher(vouchers, item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {
           useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, originId, destinationId })
@@ -495,7 +499,7 @@ function RouteListResults({
             }}
             initialScrollIndex={initialScrollIndex}
             // so the list will re-render when the ride route changes, and so the item will be marked
-            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges]}
+            extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, vouchers]}
             ListFooterComponent={
               <DateScroll
                 setTime={loadNextDayData}

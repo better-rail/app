@@ -47,7 +47,7 @@ enableScreens()
 // Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
 // module scope before any screen mounts — it cannot be toggled at runtime.
 Observe.configure({
-  integrations: { "expo-router": true },
+  integrations: { "expo-router": { filteredParams: ["phone", "code"] } },
 })
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
@@ -141,6 +141,7 @@ function AppStack() {
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
+        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="lawsuit"
           options={{

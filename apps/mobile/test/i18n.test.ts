@@ -5,6 +5,9 @@ const { exec } = require("child_process")
 // don't hold your test suite hostage by always failing.
 const EXCEPTIONS = [
   // "welcomeScreen.readyForLaunch",
+  // Pluralized (one/other), so only their children are leaf keys
+  "voucher.booked",
+  "voucher.forPassengers",
 ]
 
 function iterate(obj, stack, array) {

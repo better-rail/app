@@ -19,6 +19,7 @@ import {
   RouteStationCard,
   RouteStopCard,
   StartRideButton,
+  VoucherButton,
 } from "./components"
 
 import { useQuery } from "react-query"
@@ -39,6 +40,7 @@ import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
+import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
 
 export function RouteDetailsScreen() {
   const router = useRouter()
@@ -98,6 +100,7 @@ export function RouteDetailsScreen() {
 
   const insets = useSafeAreaInsets()
 
+  const voucherTrain = getVoucherTrain(routeItem)
   const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
@@ -119,6 +122,7 @@ export function RouteDetailsScreen() {
       style={styles.root}
       preset="fixed"
       unsafe={true}
+      keyboardAvoiding={false}
       statusBar="light-content"
       statusBarBackgroundColor="transparent"
       translucent
@@ -329,11 +333,17 @@ export function RouteDetailsScreen() {
             // zIndex is needed for Android in order to make the button pressable
             style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) }}
           >
+            {/* Vouchers stay bookable while the train runs, so the action rides above the sheet */}
+            {voucherTrain && (
+              <View style={styles.liveVoucherButton}>
+                <VoucherButton train={voucherTrain} style={styles.infoButton} />
+              </View>
+            )}
             <LiveRideSheet progress={progress} screenName={screenName} />
           </Animated.View>
         )}
 
-        {canRunLiveActivities && !isRideOnThisRoute && (
+        {!isRideOnThisRoute && (canRunLiveActivities || voucherTrain) && (
           <Animated.View
             entering={shouldFadeRideButton && FadeInDown.delay(100)}
             exiting={FadeOutDown}
@@ -349,35 +359,42 @@ export function RouteDetailsScreen() {
               gap: spacing[3],
             }}
           >
-            <Pressable
-              testID="train-info-button"
-              // Without an onLongPress handler, Pressable treats a long hold as
-              // a regular press on release and presents the sheet mid-gesture.
-              onLongPress={preventLongPressNavigation}
-              onPress={() => {
-                if (hasWagonData) {
-                  trackEvent("train_info_sheet_opened")
-                  HapticFeedback.trigger("impactLight")
-                  useNavigationParamsStore.getState().setTrainInfo(routeItem.trains, getCurrentTrainIndex(routeItem))
-                  router.push("/train-info")
-                } else {
-                  Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
-                }
-              }}
-              accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
-              accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
-            >
-              <GlassView
-                style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-                isInteractive={hasWagonData}
-                glassEffectStyle="regular"
-                tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
-              >
-                <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-              </GlassView>
-            </Pressable>
+            {voucherTrain && <VoucherButton train={voucherTrain} style={styles.infoButton} />}
 
-            <StartRideButton route={routeItem} screenName={screenName} />
+            {canRunLiveActivities && (
+              <Pressable
+                testID="train-info-button"
+                // Without an onLongPress handler, Pressable treats a long hold as
+                // a regular press on release and presents the sheet mid-gesture.
+                onLongPress={preventLongPressNavigation}
+                onPress={() => {
+                  if (hasWagonData) {
+                    trackEvent("train_info_sheet_opened")
+                    HapticFeedback.trigger("impactLight")
+                    useNavigationParamsStore.getState().setTrainInfo(routeItem.trains, getCurrentTrainIndex(routeItem))
+                    router.push("/train-info")
+                  } else {
+                    Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
+                  }
+                }}
+                accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
+                accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
+              >
+                <GlassView
+                  style={styles.infoButton}
+                  isInteractive={hasWagonData}
+                  glassEffectStyle="regular"
+                  tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
+                >
+                  <Image
+                    source={require("../../../assets/info.circle.png")}
+                    style={[styles.infoButtonIcon, !hasWagonData && styles.infoButtonIconDisabled]}
+                  />
+                </GlassView>
+              </Pressable>
+            )}
+
+            {canRunLiveActivities && <StartRideButton route={routeItem} screenName={screenName} />}
           </Animated.View>
         )}
       </View>
@@ -414,8 +431,14 @@ const styles = StyleSheet.create((theme, rt) => ({
         : theme.colors.tertiaryBackground,
     elevation: 3,
   },
-  infoButtonDisabled: {
-    opacity: 0.5,
+  liveVoucherButton: {
+    alignItems: "flex-end",
+    paddingEnd: rt.insets.right + 18,
+    marginBottom: theme.spacing[3],
+  },
+  // Dims only the icon, so the button surface stays opaque over the route
+  infoButtonIconDisabled: {
+    opacity: 0.4,
   },
   infoButtonIcon: {
     width: 24,
