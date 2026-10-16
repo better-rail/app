@@ -371,6 +371,7 @@
     "notificationPermission2": "אנחנו משתמשים במנגנון נוטיפיקציות חסכוני, ולא שולחים נוטיפקציות מיותרות.",
     "notificationPermission3": "התראות",
     "notificationPermission4": "התראות מתוזמנות",
+    "notificationPermissionLiveUpdates": "עדכונים בזמן אמת",
     "alarmButton": "התראת הגעה",
     "alarmMenuTitle": "שעת הצלצול מתעדכנת אוטומטית בהתאם לעיכובים. על כל שינוי תקבלו התראה שקטה.",
     "alarmLeadOption": "%{minutes} דקות לפני ההגעה",

@@ -51,7 +51,6 @@ export type ArrivalAlarm = {
   rideId: string
   alarmId: string
   leadMinutes: number
-  /** When it rings, in ms */
   fireDate: number
 }
 
@@ -64,9 +63,7 @@ export interface RideState {
   rideCount: number
   canRunLiveActivities: boolean
   arrivalAlarm: ArrivalAlarm | undefined
-  /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
   pendingArrivalAlarmRemoval: string | undefined
-  /** Android: the rider was already asked to let the alarm take over the lock screen */
   arrivalAlarmFullScreenPrompted: boolean
 }
 
@@ -97,7 +94,7 @@ const initialRideState: RideState = {
   activityAuthorizationInfo: undefined,
   notificationPermissionState: undefined,
   rideCount: 0,
-  canRunLiveActivities: isLiveRideSupported(),
+  canRunLiveActivities: Platform.OS === "android" ? isLiveRideSupported() : false,
   arrivalAlarm: undefined,
   pendingArrivalAlarmRemoval: undefined,
   arrivalAlarmFullScreenPrompted: false,
@@ -144,15 +141,15 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 
   async checkLiveRideAuthorization() {
-    const isSupported = Platform.OS === "android" ? isLiveRideSupported() : get().canRunLiveActivities
-    if (!isSupported) return
+    const { canRunLiveActivities } = get()
+    if (!canRunLiveActivities) return
 
     if (Platform.OS === "ios") {
       const info = await iOSHelpers.activityAuthorizationInfo()
       set({ activityAuthorizationInfo: info })
     } else if (Platform.OS === "android") {
       const state = await androidHelpers().getPermissionState()
-      set({ notificationPermissionState: state, canRunLiveActivities: true })
+      set({ notificationPermissionState: state })
     }
   },
 
@@ -208,7 +205,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
     set({ rideCount: count })
   },
 
-  isRideActive(rideId) {
+  async isRideActive(rideId) {
     const { canRunLiveActivities, route, id } = get()
 
     if (Platform.OS === "ios" && canRunLiveActivities) {
@@ -219,6 +216,13 @@ export const useRideStore = create<RideStore>((set, get) => ({
       })
     } else if (Platform.OS === "android") {
       if (!route || !id) return
+
+      const { getRideRoute } = require("@/utils/storage/background-storage")
+      const backgroundRoute = await getRideRoute().catch(() => null)
+      if (!backgroundRoute) {
+        get().stopRide(rideId)
+        return
+      }
 
       const originId = head(route.trains)?.originStationId
       const destinationId = last(route.trains)?.destinationStationId
@@ -240,7 +244,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
             get().stopRide(rideId)
           }
         })
-        .catch((error) => console.error("Failed to check ride arrival", error))
+        .catch(() => {})
     }
   },
 
@@ -283,12 +287,8 @@ export function hydrateRideStore(data: any) {
   })
 }
 
-let stopListenerRegistered = false
+let stopSubscription: (() => void) | undefined
 
-/**
- * Run afterCreate logic - checks if ride is still active and authorization.
- * Should be called after hydration.
- */
 export function initializeRideStore() {
   const state = useRideStore.getState()
   if (state.id) {
@@ -296,13 +296,11 @@ export function initializeRideStore() {
   }
   state.checkLiveRideAuthorization()
 
-  if (!stopListenerRegistered) {
-    stopListenerRegistered = true
-    addStopRideListener(() => {
-      const currentId = useRideStore.getState().id
-      if (currentId) {
-        useRideStore.getState().stopRide(currentId)
-      }
-    })
-  }
+  stopSubscription?.()
+  stopSubscription = addStopRideListener(() => {
+    const currentId = useRideStore.getState().id
+    if (currentId) {
+      useRideStore.getState().stopRide(currentId)
+    }
+  })
 }

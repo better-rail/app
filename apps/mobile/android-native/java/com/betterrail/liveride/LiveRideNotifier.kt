@@ -21,19 +21,22 @@ data class LiveRideContent(
     val progress: Int? = null,
     val maxProgress: Int? = null,
     val shortCriticalText: String? = null,
-    val countdownTargetMs: Long? = null,
     val stopActionText: String? = null,
     val alertOnce: Boolean = true,
     val titleSemanticStyle: Int? = null,
-    val bodySemanticStyle: Int? = null,
 )
 
-/** Manages display and scheduling of live ride notifications. */
 object LiveRideNotifier {
     const val CHANNEL_ID = "better-rail-live-v2"
     private const val NOTIFICATION_ID = 42001
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
     private const val SEGMENT_RESOLUTION = 100
+
+    const val SEMANTIC_STYLE_UNSPECIFIED = 0
+    const val SEMANTIC_STYLE_INFO = 1
+    const val SEMANTIC_STYLE_SAFE = 2
+    const val SEMANTIC_STYLE_CAUTION = 3
+    const val SEMANTIC_STYLE_DANGER = 4
 
     private const val COLOR_TRACK_SEGMENT = 0xFF007AFF.toInt()
     private const val COLOR_DELAY_RED = 0xFFFF3B30.toInt()
@@ -43,7 +46,6 @@ object LiveRideNotifier {
 
     fun showProgress(context: Context, content: LiveRideContent, staleUntil: Long? = null) {
         ensureChannel(context)
-        dismissAlerts(context)
         val remainingMs = staleUntil?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) }
         val notification = if (Build.VERSION.SDK_INT >= 36) {
             runCatching { buildLiveUpdate(context, content, remainingMs) }.getOrNull()
@@ -54,7 +56,6 @@ object LiveRideNotifier {
         notificationManager(context).notify(NOTIFICATION_ID, notification)
     }
 
-    /** Posts the arrival notification and cancels ongoing live state. */
     fun showArrived(context: Context, title: String, body: String) {
         cancelStale(context)
         ensureChannel(context)
@@ -93,9 +94,9 @@ object LiveRideNotifier {
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nm = notificationManager(context)
-            nm.deleteNotificationChannel("better-rail-live")
             val existing = nm.getNotificationChannel(CHANNEL_ID)
             if (existing == null) {
+                runCatching { nm.deleteNotificationChannel("better-rail-live") }
                 val channel = NotificationChannel(
                     CHANNEL_ID,
                     "Better Rail Live",
@@ -111,7 +112,6 @@ object LiveRideNotifier {
         }
     }
 
-    /** Schedules fallback notification triggered when updates lapse. */
     fun scheduleStale(context: Context, stale: LiveRideContent, delayMs: Long, staleUntil: Long) {
         val triggerAt = System.currentTimeMillis() + delayMs
         val intent = staleIntent(context, LiveRideStaleReceiver.toIntent(context, stale, staleUntil))
@@ -127,7 +127,6 @@ object LiveRideNotifier {
         alarmManager(context).cancel(staleIntent(context, Intent(context, LiveRideStaleReceiver::class.java)))
     }
 
-    /** Posts an alert notification. */
     fun postAlert(context: Context, tag: String, channelId: String, title: String, body: String, timeoutMs: Long) {
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.notification_icon)
@@ -149,13 +148,11 @@ object LiveRideNotifier {
         return ProgressBounds(numSegments, max, currentProgress.coerceIn(0, max))
     }
 
-    private data class SemanticPresentation(val color: Int, val style: Int)
-
-    private fun resolveSemanticPresentation(semanticStyle: Int?): SemanticPresentation = when (semanticStyle) {
-        SemanticColorCompat.SEMANTIC_STYLE_DANGER -> SemanticPresentation(COLOR_DELAY_RED, SemanticColorCompat.SEMANTIC_STYLE_DANGER)
-        SemanticColorCompat.SEMANTIC_STYLE_CAUTION -> SemanticPresentation(COLOR_EXCHANGE_ORANGE, SemanticColorCompat.SEMANTIC_STYLE_CAUTION)
-        SemanticColorCompat.SEMANTIC_STYLE_SAFE -> SemanticPresentation(COLOR_ON_TIME_GREEN, SemanticColorCompat.SEMANTIC_STYLE_SAFE)
-        else -> SemanticPresentation(COLOR_TRACK_SEGMENT, SemanticColorCompat.SEMANTIC_STYLE_INFO)
+    private fun resolveTrackColor(semanticStyle: Int?): Int = when (semanticStyle) {
+        SEMANTIC_STYLE_DANGER -> COLOR_DELAY_RED
+        SEMANTIC_STYLE_CAUTION -> COLOR_EXCHANGE_ORANGE
+        SEMANTIC_STYLE_SAFE -> COLOR_ON_TIME_GREEN
+        else -> COLOR_TRACK_SEGMENT
     }
 
     private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
@@ -165,28 +162,19 @@ object LiveRideNotifier {
             .setStyledByProgress(true)
             .setProgress(clampedProgress)
 
-        val presentation = resolveSemanticPresentation(content.titleSemanticStyle)
+        val trackColor = resolveTrackColor(content.titleSemanticStyle)
 
         val trackSegment = Notification.ProgressStyle.Segment(max)
-        trackSegment.setColor(presentation.color)
+        trackSegment.setColor(trackColor)
         trackSegment.setId(0)
-        SemanticColorCompat.applySemanticStyle(trackSegment, presentation.style)
         style.addProgressSegment(trackSegment)
 
         val intermediateStops = numSegments - 1
-        val pointsToPlace = intermediateStops.coerceIn(0, 4)
-        for (step in 1..pointsToPlace) {
-            val stopIndex = if (intermediateStops <= 4) step else (step.toLong() * numSegments / (pointsToPlace + 1)).toInt().coerceIn(1, intermediateStops)
-            val position = (max.toLong() * stopIndex / numSegments).toInt()
+        for (step in 1..intermediateStops) {
+            val position = (max.toLong() * step / numSegments).toInt()
             val point = Notification.ProgressStyle.Point(position)
             point.setColor(COLOR_STATION_POINT)
             point.setId(step)
-            val pointSemanticStyle = if (step == pointsToPlace) {
-                presentation.style
-            } else {
-                SemanticColorCompat.SEMANTIC_STYLE_INFO
-            }
-            SemanticColorCompat.applySemanticStyle(point, pointSemanticStyle)
             style.addProgressPoint(point)
         }
 
@@ -194,22 +182,17 @@ object LiveRideNotifier {
 
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(presentation.color)
+            .setColor(trackColor)
             .setCategory(Notification.CATEGORY_PROGRESS)
-            .setContentTitle(SemanticColorCompat.formatTitle(content.title, content.titleSemanticStyle))
-            .setContentText(SemanticColorCompat.formatBody(content.body, content.bodySemanticStyle))
+            .setContentTitle(content.title)
+            .setContentText(content.body)
             .setStyle(style)
             .setOngoing(true)
             .setOnlyAlertOnce(content.alertOnce)
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
 
-        builder.extras.putBoolean("android.requestPromotedOngoing", true)
-        runCatching {
-            Notification.Builder::class.java
-                .getMethod("setRequestPromotedOngoing", Boolean::class.javaPrimitiveType)
-                .invoke(builder, true)
-        }
+        builder.setRequestPromotedOngoing(true)
 
         content.shortCriticalText?.takeIf { it.isNotBlank() }?.let { chipText ->
             builder.setShortCriticalText(chipText)
@@ -229,14 +212,12 @@ object LiveRideNotifier {
             builder.setTimeoutAfter(timeoutMs)
         }
 
-        val notification = builder.build()
-        notification.flags = notification.flags or Notification.FLAG_PROMOTED_ONGOING
-        return notification
+        return builder.build()
     }
 
     private fun buildCompatProgress(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val (_, max, clampedProgress) = computeProgressBounds(content)
-        val compatColor = resolveSemanticPresentation(content.titleSemanticStyle).color
+        val compatColor = resolveTrackColor(content.titleSemanticStyle)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)

@@ -1,4 +1,4 @@
-import { Alert, Image, View } from "react-native"
+import { Alert, Image, Linking, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Button, Text } from "@/components"
 import { color } from "@/theme"
@@ -6,7 +6,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import * as Notifications from "expo-notifications"
+import { liveRideNotifications } from "@/modules/live-ride"
 import { openArrivalAlarmSettings } from "@/utils/arrival-alarm-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
@@ -36,12 +36,16 @@ export function LivePermissionsScreen() {
   )
 
   const grantNotifications = async () => {
-    await Notifications.requestPermissionsAsync()
+    await liveRideNotifications.requestPermissions()
     return checkLiveRideAuthorization()
   }
 
   const grantAlarms = () => {
     openArrivalAlarmSettings("permissions")
+  }
+
+  const grantPromoted = () => {
+    Linking.openSettings()
   }
 
   const beginRide = () => {
@@ -94,6 +98,12 @@ export function LivePermissionsScreen() {
           <Text style={styles.permissionLabel} tx="ride.notificationPermission4" />
           <PermissionButton onPress={grantAlarms} permitted={Boolean(notificationPermissionState?.canScheduleExactAlarms)} />
         </View>
+        {notificationPermissionState?.canPromoteOngoing !== undefined && (
+          <View style={styles.permissionRow}>
+            <Text style={styles.permissionLabel} tx="ride.notificationPermissionLiveUpdates" />
+            <PermissionButton onPress={grantPromoted} permitted={Boolean(notificationPermissionState?.canPromoteOngoing)} />
+          </View>
+        )}
       </View>
       <Button
         onPress={onStartRide}

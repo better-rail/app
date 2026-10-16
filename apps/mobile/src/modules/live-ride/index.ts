@@ -13,8 +13,7 @@ export { extractFcmData } from "./fcm-payload"
 export { LiveRideController, STALE_AFTER_MS } from "./live-ride-controller"
 export * from "./types"
 
-export const isLiveRideSupported = (): boolean =>
-  Platform.OS === "android" && Boolean(NativeModules.LiveRideNotificationModule)
+export const isLiveRideSupported = (): boolean => Platform.OS === "android" && Boolean(NativeModules.LiveRideNotificationModule)
 
 class AndroidNativeBridge implements LiveRideNativeBridge {
   private get nativeModule() {
@@ -22,11 +21,13 @@ class AndroidNativeBridge implements LiveRideNativeBridge {
   }
 
   async updateLiveRide(payload: LiveRideUpdatePayload): Promise<boolean> {
-    return this.nativeModule?.updateLiveRide(payload) ?? true
+    if (!this.nativeModule) return false
+    return this.nativeModule.updateLiveRide(payload)
   }
 
   async cancelLiveRide(): Promise<boolean> {
-    return this.nativeModule?.cancelLiveRide() ?? true
+    if (!this.nativeModule) return false
+    return this.nativeModule.cancelLiveRide()
   }
 
   async canPostPromoted(): Promise<boolean> {
@@ -38,7 +39,8 @@ class AndroidNativeBridge implements LiveRideNativeBridge {
   }
 
   async postAlert(alert: AndroidAlert): Promise<boolean> {
-    return this.nativeModule?.postAlert(alert) ?? true
+    if (!this.nativeModule) return false
+    return this.nativeModule.postAlert(alert)
   }
 }
 
@@ -52,7 +54,10 @@ export const liveRideNotifications = new LiveRideController({
     clear: clearBackgroundStorage,
   },
   getNotificationsGranted: async () => (await Notifications.getPermissionsAsync()).granted,
+  requestNotifications: async () => {
+    await Notifications.requestPermissionsAsync()
+  },
   getUserLanguage: async () => (await getUserLocale()) || null,
 })
 
-export const postAndroidAlert = (alert: AndroidAlert) => liveRideNotifications.postAlert(alert)
+export const postAndroidAlert = (alert: AndroidAlert) => bridge.postAlert(alert)

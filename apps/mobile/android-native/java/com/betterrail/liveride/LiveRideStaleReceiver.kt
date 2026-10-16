@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 
-/** BroadcastReceiver that displays stale ride state when live updates timeout. */
 class LiveRideStaleReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_STALE) return
@@ -20,10 +19,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
             progress = if (intent.hasExtra(EXTRA_PROGRESS)) intent.getIntExtra(EXTRA_PROGRESS, 0) else null,
             maxProgress = if (intent.hasExtra(EXTRA_MAX_PROGRESS)) intent.getIntExtra(EXTRA_MAX_PROGRESS, 1) else null,
             shortCriticalText = intent.getStringExtra(EXTRA_SHORT_CRITICAL_TEXT),
-            countdownTargetMs = if (intent.hasExtra(EXTRA_COUNTDOWN_TARGET_MS)) intent.getLongExtra(EXTRA_COUNTDOWN_TARGET_MS, 0L).takeIf { it > 0 } else null,
             stopActionText = intent.getStringExtra(EXTRA_STOP_ACTION_TEXT),
             titleSemanticStyle = if (intent.hasExtra(EXTRA_TITLE_SEMANTIC_STYLE)) intent.getIntExtra(EXTRA_TITLE_SEMANTIC_STYLE, 0) else null,
-            bodySemanticStyle = if (intent.hasExtra(EXTRA_BODY_SEMANTIC_STYLE)) intent.getIntExtra(EXTRA_BODY_SEMANTIC_STYLE, 0) else null,
         )
         LiveRideNotifier.showProgress(context, content, staleUntil)
     }
@@ -37,11 +34,9 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
         private const val EXTRA_PROGRESS = "progress"
         private const val EXTRA_MAX_PROGRESS = "maxProgress"
         private const val EXTRA_SHORT_CRITICAL_TEXT = "shortCriticalText"
-        private const val EXTRA_COUNTDOWN_TARGET_MS = "countdownTargetMs"
         private const val EXTRA_STOP_ACTION_TEXT = "stopActionText"
         private const val EXTRA_UNTIL = "staleUntil"
         private const val EXTRA_TITLE_SEMANTIC_STYLE = "titleSemanticStyle"
-        private const val EXTRA_BODY_SEMANTIC_STYLE = "bodySemanticStyle"
 
         fun toIntent(context: Context, content: LiveRideContent, staleUntil: Long): Intent =
             Intent(context, LiveRideStaleReceiver::class.java)
@@ -53,10 +48,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
                     content.progress?.let { putExtra(EXTRA_PROGRESS, it) }
                     content.maxProgress?.let { putExtra(EXTRA_MAX_PROGRESS, it) }
                     content.shortCriticalText?.let { putExtra(EXTRA_SHORT_CRITICAL_TEXT, it) }
-                    content.countdownTargetMs?.let { putExtra(EXTRA_COUNTDOWN_TARGET_MS, it) }
                     content.stopActionText?.let { putExtra(EXTRA_STOP_ACTION_TEXT, it) }
                     content.titleSemanticStyle?.let { putExtra(EXTRA_TITLE_SEMANTIC_STYLE, it) }
-                    content.bodySemanticStyle?.let { putExtra(EXTRA_BODY_SEMANTIC_STYLE, it) }
                 }
                 .putExtra(EXTRA_UNTIL, staleUntil)
     }

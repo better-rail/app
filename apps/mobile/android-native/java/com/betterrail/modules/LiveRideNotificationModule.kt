@@ -13,7 +13,6 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
 
-/** React Native bridge for Android live ride notifications. */
 @ReactModule(name = LiveRideNotificationModule.NAME)
 class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -121,6 +120,7 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
 
     companion object {
         const val NAME = "LiveRideNotificationModule"
+        @Volatile
         private var instance: LiveRideNotificationModule? = null
 
         fun notifyStopRequested() {
@@ -130,7 +130,6 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
 }
 
 private fun ReadableMap.optString(key: String): String? = if (hasKey(key)) getString(key) else null
-private fun ReadableMap.optLong(key: String): Long? = if (hasKey(key)) getDouble(key).toLong() else null
 private fun ReadableMap.optInt(key: String, default: Int): Int = if (hasKey(key)) getInt(key) else default
 private fun ReadableMap.optIntOrNull(key: String): Int? = if (hasKey(key) && !isNull(key)) getInt(key) else null
 
@@ -148,10 +147,7 @@ private fun parseLiveRideContent(
     progress = if (map.hasKey("progress")) map.getInt("progress") else null,
     maxProgress = if (map.hasKey("maxProgress")) map.getInt("maxProgress") else null,
     shortCriticalText = map.optString("shortCriticalText"),
-    countdownTargetMs = map.optLong("countdownTargetMs"),
     stopActionText = map.optString("stopActionText"),
     alertOnce = if (map.hasKey("alertOnce")) map.getBoolean("alertOnce") else true,
     titleSemanticStyle = map.optIntOrNull("titleSemanticStyle"),
-    bodySemanticStyle = map.optIntOrNull("bodySemanticStyle"),
 )
-

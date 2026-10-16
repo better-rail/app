@@ -7,7 +7,8 @@ import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./ar
 import { RideStartError } from "./helpers/ride-errors"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
-import { extractFcmData, isLiveRideSupported, liveRideNotifications } from "@/modules/live-ride"
+import { extractFcmData, isLiveRideSupported, liveRideNotifications, postAndroidAlert } from "@/modules/live-ride"
+import { setRideId } from "./storage/background-storage"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -26,6 +27,10 @@ const BACKGROUND_ARRIVAL_ALARM_TASK = "better-rail-arrival-alarm-notification"
 
 const recentFcmPushes = new Map<string, number>()
 
+export const _resetFcmDeduplication = () => {
+  recentFcmPushes.clear()
+}
+
 const isDuplicateFcmData = (data: Record<string, string>): boolean => {
   const id = data.messageId ?? data["google.message_id"] ?? data.id ?? `${data.type}:${JSON.stringify(data)}`
   const now = Date.now()
@@ -37,18 +42,21 @@ const isDuplicateFcmData = (data: Record<string, string>): boolean => {
   return false
 }
 
-const handleFcmData = (data: Record<string, string> | null) => {
+const handleFcmData = async (data: Record<string, string> | null): Promise<void> => {
   if (!data || isDuplicateFcmData(data)) return
   if (data.type === "live-ride") {
     if (!isLiveRideSupported()) return
-    return liveRideNotifications.processIncomingPush(data)
+    await liveRideNotifications.processIncomingPush(data)
+    return
   }
-  if (data.type === "arrival-alarm") return handleAndroidArrivalAlarmPush(data)
+  if (data.type === "arrival-alarm") {
+    await handleAndroidArrivalAlarmPush(data)
+  }
 }
 
-TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, ({ data, error }) => {
+TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
   if (error) return
-  return handleFcmData(extractFcmData(data))
+  await handleFcmData(extractFcmData(data))
 })
 
 const ARRIVAL_ALARM_UPDATES_CHANNEL = "better-rail-alarm-updates"
@@ -61,7 +69,7 @@ const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
   if (current?.alarmId !== push.alarmId || !current.isScheduled) return
 
   const moved = await moveArrivalAlarm(push).catch(() => false)
-  await liveRideNotifications.postAlert({
+  await postAndroidAlert({
     tag: `arrival-alarm-${push.rideId}`,
     channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
     title: data.title,
@@ -86,10 +94,12 @@ const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null 
   return null
 }
 
-TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, ({ data, error }) => {
+TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, async ({ data, error }) => {
   if (error || Platform.OS !== "ios") return
   const push = findArrivalAlarmPush(data)
-  if (push) return moveArrivalAlarm(push).catch(() => {})
+  if (push) {
+    await moveArrivalAlarm(push).catch(() => {})
+  }
 })
 
 export const configureNotifications = async () => {
@@ -104,16 +114,6 @@ export const configureNotifications = async () => {
     })
 
     if (isLiveRideSupported()) {
-      await Notifications.deleteNotificationChannelAsync("better-rail-live").catch(() => {})
-
-      await Notifications.setNotificationChannelAsync("better-rail-live-v2", {
-        name: "Better Rail Live",
-        importance: Notifications.AndroidImportance.DEFAULT,
-        sound: null,
-        vibrationPattern: [0, 250, 200, 250],
-        enableVibrate: true,
-      })
-
       await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
     }
 
@@ -134,8 +134,6 @@ export const configureNotifications = async () => {
 
 export const getPermissionState = () => liveRideNotifications.checkPermissions()
 
-const isDevRide = (rideId: string) => Boolean(__DEV__ && rideId.startsWith("dev-ride-"))
-
 export const startRideNotifications = async (route: RouteItem): Promise<string> => {
   if (!isLiveRideSupported()) {
     throw new RideStartError("unsupported", "Live notifications are only supported on Android")
@@ -148,34 +146,21 @@ export const startRideNotifications = async (route: RouteItem): Promise<string> 
     )
     token = String(pushToken.data)
   } catch (error) {
-    console.error("[BetterRail] getDevicePushToken error:", error)
     throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }
 
-  let rideId: string
-  try {
-    rideId = await rideApi.startRide(route, token)
-  } catch (error) {
-    if (__DEV__) {
-      console.warn("[BetterRail DEV] Backend rejected off-hours ride, using dev ride ID for e2e testing:", error)
-      rideId = "dev-ride-" + Date.now()
-    } else {
-      console.error("[BetterRail] rideApi.startRide error:", error)
-      throw error
-    }
-  }
+  const rideId = await rideApi.startRide(route, token)
 
   tokenSubscription?.remove()
   tokenSubscription = Notifications.addPushTokenListener((newToken) => {
-    if (isDevRide(rideId)) return
     rideApi.updateRideToken(rideId, String(newToken.data))
   })
 
   try {
+    await setRideId(rideId)
     await liveRideNotifications.start(route, rideId)
   } catch (error) {
-    console.error("[BetterRail] liveRideNotifications.start error:", error)
-    await Promise.allSettled([cancelNotifications(), isDevRide(rideId) ? Promise.resolve() : rideApi.endRide(rideId)])
+    await Promise.allSettled([cancelNotifications(), rideApi.endRide(rideId)])
     throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }
 
@@ -193,9 +178,6 @@ export const cancelNotifications = async () => {
 
 export const endRideNotifications = async (rideId: string) => {
   await cancelNotifications()
-  if (isDevRide(rideId)) {
-    return
-  }
   return rideApi.endRide(rideId)
 }
 

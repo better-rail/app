@@ -154,7 +154,7 @@ describe("LiveRideController", () => {
     expect(bridge.updates[1].currentStop).toBe(1)
   })
 
-  it("folds milestone alerts into the live ride notification without spawning a separate alert", async () => {
+  it("folds milestone alerts into the live ride notification and posts a heads-up alert", async () => {
     const route = buildRoute(10 * MINUTE)
     await controller.start(route, "test-ride-id")
 
@@ -172,7 +172,9 @@ describe("LiveRideController", () => {
 
     await controller.processIncomingPush(fcmData)
 
-    expect(bridge.alerts.length).toBe(0)
+    expect(bridge.alerts.length).toBe(1)
+    expect(bridge.alerts[0].title).toBe("Hop on board!")
+    expect(bridge.alerts[0].body).toBe("Take the train from Platform 3")
     expect(bridge.updates.length).toBe(2)
 
     const alertUpdate = bridge.updates[1]
@@ -248,8 +250,8 @@ describe("LiveRideController", () => {
     const route: RouteItem = {
       ...base,
       arrivalTime: undefined,
-      trains: base.trains.map((t) => ({ ...t, arrivalTime: undefined }) as Train),
-    } as RouteItem
+      trains: base.trains.map((t) => ({ ...t, arrivalTime: undefined }) as unknown as Train),
+    } as unknown as RouteItem
     await controller.start(route, "test-ride-id")
 
     expect(bridge.updates[0].stale).toBeUndefined()
@@ -275,6 +277,76 @@ describe("LiveRideController", () => {
     expect(denied.canScheduleExactAlarms).toBe(false)
   })
 
+  it("requests permissions through the module interface", async () => {
+    let requestCalled = false
+    const permController = new LiveRideController({
+      bridge,
+      storage: {
+        getRoute: async () => storedRoute,
+        saveRoute: async () => {},
+        clear: async () => {},
+      },
+      getNotificationsGranted: async () => true,
+      requestNotifications: async () => {
+        requestCalled = true
+      },
+    })
+
+    const state = await permController.requestPermissions()
+    expect(requestCalled).toBe(true)
+    expect(state.granted).toBe(true)
+  })
+
+  it("advances virtual time past 135 seconds without a push trigger and triggers connection issue state", async () => {
+    let timerCallback: (() => Promise<void>) | undefined
+    let timerMs = 0
+    let clearedTimer: unknown = null
+
+    const virtualController = new LiveRideController({
+      bridge,
+      storage: {
+        getRoute: async () => storedRoute,
+        saveRoute: async (r) => {
+          storedRoute = r
+        },
+        clear: async () => {
+          storedRoute = null
+        },
+      },
+      getNotificationsGranted: async () => notificationsGranted,
+      setTimeout: (fn: () => void, ms: number) => {
+        timerCallback = fn as () => Promise<void>
+        timerMs = ms
+        return "timer-id-1" as unknown as ReturnType<typeof setTimeout>
+      },
+      clearTimeout: (id) => {
+        clearedTimer = id
+      },
+    })
+
+    const route = buildRoute(10 * MINUTE)
+    await virtualController.start(route, "watchdog-ride")
+    expect(bridge.updates.length).toBe(1)
+    expect(timerMs).toBe(STALE_AFTER_MS)
+    expect(timerCallback).toBeDefined()
+
+    await timerCallback!()
+
+    expect(bridge.updates.length).toBe(2)
+    const staleUpdate = bridge.updates[1]
+    expect(staleUpdate.body).toContain("ride.connectionIssues")
+
+    timerCallback = undefined
+    await virtualController.processIncomingPush({
+      type: "live-ride",
+      status: "inTransit",
+      delay: "0",
+      nextStationId: "11",
+    })
+    expect(clearedTimer).toBe("timer-id-1")
+    expect(timerCallback).toBeDefined()
+  })
+
   it("calculates progress for direct routes with no intermediate stops and completes at 100%", async () => {
     const directTrain = {
       trainNumber: 500,
@@ -284,7 +356,7 @@ describe("LiveRideController", () => {
       arrivalTime: Date.now() + 5 * MINUTE,
       stopStations: [],
       delay: 0,
-    } as Train
+    } as unknown as Train
     const directRoute: RouteItem = {
       departureTime: directTrain.departureTime,
       arrivalTime: directTrain.arrivalTime,
@@ -339,7 +411,6 @@ describe("LiveRideController", () => {
     await controller.start(route, "test-ride-id")
 
     expect(bridge.updates[0].titleSemanticStyle).toBe(SemanticColor.CAUTION)
-    expect(bridge.updates[0].bodySemanticStyle).toBeUndefined()
 
     await controller.processIncomingPush({
       type: "live-ride",
@@ -363,7 +434,7 @@ describe("LiveRideController", () => {
       delay: "0",
       nextStationId: "3",
     })
-    expect(bridge.updates[3].bodySemanticStyle).toBe(SemanticColor.DANGER)
+    expect(bridge.updates[3].titleSemanticStyle).toBe(SemanticColor.SAFE)
 
     await controller.processIncomingPush({
       type: "live-ride",

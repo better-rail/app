@@ -318,6 +318,7 @@
     "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
     "notificationPermission3": "الإشعارات",
     "notificationPermission4": "إشعارات دقيقة",
+    "notificationPermissionLiveUpdates": "التحديثات المباشرة",
     "alarmButton": "منبّه الوصول",
     "alarmMenuTitle": "يُحدَّث وقت المنبّه تلقائيًا حسب التأخيرات. سيصلك إشعار صامت عند كل تغيير.",
     "alarmLeadOption": "%{minutes} دقائق قبل الوصول",

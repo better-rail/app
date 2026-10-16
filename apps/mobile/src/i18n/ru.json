@@ -322,6 +322,7 @@
     "notificationPermission2": "Мы используем эффективный механизм уведомлений и не отправляем ненужные уведомления.",
     "notificationPermission3": "Уведомления",
     "notificationPermission4": "Точные уведомления",
+    "notificationPermissionLiveUpdates": "Живые обновления",
     "alarmButton": "Сигнал о прибытии",
     "alarmMenuTitle": "Время сигнала автоматически меняется с учётом задержек. При каждом изменении вы получите уведомление без звука.",
     "alarmLeadOption": "За %{minutes} мин. до прибытия",

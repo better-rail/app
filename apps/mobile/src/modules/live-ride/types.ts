@@ -26,12 +26,10 @@ export interface LiveRideStaleContent {
   body: string
   untilMs: number
   shortCriticalText: string
-  countdownTargetMs?: number
   stopActionText?: string
   progress?: number
   maxProgress?: number
   titleSemanticStyle?: SemanticColorType
-  bodySemanticStyle?: SemanticColorType
 }
 
 export interface LiveRideUpdatePayload {
@@ -43,13 +41,11 @@ export interface LiveRideUpdatePayload {
   maxProgress?: number
   isArrived: boolean
   shortCriticalText: string
-  countdownTargetMs?: number
   stopActionText?: string
   stale?: LiveRideStaleContent
   staleAfterMs: number
   alertOnce?: boolean
   titleSemanticStyle?: SemanticColorType
-  bodySemanticStyle?: SemanticColorType
 }
 
 export interface AndroidAlert {
@@ -66,4 +62,12 @@ export interface LiveRideNativeBridge {
   canPostPromoted(): Promise<boolean>
   canScheduleExactAlarms(): Promise<boolean>
   postAlert(alert: AndroidAlert): Promise<boolean>
+}
+
+export interface LiveRideNotificationModule {
+  checkPermissions(): Promise<NotificationPermissionState>
+  requestPermissions(): Promise<NotificationPermissionState>
+  start(route: RouteItem, rideId?: string): Promise<LiveRideSession>
+  processIncomingPush(rawPayload: unknown): Promise<void>
+  stop(): Promise<void>
 }

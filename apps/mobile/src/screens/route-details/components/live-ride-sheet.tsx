@@ -13,7 +13,6 @@ import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
-// TODO: add typings to progress
 export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
   const { id, stopRide, arrivalAlarm } = useRideStore(
     useShallow((s) => ({ id: s.id, stopRide: s.stopRide, arrivalAlarm: s.arrivalAlarm })),
@@ -26,7 +25,6 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 
   const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
-    // we don't know which leg of the ride we're on yet, so don't guess between "departs" / "arrives"
     if (status === "loading") return translate("ride.activatingRide")
     if (status === "inTransit" && minutesLeft < 2) {
       return translate("ride.trainArriving")
@@ -59,7 +57,9 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
         <StopButton
           loading={!id}
           onPress={() => {
-            stopRide(id)
+            if (id) {
+              stopRide(id)
+            }
             trackEvent("stop_live_ride")
 
             if (screenName === "activeRide") {
@@ -80,15 +80,10 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
     let timeout: NodeJS.Timeout
 
     if (loading) {
-      // disable the button for 5 seconds
-      // this prevents frequent ride start & stop presses,
-      // and gives the request time to fullfill
       timeout = setTimeout(() => {
         setIsDisabled(false)
       }, 5000)
     } else {
-      // once the ride has been initiated successfuly,
-      // we can enable the stop button
       setIsDisabled(false)
     }
 
