@@ -1,6 +1,8 @@
 import { isAxiosError } from "axios"
+import * as Sentry from "@sentry/react-native"
 import { translate, type TxKeyPath } from "@/i18n"
 import { isConnectionError, voucherErrorMessage } from "@/services/api"
+import { trackEvent } from "@/services/analytics"
 
 const KNOWN_ERROR_CODES = ["INVALID_OTP", "OTP_NOT_FOUND", "MAX_PASSENGERS_PER_TRIP_EXCEEDED"]
 
@@ -27,4 +29,15 @@ export function voucherErrorReason(error: unknown): string {
   if (message) return "server_message"
   if (isAxiosError(error) && error.response) return `http_${error.response.status}`
   return "unknown"
+}
+
+/**
+ * Failures are handled in the UI, so no Sentry error triggers the on-error replay. Flushing
+ * uploads the buffered replay and keeps recording, and the id links the event to it.
+ */
+export function trackVoucherFailure(step: "send_code" | "verify" | "resend" | "order", error: unknown) {
+  const replay = Sentry.getReplay()
+  const replayId = replay?.getReplayId() ?? null
+  replay?.flush().catch(() => {})
+  trackEvent("voucher_failed", { step, reason: voucherErrorReason(error), replay_id: replayId })
 }
