@@ -48,11 +48,7 @@ function HomePage() {
   return (
     <>
       <section className="relative overflow-x-clip">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_80%_0%,color-mix(in_srgb,var(--color-brand)_14%,transparent),transparent_70%)]"
-        />
-        <div className="container-page relative py-6 sm:py-8 lg:py-10">
+        <div className="container-page py-6 sm:py-8 lg:py-10">
           {/* Visually hidden: the planner is the hero, but the page still needs an h1. */}
           <h1 className="sr-only">{t("home.title")}</h1>
           <Planner variant="hero" today={today} now={now} initial={initial} className="relative z-20" />

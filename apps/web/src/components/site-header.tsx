@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router"
+import { Info } from "lucide-react"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { AppIcon } from "./logo"
@@ -5,7 +7,7 @@ import { StoreLinks } from "./store-links"
 import { LocaleLink } from "./locale-link"
 import { ThemeToggle } from "./theme-toggle"
 
-/** Logo, theme toggle and store links only; every other link lives in the footer. */
+/** Logo, about link, theme toggle and store links only; every other link lives in the footer. */
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const t = useT()
   const locale = useLocale()
@@ -33,6 +35,15 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         </LocaleLink>
 
         <div className="ms-auto flex items-center gap-0.5">
+          {/* An icon on phones, text from `sm` up. The page is Hebrew-only, so from the English site the link says so. */}
+          <Link
+            to="/about"
+            className="icon-btn sm:w-auto sm:px-3 sm:text-[15px] sm:font-medium"
+            {...(locale === "he" ? {} : { lang: "he", hrefLang: "he" })}
+          >
+            <Info className="size-5 sm:hidden" aria-hidden="true" />
+            <span className="sr-only sm:not-sr-only">{t("footer.about")}</span>
+          </Link>
           <ThemeToggle />
           <StoreLinks />
         </div>
