@@ -80,8 +80,9 @@ export async function enableArrivalAlarm(leadMinutes: number, chosen?: number[])
     // A stop that already rang isn't rung again.
     .filter((train) => !arrivalAlarmRangStops.includes(train))
     .map((train) => ({ train, fireDate: getArrivalAlarmFireDate(route, train, leadMinutes) }))
-  // The first stop rings first.
-  if (stops.length === 0 || stops[0].fireDate <= now) return "tooLate"
+    // A stop too close to ring before still leaves the later ones.
+    .filter((stop) => stop.fireDate > now)
+  if (stops.length === 0) return "tooLate"
 
   let authorization = await arrivalAlarmAuthorization()
   if (authorization === "notDetermined") {
@@ -133,11 +134,19 @@ async function androidFullScreenResult(): Promise<EnableArrivalAlarmResult> {
 
 /** Checks or unchecks a stop, and moves the alarm to the new stops when it's on */
 export async function toggleArrivalAlarmStopChoice(train: number): Promise<EnableArrivalAlarmResult | undefined> {
-  const { route, arrivalAlarm, arrivalAlarmStops } = useRideStore.getState()
+  const { route, arrivalAlarm, arrivalAlarmStops, arrivalAlarmRangStops } = useRideStore.getState()
   if (!route) return undefined
 
-  const chosen = toggleArrivalAlarmStop(getArrivalAlarmStops(route, arrivalAlarmStops), train)
-  if (!chosen) return undefined
+  const current = getArrivalAlarmStops(route, arrivalAlarmStops)
+  const chosen = toggleArrivalAlarmStop(current, train)
+  // The alarm keeps at least one stop that can still ring; turning it off is its own button.
+  if (!chosen?.some((stop) => !arrivalAlarmRangStops.includes(stop))) return undefined
+
+  // Checking a stop that's too close to ring before leaves the alarm as it is.
+  const adding = !current.includes(train)
+  if (arrivalAlarm && adding && getArrivalAlarmFireDate(route, train, arrivalAlarm.leadMinutes) <= Date.now()) {
+    return "tooLate"
+  }
 
   if (!arrivalAlarm) {
     useRideStore.setState({ arrivalAlarmStops: chosen })
