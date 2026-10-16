@@ -7,7 +7,9 @@ export function NotFound() {
   return (
     <EnsureSiteLayout>
       <div className="container-page flex flex-1 flex-col items-center justify-center py-24 text-center">
-        <p className="text-6xl">🚉</p>
+        <p className="text-6xl" aria-hidden="true">
+          🚉
+        </p>
         <h1 className="mt-4 text-3xl font-bold">{translate(locale, "error.notFound")}</h1>
         <p className="mt-2 max-w-md text-muted">{translate(locale, "error.notFoundText")}</p>
         <Link to="/{-$locale}" params={{ locale: locale === "he" ? undefined : "en" }} className="btn-primary mt-8">

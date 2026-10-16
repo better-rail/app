@@ -48,10 +48,12 @@ export const RouteCard = memo(function RouteCard({
       className={cn(
         "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985]",
         selected ? "border-brand ring-2 ring-brand/25" : "border-line/60 hover:border-line-strong",
-        isPast && !selected && "opacity-45 hover:opacity-80",
+        isPast && !selected && "opacity-70 hover:opacity-90",
         route.isCancelled && "border-danger/40",
       )}
     >
+      {/* The faded card is all that marks a trip gone by; this says it out loud. */}
+      {isPast && <span className="sr-only">{t("a11y.departed")}, </span>}
       <div className="flex items-center gap-3">
         <TimeColumn
           label={t("routes.departure")}
@@ -78,6 +80,7 @@ export const RouteCard = memo(function RouteCard({
           {firstTrain.originPlatform > 0
             ? t("details.platform", { platform: firstTrain.originPlatform })
             : t("details.noPlatform")}
+          {firstTrain.originPlatformChanged && <span className="sr-only"> ({t("a11y.changed")})</span>}
         </span>
         <span aria-hidden="true">·</span>
         <span>{t("details.trainNo", { number: firstTrain.trainNumber })}</span>

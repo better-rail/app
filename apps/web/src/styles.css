@@ -147,7 +147,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-text: #1c1c1e;
   --color-text-2: #3a3a3c;
   --color-muted: #6e6e73;
-  --color-dim: #6b7280;
+  --color-dim: #686e7c;
   --color-line: #e2e2e8;
   --color-line-strong: #c9c9d1;
   --color-brand: #0a81dd;
@@ -161,10 +161,13 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-secondary-soft: #f6eae3;
   --color-success: #219f07;
   --color-success-soft: #e4ffdd;
-  --color-danger: #d93a2f;
-  --color-danger-badge: #ee6958;
+  /* Text on the soft fills (and on surfaces): the accents themselves are too light for small text to pass AA. */
+  --color-success-text: #1a7f05;
+  --color-danger: #cc3329;
+  --color-danger-badge: #cf4535;
   --color-warning: #ff9500;
   --color-warning-soft: #fff3df;
+  --color-warning-text: #a85700;
   --color-overlay: rgb(0 0 0 / 0.45);
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 6px 18px rgb(0 0 0 / 0.05);
   --shadow-card-hover: 0 2px 4px rgb(0 0 0 / 0.05), 0 10px 26px rgb(0 0 0 / 0.09);
@@ -193,10 +196,12 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-secondary-soft: #464552;
   --color-success: #8fdc7b;
   --color-success-soft: #475a42;
+  --color-success-text: #8fdc7b;
   --color-danger: #ff6b5e;
   --color-danger-badge: #b22e4d;
   --color-warning: #ffb340;
   --color-warning-soft: #3a2d12;
+  --color-warning-text: #ffb340;
   --color-overlay: rgb(0 0 0 / 0.65);
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
   --shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.5);
@@ -228,10 +233,12 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-secondary-soft: var(--color-secondary-soft);
   --color-success: var(--color-success);
   --color-success-soft: var(--color-success-soft);
+  --color-success-text: var(--color-success-text);
   --color-danger: var(--color-danger);
   --color-danger-badge: var(--color-danger-badge);
   --color-warning: var(--color-warning);
   --color-warning-soft: var(--color-warning-soft);
+  --color-warning-text: var(--color-warning-text);
   --color-overlay: var(--color-overlay);
 
   --shadow-card: var(--shadow-card);
@@ -279,7 +286,8 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   }
 
   :focus-visible {
-    outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+    /* Solid: a translucent ring falls below 3:1 against the page. */
+    outline: 3px solid var(--color-brand);
     outline-offset: 2px;
   }
 

@@ -188,6 +188,7 @@ export function Calendar({
           <button
             type="button"
             key={key}
+            aria-pressed={key === value}
             onClick={() => onSelect(key)}
             className={cn(
               "h-10 rounded-full px-3.5 text-[13px] font-semibold transition-colors lg:h-8 lg:px-3",

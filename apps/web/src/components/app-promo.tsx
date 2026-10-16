@@ -26,7 +26,7 @@ export function AppPromo() {
                 href={store.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={t(store.label)}
+                aria-label={`${t(store.label)} ${t("a11y.newTab")}`}
                 onClick={() => trackEvent("download_click", { platform: store.platform, source: "promo" })}
                 className="rounded-lg transition-[scale,opacity] duration-150 ease-out-expo hover:opacity-90 active:scale-[0.97]"
               >

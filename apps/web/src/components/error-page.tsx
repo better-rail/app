@@ -13,11 +13,15 @@ export function ErrorPage({ error, reset }: ErrorComponentProps) {
   return (
     <EnsureSiteLayout>
       <div className="container-page flex flex-1 flex-col items-center justify-center py-24 text-center">
-        <p className="text-6xl">🚧</p>
+        <p className="text-6xl" aria-hidden="true">
+          🚧
+        </p>
         <h1 className="mt-4 text-3xl font-bold">{translate(locale, "error.generic")}</h1>
         <p className="mt-2 max-w-md text-muted">{translate(locale, "error.genericText")}</p>
         {import.meta.env.DEV && (
-          <pre className="mt-4 max-w-full overflow-auto text-start text-xs text-danger">{String(error?.message)}</pre>
+          <pre className="mt-4 max-w-full overflow-auto text-start text-xs text-danger">
+            {error instanceof Error ? error.message : String(error)}
+          </pre>
         )}
         <div className="mt-8 flex gap-3">
           <button type="button" className="btn-secondary" onClick={tryAgain}>

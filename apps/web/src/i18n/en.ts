@@ -152,4 +152,16 @@ export const en: Record<TranslationKey, string> = {
   "error.generic": "Something went wrong",
   "error.genericText": "An unexpected error occurred. Try reloading the page.",
   "error.home": "Back home",
+
+  "a11y.newTab": "(opens in a new tab)",
+  "a11y.scheduled": "scheduled",
+  "a11y.expected": "expected",
+  "a11y.changed": "changed",
+  "a11y.departed": "departed",
+  "a11y.stopCancelled": "stop cancelled",
+  "a11y.stationResults": "{count} stations",
+  "a11y.trainsFound": "{count} trains found",
+  "a11y.invalidDate": "Invalid date or too far ahead",
+  "a11y.invalidTime": "Invalid time",
+  "a11y.timeRounded": "Time rounded to {time}",
 }

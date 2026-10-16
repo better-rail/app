@@ -148,6 +148,18 @@ export const he = {
   "error.generic": "משהו השתבש",
   "error.genericText": "אירעה שגיאה בלתי צפויה. נסו לטעון את העמוד מחדש.",
   "error.home": "לדף הבית",
+
+  "a11y.newTab": "(נפתח בכרטיסייה חדשה)",
+  "a11y.scheduled": "מתוכנן",
+  "a11y.expected": "צפוי",
+  "a11y.changed": "שונה",
+  "a11y.departed": "יצאה",
+  "a11y.stopCancelled": "העצירה בוטלה",
+  "a11y.stationResults": "{count} תחנות",
+  "a11y.trainsFound": "נמצאו {count} רכבות",
+  "a11y.invalidDate": "התאריך לא תקין או רחוק מדי",
+  "a11y.invalidTime": "השעה לא תקינה",
+  "a11y.timeRounded": "השעה עוגלה ל-{time}",
 } as const
 
 export type TranslationKey = keyof typeof he

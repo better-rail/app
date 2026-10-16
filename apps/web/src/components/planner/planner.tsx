@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
 import { Loader2, Search } from "lucide-react"
@@ -46,6 +46,8 @@ export function Planner({
   className?: string
 }) {
   const t = useT()
+  /** Names the date and time fields together, at both sizes. */
+  const leaveAtId = useId()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const locale = useLocaleParam()
@@ -186,8 +188,10 @@ export function Planner({
             onChange={(destination) => update({ destination })}
           />
         </div>
-        <div className="col-span-2 min-w-0 lg:col-span-1">
-          <span className="sr-only">{t("plan.leaveAt")}</span>
+        <div role="group" aria-labelledby={leaveAtId} className="col-span-2 min-w-0 lg:col-span-1">
+          <span id={leaveAtId} className="sr-only">
+            {t("plan.leaveAt")}
+          </span>
           <DateTimePicker
             today={today}
             now={now}
@@ -255,8 +259,10 @@ export function Planner({
       </div>
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <div className="flex-1">
-          <span className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">{t("plan.leaveAt")}</span>
+        <div role="group" aria-labelledby={leaveAtId} className="flex-1">
+          <span id={leaveAtId} className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">
+            {t("plan.leaveAt")}
+          </span>
           {/* Through `update` like the stations: it marks the form dirty, so the stored plan can no longer overwrite
               the day the user just picked. Nothing is persisted or navigated — the stations haven't changed. */}
           <DateTimePicker today={today} now={now} value={value} onChange={(dateTime) => update(dateTime)} />

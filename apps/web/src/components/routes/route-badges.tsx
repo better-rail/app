@@ -13,12 +13,12 @@ export function CancelledBadge({ className }: { className?: string }) {
 
 export function ShortRouteBadge({ className }: { className?: string }) {
   const t = useT()
-  return <span className={cn("badge bg-success-soft text-success", className)}>{t("routes.shortRoute")}</span>
+  return <span className={cn("badge bg-success-soft text-success-text", className)}>{t("routes.shortRoute")}</span>
 }
 
 export function SlowTrainBadge({ className }: { className?: string }) {
   const t = useT()
-  return <span className={cn("badge bg-warning-soft text-warning", className)}>{t("routes.slowTrain")}</span>
+  return <span className={cn("badge bg-warning-soft text-warning-text", className)}>{t("routes.slowTrain")}</span>
 }
 
 export function useChangesText() {

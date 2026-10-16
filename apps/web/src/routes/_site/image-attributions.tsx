@@ -60,7 +60,7 @@ export const Route = createFileRoute("/_site/image-attributions")({
           feedback@better-rail.co.il
         </a>
       </div>
-      <h3>תמונות מוויקיפדיה</h3>
+      <h2 className="mt-6 text-lg">תמונות מוויקיפדיה</h2>
       <p>תמונות התחנות הבאות צולמו על ידי משתמשי וויקיפדיה:</p>
       <ul>
         <li>מיכאל יעקובסון - תחנת מגדל העמק וראשון לציון משה דיין</li>
@@ -85,7 +85,7 @@ export const Route = createFileRoute("/_site/image-attributions")({
           McKaby - תחנת נתניה תחת רשיון <a href={CC3}>CC BY-SA 4.0</a>
         </li>
       </ul>
-      <h3>אייקונים</h3>
+      <h2 className="mt-6 text-lg">אייקונים</h2>
       <p>
         אייקון ההולך/ת ברגל במסך פרטי המסלול הוא מתוך <a href="https://github.com/jdecked/twemoji">Twemoji</a>, תחת רשיון{" "}
         <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.

@@ -48,6 +48,7 @@ export function SiteFooter() {
           className="rounded-full bg-brand-fill px-7 py-1 text-xl font-medium text-white transition-colors hover:bg-brand-fill-strong"
         >
           {t("footer.support")}
+          <span className="sr-only"> {t("a11y.newTab")}</span>
         </a>
 
         <div className="mt-6 flex items-center gap-3">
@@ -57,7 +58,7 @@ export function SiteFooter() {
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={social.label}
+              aria-label={`${social.label} ${t("a11y.newTab")}`}
               className="rounded-full transition-transform active:scale-95"
             >
               <img src={`/assets/icons/${social.icon}.svg`} alt="" width={35} height={35} className="size-[35px] dark:invert" />

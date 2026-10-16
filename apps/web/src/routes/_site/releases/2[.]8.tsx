@@ -91,6 +91,8 @@ function ReleaseVideo({ name, poster, label }: { name: string; poster: string; l
         muted
         loop
         playsInline
+        // Always shown: the clips play on their own, so they need a way to pause (WCAG 2.2.2).
+        controls
         preload="none"
         aria-label={label}
         className="w-full rounded-2xl"
@@ -122,28 +124,42 @@ function ReleasePicture({ name, alt, height }: { name: string; alt: string; heig
 function ReleasePage() {
   useEffect(() => {
     const videos = document.querySelectorAll<HTMLVideoElement>(".release-2-8 video")
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      videos.forEach((video) => (video.controls = true))
-      return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return
+    // A clip paused from its controls while in view stays paused; scrolling back to it doesn't restart it.
+    const visible = new Set<HTMLVideoElement>()
+    const pausedByUser = new Set<HTMLVideoElement>()
+    const onPause = (event: Event) => {
+      const video = event.currentTarget as HTMLVideoElement
+      if (visible.has(video)) pausedByUser.add(video)
     }
-    if (!("IntersectionObserver" in window)) {
-      videos.forEach((video) => (video.controls = true))
-      return
-    }
+    const onPlay = (event: Event) => pausedByUser.delete(event.currentTarget as HTMLVideoElement)
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(({ target, isIntersecting }) => {
           const video = target as HTMLVideoElement
-          if (isIntersecting) void video.play().catch(() => {})
-          else video.pause()
+          if (isIntersecting) {
+            visible.add(video)
+            if (!pausedByUser.has(video)) void video.play().catch(() => {})
+          } else {
+            visible.delete(video)
+            video.pause()
+          }
         })
       },
       { rootMargin: "200px 0px" },
     )
-    videos.forEach((video) => observer.observe(video))
+    videos.forEach((video) => {
+      video.addEventListener("pause", onPause)
+      video.addEventListener("play", onPlay)
+      observer.observe(video)
+    })
     return () => {
       observer.disconnect()
-      videos.forEach((video) => video.pause())
+      videos.forEach((video) => {
+        video.removeEventListener("pause", onPause)
+        video.removeEventListener("play", onPlay)
+        video.pause()
+      })
     }
   }, [])
 
@@ -223,7 +239,7 @@ function ReleasePage() {
         <li>תמיכה בתצוגת שעות בפורמט 12 שעות (AM/PM) באנגלית, לפי הגדרת השעון במכשיר</li>
       </ul>
 
-      <aside className="my-8 rounded-xl bg-surface-2 px-5 py-6 text-center">
+      <div className="my-8 rounded-xl bg-surface-2 px-5 py-6 text-center">
         <p className="mb-4 text-xl font-bold">עדכנו לגרסה החדשה</p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <a
@@ -243,7 +259,7 @@ function ReleasePage() {
             <img src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" width={160} height={54} />
           </a>
         </div>
-      </aside>
+      </div>
       <p>
         נשמח לשמוע מכם! מוזמנים לשלוח פידבק ולדבר איתנו ב
         <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">

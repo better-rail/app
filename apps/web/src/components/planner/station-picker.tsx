@@ -82,11 +82,14 @@ export function StationPicker({
   /** Where the "all stations" section starts in `options` — the same station can appear in both, with its own index. */
   const recentCount = showRecent ? recentStations.length : 0
   const optionId = (index: number) => `${listboxId}-${index}`
+  /** Read out as the query changes; empty with no query, so opening the picker announces nothing. */
+  const resultsStatus =
+    query.trim() === "" ? "" : results.length > 0 ? t("a11y.stationResults", { count: results.length }) : t("plan.noResults")
 
   /**
    * A new query starts the list over: first selectable match highlighted, scrolled back to the top (as the app does).
-   * An empty query highlights nothing instead, so the phone keyboard's "Done" can't commit a station the user never
-   * saw — and so the highlight never sits on a row that is scrolled out of sight under the recents.
+   * The highlight is drawn at every width, so the row the phone keyboard's "Done" would commit is always on show. An
+   * empty query highlights nothing instead, so the highlight never sits on a row scrolled out of sight under the recents.
    */
   useEffect(() => {
     setActiveIndex(query.trim() === "" ? -1 : nextEnabled(results, exclude?.id, -1, 1))
@@ -167,6 +170,24 @@ export function StationPicker({
     }
   }
 
+  const resultRows = results.map((station, resultIndex) => {
+    const index = recentCount + resultIndex
+    return (
+      <StationOption
+        key={station.id}
+        station={station}
+        name={stationName(station, locale)}
+        index={index}
+        active={activeIndex === index}
+        selected={station.id === value?.id}
+        disabled={station.id === excludeId}
+        onSelect={select}
+        onHover={hover}
+        id={optionId(index)}
+      />
+    )
+  })
+
   const name = value ? stationName(value, locale) : undefined
   const inHeader = variant === "header"
 
@@ -232,7 +253,7 @@ export function StationPicker({
         {open && (
           <>
             <div className={cn("shrink-0", isDesktop ? "p-2 pb-1.5" : "px-4 pb-2 pt-1")}>
-              <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-3 focus-within:ring-brand/25">
+              <div className="flex h-11 items-center gap-2.5 rounded-xl bg-surface-3 px-3 transition-shadow focus-within:ring-2 focus-within:ring-brand">
                 <Search className="size-[18px] shrink-0 text-dim" aria-hidden="true" />
                 <input
                   ref={input}
@@ -241,6 +262,7 @@ export function StationPicker({
                   aria-controls={listboxId}
                   aria-expanded="true"
                   aria-autocomplete="list"
+                  aria-label={t("plan.searchPlaceholder")}
                   aria-activedescendant={activeIndex >= 0 ? optionId(activeIndex) : undefined}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
@@ -271,6 +293,12 @@ export function StationPicker({
               </div>
             </div>
 
+            <span role="status" className="sr-only">
+              {resultsStatus}
+            </span>
+            {/* Outside the listbox, which may only hold options and their groups. */}
+            {results.length === 0 && <p className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</p>}
+
             <ul
               ref={list}
               id={listboxId}
@@ -285,42 +313,31 @@ export function StationPicker({
             >
               {/* Both sections are slices of the same `options` array, so every row has one index the arrow keys and
                   `aria-activedescendant` agree on — including the recents, which used to be unreachable. */}
-              {showRecent && <ListHeading>{t("plan.recentSearches")}</ListHeading>}
-              {showRecent &&
-                recentStations.map((station, index) => (
-                  <StationOption
-                    key={`recent-${station.id}`}
-                    station={station}
-                    name={stationName(station, locale)}
-                    index={index}
-                    active={isDesktop && activeIndex === index}
-                    disabled={station.id === excludeId}
-                    onSelect={select}
-                    onHover={hover}
-                    id={optionId(index)}
-                    icon={RECENT_ICON}
-                  />
-                ))}
-              {showRecent && <ListHeading>{t("plan.allStations")}</ListHeading>}
-              {results.map((station, resultIndex) => {
-                const index = recentCount + resultIndex
-                return (
-                  <StationOption
-                    key={station.id}
-                    station={station}
-                    name={stationName(station, locale)}
-                    index={index}
-                    // The keyboard highlight is a desktop affordance; on a phone it would read as a selection.
-                    active={isDesktop && activeIndex === index}
-                    selected={station.id === value?.id}
-                    disabled={station.id === excludeId}
-                    onSelect={select}
-                    onHover={hover}
-                    id={optionId(index)}
-                  />
-                )
-              })}
-              {results.length === 0 && <li className="px-3 py-8 text-center text-muted">{t("plan.noResults")}</li>}
+              {showRecent ? (
+                <>
+                  <ListSection id={`${listboxId}-recent`} heading={t("plan.recentSearches")} first>
+                    {recentStations.map((station, index) => (
+                      <StationOption
+                        key={`recent-${station.id}`}
+                        station={station}
+                        name={stationName(station, locale)}
+                        index={index}
+                        active={activeIndex === index}
+                        disabled={station.id === excludeId}
+                        onSelect={select}
+                        onHover={hover}
+                        id={optionId(index)}
+                        icon={RECENT_ICON}
+                      />
+                    ))}
+                  </ListSection>
+                  <ListSection id={`${listboxId}-all`} heading={t("plan.allStations")}>
+                    {resultRows}
+                  </ListSection>
+                </>
+              ) : (
+                resultRows
+              )}
             </ul>
           </>
         )}
@@ -329,10 +346,20 @@ export function StationPicker({
   )
 }
 
-function ListHeading({ children }: { children: ReactNode }) {
+/** A titled run of options: the group is named by its heading, which is hidden itself so it isn't read twice. */
+function ListSection({ id, heading, first, children }: { id: string; heading: string; first?: boolean; children: ReactNode }) {
   return (
-    <li role="presentation" className="px-2.5 pb-1 pt-3 text-[12px] font-semibold uppercase tracking-wide text-dim first:pt-2">
-      {children}
+    <li role="presentation">
+      <span
+        id={id}
+        aria-hidden="true"
+        className={cn("block px-2.5 pb-1 text-[12px] font-semibold uppercase tracking-wide text-dim", first ? "pt-2" : "pt-3")}
+      >
+        {heading}
+      </span>
+      <ul role="group" aria-labelledby={id}>
+        {children}
+      </ul>
     </li>
   )
 }

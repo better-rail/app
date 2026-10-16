@@ -133,10 +133,14 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
   const selected = typed ?? value ?? today
   const display = formatDateField(selected, locale, today)
   const max = dateKey(addDays(parseNaive(today), MAX_DAYS_AHEAD))
+  const invalid = Boolean(text?.trim()) && (!typed || typed > max)
+  /** Read out when typed text is dropped, which would otherwise go unnoticed off screen */
+  const [notice, setNotice] = useState("")
 
   /** Applies what was typed; text that is unparseable — or past the last day with a timetable — is dropped. */
   const applyTyped = () => {
     setText(null)
+    if (invalid) setNotice(t("a11y.invalidDate"))
     if (typed && typed !== value && typed <= max) onChange(typed)
   }
 
@@ -189,9 +193,14 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
           label={t("plan.date")}
           value={text ?? display}
           open={open}
+          invalid={invalid}
           popoverId={popoverId}
           className={fieldClass}
-          onChange={setText}
+          onChange={(raw) => {
+            setText(raw)
+            // Cleared as typing resumes, so the same message is announced again next time.
+            setNotice("")
+          }}
           onOpen={() => setOpen(true)}
           onToggle={toggle}
           onFocus={onInputFocus}
@@ -209,6 +218,9 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
           className={fieldClass}
         />
       )}
+      <span role="status" className="sr-only">
+        {notice}
+      </span>
       <PickerPopover
         id={popoverId}
         open={open}
@@ -259,6 +271,9 @@ function TimeField({
   const touched = useRef(false)
   const anchor = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
+  const invalid = Boolean(text?.trim()) && !parseTimeInput(text ?? "")
+  /** Read out when a typed time is dropped or snapped to the wheel's five minutes */
+  const [notice, setNotice] = useState("")
 
   const openPicker = () => {
     setDraft(value ?? now)
@@ -280,6 +295,7 @@ function TimeField({
 
   const type = (raw: string) => {
     setText(raw)
+    setNotice("")
     const parsed = parseTimeInput(raw)
     if (parsed) {
       setDraft(parsed)
@@ -293,6 +309,8 @@ function TimeField({
     // Snapped on the way out, so the minute that is applied is the one the drum was showing all along: typing "16:17"
     // rolls the wheel to 16:15, and it would be a surprise for the search to run on 16:17.
     const applied = snapClock(draft)
+    if (reason !== "cancel" && invalid) setNotice(t("a11y.invalidTime"))
+    else if (reason !== "cancel" && touched.current && applied !== draft) setNotice(t("a11y.timeRounded", { time: applied }))
     if (reason !== "cancel" && touched.current && applied !== value) onChange(applied)
     if (reason !== "dismiss") focusTrigger()
   }
@@ -338,7 +356,7 @@ function TimeField({
         focusTrigger()
       }}
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
+        "flex size-9 shrink-0 items-center justify-center rounded-lg text-dim transition-colors hover:bg-surface-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
         !isDesktop && "absolute end-1.5 top-1/2 -translate-y-1/2 sm:end-10",
       )}
       aria-label={t("plan.now")}
@@ -357,6 +375,7 @@ function TimeField({
           label={t("plan.time")}
           value={text ?? display}
           open={open}
+          invalid={invalid}
           popoverId={popoverId}
           className={fieldClass}
           trailingAction={resetButton}
@@ -380,6 +399,9 @@ function TimeField({
         />
       )}
       {!isDesktop && resetButton}
+      <span role="status" className="sr-only">
+        {notice}
+      </span>
       <PickerPopover
         id={popoverId}
         open={open}
@@ -423,6 +445,7 @@ function FieldInput({
   label,
   value,
   open,
+  invalid,
   popoverId,
   className,
   trailingAction,
@@ -438,6 +461,8 @@ function FieldInput({
   label: string
   value: string
   open: boolean
+  /** Typed text that won't be applied as it stands */
+  invalid?: boolean
   popoverId: string
   className: string
   trailingAction?: ReactNode
@@ -461,7 +486,7 @@ function FieldInput({
     <div
       className={cn(
         className,
-        "cursor-text focus-within:border-brand focus-within:ring-3 focus-within:ring-brand/20",
+        "cursor-text focus-within:border-brand focus-within:ring-2 focus-within:ring-brand",
         open && "border-brand ring-3 ring-brand/20",
       )}
       onMouseDown={(event) => {
@@ -483,6 +508,7 @@ function FieldInput({
         aria-expanded={open}
         aria-controls={open ? popoverId : undefined}
         aria-autocomplete="none"
+        aria-invalid={invalid || undefined}
         autoComplete="off"
         spellCheck={false}
         dir="ltr"
@@ -543,7 +569,7 @@ function FieldButton({
       aria-expanded={open}
       className={cn(
         className,
-        "focus-visible:border-brand focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-brand/20",
+        "focus-visible:border-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
         open && "border-brand ring-3 ring-brand/20",
       )}
       {...button}

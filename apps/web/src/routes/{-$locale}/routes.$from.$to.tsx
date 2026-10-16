@@ -322,6 +322,15 @@ function RoutesPage() {
   // With the filter on, a sparse day can lose every one of its trains; the list says so rather than going blank.
   const visibleRoutes = filterSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
+  // What the live region says. A failed load is left to the error card's alert; a background refresh keeps the text,
+  // so it is not read out again every interval.
+  const resultsStatus = query.isPending
+    ? t("routes.loading")
+    : routes.length > 0
+      ? t("a11y.trainsFound", { count: routes.length })
+      : query.isSuccess
+        ? t("routes.noTrainsFound")
+        : ""
   // Counted over every day on the page, since the filter applies to all of them.
   const slowCount = [query, ...extraDayQueries].reduce(
     (sum, dayQuery) =>
@@ -521,7 +530,7 @@ function RoutesPage() {
                     type="button"
                     onClick={() => query.refetch()}
                     aria-label={`${t("routes.refreshFailed")} ${t("routes.tryAgain")}`}
-                    className="icon-btn size-8 text-warning"
+                    className="icon-btn size-8 text-warning-text"
                   >
                     <CloudOff className="size-4" />
                   </button>
@@ -540,6 +549,11 @@ function RoutesPage() {
           )}
           {differentHour && <Notice text={t("routes.differentHour")} />}
 
+          {/* Always mounted, so screen readers hear the search settle — the skeleton and the cards say it only by sight. */}
+          <p role="status" className="sr-only">
+            {resultsStatus}
+          </p>
+
           {query.isPending && (
             <div className="flex flex-col gap-3" aria-busy="true">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -551,7 +565,7 @@ function RoutesPage() {
           {/* A refresh that failed leaves the last timetable on screen (with the hint in the heading); the error card
               is for when there is nothing to show at all. */}
           {query.isError && routes.length === 0 && (
-            <div className="card flex flex-col items-center gap-3 p-8 text-center">
+            <div role="alert" className="card flex flex-col items-center gap-3 p-8 text-center">
               <p className="text-[15px] text-text-2">{t("routes.error")}</p>
               <button type="button" onClick={() => query.refetch()} className="btn-secondary">
                 {t("routes.tryAgain")}
@@ -637,17 +651,15 @@ function RoutesPage() {
         <div
           ref={detailsRef}
           tabIndex={-1}
-          aria-label={t("details.title")}
           className={cn(
             selected ? "flex" : "hidden lg:flex",
             "flex-col outline-none lg:sticky lg:top-[calc(var(--results-header-h,60px)+var(--results-planner-h,72px)+16px)] lg:self-start",
           )}
         >
-          {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. */}
+          {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. The labelled region (and its
+              heading) is `RouteDetails`' own section; labelling these wrappers too would announce it three times. */}
           <div
             tabIndex={selected ? 0 : -1}
-            role={selected ? "region" : undefined}
-            aria-label={selected ? t("details.title") : undefined}
             className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,60px)_-_var(--results-planner-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
           >
             <div className="card overflow-hidden">

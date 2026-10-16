@@ -42,9 +42,9 @@ export const Route = createFileRoute("/_site/israel-railways-lawsuit")({
 
 function Callout({ children }: { children: ReactNode }) {
   return (
-    <aside className="my-6 rounded-xl bg-brand-soft px-5 py-4 text-[17px] leading-relaxed sm:px-6 sm:py-5 sm:text-[19px]">
+    <div className="my-6 rounded-xl bg-brand-soft px-5 py-4 text-[17px] leading-relaxed sm:px-6 sm:py-5 sm:text-[19px]">
       {children}
-    </aside>
+    </div>
   )
 }
 
@@ -65,15 +65,15 @@ function LawsuitPage() {
           />
           <span className="flex flex-col leading-tight">
             <span className="font-bold">גיא טפר</span>
-            <time dateTime="2026-09-01" className="text-[14px] opacity-70">
+            <time dateTime="2026-09-01" className="text-[14px] text-muted">
               1 בספטמבר 2026
             </time>
           </span>
         </span>
       }
     >
-      <aside className="mb-6 rounded-xl border border-success/20 bg-success-soft px-[18px] py-4 sm:px-[22px] sm:py-[18px]">
-        <p className="!mb-1 text-[14px] font-bold tracking-tight text-success">
+      <div className="mb-6 rounded-xl border border-success/20 bg-success-soft px-[18px] py-4 sm:px-[22px] sm:py-[18px]">
+        <p className="!mb-1 text-[14px] font-bold tracking-tight text-success-text">
           <time dateTime="2026-09-07">עדכון · 7 בספטמבר 2026</time>
         </p>
         <p className="!mb-0 text-[17px] font-bold leading-relaxed tracking-tight sm:text-[19px]">
@@ -82,12 +82,13 @@ function LawsuitPage() {
             href="https://x.com/better_rail/status/2096877673888825749"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-normal"
+            // The dark brand link is too light on the green fill; the underline still marks it as a link.
+            className="font-normal dark:text-text dark:decoration-text/50 dark:hover:decoration-text"
           >
             לפרטים המלאים
           </a>
         </p>
-      </aside>
+      </div>
       <p className="text-[19px] font-bold">קיבלנו מכתב אזהרה לפני תביעה מרכבת ישראל.</p>
       <figure className="mb-7">
         <a

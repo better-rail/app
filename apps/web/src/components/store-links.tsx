@@ -62,7 +62,7 @@ function StoreLink({ store, showQr }: { store: Store; showQr: boolean }) {
         target="_blank"
         rel="noopener noreferrer"
         className={cn("icon-btn", open && "bg-surface-3")}
-        aria-label={label}
+        aria-label={`${label} ${t("a11y.newTab")}`}
         title={showQr ? undefined : label}
         aria-describedby={showQr && open ? `qr-${store.platform}` : undefined}
         onFocus={() => setOpen(true)}

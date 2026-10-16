@@ -1,5 +1,15 @@
-import { useState, type ReactNode } from "react"
-import { AlertTriangle, ArrowLeft, ArrowRight, Ban, Clock, ArrowLeftRight, ListChevronsUpDown, ListChevronsDownUp, TrainFront } from "lucide-react"
+import { useId, useState, type ReactNode } from "react"
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Ban,
+  Clock,
+  ArrowLeftRight,
+  ListChevronsUpDown,
+  ListChevronsDownUp,
+  TrainFront,
+} from "lucide-react"
 import type { RouteItem, Train } from "@/lib/api/types"
 import { exchangeWaitMinutes } from "@/lib/api/route-format"
 import { formatClock } from "@/lib/time"
@@ -33,9 +43,13 @@ export function RouteDetails({
   const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   const changes = route.trains.length - 1
   const delay = Math.max(route.delay, route.arrivalDelay)
+  const headingId = useId()
 
   return (
-    <section className={cn("flex flex-col", className)} aria-label={t("details.title")}>
+    <section className={cn("flex flex-col", className)} aria-labelledby={headingId}>
+      <h2 id={headingId} className="sr-only">
+        {t("details.title")}
+      </h2>
       <header className="border-b border-line/70 px-4 pb-4 pt-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -245,14 +259,13 @@ function StationRow({
   const delayedTime = delay > 0 ? shiftClock(time, delay) : undefined
   return (
     <li className={cn("flex items-start gap-3 rounded-xl bg-surface-2 p-3", spaced && "mt-3")}>
-      <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
-        <span
-          className={cn("tabular text-[17px] font-bold", (delayedTime || cancelled) && "text-[13px] line-through opacity-60")}
-        >
-          {time}
-        </span>
-        {delayedTime && !cancelled && <span className="tabular text-[17px] font-bold text-danger">{delayedTime}</span>}
-      </div>
+      <RowTimes
+        time={time}
+        delayedTime={delayedTime}
+        cancelled={cancelled}
+        className="text-[17px] font-bold"
+        strikeClassName="text-[13px]"
+      />
       <TimelineColumn
         // The rule meets the marker rather than the row's midpoint — these cards are as tall as their text, so a
         // midpoint would leave a gap under a three-line one. 15px is `mt-1` plus half of the 22px marker; the
@@ -268,16 +281,23 @@ function StationRow({
         }
       />
       <div className="min-w-0 flex-1 leading-snug">
-        <p className={cn("text-[16px] font-bold", cancelled && "line-through opacity-60")}>{name}</p>
+        <p className={cn("text-[16px] font-bold", cancelled && "line-through opacity-60")}>
+          {name}
+          {cancelled && <span className="sr-only">, {t("a11y.stopCancelled")}</span>}
+        </p>
         <p className="text-[13.5px] text-muted">
           <span className={cn(platformChanged && "font-bold text-danger")}>
             {platform > 0 ? t("details.platform", { platform }) : t("details.noPlatform")}
+            {platformChanged && <span className="sr-only"> ({t("a11y.changed")})</span>}
           </span>
           {trainNumber && <> · {t("details.trainNo", { number: trainNumber })}</>}
         </p>
         {lastStop && (
           <p className="text-[13.5px] text-muted">
-            <span className={cn(lastStopChanged && "font-bold text-danger")}>{t("details.lastStop", { station: lastStop })}</span>
+            <span className={cn(lastStopChanged && "font-bold text-danger")}>
+              {t("details.lastStop", { station: lastStop })}
+              {lastStopChanged && <span className="sr-only"> ({t("a11y.changed")})</span>}
+            </span>
           </p>
         )}
       </div>
@@ -302,17 +322,17 @@ function StopRow({
   first?: boolean
   last?: boolean
 }) {
+  const t = useT()
   const delayedTime = delay > 0 ? shiftClock(time, delay) : undefined
   return (
     <li className={cn("flex items-center gap-3 px-3 py-1.5", outside && "opacity-60")}>
-      <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
-        <span
-          className={cn("tabular text-[14px] font-semibold", (delayedTime || cancelled) && "text-[11px] line-through opacity-60")}
-        >
-          {time}
-        </span>
-        {delayedTime && !cancelled && <span className="tabular text-[14px] font-semibold text-danger">{delayedTime}</span>}
-      </div>
+      <RowTimes
+        time={time}
+        delayedTime={delayedTime}
+        cancelled={cancelled}
+        className="text-[14px] font-semibold"
+        strikeClassName="text-[11px]"
+      />
       <TimelineColumn
         lineClassName={cn(first ? "top-1/2" : "-top-1.5", last ? "bottom-1/2" : "-bottom-1.5")}
         marker={
@@ -322,8 +342,51 @@ function StopRow({
           />
         }
       />
-      <p className={cn("min-w-0 flex-1 text-[14.5px] font-medium", cancelled && "line-through opacity-60")}>{name}</p>
+      <p className={cn("min-w-0 flex-1 text-[14.5px] font-medium", cancelled && "line-through opacity-60")}>
+        {name}
+        {cancelled && <span className="sr-only">, {t("a11y.stopCancelled")}</span>}
+      </p>
     </li>
+  )
+}
+
+/**
+ * A row's clock. A delay strikes the timetabled time through and puts the expected one under it in red; the hidden
+ * words say which is which, since the strike and the colour do not reach a screen reader.
+ */
+function RowTimes({
+  time,
+  delayedTime,
+  cancelled,
+  className,
+  strikeClassName,
+}: {
+  time: string
+  delayedTime?: string
+  cancelled?: boolean
+  className: string
+  /** Replaces the size in `className` on a struck-through time */
+  strikeClassName: string
+}) {
+  const t = useT()
+  const struck = cn("tabular line-through opacity-60", className, strikeClassName)
+  return (
+    <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
+      {delayedTime && !cancelled ? (
+        <>
+          <del className={struck}>
+            <span className="sr-only">{t("a11y.scheduled")} </span>
+            {time}
+          </del>
+          <span className={cn("tabular text-danger", className)}>
+            <span className="sr-only">{t("a11y.expected")} </span>
+            {delayedTime}
+          </span>
+        </>
+      ) : (
+        <span className={cancelled ? struck : cn("tabular", className)}>{time}</span>
+      )}
+    </div>
   )
 }
 
@@ -363,7 +426,7 @@ function Callout({ icon, title, text, tone }: { icon: ReactNode; title: string; 
       )}
       role="status"
     >
-      <span className={cn("mt-0.5 shrink-0 text-[22px] leading-none", tone === "warning" ? "text-warning" : "text-danger")}>
+      <span className={cn("mt-0.5 shrink-0 text-[22px] leading-none", tone === "warning" ? "text-warning-text" : "text-danger")}>
         {icon}
       </span>
       <div>

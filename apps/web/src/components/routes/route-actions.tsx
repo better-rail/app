@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent } from "react"
 import { CalendarPlus, Share2 } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
 import { stationNameById } from "@/data/stations"
@@ -36,8 +36,9 @@ export function RouteActions({
   /** Anchored at the button's end edge, growing towards the start — right when the actions sit at the end of the row. */
   const [alignEnd, setAlignEnd] = useState(true)
   const menuRef = useRef<HTMLDivElement>(null)
-  const menuPanel = useRef<HTMLDivElement>(null)
+  const menuPanel = useRef<HTMLUListElement>(null)
   const menuButton = useRef<HTMLButtonElement>(null)
+  const menuId = useId()
 
   // The header wraps on narrow screens, which puts the actions at the start of their own row; from there a menu growing
   // towards the start runs out of the card and gets clipped. Measured on open, before paint.
@@ -53,12 +54,11 @@ export function RouteActions({
     setAlignEnd(rtl ? rect.left + width <= bounds.right - margin : rect.right - width >= bounds.left + margin)
   }, [calendarOpen])
 
-  // Open: focus goes to the first item, Escape (or a press outside) closes it, and focus returns to the button when
-  // it was closed from the keyboard.
+  // A disclosure rather than an ARIA menu: the two choices are reached with Tab. Escape (or a press outside) closes it,
+  // and focus returns to the button when it was closed from the keyboard.
   useEffect(() => {
     if (!calendarOpen) return
     const button = menuButton.current
-    menuPanel.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true })
     const onPointerDown = (event: PointerEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) setCalendarOpen(false)
     }
@@ -119,6 +119,13 @@ export function RouteActions({
     }
   }
 
+  // Tabbing past the choices closes them too. A blur with no new target (a press on something unfocusable, as
+  // Safari treats buttons) is left to the pointer handler, or it would close before the click lands.
+  const onMenuBlur = (event: FocusEvent<HTMLDivElement>) => {
+    const next = event.relatedTarget as Node | null
+    if (calendarOpen && next && !event.currentTarget.contains(next)) setCalendarOpen(false)
+  }
+
   return (
     <div className="flex items-center gap-1">
       <Tooltip label={t("details.share")}>
@@ -126,14 +133,14 @@ export function RouteActions({
           <Share2 className="size-5" />
         </button>
       </Tooltip>
-      <div ref={menuRef} className="relative">
+      <div ref={menuRef} className="relative" onBlur={onMenuBlur}>
         <Tooltip label={t("details.addToCalendar")} disabled={calendarOpen}>
           <button
             ref={menuButton}
             type="button"
             onClick={() => setCalendarOpen((open) => !open)}
-            aria-haspopup="menu"
             aria-expanded={calendarOpen}
+            aria-controls={menuId}
             className={cn("icon-btn", calendarOpen && "bg-surface-3")}
             aria-label={t("details.addToCalendar")}
           >
@@ -141,47 +148,50 @@ export function RouteActions({
           </button>
         </Tooltip>
         {calendarOpen && (
-          <div
+          <ul
             ref={menuPanel}
-            role="menu"
+            id={menuId}
             className={cn(
               "animate-fade-up absolute top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-xl border border-line bg-surface p-1 shadow-pop",
               alignEnd ? "end-0" : "start-0",
             )}
           >
-            <a
-              role="menuitem"
-              href={googleCalendarUrl(event)}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                trackEvent("route_calendar", { provider: "google" })
-                setCalendarOpen(false)
-              }}
-              className="block rounded-lg px-3 py-2 text-[14px] hover:bg-surface-3"
-            >
-              {t("details.googleCalendar")}
-            </a>
-            <button
-              role="menuitem"
-              type="button"
-              onClick={() => {
-                trackEvent("route_calendar", { provider: "ics" })
-                downloadIcs(event)
-                setCalendarOpen(false)
-              }}
-              className="block w-full rounded-lg px-3 py-2 text-start text-[14px] hover:bg-surface-3"
-            >
-              {t("details.appleCalendar")}
-            </button>
-          </div>
+            <li>
+              <a
+                href={googleCalendarUrl(event)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent("route_calendar", { provider: "google" })
+                  setCalendarOpen(false)
+                }}
+                className="block rounded-lg px-3 py-2 text-[14px] hover:bg-surface-3"
+              >
+                {t("details.googleCalendar")}
+                <span className="sr-only"> {t("a11y.newTab")}</span>
+              </a>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("route_calendar", { provider: "ics" })
+                  downloadIcs(event)
+                  setCalendarOpen(false)
+                }}
+                className="block w-full rounded-lg px-3 py-2 text-start text-[14px] hover:bg-surface-3"
+              >
+                {t("details.appleCalendar")}
+              </button>
+            </li>
+          </ul>
         )}
       </div>
-      {copied && (
-        <span role="status" className="animate-fade-in ms-1 text-[13px] font-medium text-success">
-          {t("details.copied")}
-        </span>
-      )}
+      {/* Always mounted, so the message is announced when it appears rather than missed with the element. Empty, it
+          gives back the row gap it would otherwise add. */}
+      <span role="status" className="text-[13px] font-medium text-success-text empty:-ms-1">
+        {copied && <span className="animate-fade-in ms-1 inline-block">{t("details.copied")}</span>}
+      </span>
     </div>
   )
 }

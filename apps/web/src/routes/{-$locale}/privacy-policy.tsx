@@ -41,13 +41,13 @@ function PrivacyPage() {
           and are not linked to you.
         </p>
         <p>You always can opt out from this data collection by disabling the "Telemetry" option in the app's settings.</p>
-        <h3>Better Rail Live</h3>
+        <h2 className="mt-6 text-lg">Better Rail Live</h2>
         <p>In the mobile app you have the option to get live updates on a specific train ride.</p>
         <p>
           For this feature to work we keep the ride details during the time of the ride in an anonymized form. We also store logs
           to help us identify and resolve issues with the feature.
         </p>
-        <h3>Where our data comes from</h3>
+        <h2 className="mt-6 text-lg">Where our data comes from</h2>
         <p>
           Train schedules and routes are calculated on our own servers, based on the Israeli Ministry of Transport's open public
           transport data (GTFS). Real-time information about delays, cancellations and platform changes comes from the Ministry of
@@ -79,13 +79,13 @@ function PrivacyPage() {
         עובר אלינו.
       </p>
       <p>תמיד ניתן לבטל את איסוף הנתונים על ידי השבתת האפשרות "טלמטריה" בהגדרות האפליקציה</p>
-      <h3>Better Rail Live</h3>
+      <h2 className="mt-6 text-lg">Better Rail Live</h2>
       <p>באפליקציה ניתן לקבל עדכונים חיים על נסיעה ספציפית ברכבת.</p>
       <p>
         כדי שתכונה זו תפעל, אנו שומרים את פרטי הנסיעה במהלך הנסיעה בצורה אנונימית. אנו גם מאחסנים לוגים של השרת כדי לעזור לנו
         לזהות ולפתור בעיות.
       </p>
-      <h3>מקורות המידע</h3>
+      <h2 className="mt-6 text-lg">מקורות המידע</h2>
       <p>
         לוחות הזמנים ומסלולי הנסיעה מחושבים בשרתים שלנו, על בסיס נתוני התחבורה הציבורית הפתוחים (GTFS) של משרד התחבורה. מידע על
         עיכובים, ביטולים ושינויי רציף מתקבל בזמן אמת משירות ה-SIRI של משרד התחבורה.

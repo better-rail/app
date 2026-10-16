@@ -233,7 +233,7 @@ function WheelColumn({
   }
 
   return (
-    <div className="relative rounded-xl has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-brand/30">
+    <div className="relative rounded-xl has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-brand">
       <div
         ref={scroller}
         role="listbox"
