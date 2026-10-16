@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { Platform, ScrollView, TextInput } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useRouter } from "expo-router"
+import * as Sentry from "@sentry/react-native"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -77,22 +78,24 @@ export function VoucherOrderScreen() {
       <Text style={styles.title}>{translate("voucher.phoneTitle")}</Text>
       <Text style={styles.subtitle}>{translate("voucher.phoneHint")}</Text>
 
-      <TextInput
-        value={phone}
-        onChangeText={(text) => {
-          setPhone(text)
-          setError(null)
-        }}
-        placeholder="050-123-4567"
-        keyboardType="phone-pad"
-        textContentType="telephoneNumber"
-        autoComplete="tel"
-        autoFocus={!savedPhone}
-        returnKeyType="send"
-        onSubmitEditing={sendCode}
-        style={[styles.phoneInput, !!error && styles.phoneInputError]}
-        placeholderTextColor={theme.colors.placeholder}
-      />
+      <Sentry.Mask>
+        <TextInput
+          value={phone}
+          onChangeText={(text) => {
+            setPhone(text)
+            setError(null)
+          }}
+          placeholder="050-123-4567"
+          keyboardType="phone-pad"
+          textContentType="telephoneNumber"
+          autoComplete="tel"
+          autoFocus={!savedPhone}
+          returnKeyType="send"
+          onSubmitEditing={sendCode}
+          style={[styles.phoneInput, !!error && styles.phoneInputError]}
+          placeholderTextColor={theme.colors.placeholder}
+        />
+      </Sentry.Mask>
 
       {/* Reserved even when empty, so an error doesn't shift the button */}
       <Text style={styles.error}>{error ?? ""}</Text>

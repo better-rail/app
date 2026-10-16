@@ -3,6 +3,7 @@ import { ActivityIndicator, Platform, Pressable, ScrollView, View } from "react-
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useLocalSearchParams, useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
+import * as Sentry from "@sentry/react-native"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { voucherApi } from "@/services/api"
@@ -86,21 +87,23 @@ export function VoucherCodeScreen() {
       contentContainerStyle={styles.content}
     >
       <Text style={styles.title}>{translate("voucher.codeTitle")}</Text>
-      <Text style={styles.subtitle}>
-        {translate("voucher.codeSentTo", { phone: formatPhone(phone) })}
-        {"  "}
-        <Text style={styles.link} onPress={() => router.back()}>
-          {translate("voucher.changeNumber")}
+      <Sentry.Mask>
+        <Text style={styles.subtitle}>
+          {translate("voucher.codeSentTo", { phone: formatPhone(phone) })}
+          {"  "}
+          <Text style={styles.link} onPress={() => router.back()}>
+            {translate("voucher.changeNumber")}
+          </Text>
         </Text>
-      </Text>
 
-      <CodeInput
-        value={code}
-        length={CODE_LENGTH}
-        onChange={onCodeChange}
-        editable={!isVerifying}
-        hasError={!!error && !isVerifying}
-      />
+        <CodeInput
+          value={code}
+          length={CODE_LENGTH}
+          onChange={onCodeChange}
+          editable={!isVerifying}
+          hasError={!!error && !isVerifying}
+        />
+      </Sentry.Mask>
 
       {isVerifying && (
         <View style={styles.progress}>
