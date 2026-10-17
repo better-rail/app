@@ -8,8 +8,8 @@ import { getRailLine, type RailLine } from "@/data/rail-lines"
 import type { DayType } from "@/data/rail-service-patterns"
 import type { LineStatus } from "@/services/api"
 import { LineDetails } from "./line-details"
-import { StationDetails } from "./station-details"
-import { StationHeader } from "./station-header"
+import { StationDetails, type StationSection } from "./station-details"
+import { StationHeader, type StationTile } from "./station-header"
 import { SHEET_DETENTS, SHEET_HEADER_HEIGHT } from "./status-sheet"
 import { levelLabel, lineName } from "../service-status-text"
 import { contrastText } from "../service-status-theme"
@@ -58,8 +58,8 @@ export function DetailSheet({
   onGoNow,
 }: DetailSheetProps) {
   const scroll = useRef<ScrollView>(null)
-  // Where a station's notifications section sits, for the bell in its header.
-  const alertsTop = useRef<number | undefined>(undefined)
+  // Where a station's sections sit (from the top of the card's content), for the pills and bell in its header.
+  const sectionTops = useRef<Partial<Record<StationSection, number>>>({})
   const scheme = useColorScheme()
   const [shown, setShown] = useState(selection)
   const { data, isLoading } = useServiceStatus()
@@ -72,6 +72,7 @@ export function DetailSheet({
   useEffect(() => {
     if (!selection) return
     setShown(selection)
+    sectionTops.current = {}
     scroll.current?.scrollTo({ y: 0, animated: false })
   }, [selection])
 
@@ -81,14 +82,27 @@ export function DetailSheet({
     scroll.current?.scrollTo({ y, animated: true })
   }
 
+  const showSection = (section: StationSection) => {
+    const top = sectionTops.current[section]
+    if (top !== undefined) scrollTo(top)
+  }
+
+  /** The status pill goes to what is wrong at the station when anything is, else to its lines; the open pill to its entrances. */
+  const showTile = (tile: StationTile) => {
+    if (tile === "open") return showSection("entrances")
+    showSection(sectionTops.current.disruptions !== undefined ? "disruptions" : "lines")
+  }
+
   const header = (() => {
     if (!shown) return undefined
     if (shown.kind === "station") {
       return (
         <StationHeader
           stationId={shown.id}
+          dayType={dayType}
           onClose={onClose}
-          onShowAlerts={() => alertsTop.current !== undefined && scrollTo(alertsTop.current)}
+          onShowAlerts={() => showSection("alerts")}
+          onShowSection={showTile}
         />
       )
     }
@@ -128,9 +142,8 @@ export function DetailSheet({
             dayType={dayType}
             onSelectLine={onSelectLine}
             onGoNow={onGoNow}
-            scrollTo={scrollTo}
-            onAlertsLayout={(y) => {
-              alertsTop.current = y
+            onSectionLayout={(section, y) => {
+              sectionTops.current[section] = y
             }}
           />
         )}

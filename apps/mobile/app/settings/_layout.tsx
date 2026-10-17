@@ -54,6 +54,12 @@ export default function SettingsLayout() {
         name="notifications-stations"
         options={{ title: translate("stationAlerts.selectStations") ?? "", headerShown: false }}
       />
+      {/* The station's name is set from the screen itself. */}
+      <Stack.Screen name="notifications-station" options={{ title: "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen
+        name="notifications-train"
+        options={{ title: translate("delayGuard.settingsTitle") ?? "", headerTitleStyle: iOSTitleStyle }}
+      />
     </Stack>
   )
 }

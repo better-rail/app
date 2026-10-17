@@ -49,6 +49,8 @@ const NO_SERVICE_LOOKAHEAD_MS = 90 * 60_000
 /** Once at least this many of the running trains are late, delays are "severe" even when each is short. */
 const SEVERE_DELAYED_SHARE = 0.5
 const SEVERE_DELAYED_MIN_TRAINS = 3
+/** Short delays on fewer running trains than this are not the line's news: one train a few minutes late is just a train. */
+const MINOR_DELAYED_MIN_TRAINS = 2
 
 // --- trip → line assignment --------------------------------------------------------
 
@@ -331,9 +333,10 @@ const realtimeDisruptions = (line: RailLineDefinition, views: TripView[]): Disru
     })
   }
 
-  if (delayed.length > 0) {
-    const widespread = delayed.length >= SEVERE_DELAYED_MIN_TRAINS && delayed.length / running.length >= SEVERE_DELAYED_SHARE
-    const severe = maxDelayMinutes >= SEVERE_DELAY_MINUTES || widespread
+  // A lone train a few minutes late is left alone; a badly late one, or a few late ones, are a disruption.
+  const widespread = delayed.length >= SEVERE_DELAYED_MIN_TRAINS && delayed.length / running.length >= SEVERE_DELAYED_SHARE
+  const severe = maxDelayMinutes >= SEVERE_DELAY_MINUTES || widespread
+  if (severe || delayed.length >= MINOR_DELAYED_MIN_TRAINS) {
     disruptions.push({
       id: "delays",
       kind: "delays",

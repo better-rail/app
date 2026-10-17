@@ -1,6 +1,8 @@
 import { useQuery } from "react-query"
 import { userLocale } from "@/i18n"
+import { SIMULATE_SERVICE_STATUS } from "@/config/features"
 import { type StationDepartures, type StationInfo, stationInfoApi } from "@/services/api"
+import { simulatedStationDepartures } from "./simulated-service-status"
 
 /** A station's page from Israel Railways (entrances and their hours, facilities, notices); null when there is none to show. */
 export function useStationInfo(stationId: string | null) {
@@ -12,11 +14,15 @@ export function useStationInfo(stationId: string | null) {
   )
 }
 
-/** The next trains calling at the station, refreshed every half minute while its card is up. */
+/** The next trains calling at the station, refreshed every half minute while its card is up (made up, with the simulated snapshot). */
 export function useStationDepartures(stationId: string | null) {
   return useQuery<StationDepartures | null>(
     ["stationDepartures", stationId],
-    () => (stationId ? stationInfoApi.getDepartures(stationId) : Promise.resolve(null)),
+    () => {
+      if (!stationId) return Promise.resolve(null)
+      if (SIMULATE_SERVICE_STATUS) return Promise.resolve(simulatedStationDepartures(stationId))
+      return stationInfoApi.getDepartures(stationId)
+    },
     { enabled: !!stationId, refetchInterval: 30_000, staleTime: 10_000, retry: 1 },
   )
 }

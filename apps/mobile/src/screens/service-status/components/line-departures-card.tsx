@@ -5,7 +5,7 @@ import { translate, userLocale } from "@/i18n"
 import type { RailLine } from "@/data/rail-lines"
 import type { LineStatus, StationDeparture, StationDepartureDirection } from "@/services/api"
 import { clockTime, levelLabel, stationName } from "../service-status-text"
-import { contrastText } from "../service-status-theme"
+import { contrastText, useStatusLevelInk } from "../service-status-theme"
 
 /** How many upcoming trains a direction lists. */
 const SHOWN = 3
@@ -29,19 +29,22 @@ type LineDeparturesCardProps = {
  */
 export function LineDeparturesCard({ line, status, directions, now, onPress }: LineDeparturesCardProps) {
   const ink = line.textColor ?? contrastText(line.color)
+  const name = line.name[userLocale]
+  const level = status ? levelLabel(status.level) : (translate("serviceStatus.levels.noService") ?? "")
   return (
     <View style={styles.card} testID={`station-line-${line.id}`}>
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.8}
         accessibilityRole="button"
+        accessibilityLabel={`${name}, ${level}`}
         style={[styles.band, { backgroundColor: line.color }]}
       >
         <Text style={[styles.name, { color: ink }]} numberOfLines={1}>
-          {line.name[userLocale]}
+          {name}
         </Text>
         <Text style={[styles.level, { color: ink }]} numberOfLines={1}>
-          {status ? levelLabel(status.level) : translate("serviceStatus.levels.noService")}
+          {level}
         </Text>
       </TouchableOpacity>
       {directions === undefined && (
@@ -61,7 +64,7 @@ export function LineDeparturesCard({ line, status, directions, now, onPress }: L
 
 /**
  * One direction of the line, as a platform board lists it: where the trains head and the next one's
- * platform, then a pill per upcoming train with its time. The first pill also says how soon it is.
+ * platform, then a line per upcoming train. The first also says how soon it is.
  */
 function DirectionRow({ direction, now }: { direction: StationDepartureDirection; now: Date }) {
   const trains = direction.trains.slice(0, SHOWN)
@@ -82,7 +85,7 @@ function DirectionRow({ direction, now }: { direction: StationDepartureDirection
       </View>
       <View style={styles.trains}>
         {trains.map((train) => (
-          <TrainPill key={train.time} train={train} countdown={train === next ? minutesUntil(train, now) : null} />
+          <TrainRow key={train.time} train={train} countdown={train === next ? minutesUntil(train, now) : null} />
         ))}
       </View>
     </View>
@@ -90,34 +93,74 @@ function DirectionRow({ direction, now }: { direction: StationDepartureDirection
 }
 
 /**
- * One train's time. The next train to leave also gets a countdown ("51 min", "now") while it is
- * within the hour; a late train shows its delay after the time; a cancelled one is struck through.
+ * One train on the board. The next train leads with how soon it is ("7 min", "now"), in green
+ * while that is live, and its scheduled time follows quietly; the others lead with their time.
+ * A late train shows its delay after the time, and a cancelled one is struck through and says so.
  */
-function TrainPill({ train, countdown }: { train: StationDeparture; countdown: number | null }) {
-  const soon = countdown !== null && countdown <= MINUTES_AS_COUNTDOWN
-  return (
-    <View style={[styles.pill, countdown !== null && styles.nextPill]}>
-      <Text
-        style={[
-          styles.pillTime,
-          countdown !== null && styles.nextPillTime,
-          countdown !== null && train.live && styles.live,
-          train.cancelled && styles.cancelled,
-        ]}
-        maxFontSizeMultiplier={1.3}
-      >
-        {clockTime(train.time)}
-        {train.delayMinutes > 0 && !train.cancelled ? <Text style={styles.delay}>{` +${train.delayMinutes}`}</Text> : null}
-      </Text>
-      {train.cancelled && (
-        <Text style={styles.pillNote} preset="small" tx="serviceStatus.cancelled" maxFontSizeMultiplier={1.3} />
-      )}
-      {soon && !train.cancelled && (
-        <Text style={styles.pillNote} preset="small" maxFontSizeMultiplier={1.3}>
-          {countdown === 0
-            ? translate("plan.now")
-            : (translate("serviceStatus.station.minutesList", { minutes: countdown }) ?? `${countdown}`)}
+function TrainRow({ train, countdown }: { train: StationDeparture; countdown: number | null }) {
+  const goodInk = useStatusLevelInk("goodService")
+  const lateInk = useStatusLevelInk("severeDelays")
+  const isNext = countdown !== null && !train.cancelled
+  const live = isNext && train.live
+  const soon = isNext && countdown <= MINUTES_AS_COUNTDOWN
+  const time = clockTime(train.time)
+  const late = train.delayMinutes > 0 && !train.cancelled
+  const note = train.cancelled
+    ? translate("serviceStatus.cancelled")
+    : soon
+      ? countdown === 0
+        ? translate("plan.now")
+        : translate("serviceStatus.station.minutesList", { minutes: countdown })
+      : null
+  const spoken = [
+    time,
+    late ? translate("serviceStatus.minutesLate", { minutes: train.delayMinutes }) : null,
+    live ? translate("serviceStatus.station.live") : null,
+    note,
+  ]
+    .filter(Boolean)
+    .join(", ")
+
+  // The countdown leads the next train's line; the time then steps back, with its delay still on it.
+  const countdownLeads = soon && note !== null
+  const timeText = (small: boolean) => (
+    <Text
+      style={[
+        styles.time,
+        small && styles.timeSmall,
+        isNext && !small && styles.nextTime,
+        live && !small && { color: goodInk },
+        train.cancelled && styles.cancelled,
+      ]}
+      maxFontSizeMultiplier={1.3}
+    >
+      {time}
+      {late ? (
+        <Text style={[small ? styles.delaySmall : styles.delay, { color: lateInk }]} maxFontSizeMultiplier={1.3}>
+          {` +${train.delayMinutes}`}
         </Text>
+      ) : null}
+    </Text>
+  )
+
+  return (
+    <View style={styles.train} accessible accessibilityLabel={spoken}>
+      {countdownLeads ? (
+        <>
+          <Text style={[styles.lead, live && { color: goodInk }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+            {note}
+          </Text>
+          {timeText(true)}
+        </>
+      ) : (
+        <>
+          {timeText(false)}
+          {note && (
+            <Text style={[styles.note, train.cancelled && { color: lateInk }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              {note}
+            </Text>
+          )}
+        </>
       )}
     </View>
   )
@@ -176,41 +219,47 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.label,
   },
   trains: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: theme.spacing[2],
+    gap: 0,
   },
-  pill: {
+  // A line of the board: what leads (a countdown or a time), then what follows it quietly.
+  train: {
     flexDirection: "row",
     alignItems: "baseline",
-    gap: theme.spacing[1],
-    paddingHorizontal: theme.spacing[3],
-    paddingVertical: theme.spacing[1],
-    borderRadius: 30,
-    backgroundColor: theme.colors.inputPlaceholderBackground,
+    gap: theme.spacing[2],
   },
-  nextPill: {
-    paddingHorizontal: theme.spacing[3],
-  },
-  pillTime: {
-    fontSize: 15,
+  lead: {
+    fontSize: 17,
+    fontWeight: "700",
     fontVariant: ["tabular-nums"],
   },
-  nextPillTime: {
-    fontWeight: "700",
+  time: {
+    fontSize: 17,
+    fontVariant: ["tabular-nums"],
   },
-  live: {
-    color: theme.colors.success,
+  timeSmall: {
+    fontSize: 14,
+    color: theme.colors.label,
+  },
+  nextTime: {
+    fontWeight: "700",
   },
   cancelled: {
     color: theme.colors.label,
     textDecorationLine: "line-through",
   },
   delay: {
-    color: theme.colors.destroy,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
   },
-  pillNote: {
+  delaySmall: {
+    fontSize: 12,
+    fontWeight: "700",
+    fontVariant: ["tabular-nums"],
+  },
+  note: {
+    fontSize: 14,
+    fontWeight: "500",
     color: theme.colors.label,
   },
 }))

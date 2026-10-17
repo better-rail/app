@@ -1,4 +1,4 @@
-import { Pressable, TouchableOpacity, type ViewStyle } from "react-native"
+import { type AccessibilityProps, Pressable, TouchableOpacity, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
 import { GlassView } from "expo-glass-effect"
@@ -11,18 +11,26 @@ const VARIANTS = {
   transparent: "transparent",
 }
 
-interface ChipProps {
+interface ChipProps extends Pick<
+  AccessibilityProps,
+  "accessibilityLabel" | "accessibilityRole" | "accessibilityState" | "accessibilityHint"
+> {
   children: React.ReactNode
   variant: keyof typeof VARIANTS
   onPress: () => void
   icon?: React.ReactNode
   style?: ViewStyle
+  testID?: string
 }
 
-export function Chip({ children, variant, onPress, style }: ChipProps) {
+/**
+ * A pill that can be tapped. The accessibility props land on the pressable itself, so a chip used as a
+ * radio or checkbox reads its role and state to a screen reader rather than only its text.
+ */
+export function Chip({ children, variant, onPress, style, testID, ...accessibility }: ChipProps) {
   if (isLiquidGlassSupported) {
     return (
-      <Pressable onPress={onPress}>
+      <Pressable onPress={onPress} testID={testID} {...accessibility}>
         <GlassView
           isInteractive
           style={[variant === "transparent" ? styles.transparentChipWrapper : styles.chipWrapper, style]}
@@ -43,6 +51,8 @@ export function Chip({ children, variant, onPress, style }: ChipProps) {
         style,
       ]}
       onPress={onPress}
+      testID={testID}
+      {...accessibility}
     >
       {children}
     </TouchableOpacity>

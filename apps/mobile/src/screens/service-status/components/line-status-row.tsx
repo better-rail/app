@@ -5,7 +5,7 @@ import { color } from "@/theme"
 import type { LineStatus } from "@/services/api"
 import { getRailLine } from "@/data/rail-lines"
 import { levelLabel, lineLevels, lineName } from "../service-status-text"
-import { useStatusLevelColor } from "../service-status-theme"
+import { useStatusLevelColor, useStatusLevelInk } from "../service-status-theme"
 
 const CHECKMARK_ICON = require("../../../../assets/checkmark.png")
 
@@ -21,11 +21,13 @@ type LineStatusRowProps = {
 
 /**
  * One line of the status board, after TfL Go's: the line's colour as a bar down the edge of the
- * sheet, its name, and what is wrong in words. No background of its own, so the sheet's glass shows.
+ * sheet, its name, and what is wrong in words, in the level's colour. No background of its own, so
+ * the sheet's glass shows.
  */
 export function LineStatusRow({ status, compact, onPress }: LineStatusRowProps) {
   const lineColor = getRailLine(status.lineId)?.color ?? status.line.color
   const goodColor = useStatusLevelColor("goodService")
+  const levelInk = useStatusLevelInk(status.level)
 
   return (
     <TouchableHighlight
@@ -54,7 +56,7 @@ export function LineStatusRow({ status, compact, onPress }: LineStatusRowProps) 
         ) : (
           <View style={styles.texts}>
             <Text style={styles.name}>{lineName(status)}</Text>
-            <Text style={styles.levels}>{lineLevels(status)}</Text>
+            <Text style={[styles.levels, { color: levelInk }]}>{lineLevels(status)}</Text>
           </View>
         )}
       </View>
@@ -86,6 +88,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   levels: {
     fontSize: 16,
+    fontWeight: "600",
   },
   compactTexts: {
     flex: 1,

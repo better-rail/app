@@ -20,7 +20,12 @@ import { DELAY_GUARD_CHANNEL } from "@/utils/push-channels"
  * they want to hear, and the reminder that a delay can shrink again. Saving keeps the guard in the
  * settings store; the server watches the train from then on (apps/server/src/delay-guards).
  */
-export function DelayGuardScreen() {
+type DelayGuardScreenProps = {
+  /** A sheet over a route (the default), or a page pushed in the settings, whose header already names it. */
+  variant?: "sheet" | "page"
+}
+
+export function DelayGuardScreen({ variant = "sheet" }: DelayGuardScreenProps) {
   const router = useRouter()
   const insets = useSafeAreaInsets()
   const draft = useNavigationParamsStore((s) => s.delayGuardDraft)
@@ -60,9 +65,13 @@ export function DelayGuardScreen() {
 
   return (
     <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} testID="delay-guard-screen">
-      <Text style={styles.emoji}>🛡️</Text>
-      <Text style={styles.title} tx="delayGuard.title" />
-      <Text style={styles.intro} tx="delayGuard.intro" />
+      {variant === "sheet" && (
+        <>
+          <Text style={styles.emoji}>🛡️</Text>
+          <Text style={styles.title} tx="delayGuard.title" />
+        </>
+      )}
+      <Text style={[styles.intro, variant === "page" && styles.introPage]} tx="delayGuard.intro" />
 
       <View style={styles.trainCard}>
         <Text style={styles.trainTitle}>
@@ -84,25 +93,23 @@ export function DelayGuardScreen() {
         <Text style={styles.sectionTitle} tx="delayGuard.notifyFrom" />
         <View style={styles.chips}>
           {GUARD_MINUTES_OPTIONS.map((option) => (
-            <View
+            <Chip
               key={option}
+              variant={option === minutes ? "primary" : "default"}
+              onPress={() => {
+                HapticFeedback.trigger("selection")
+                setMinutes(option)
+              }}
+              style={styles.chip}
               accessibilityRole="radio"
               accessibilityState={{ selected: option === minutes }}
+              accessibilityLabel={translate("delayGuard.minutes", { minutes: option }) ?? undefined}
               testID={`delay-guard-minutes-${option}${option === minutes ? "-selected" : ""}`}
             >
-              <Chip
-                variant={option === minutes ? "primary" : "default"}
-                onPress={() => {
-                  HapticFeedback.trigger("selection")
-                  setMinutes(option)
-                }}
-                style={styles.chip}
-              >
-                <Text style={[styles.chipText, option === minutes && styles.chipTextSelected]} maxFontSizeMultiplier={1.3}>
-                  {translate("delayGuard.minutes", { minutes: option })}
-                </Text>
-              </Chip>
-            </View>
+              <Text style={[styles.chipText, option === minutes && styles.chipTextSelected]} maxFontSizeMultiplier={1.3}>
+                {translate("delayGuard.minutes", { minutes: option })}
+              </Text>
+            </Chip>
           ))}
         </View>
       </View>
@@ -147,6 +154,10 @@ const styles = StyleSheet.create((theme) => ({
   intro: {
     textAlign: "center",
     color: theme.colors.label,
+  },
+  introPage: {
+    textAlign: "left",
+    fontSize: 15,
   },
   trainCard: {
     backgroundColor: theme.colors.tertiaryBackground,

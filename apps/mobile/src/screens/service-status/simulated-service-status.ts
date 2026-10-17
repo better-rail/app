@@ -4,7 +4,7 @@
  * catalogue, with sections the map can draw. Served only with SIMULATE_SERVICE_STATUS on.
  */
 import { format } from "date-fns"
-import { type RailLine, type RailLineId, getRailLine } from "@/data/rail-lines"
+import { RAIL_LINES, type RailLine, type RailLineId, getRailLine } from "@/data/rail-lines"
 import {
   type AffectedTrain,
   type AffectedTrainStatus,
@@ -14,6 +14,7 @@ import {
   type LineStatus,
   type ServiceStatusLevel,
   type ServiceStatusSnapshot,
+  type StationDepartures,
   compareServiceStatusLevels,
   isDisruptedLevel,
 } from "@/services/api"
@@ -282,5 +283,40 @@ export const simulatedServiceStatus = (now: Date = new Date()): ServiceStatusSna
     timetable: { checkedAt: now.toISOString(), available: true },
     network: { level, counts },
     lines,
+  }
+}
+
+/**
+ * A made-up departure board for a station, to go with the snapshot: on every line through it, three
+ * trains each way over the next hour and a half, with one running late, one cancelled, and the
+ * furthest off not yet seen live.
+ */
+export const simulatedStationDepartures = (stationId: string, now: Date = new Date()): StationDepartures => {
+  const lines = RAIL_LINES.filter((line) => line.stationIds.includes(stationId))
+  return {
+    schemaVersion: 1,
+    stationId,
+    generatedAt: now.toISOString(),
+    realtime: { available: true },
+    lines: lines.map((line, lineIndex) => {
+      const ends = [line.stationIds[0], line.stationIds[line.stationIds.length - 1]]
+      return {
+        lineId: line.id,
+        directions: ends
+          .filter((end) => end !== stationId)
+          .map((towardsStationId, direction) => ({
+            towardsStationId,
+            trains: [0, 1, 2].map((n) => ({
+              trainNumber: 400 + 100 * lineIndex + 2 * n + direction,
+              time: at(now, 7 + 30 * n + 5 * lineIndex + 3 * direction),
+              delayMinutes: n === 1 && direction === 0 ? 12 : n === 0 && lineIndex === 1 ? 4 : 0,
+              platform: 1 + direction,
+              destinationStationId: towardsStationId,
+              cancelled: n === 2 && lineIndex === 1 && direction === 1,
+              live: n < 2,
+            })),
+          })),
+      }
+    }),
   }
 }

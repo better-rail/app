@@ -1,5 +1,6 @@
 import { TouchableHighlight, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
+import { Circle, Path, Svg } from "react-native-svg"
 import { Text } from "@/components"
 import { useIsDarkMode } from "@/hooks"
 import { color } from "@/theme"
@@ -7,7 +8,7 @@ import type { RailLine } from "@/data/rail-lines"
 import { type DayType, SERVICE_PATTERNS } from "@/data/rail-service-patterns"
 import { compareServiceStatusLevels, type LineStatus, type ServiceStatusLevel } from "@/services/api"
 import { levelLabel, stationName } from "../service-status-text"
-import { STATUS_LEVEL_COLORS } from "../service-status-theme"
+import { STATUS_LEVEL_INKS } from "../service-status-theme"
 
 type LineStationsProps = {
   line: RailLine
@@ -27,7 +28,8 @@ type Stop = {
 
 /**
  * The line's stations top to bottom, as a strip in its colour, like a route diagram on a platform:
- * where it calls and the stations a disruption names. Tap one for its card.
+ * where it calls, with the level under the name of each station a disruption names. Tap one for
+ * its card.
  */
 export function LineStations({ line, status, dayType, onSelectStation }: LineStationsProps) {
   const isDark = useIsDarkMode()
@@ -38,7 +40,7 @@ export function LineStations({ line, status, dayType, onSelectStation }: LineSta
       {stops.map((stop, index) => {
         const first = index === 0
         const last = index === stops.length - 1
-        const levelColor = stop.level ? STATUS_LEVEL_COLORS[stop.level][isDark ? "dark" : "light"] : undefined
+        const levelInk = stop.level ? STATUS_LEVEL_INKS[stop.level][isDark ? "dark" : "light"] : undefined
         return (
           <TouchableHighlight
             key={stop.stationId}
@@ -51,21 +53,24 @@ export function LineStations({ line, status, dayType, onSelectStation }: LineSta
               <View style={styles.rail}>
                 <View style={[styles.segment, { backgroundColor: first ? "transparent" : line.color }]} />
                 <View style={[styles.segment, { backgroundColor: last ? "transparent" : line.color }]} />
-                <View
-                  style={[
-                    styles.dot,
-                    (first || last) && styles.terminalDot,
-                    { borderColor: levelColor ?? line.color },
-                    levelColor ? { backgroundColor: levelColor } : null,
-                  ]}
-                />
+                {stop.level ? (
+                  // The map's badge for a station a disruption names: a "!" on a disc.
+                  <View style={[styles.badge, isDark ? styles.badgeDark : styles.badgeLight]}>
+                    <Svg width={BADGE_SIZE} height={BADGE_SIZE} viewBox="0 0 24 24" accessible={false}>
+                      <Path d="M12 5.5v8" stroke={isDark ? "#0E1220" : "#FFFFFF"} strokeWidth={3.4} strokeLinecap="round" />
+                      <Circle cx={12} cy={18.3} r={1.9} fill={isDark ? "#0E1220" : "#FFFFFF"} />
+                    </Svg>
+                  </View>
+                ) : (
+                  <View style={[styles.dot, (first || last) && styles.terminalDot, { borderColor: line.color }]} />
+                )}
               </View>
               <View style={styles.texts}>
                 <Text style={[styles.name, (first || last) && styles.terminalName]} numberOfLines={1}>
                   {stationName(stop.stationId)}
                 </Text>
                 {stop.level && (
-                  <Text style={[styles.note, { color: levelColor }]} preset="small">
+                  <Text style={[styles.note, { color: levelInk }]} preset="small">
                     {levelLabel(stop.level)}
                   </Text>
                 )}
@@ -107,6 +112,7 @@ export const lineStops = (line: RailLine, status: LineStatus | undefined, dayTyp
 /** A row's height, which the strip's segments span. */
 const ROW_HEIGHT = 52
 const DOT_SIZE = 14
+const BADGE_SIZE = 20
 
 const styles = StyleSheet.create((theme) => ({
   list: {
@@ -147,6 +153,23 @@ const styles = StyleSheet.create((theme) => ({
     borderRadius: (DOT_SIZE + 4) / 2,
     marginTop: -(DOT_SIZE + 4) / 2,
     borderWidth: 4,
+  },
+  // The same disc the map puts on an affected station, in the map's colours.
+  badge: {
+    position: "absolute",
+    top: "50%",
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    marginTop: -BADGE_SIZE / 2,
+    borderRadius: BADGE_SIZE / 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  badgeLight: {
+    backgroundColor: "#1D1D1F",
+  },
+  badgeDark: {
+    backgroundColor: "#F2F2F7",
   },
   texts: {
     flex: 1,

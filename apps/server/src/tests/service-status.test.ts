@@ -151,13 +151,25 @@ describe("levels", () => {
     expect(status.trains).toEqual({ active: 2, delayed: 0, cancelled: 0, maxDelayMinutes: 2 })
   })
 
-  test("minor delays from a single short delay", () => {
-    const status = lineStatus(table(line2Train(230)), snapshot({ 230: { latestDelayMin: 7 } }), "2")
+  test("a single short delay is not yet a disruption", () => {
+    const status = lineStatus(table(line2Train(230), line2Train(232, "09:10")), snapshot({ 230: { latestDelayMin: 7 } }), "2")
+    expect(status.level).toBe("goodService")
+    expect(status.disruptions).toEqual([])
+    expect(status.trains).toEqual({ active: 2, delayed: 1, cancelled: 0, maxDelayMinutes: 7 })
+  })
+
+  test("minor delays once two trains are a few minutes late", () => {
+    const status = lineStatus(
+      table(line2Train(230), line2Train(232, "09:10")),
+      snapshot({ 230: { latestDelayMin: 7 }, 232: { latestDelayMin: 6 } }),
+      "2",
+    )
     expect(status.level).toBe("minorDelays")
     expect(status.disruptions).toHaveLength(1)
     const [delays] = status.disruptions
     expect(delays.kind).toBe("delays")
     expect(delays.section).toBeNull()
+    expect(delays.trains.map((t) => t.trainNumber)).toEqual([230, 232])
     expect(delays.trains[0]).toMatchObject({
       trainNumber: 230,
       status: "delayed",
@@ -259,7 +271,7 @@ describe("levels", () => {
   test("disruptions are ordered worst first and the line takes the worst level", () => {
     const status = lineStatus(
       table(line2Train(230), line2Train(232, "08:40"), line2Train(234, "09:10")),
-      snapshot({ 230: { latestDelayMin: 6 }, 232: { liveDestRailId: 5800 } }),
+      snapshot({ 230: { latestDelayMin: 6 }, 232: { liveDestRailId: 5800 }, 234: { latestDelayMin: 5 } }),
       "2",
     )
     expect(status.level).toBe("partSuspended")

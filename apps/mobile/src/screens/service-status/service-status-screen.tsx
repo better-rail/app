@@ -6,6 +6,7 @@ import { useHeaderHeight } from "expo-router/react-navigation"
 import HapticFeedback from "react-native-haptic-feedback"
 import { TrueSheet } from "@lodev09/react-native-true-sheet"
 import { Chip, Text } from "@/components"
+import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { type DayType, RailMap, currentDayType } from "@/components/rail-map"
 import { getRailLine, type RailLineId } from "@/data/rail-lines"
@@ -151,7 +152,14 @@ export function ServiceStatusScreen() {
       {/* The timetable differs between the week, the weekend and weeknights: three maps. */}
       <View style={styles.dayTypes(headerHeight)} pointerEvents="box-none" testID="network-map-day-types">
         {DAY_TYPES.map((type) => (
-          <Chip key={type} variant={dayType === type ? "primary" : "default"} onPress={() => changeDayType(type)}>
+          <Chip
+            key={type}
+            variant={dayType === type ? "primary" : "default"}
+            onPress={() => changeDayType(type)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: dayType === type }}
+            accessibilityLabel={translate(`serviceStatus.dayType.${type}`) ?? undefined}
+          >
             <Text
               style={[styles.dayTypeText, dayType === type && styles.dayTypeTextSelected]}
               tx={`serviceStatus.dayType.${type}`}

@@ -10,6 +10,8 @@ import { useStationAlert } from "../use-station-alert"
 
 type StationAlertsCardProps = {
   stationId: string
+  /** Where the card is shown, for the analytics. */
+  source?: string
 }
 
 /**
@@ -18,8 +20,8 @@ type StationAlertsCardProps = {
  * The server watches the station from then on (apps/server/src/station-alerts) and pushes when its
  * status changes.
  */
-export function StationAlertsCard({ stationId }: StationAlertsCardProps) {
-  const { alert, permission, turnOn, turnOff, setLines, setDays } = useStationAlert(stationId, "station_card")
+export function StationAlertsCard({ stationId, source = "station_card" }: StationAlertsCardProps) {
+  const { alert, permission, turnOn, turnOff, setLines, setDays } = useStationAlert(stationId, source)
   const lines = alertLinesFor(stationId)
   // On while the permission dialog is up, so the switch does not snap back under it.
   const [turningOn, setTurningOn] = useState(false)
@@ -57,6 +59,8 @@ export function StationAlertsCard({ stationId }: StationAlertsCardProps) {
           <Text style={styles.description} preset="small" tx="stationAlerts.cardDescription" />
         </View>
         <Switch
+          accessibilityLabel={translate("stationAlerts.toggle") ?? undefined}
+          accessibilityHint={translate("stationAlerts.cardDescription") ?? undefined}
           value={!!alert || turningOn}
           onValueChange={(on) => {
             if (!on) return turnOff()
@@ -140,19 +144,20 @@ function ChoiceChip({
   testID: string
 }) {
   return (
-    <View
+    <Chip
+      variant={selected ? "primary" : "default"}
+      onPress={onPress}
+      style={styles.chip}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
       accessibilityLabel={label}
       testID={`${testID}${selected ? "-selected" : ""}`}
     >
-      <Chip variant={selected ? "primary" : "default"} onPress={onPress} style={styles.chip}>
-        {color && <View style={[styles.dot, { backgroundColor: color }]} />}
-        <Text style={[styles.chipText, selected && styles.chipTextSelected]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
-          {label}
-        </Text>
-      </Chip>
-    </View>
+      {color && <View style={[styles.dot, { backgroundColor: color }]} />}
+      <Text style={[styles.chipText, selected && styles.chipTextSelected]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+        {label}
+      </Text>
+    </Chip>
   )
 }
 

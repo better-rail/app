@@ -268,7 +268,7 @@ describe("deriveServiceStatus with announcements", () => {
   test("an announced suspension explains the live trains ending short, and takes them", () => {
     const status = derive(
       table(line2Train(230), line2Train(232, "08:45")),
-      snapshot({ 230: { liveDestRailId: 5800 }, 232: { liveDestRailId: 5800, latestDelayMin: 6 } }),
+      snapshot({ 230: { liveDestRailId: 5800, latestDelayMin: 6 }, 232: { liveDestRailId: 5800, latestDelayMin: 6 } }),
       announced,
     )
     const l2 = line(status, "2")

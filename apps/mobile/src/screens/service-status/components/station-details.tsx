@@ -1,7 +1,7 @@
-import { useMemo, useRef } from "react"
+import { useRef } from "react"
 import { ActivityIndicator, type LayoutChangeEvent, Platform, TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
 import { Button, Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { stationName, stationsObject } from "@/data/stations"
@@ -9,85 +9,46 @@ import type { DayType } from "@/data/rail-service-patterns"
 import type { StationInfo, StationNotice } from "@/services/api"
 import { openLink } from "@/utils/helpers/open-link"
 import { openInMaps } from "@/utils/helpers/open-in-maps"
-import { useNow } from "@/hooks"
-import { timezoneCorrection } from "@/utils/helpers/date-helpers"
 import { DisruptionCard } from "./disruption-card"
 import { EntranceCard } from "./entrance-card"
 import { LineDeparturesCard } from "./line-departures-card"
 import { StationAlertsCard } from "./station-alerts-card"
 import { StationMap } from "./station-map"
-import { type StationTile, StationTiles } from "./station-tiles"
-import { stationOpenState, wallClockOf } from "../station-hours"
-import { stationStatus, stationStatusKind } from "../station-status"
-import { useServiceStatus } from "../use-service-status"
-import { useStationDepartures, useStationInfo } from "../use-station-info"
+import { useStationCardStatus } from "../use-station-card-status"
+
+/** The sections of the card the header's pills and bell take it to. */
+export type StationSection = "disruptions" | "lines" | "entrances" | "alerts"
 
 type StationDetailsProps = {
   stationId: string
   dayType: DayType
   onSelectLine: (lineId: string) => void
   onGoNow: (stationId: string) => void
-  /** Scrolls the card to a position (from the top of its content), opening it up if need be. */
-  scrollTo: (y: number) => void
-  /** Where the notifications section sits (from the top of the card's content), for the header's bell. */
-  onAlertsLayout: (y: number) => void
+  /** Where a section starts, from the top of the card's content, for the header to scroll to. */
+  onSectionLayout: (section: StationSection, y: number) => void
 }
 
-/** The sections a tile takes the card to. */
-type SectionName = "disruptions" | "lines" | "entrances" | "alerts"
-
-/** A Sunday, to name the days of the week from. */
-const A_SUNDAY = new Date(2023, 0, 1)
-
 /**
- * A station's card, after TfL Go's: "Go now", the tiles, what is wrong there, the next trains on each
- * line calling, each entrance with its hours and facilities, and the rest of the station's page.
+ * A station's card below its header, after TfL Go's: "Go now", what is wrong there, the next
+ * trains on each line calling, each entrance with its hours and facilities, and the rest of the
+ * station's page.
  */
-export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scrollTo, onAlertsLayout }: StationDetailsProps) {
-  const { data } = useServiceStatus()
-  const { data: info, isLoading: infoLoading, isError: infoError } = useStationInfo(stationId)
-  const { data: departures } = useStationDepartures(stationId)
-  // Israel's clock, wherever the phone is: the station is there. Ticks each minute for the countdowns.
-  const now = timezoneCorrection(useNow())
-  const status = useMemo(
-    () => stationStatus(data, stationId, dayType, departures, now),
-    // `now` is a new Date each render; its minute is what changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [data, stationId, dayType, departures, now.getTime()],
-  )
-  const kind = stationStatusKind(status, !!info?.closed)
-  const clock = wallClockOf(now)
-  const openState = info ? stationOpenState(info.entrances, clock) : infoLoading ? undefined : { state: "unknown" as const }
-  // The seven names once, not per row per minute.
-  const dayNames = useMemo(
-    () => Array.from({ length: 7 }, (_, i) => format(addDays(A_SUNDAY, i), "EEE", { locale: dateFnsLocalization })),
-    [],
-  )
-  const dayName = (day: number) => dayNames[day - 1]
+export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSectionLayout }: StationDetailsProps) {
+  const { info, infoLoading, infoError, departures, now, status, clock, dayName } = useStationCardStatus(stationId, dayType)
   const station = stationsObject[stationId]
   const name = stationName(stationId)
 
-  // Where each section starts, from the top of the card's content, for the tiles.
+  // Where each section starts, from the top of the card's content, for the header.
   const rootTop = useRef(0)
-  const sectionTops = useRef<Partial<Record<SectionName, number>>>({})
   const onRootLayout = (e: LayoutChangeEvent) => {
     rootTop.current = e.nativeEvent.layout.y
   }
-  const onSectionLayout = (section: SectionName) => (e: LayoutChangeEvent) => {
-    sectionTops.current[section] = e.nativeEvent.layout.y
-    if (section === "alerts") onAlertsLayout(rootTop.current + e.nativeEvent.layout.y)
-  }
-  const onTilePress = (tile: StationTile) => {
-    const section: SectionName = tile === "open" ? "entrances" : status.disruptions.length > 0 ? "disruptions" : "lines"
-    const top = sectionTops.current[section]
-    if (top !== undefined) scrollTo(rootTop.current + top)
-  }
+  const sectionLayout = (section: StationSection) => (e: LayoutChangeEvent) =>
+    onSectionLayout(section, rootTop.current + e.nativeEvent.layout.y)
 
   return (
     <View style={styles.details} onLayout={onRootLayout} testID="station-details">
       <Button title={translate("plan.title") ?? "Trip Plan"} onPress={() => onGoNow(stationId)} testID="station-go-now" />
-
-      <StationTiles status={status} kind={kind} openState={openState} today={clock.day} dayName={dayName} onPress={onTilePress} />
 
       {info?.closed && (
         <View style={[styles.card, styles.closedCard]} testID="station-closed">
@@ -104,7 +65,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
       )}
 
       {status.disruptions.length > 0 && (
-        <Section title={translate("serviceStatus.station.disruptions") ?? ""} onLayout={onSectionLayout("disruptions")}>
+        <Section title={translate("serviceStatus.station.disruptions") ?? ""} onLayout={sectionLayout("disruptions")}>
           {status.disruptions.map((d) => (
             <DisruptionCard key={d.id} disruption={d} />
           ))}
@@ -119,7 +80,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
         </Section>
       )}
 
-      <Section title={translate("serviceStatus.station.linesHere") ?? ""} onLayout={onSectionLayout("lines")}>
+      <Section title={translate("serviceStatus.station.linesHere") ?? ""} onLayout={sectionLayout("lines")}>
         {status.lines.length === 0 ? (
           <Text style={styles.empty} tx="serviceStatus.station.noLinesToday" />
         ) : (
@@ -138,7 +99,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
         )}
       </Section>
 
-      <Section title={translate("stationAlerts.cardTitle") ?? ""} onLayout={onSectionLayout("alerts")}>
+      <Section title={translate("stationAlerts.cardTitle") ?? ""} onLayout={sectionLayout("alerts")}>
         <StationAlertsCard stationId={stationId} />
       </Section>
 
@@ -146,7 +107,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, scro
       {infoError && !info && <Text style={styles.empty} tx="serviceStatus.station.infoUnavailable" />}
 
       {info && info.entrances.length > 0 && (
-        <Section title={translate("serviceStatus.station.entrances") ?? ""} onLayout={onSectionLayout("entrances")}>
+        <Section title={translate("serviceStatus.station.entrances") ?? ""} onLayout={sectionLayout("entrances")}>
           {info.entrances.map((entrance) => (
             <EntranceCard key={entrance.id} entrance={entrance} dayName={dayName} clock={clock} />
           ))}
@@ -193,7 +154,11 @@ function Section({
 }) {
   return (
     <View style={styles.section} onLayout={onLayout}>
-      {title && <Text style={styles.sectionTitle}>{title}</Text>}
+      {title && (
+        <Text style={styles.sectionTitle} accessibilityRole="header">
+          {title}
+        </Text>
+      )}
       {children}
     </View>
   )
@@ -252,7 +217,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing[3],
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 19,
     fontWeight: "700",
   },
   card: {
