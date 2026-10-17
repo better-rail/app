@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ArrowUpDown, ChevronDown } from "lucide-react"
+import { ArrowLeft, ArrowRight, ArrowUpDown, ChevronDown } from "lucide-react"
 import { LocaleLink } from "@/components/locale-link"
 import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
@@ -96,6 +96,7 @@ function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
   const [reversed, setReversed] = useState(false)
   const [from, to] = reversed ? [pair[1], pair[0]] : pair
   const photo = photoFor([from, to], taken)
+  const Arrow = locale === "he" ? ArrowLeft : ArrowRight
   return (
     <li className="group/card relative">
       <LocaleLink
@@ -112,7 +113,10 @@ function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
         {/* An extra scrim under the names: bright photos wash out the smaller origin line. */}
         <span className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-black/45 to-transparent" aria-hidden="true" />
         <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-3 pe-12 leading-tight text-white drop-shadow-[0_1px_3px_rgb(0_0_0/0.8)]">
-          <span className="truncate text-[14px] font-semibold text-white/75">{stationName(from, locale)}</span>
+          <span className="flex items-center gap-1 text-[14px] font-semibold text-white/75">
+            <span className="truncate">{stationName(from, locale)}</span>
+            <Arrow className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+          </span>
           <span className="truncate text-[17px] font-bold">{stationName(to, locale)}</span>
         </span>
       </LocaleLink>
