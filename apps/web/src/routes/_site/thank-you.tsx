@@ -14,12 +14,17 @@ export const Route = createFileRoute("/_site/thank-you")({
     }),
   component: () => (
     <ContentPage
-      title={<span className="flex flex-col items-center gap-2 text-center sm:flex-row sm:justify-center">💙 תודה רבה!</span>}
+      title="תודה רבה!"
+      before={
+        <p className="thank-you-emoji" aria-hidden="true">
+          💙
+        </p>
+      }
     >
-      <p>התמיכה שלכם התקבלה בהצלחה, ואנחנו מודים לכם מעומק הלב.</p>
-      <p>התמיכה שלכם היא שמאפשרת לנו להמשיך לפתח ולתחזק את האפליקציה עבור כלל הנוסעים.</p>
-      <p>אישור תשלום וחשבונית יישלחו אליכם למייל בדקות הקרובות.</p>
-      <p>
+      <p className="site-page-content-text">התמיכה שלכם התקבלה בהצלחה, ואנחנו מודים לכם מעומק הלב.</p>
+      <p className="site-page-content-text">התמיכה שלכם היא שמאפשרת לנו להמשיך לפתח ולתחזק את האפליקציה עבור כלל הנוסעים.</p>
+      <p className="site-page-content-text">אישור תשלום וחשבונית יישלחו אליכם למייל בדקות הקרובות.</p>
+      <p className="site-page-content-text">
         שתהיה נסיעה טובה,
         <br />
         צוות בטר רייל

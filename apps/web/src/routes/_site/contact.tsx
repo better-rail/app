@@ -14,11 +14,9 @@ export const Route = createFileRoute("/_site/contact")({
   headers: () => cacheHeaders(3600, 86400),
   component: () => (
     <ContentPage title="יצירת קשר">
-      <p>נשמח לשמוע מכם בכל שאלה, הצעה או בקשה. ניתן ליצור איתנו קשר בדוא"ל:</p>
-      <p className="text-lg">
-        <a href={`mailto:${FEEDBACK_EMAIL}`} dir="ltr">
-          {FEEDBACK_EMAIL}
-        </a>
+      <p className="site-page-content-text">נשמח לשמוע מכם בכל שאלה, הצעה או בקשה. ניתן ליצור איתנו קשר בדוא"ל:</p>
+      <p className="site-page-content-text business-details">
+        <a href={`mailto:${FEEDBACK_EMAIL}`}>{FEEDBACK_EMAIL}</a>
       </p>
     </ContentPage>
   ),
