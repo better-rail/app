@@ -30,6 +30,9 @@ yarn-error.log
 .claude/scheduled_tasks.lock
 .claude/worktrees/
 
+# Local scratch files (one-off scripts, notes, data dumps). Never committed.
+/scratch/
+
 # Build output
 **/dist/
 **/build/
