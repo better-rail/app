@@ -399,7 +399,6 @@
   },
   "voucher": {
     "title": "Jerusalem travel voucher",
-    "short": "Voucher",
     "orderTitle": "Voucher order",
     "book": "Order a voucher",
     "seatsAvailable": "%{count} seats available",

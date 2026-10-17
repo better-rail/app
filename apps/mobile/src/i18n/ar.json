@@ -313,7 +313,6 @@
   },
   "voucher": {
     "title": "قسيمة سفر إلى القدس",
-    "short": "قسيمة",
     "orderTitle": "طلب قسيمة",
     "book": "لطلب قسيمة سفر",
     "seatsAvailable": "%{count} مقاعد متاحة",
