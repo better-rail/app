@@ -11,6 +11,7 @@ import {
   ChangeDirectionButton,
   ResetTimeButton,
   DatePickerModal,
+  WebsiteHomeHandoff,
 } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useTrainRoutesStore, useSettingsStore, useDateTypeDisplayName } from "@/models"
@@ -175,6 +176,7 @@ export function PlannerScreen() {
 
   return (
     <Screen testID="planner-screen" style={styles.root}>
+      <WebsiteHomeHandoff />
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
           <PlannerScreenHeader />

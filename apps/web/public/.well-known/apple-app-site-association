@@ -3,7 +3,7 @@
     "details": [
       {
         "appIDs": ["UE6BVYPPFX.il.co.better-rail"],
-        "components": [{ "/": "/routes/*" }, { "/": "/en/routes/*" }]
+        "components": [{ "/": "/" }, { "/": "/en" }, { "/": "/en/" }, { "/": "/routes/*" }, { "/": "/en/routes/*" }]
       }
     ]
   },

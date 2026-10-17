@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test"
-import { isWebsiteURL, parseWebsiteRouteURL, websiteRouteURL } from "./web-links"
+import { isWebsiteURL, parseWebsiteRouteURL, websiteHomeURL, websiteRouteURL } from "./web-links"
 
 test("recognizes better-rail.co.il links only", () => {
   expect(isWebsiteURL("https://better-rail.co.il")).toBe(true)
@@ -32,4 +32,10 @@ test("builds the website link, round-tripping the time", () => {
 
   const en = websiteRouteURL({ originId: "3700", destinationId: "4600", time, trainNumbers: [101, 202], locale: "ru" })
   expect(en).toBe("https://better-rail.co.il/en/routes/3700/4600?date=2026-10-06&time=09%3A30&trip=101-202")
+})
+
+test("builds the website home link for the app's language", () => {
+  expect(websiteHomeURL("he")).toBe("https://better-rail.co.il/")
+  expect(websiteHomeURL("ru")).toBe("https://better-rail.co.il/en")
+  expect(parseWebsiteRouteURL(websiteHomeURL("he"))).toBeNull()
 })
