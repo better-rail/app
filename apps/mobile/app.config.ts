@@ -209,7 +209,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         android: {
           compileSdkVersion: 37,
           targetSdkVersion: 36,
-          minSdkVersion: 24,
+          minSdkVersion: 26,
           // SDK 58 turns R8 on by default; keep it off until reflection-heavy libs have keep rules.
           enableMinifyInReleaseBuilds: false,
         },

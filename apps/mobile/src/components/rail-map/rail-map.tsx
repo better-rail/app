@@ -17,7 +17,7 @@ import {
   type SkPath,
   useFonts,
   vec,
-} from "@shopify/react-native-skia"
+} from "react-native-skia"
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useDerivedValue, useSharedValue, withDecay, withTiming } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
@@ -726,21 +726,21 @@ const collectDisruptedSections = (model: RailMapModel, lines?: LineStatus[]): Di
 /** A small "!" centred on `p`, sized for a badge disc of radius `r`. */
 const exclamationPath = (p: Point, r: number): SkPath => {
   const s = r / 1.4
-  const path = Skia.Path.Make()
-  path.addRRect(Skia.RRectXY(Skia.XYWHRect(p.x - 0.24 * s, p.y - 0.95 * s, 0.48 * s, 1.15 * s), 0.24 * s, 0.24 * s))
-  path.addCircle(p.x, p.y + 0.62 * s, 0.27 * s)
-  return path
+  return Skia.PathBuilder.Make()
+    .addRRect(Skia.RRectXY(Skia.XYWHRect(p.x - 0.24 * s, p.y - 0.95 * s, 0.48 * s, 1.15 * s), 0.24 * s, 0.24 * s))
+    .addCircle(p.x, p.y + 0.62 * s, 0.27 * s)
+    .detach()
 }
 
 /** The aeroplane glyph, `height` tall, centred on (`x`, `y`). */
 const planePath = (x: number, y: number, height: number): SkPath => {
-  const path = Skia.Path.MakeFromSVGString(PLANE_D) as SkPath
   const s = height / 20 // the glyph's ink spans y 2…22 of its 24-unit box
   const matrix = Skia.Matrix()
   matrix.translate(x - 12 * s, y - 12 * s)
   matrix.scale(s, s)
-  path.transform(matrix)
-  return path
+  return Skia.PathBuilder.MakeFromPath(Skia.Path.MakeFromSVGString(PLANE_D) as SkPath)
+    .transform(matrix)
+    .detach()
 }
 
 /** The station's name as the app shows it (the airport's shortened), less the city inside a city frame. */
