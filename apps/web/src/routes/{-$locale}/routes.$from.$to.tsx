@@ -557,7 +557,7 @@ function RoutesPage() {
           {query.isPending && (
             <div className="flex flex-col gap-3" aria-busy="true">
               {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="h-[104px] animate-pulse rounded-card bg-surface-3" />
+                <div key={index} className="h-[82px] animate-pulse rounded-card bg-surface-3" />
               ))}
             </div>
           )}
@@ -761,7 +761,7 @@ function ExtraDay({
         {formatDayLabel(day, locale, now)}
         {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
       </h2>
-      {query.isPending && <div className="h-[104px] animate-pulse rounded-card bg-surface-3" />}
+      {query.isPending && <div className="h-[82px] animate-pulse rounded-card bg-surface-3" />}
       {query.isError && routes.length === 0 && <p className="text-[14px] text-danger">{t("routes.error")}</p>}
       {query.isSuccess && routes.length === 0 && <p className="text-[14px] text-muted">{t("routes.noTrainsFound")}</p>}
       {allSlowHidden && <p className="text-[14px] text-muted">{t("routes.allSlowHidden")}</p>}

@@ -28,7 +28,6 @@ export const RouteCard = memo(function RouteCard({
   const locale = useLocale()
   const changesText = useChangesText()
   const changes = route.trains.length - 1
-  const firstTrain = route.trains[0]
 
   // Modified and non-primary clicks are the browser's (a new tab, say), as they would be on any link.
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -73,23 +72,6 @@ export const RouteCard = memo(function RouteCard({
         </div>
 
         <TimeColumn label={t("routes.arrival")} time={formatClock(route.arrivalTime)} cancelled={route.isCancelled} align="end" />
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line/60 pt-2 text-[12.5px] text-muted">
-        <span className={cn(firstTrain.originPlatformChanged && "font-bold text-danger")}>
-          {firstTrain.originPlatform > 0
-            ? t("details.platform", { platform: firstTrain.originPlatform })
-            : t("details.noPlatform")}
-          {firstTrain.originPlatformChanged && <span className="sr-only"> ({t("a11y.changed")})</span>}
-        </span>
-        <span aria-hidden="true">·</span>
-        <span>{t("details.trainNo", { number: firstTrain.trainNumber })}</span>
-        {changes > 0 && (
-          <>
-            <span aria-hidden="true">·</span>
-            <span>{changesText(changes)}</span>
-          </>
-        )}
       </div>
     </a>
   )
