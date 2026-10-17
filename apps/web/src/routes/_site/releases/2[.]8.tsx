@@ -91,6 +91,8 @@ function ReleaseVideo({ name, poster, label }: { name: string; poster: string; l
         muted
         loop
         playsInline
+        // Always shown: the clips play on their own, so they need a way to pause (WCAG 2.2.2).
+        controls
         preload="none"
         aria-label={label}
       />
@@ -122,30 +124,44 @@ function Feature({ title, children }: { title: string; children: ReactNode }) {
 }
 
 function ReleasePage() {
-  // Demos load and play only near the viewport, and pause once scrolled away; with reduced motion they get controls instead.
   useEffect(() => {
     const videos = document.querySelectorAll<HTMLVideoElement>(".feature-image video")
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      videos.forEach((video) => (video.controls = true))
-      return
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return
+    // A clip paused from its controls while in view stays paused; scrolling back to it doesn't restart it.
+    const visible = new Set<HTMLVideoElement>()
+    const pausedByUser = new Set<HTMLVideoElement>()
+    const onPause = (event: Event) => {
+      const video = event.currentTarget as HTMLVideoElement
+      if (visible.has(video)) pausedByUser.add(video)
     }
-    if (!("IntersectionObserver" in window)) {
-      videos.forEach((video) => void video.play().catch(() => {}))
-      return
-    }
+    const onPlay = (event: Event) => pausedByUser.delete(event.currentTarget as HTMLVideoElement)
     const observer = new IntersectionObserver(
-      (entries) =>
+      (entries) => {
         entries.forEach(({ target, isIntersecting }) => {
           const video = target as HTMLVideoElement
-          if (isIntersecting) void video.play().catch(() => {})
-          else video.pause()
-        }),
+          if (isIntersecting) {
+            visible.add(video)
+            if (!pausedByUser.has(video)) void video.play().catch(() => {})
+          } else {
+            visible.delete(video)
+            video.pause()
+          }
+        })
+      },
       { rootMargin: "200px 0px" },
     )
-    videos.forEach((video) => observer.observe(video))
+    videos.forEach((video) => {
+      video.addEventListener("pause", onPause)
+      video.addEventListener("play", onPlay)
+      observer.observe(video)
+    })
     return () => {
       observer.disconnect()
-      videos.forEach((video) => video.pause())
+      videos.forEach((video) => {
+        video.removeEventListener("pause", onPause)
+        video.removeEventListener("play", onPlay)
+        video.pause()
+      })
     }
   }, [])
 
