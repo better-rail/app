@@ -1,7 +1,11 @@
-import { StyleSheet } from "react-native"
+import type { ComponentType, ReactElement } from "react"
+import { StyleSheet, type ViewProps } from "react-native"
 import { BlurView } from "expo-blur"
-import MaskedView from "@react-native-masked-view/masked-view"
+import MaskedViewBase from "@react-native-masked-view/masked-view"
 import LinearGradient from "react-native-linear-gradient"
+
+// masked-view 0.3.2's typings extend RN's NativeMethods, which RN 0.88 no longer exports.
+const MaskedView = MaskedViewBase as unknown as ComponentType<ViewProps & { maskElement: ReactElement }>
 
 /** How far below the bar the blur has faded out entirely. */
 const FADE = 32
