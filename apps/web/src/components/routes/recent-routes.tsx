@@ -26,7 +26,7 @@ export function RecentRoutes() {
       aria-labelledby="recent-routes-title"
     >
       <div className="container-page py-4 lg:py-5">
-        <div className="flex min-h-10 items-center gap-4">
+        <div className="flex min-h-10 items-center justify-between gap-2">
           <h2 id="recent-routes-title">
             <button
               type="button"
@@ -66,13 +66,19 @@ export function RecentRoutes() {
         >
           {/* The padding keeps the cards' shadows and hover scale clear of the clipping edge. */}
           <div className="-mx-2 min-h-0 overflow-hidden px-2">
-            <ul className={cn("grid grid-cols-2 gap-3 pt-3 pb-4 lg:gap-4", desktopColumns[recent.length])}>
+            <ul className="grid grid-cols-2 gap-3 pt-3 pb-4 lg:grid-cols-4 lg:gap-4">
               {recent.map((pair, index) => (
-                <RecentRouteCard
-                  key={pairKey(pair[0].id, pair[1].id)}
-                  pair={pair}
-                  taken={taken(index)}
-                  wide={recent.length < 3}
+                <RecentRouteCard key={pairKey(pair[0].id, pair[1].id)} pair={pair} taken={taken(index)} />
+              ))}
+              {/* Empty slots fill the row: four on desktop, an even pair on phones. */}
+              {Array.from({ length: 4 - recent.length }, (_, index) => (
+                <li
+                  key={index}
+                  aria-hidden="true"
+                  className={cn(
+                    "h-28 rounded-card border border-dashed border-line lg:h-32",
+                    index >= recent.length % 2 && "max-lg:hidden",
+                  )}
                 />
               ))}
             </ul>
@@ -84,7 +90,7 @@ export function RecentRoutes() {
 }
 
 /** `taken`: destinations pictured by earlier cards, so two neighbours don't show the same photo. */
-function RecentRouteCard({ pair, taken, wide }: { pair: Pair; taken: string[]; wide: boolean }) {
+function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
   const t = useT()
   const locale = useLocale()
   const [reversed, setReversed] = useState(false)
@@ -99,7 +105,7 @@ function RecentRouteCard({ pair, taken, wide }: { pair: Pair; taken: string[]; w
       >
         <StationImage
           station={photo}
-          sizes={`(min-width: 1024px) ${wide ? 540 : 360}px, 50vw`}
+          sizes="(min-width: 1024px) 320px, 50vw"
           className="absolute inset-0 transition-transform duration-500 ease-out-expo group-hover:scale-[1.04]"
         />
         <span className="station-photo-gradient absolute inset-0" aria-hidden="true" />
@@ -123,9 +129,6 @@ function RecentRouteCard({ pair, taken, wide }: { pair: Pair; taken: string[]; w
     </li>
   )
 }
-
-/** Fewer searches stretch to fill the row on desktop, but a lone card stays half width rather than a banner. */
-const desktopColumns: Record<number, string> = { 3: "lg:grid-cols-3", 4: "lg:grid-cols-4" }
 
 /** The destination's photo, or the origin's when an earlier card already shows that destination. */
 const photoFor = ([from, to]: Pair, taken: string[]) => (taken.includes(to.id) && !taken.includes(from.id) ? from : to)
