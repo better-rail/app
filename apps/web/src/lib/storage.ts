@@ -47,9 +47,9 @@ export const hideSlowTrainsPreference = {
 
 const RECENT_TRAY_KEY = "better-rail:recent-tray-open"
 
-/** Whether the rider expanded or collapsed the home page's recent-searches tray; null until they toggle it. */
+/** Whether the home page's recent-searches tray is expanded; open until the rider collapses it. */
 export const recentTrayPreference = {
-  get: () => read<boolean | null>(RECENT_TRAY_KEY, null),
+  get: () => read<boolean>(RECENT_TRAY_KEY, true),
   set: (value: boolean) => write(RECENT_TRAY_KEY, value),
 }
 

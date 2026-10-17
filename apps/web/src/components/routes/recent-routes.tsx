@@ -17,10 +17,9 @@ type Pair = readonly [Station, Station]
 export function RecentRoutes() {
   const t = useT()
   const recent = toPairs(useRecentRoutes()).slice(0, 4)
-  const [stored, setOpen] = useRecentTrayOpen()
-  if (recent.length === 0) return null
-  // Until the rider toggles it, a lone search stays tucked away rather than opening onto three empty slots.
-  const open = stored ?? recent.length > 1
+  const [open, setOpen] = useRecentTrayOpen()
+  // A lone search would be one card beside three empty slots; the planner already remembers it.
+  if (recent.length < 2) return null
   const taken = (index: number) => recent.slice(0, index).map(([, to]) => to.id)
   return (
     <section

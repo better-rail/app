@@ -33,8 +33,8 @@ export function useHideSlowTrains(): [boolean, (value: boolean) => void] {
   return [value, hideSlowTrainsPreference.set]
 }
 
-export function useRecentTrayOpen(): [boolean | null, (value: boolean) => void] {
-  const value = useSyncExternalStore(subscribeToStorage, recentTrayPreference.get, () => null)
+export function useRecentTrayOpen(): [boolean, (value: boolean) => void] {
+  const value = useSyncExternalStore(subscribeToStorage, recentTrayPreference.get, () => true)
   return [value, recentTrayPreference.set]
 }
 
