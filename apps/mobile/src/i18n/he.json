@@ -401,7 +401,6 @@
   },
   "voucher": {
     "title": "שובר נסיעה לירושלים",
-    "short": "שובר",
     "orderTitle": "הזמנת שובר",
     "book": "להזמנת שובר נסיעה",
     "seatsAvailable": "%{count} מקומות פנויים",
