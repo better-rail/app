@@ -24,7 +24,13 @@ export function ThemeToggle({ className }: { className?: string }) {
   }
 
   return (
-    <button type="button" className={cn("icon-btn", className)} aria-pressed={dark} aria-label={t("nav.darkMode")} onClick={toggle}>
+    <button
+      type="button"
+      className={cn("icon-btn", className)}
+      aria-pressed={dark}
+      aria-label={t("nav.darkMode")}
+      onClick={toggle}
+    >
       {/* CSS picks the icon so SSR matches the theme. */}
       <Moon className="size-5 dark:hidden" />
       <Sun className="hidden size-5 dark:block" />
