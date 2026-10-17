@@ -138,7 +138,7 @@ export const en: Record<TranslationKey, string> = {
   "footer.nav": "Site links",
 
   "seo.homeTitle": "Better Rail - Israel Railways timetables",
-  "seo.routesTitle": "{from} → {to} | Better Rail",
+  "seo.routesTitle": "{from} to {to} Train Times | Better Rail",
   "seo.routesBlurb": "Departure and arrival times, changes, platforms and live delays.",
   "seo.routesDuration": "About {duration} by train",
   "seo.routesOn": "Trains on {date}",

@@ -21,11 +21,11 @@ const trip: TripFacts = {
 describe("routeSeoText", () => {
   test("a journey: the route's short title, and what the rider needs in the description", () => {
     expect(routeSeoText({ locale: "he", origin: hadera, destination: university, trip })).toEqual({
-      title: "חדרה - מערב ← תל אביב - אוניברסיטה | Better Rail",
+      title: "זמני רכבת מחדרה - מערב לתל אביב - אוניברסיטה | Better Rail",
       description: "יום שבת, 5 בספטמבר · רכבת 7220, 7155 · 20:56 ← 21:25 · 29 דקות · החלפה אחת · רציף 2",
     })
     expect(routeSeoText({ locale: "en", origin: hadera, destination: university, trip })).toEqual({
-      title: "Hadera - West → Tel Aviv - University | Better Rail",
+      title: "Hadera - West to Tel Aviv - University Train Times | Better Rail",
       description: "Saturday 5 September · Train 7220, 7155 · 20:56 → 21:25 · 29 min · 1 change · Platform 2",
     })
   })
@@ -51,7 +51,7 @@ describe("routeSeoText", () => {
       minDurationMs: 0,
     }
     expect(routeSeoText({ locale: "he", origin: hadera, destination: university, summary })).toEqual({
-      title: "חדרה - מערב ← תל אביב - אוניברסיטה | Better Rail",
+      title: "זמני רכבת מחדרה - מערב לתל אביב - אוניברסיטה | Better Rail",
       description: "כ-29 דקות נסיעה · זמני יציאה והגעה, החלפות, רציפים ועיכובים בזמן אמת.",
     })
     expect(routeSeoText({ locale: "en", origin: hadera, destination: university, summary }).description).toBe(

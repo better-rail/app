@@ -134,7 +134,7 @@ export const he = {
   "footer.nav": "קישורים באתר",
 
   "seo.homeTitle": "Better Rail - זמני רכבת ישראל",
-  "seo.routesTitle": "{from} ← {to} | Better Rail",
+  "seo.routesTitle": "זמני רכבת מ{from} ל{to} | Better Rail",
   "seo.routesBlurb": "זמני יציאה והגעה, החלפות, רציפים ועיכובים בזמן אמת.",
   "seo.routesDuration": "{duration} נסיעה",
   "seo.routesOn": "רכבות ב{date}",
