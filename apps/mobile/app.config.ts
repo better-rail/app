@@ -65,12 +65,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
+    // The running update plus two older ones to fall back to if a new update crashes on launch.
+    maxUpdatesToKeep: 3,
   },
-  // OTA updates only reach builds with the same runtime version (tied to `version` above), so bump
-  // `version` whenever the native layer (modules/widgets/plugins/deps) changes — an OTA JS update
-  // must never land on an incompatible binary.
   runtimeVersion: {
-    policy: "appVersion",
+    policy: "fingerprint",
   },
   orientation: "portrait",
   userInterfaceStyle: "automatic",
