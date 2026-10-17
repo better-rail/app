@@ -1,23 +1,19 @@
 import { useState } from "react"
-import { ArrowLeft, ArrowRight, ArrowUpDown, ChevronDown } from "lucide-react"
+import { ArrowLeft, ArrowRight, ArrowUpDown } from "lucide-react"
 import { LocaleLink } from "@/components/locale-link"
 import { StationImage } from "@/components/stations/station-image"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
 import { recentRoutes, type StoredRoute } from "@/lib/storage"
-import { useRecentRoutes, useRecentTrayOpen } from "@/hooks/use-stored"
+import { useRecentRoutes } from "@/hooks/use-stored"
 
 type Pair = readonly [Station, Station]
 
-/**
- * Recent searches in a collapsible tray below the planner: a slim title row until opened, then photo cards. A route
- * and its return trip share one card.
- */
+/** Recent searches as photo cards below the planner. A route and its return trip share one card. */
 export function RecentRoutes() {
   const t = useT()
   const recent = toPairs(useRecentRoutes()).slice(0, 4)
-  const [open, setOpen] = useRecentTrayOpen()
   if (recent.length === 0) return null
   const taken = (index: number) => recent.slice(0, index).map(([, to]) => to.id)
   return (
@@ -27,63 +23,34 @@ export function RecentRoutes() {
     >
       <div className="container-page py-4 lg:py-5">
         <div className="flex min-h-10 items-center justify-between gap-2">
-          <h2 id="recent-routes-title">
-            <button
-              type="button"
-              onClick={() => setOpen(!open)}
-              aria-expanded={open}
-              aria-controls="recent-routes-tray"
-              className="group -my-1 flex items-center gap-1.5 py-1 text-[15px] font-semibold text-text"
-            >
-              {t("home.recent")}
-              <ChevronDown
-                className={cn(
-                  "size-4 text-dim transition-[rotate,color] duration-300 ease-out-expo group-hover:text-text-2",
-                  open && "rotate-180",
-                )}
-              />
-            </button>
+          <h2 id="recent-routes-title" className="text-[15px] font-semibold text-text">
+            {t("home.recent")}
           </h2>
-          {open && (
-            // The vertical padding stretches the tap target to 40px without moving the cards.
-            <button
-              type="button"
-              onClick={recentRoutes.clear}
-              className="-my-2.5 animate-fade-in py-2.5 text-[13px] font-medium text-dim transition-colors hover:text-text-2"
-            >
-              {t("home.clearRecent")}
-            </button>
-          )}
+          {/* The vertical padding stretches the tap target to 40px without moving the cards. */}
+          <button
+            type="button"
+            onClick={recentRoutes.clear}
+            className="-my-2.5 py-2.5 text-[13px] font-medium text-dim transition-colors hover:text-text-2"
+          >
+            {t("home.clearRecent")}
+          </button>
         </div>
-        {/* Rows animate between 0fr and 1fr, so the tray opens to its content's height without measuring it. */}
-        <div
-          id="recent-routes-tray"
-          inert={!open}
-          className={cn(
-            "grid transition-[grid-template-rows,opacity] duration-300 ease-out-expo",
-            open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-          )}
-        >
-          {/* The padding keeps the cards' shadows and hover scale clear of the clipping edge. */}
-          <div className="-mx-2 min-h-0 overflow-hidden px-2">
-            <ul className="grid grid-cols-2 gap-3 pt-3 pb-4 lg:grid-cols-4 lg:gap-4">
-              {recent.map((pair, index) => (
-                <RecentRouteCard key={pairKey(pair[0].id, pair[1].id)} pair={pair} taken={taken(index)} />
-              ))}
-              {/* Empty slots fill the row: four on desktop, an even pair on phones. */}
-              {Array.from({ length: 4 - recent.length }, (_, index) => (
-                <li
-                  key={index}
-                  aria-hidden="true"
-                  className={cn(
-                    "h-28 rounded-card border-2 border-dashed border-line-strong bg-surface-3/40 lg:h-32",
-                    index >= recent.length % 2 && "max-lg:hidden",
-                  )}
-                />
-              ))}
-            </ul>
-          </div>
-        </div>
+        <ul className="grid grid-cols-2 gap-3 pt-3 pb-4 lg:grid-cols-4 lg:gap-4">
+          {recent.map((pair, index) => (
+            <RecentRouteCard key={pairKey(pair[0].id, pair[1].id)} pair={pair} taken={taken(index)} />
+          ))}
+          {/* Empty slots fill the row: four on desktop, an even pair on phones. */}
+          {Array.from({ length: 4 - recent.length }, (_, index) => (
+            <li
+              key={index}
+              aria-hidden="true"
+              className={cn(
+                "h-28 rounded-card border-2 border-dashed border-line-strong bg-surface-3/60 lg:h-32",
+                index >= recent.length % 2 && "max-lg:hidden",
+              )}
+            />
+          ))}
+        </ul>
       </div>
     </section>
   )
