@@ -27,19 +27,19 @@ export type Weight = 500 | 700
 export type Measure = (text: string, size: number, weight: Weight) => number
 
 export interface HeroTrip {
+  /** "יום שבת, 17 באוקטובר" */
+  date: string
+  /** The route as a phrase — "מאופקים לאשדוד עד הלום" — so the times keep the only arrow */
+  route: string
   /** `HH:mm` */
   departure: string
   arrival: string
-  /** "רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2" */
-  facts: string
 }
 
 export interface HeroContent {
   locale: Locale
   origin: string
   destination: string
-  /** Under the names when the link is to the route rather than a journey */
-  tagline: string
   /** Origin station photo as a `data:` URI; a brand gradient stands in when the station has none */
   photo?: string
   trip?: HeroTrip
@@ -71,7 +71,7 @@ const ARROW_LEFT = "M19 12H5M12 19l-7-7 7-7"
 
 function arrowSvg(x: number, centerY: number, size: number, rtl: boolean): string {
   const scale = size / 24
-  return `<path d="${rtl ? ARROW_LEFT : ARROW_RIGHT}" transform="translate(${px(x)} ${px(centerY - size / 2)}) scale(${px(scale)})" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`
+  return `<path d="${rtl ? ARROW_LEFT : ARROW_RIGHT}" transform="translate(${px(x)} ${px(centerY - size / 2)}) scale(${px(scale)})" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`
 }
 
 const gapFor = (size: number) => size * 0.3
@@ -123,30 +123,24 @@ function caption(text: string, baseline: number, rtl: boolean): string {
   return textSvg(rtl ? HERO_WIDTH - PAD : PAD, baseline, CAPTION, rtl ? "end" : "start", text, rtl)
 }
 
-/** Origin on one line, the arrow and destination on the next, the tagline underneath. */
+/** Origin on one line, the arrow and destination on the next. */
 function routeBlock(content: HeroContent, rtl: boolean, measure: Measure): string {
   const lines: Piece[][] = [[{ text: content.origin }], [{ arrow: true }, { text: content.destination }]]
   const style: Style = { size: fitSize(lines, 76, 40, 700, measure), weight: 700 }
-  const second = BOTTOM - 62
-  const first = second - style.size * 1.18
-  return [
-    row(lines[0], style, first, rtl, measure),
-    row(lines[1], style, second, rtl, measure),
-    caption(content.tagline, BOTTOM, rtl),
-  ].join("")
+  const first = BOTTOM - style.size * 1.18
+  return row(lines[0], style, first, rtl, measure) + row(lines[1], style, BOTTOM, rtl, measure)
 }
 
-/** The times large, the route on one line, then the journey's facts. */
-function tripBlock(content: HeroContent, trip: HeroTrip, rtl: boolean, measure: Measure): string {
-  const routeLine: Piece[] = [{ text: content.origin }, { arrow: true }, { text: content.destination }]
+/** The day, the times large, then the route on one line. */
+function tripBlock(trip: HeroTrip, rtl: boolean, measure: Measure): string {
+  const routeLine: Piece[] = [{ text: trip.route }]
   const routeStyle: Style = { size: fitSize([routeLine], 40, 26, 700, measure), weight: 700 }
   const timesStyle: Style = { size: 96, weight: 700 }
-  const routeBaseline = BOTTOM - 56
-  const timesBaseline = routeBaseline - routeStyle.size * 0.75 - 24
+  const timesBaseline = BOTTOM - routeStyle.size * 0.75 - 24
   return [
+    caption(trip.date, timesBaseline - timesStyle.size - 6, rtl),
     row([{ text: trip.departure }, { arrow: true }, { text: trip.arrival }], timesStyle, timesBaseline, rtl, measure),
-    row(routeLine, routeStyle, routeBaseline, rtl, measure),
-    caption(trip.facts, BOTTOM, rtl),
+    row(routeLine, routeStyle, BOTTOM, rtl, measure),
   ].join("")
 }
 
@@ -159,20 +153,16 @@ function appIcon(x: number, y: number, size: number): string {
   return `<rect x="${px(x)}" y="${px(y)}" width="${px(size)}" height="${px(size)}" rx="${px(size * 0.22)}" fill="#fff"/><svg x="${px(x + (size - width) / 2)}" y="${px(y + (size - height) / 2)}" width="${px(width)}" height="${px(height)}" viewBox="0 0 86 104">${APP_ICON}</svg>`
 }
 
-/** "Better Rail" with the app icon, in the top corner the reading starts from. */
-function brand(rtl: boolean, measure: Measure): string {
-  const label = "Better Rail"
+/** The app icon and its name, in the top corner the reading starts from: "Better Rail" in English, "בטר רייל" in Hebrew. */
+function brand(rtl: boolean): string {
   const style: Style = { size: 28, weight: 700 }
   const tile = 44
   const top = 52
   const gap = 14
   const baseline = top + tile / 2 + style.size * 0.36
-  if (!rtl) return appIcon(PAD, top, tile) + textSvg(PAD + tile + gap, baseline, style, "start", label, false)
-  const textWidth = measure(label, style.size, style.weight)
-  return (
-    appIcon(HERO_WIDTH - PAD - textWidth - gap - tile, top, tile) +
-    textSvg(HERO_WIDTH - PAD, baseline, style, "end", label, false)
-  )
+  if (!rtl) return appIcon(PAD, top, tile) + textSvg(PAD + tile + gap, baseline, style, "start", "Better Rail", false)
+  const iconX = HERO_WIDTH - PAD - tile
+  return appIcon(iconX, top, tile) + textSvg(iconX - gap, baseline, style, "end", "בטר רייל", true)
 }
 
 export function heroSvg(content: HeroContent, measure: Measure): string {
@@ -180,18 +170,18 @@ export function heroSvg(content: HeroContent, measure: Measure): string {
   const background = content.photo
     ? `<image href="${content.photo}" x="0" y="0" width="${HERO_WIDTH}" height="${HERO_HEIGHT}" preserveAspectRatio="xMidYMid slice"/>`
     : `<rect width="${HERO_WIDTH}" height="${HERO_HEIGHT}" fill="url(#brand)"/>`
-  const body = content.trip ? tripBlock(content, content.trip, rtl, measure) : routeBlock(content, rtl, measure)
+  const body = content.trip ? tripBlock(content.trip, rtl, measure) : routeBlock(content, rtl, measure)
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${HERO_WIDTH}" height="${HERO_HEIGHT}" viewBox="0 0 ${HERO_WIDTH} ${HERO_HEIGHT}">`,
     `<defs>`,
     // Darkens the top a little for the brand and the bottom a lot for the text, leaving the middle of the photo alone.
-    `<linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0.5"/><stop offset="0.3" stop-color="#000" stop-opacity="0.06"/><stop offset="0.48" stop-color="#000" stop-opacity="0.14"/><stop offset="1" stop-color="#000" stop-opacity="0.84"/></linearGradient>`,
+    `<linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0.5"/><stop offset="0.3" stop-color="#000" stop-opacity="0.06"/><stop offset="0.4" stop-color="#000" stop-opacity="0.14"/><stop offset="0.6" stop-color="#000" stop-opacity="0.55"/><stop offset="1" stop-color="#000" stop-opacity="0.88"/></linearGradient>`,
     `<linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2aa4f4"/><stop offset="0.55" stop-color="#0a6fbf"/><stop offset="1" stop-color="#0c3a66"/></linearGradient>`,
     `</defs>`,
     `<rect width="${HERO_WIDTH}" height="${HERO_HEIGHT}" fill="#0c3a66"/>`,
     background,
     `<rect width="${HERO_WIDTH}" height="${HERO_HEIGHT}" fill="url(#shade)"/>`,
-    brand(rtl, measure),
+    brand(rtl),
     body,
     `</svg>`,
   ].join("")

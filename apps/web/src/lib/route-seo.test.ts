@@ -22,22 +22,22 @@ describe("routeSeoText", () => {
   test("a journey: the route's short title, and what the rider needs in the description", () => {
     expect(routeSeoText({ locale: "he", origin: hadera, destination: university, trip })).toEqual({
       title: "חדרה - מערב ← תל אביב - אוניברסיטה | Better Rail",
-      description: "רכבת 7220, 7155 · 20:56 ← 21:25 · 29 דקות · החלפה אחת · רציף 2",
+      description: "יום שבת, 5 בספטמבר · רכבת 7220, 7155 · 20:56 ← 21:25 · 29 דקות · החלפה אחת · רציף 2",
     })
     expect(routeSeoText({ locale: "en", origin: hadera, destination: university, trip })).toEqual({
       title: "Hadera - West → Tel Aviv - University | Better Rail",
-      description: "Train 7220, 7155 · 20:56 → 21:25 · 29 min · 1 change · Platform 2",
+      description: "Saturday 5 September · Train 7220, 7155 · 20:56 → 21:25 · 29 min · 1 change · Platform 2",
     })
   })
 
   test("a journey: direct, several changes, no platform yet", () => {
     const direct = { ...trip, trainNumbers: [7220], changes: 0, platform: 0, durationMs: 80 * 60_000 }
     expect(routeSeoText({ locale: "he", origin: hadera, destination: university, trip: direct }).description).toBe(
-      "רכבת 7220 · 20:56 ← 21:25 · שעה ו-20 דקות · ללא החלפות",
+      "יום שבת, 5 בספטמבר · רכבת 7220 · 20:56 ← 21:25 · שעה ו-20 דקות · ללא החלפות",
     )
     const two = { ...trip, trainNumbers: [7220, 7155, 6012], changes: 2 }
     expect(routeSeoText({ locale: "en", origin: hadera, destination: university, trip: two }).description).toBe(
-      "Train 7220, 7155, 6012 · 20:56 → 21:25 · 29 min · 2 changes · Platform 2",
+      "Saturday 5 September · Train 7220, 7155, 6012 · 20:56 → 21:25 · 29 min · 2 changes · Platform 2",
     )
   })
 
@@ -94,29 +94,16 @@ describe("heroContent", () => {
       locale: "he",
       origin: "חדרה - מערב",
       destination: "תל אביב - אוניברסיטה",
-      tagline: "זמני רכבת, רציפים ועיכובים בזמן אמת",
       photo: "data:x",
-      trip: { departure: "20:56", arrival: "21:25", facts: "רכבת 7220, 7155 · 29 דק׳ · החלפה אחת · רציף 2" },
+      trip: {
+        date: "יום שבת, 5 בספטמבר",
+        route: "מחדרה - מערב לתל אביב - אוניברסיטה",
+        departure: "20:56",
+        arrival: "21:25",
+      },
     })
-    expect(
-      heroContent({
-        locale: "en",
-        origin: hadera,
-        destination: university,
-        trip: { ...trip, trainNumbers: [7220, 7155, 6012], changes: 2 },
-      }).trip?.facts,
-    ).toBe("Train 7220, 7155, 6012 · 29 min · 2 changes · Platform 2")
-    expect(
-      heroContent({
-        locale: "en",
-        origin: hadera,
-        destination: university,
-        trip: { ...trip, trainNumbers: [7223], changes: 0, platform: 0 },
-      }).trip?.facts,
-    ).toBe("Train 7223 · 29 min · Direct")
     const route = heroContent({ locale: "en", origin: hadera, destination: university })
     expect(route.trip).toBeUndefined()
-    expect(route.tagline).toBe("Train times, platforms and live delays")
   })
 })
 

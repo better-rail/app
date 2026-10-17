@@ -78,6 +78,7 @@ export function routeSeoText({ locale, origin, destination, trip, summary, reque
 
   if (trip) {
     const parts = [
+      formatDayDate(parseNaive(trip.date), locale),
       translate(locale, "seo.tripTrain", { numbers: trip.trainNumbers.join(", ") }),
       translate(locale, "seo.tripTimes", { departure: formatClock(trip.departureTime), arrival: formatClock(trip.arrivalTime) }),
       journeyDuration(trip.durationMs, locale),
@@ -139,21 +140,14 @@ export function heroContent({
     locale,
     origin: stationName(origin, locale),
     destination: stationName(destination, locale),
-    tagline: translate(locale, "seo.heroTagline"),
     photo,
   }
   if (trip) {
-    // The same facts as the description, minus the times the picture already sets large.
-    const facts = [
-      translate(locale, "seo.tripTrain", { numbers: trip.trainNumbers.join(", ") }),
-      formatDuration(trip.durationMs, locale),
-      changesText(locale, trip.changes),
-    ]
-    if (trip.platform > 0) facts.push(translate(locale, "details.platform", { platform: trip.platform }))
     content.trip = {
+      date: formatDayDate(parseNaive(trip.date), locale),
+      route: translate(locale, "seo.tripRoute", { from: content.origin, to: content.destination }),
       departure: formatClock(trip.departureTime),
       arrival: formatClock(trip.arrivalTime),
-      facts: facts.join(" · "),
     }
   }
   return content

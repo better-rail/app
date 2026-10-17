@@ -145,7 +145,7 @@ export const en: Record<TranslationKey, string> = {
   "seo.routesOnFrom": "Trains on {date} from {time}",
   "seo.tripTrain": "Train {numbers}",
   "seo.tripTimes": "{departure} → {arrival}",
-  "seo.heroTagline": "Train times, platforms and live delays",
+  "seo.tripRoute": "{from} to {to}",
 
   "error.notFound": "Page not found",
   "error.notFoundText": "The link you followed doesn't exist. Head back home and plan a new trip.",

@@ -141,7 +141,7 @@ export const he = {
   "seo.routesOnFrom": "רכבות ב{date} מ-{time}",
   "seo.tripTrain": "רכבת {numbers}",
   "seo.tripTimes": "{departure} ← {arrival}",
-  "seo.heroTagline": "זמני רכבת, רציפים ועיכובים בזמן אמת",
+  "seo.tripRoute": "מ{from} ל{to}",
 
   "error.notFound": "העמוד לא נמצא",
   "error.notFoundText": "הקישור שהגעתם דרכו אינו קיים. אפשר לחזור לדף הבית ולתכנן מסלול חדש.",
