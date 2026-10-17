@@ -1,5 +1,8 @@
 import type { RouteItem } from "@/lib/api/types"
-import { formatClock } from "@/lib/time"
+import { stationNameById } from "@/data/stations"
+import { localePath, type Locale } from "@/i18n"
+import { formatLongDate } from "@/lib/format"
+import { dateKey, formatClock } from "@/lib/time"
 
 /** Naive Israel wall-clock → `YYYYMMDDTHHmmss` (used with TZID=Asia/Jerusalem). */
 const icsLocal = (naive: number) => new Date(naive).toISOString().replace(/[-:]/g, "").slice(0, 15)
@@ -61,8 +64,66 @@ export interface CalendarEvent {
   description: string
   location: string
   url: string
-  route: RouteItem
+  route: Pick<RouteItem, "id" | "departureTime" | "arrivalTime">
 }
+
+/** The journey a calendar entry describes: everything the event is built from, and all a hosted file's link carries. */
+export interface CalendarTrip {
+  originId: string
+  destinationId: string
+  locale: Locale
+  route: Pick<RouteItem, "id" | "departureTime" | "arrivalTime">
+}
+
+/** The text a journey is shared and saved with: the route, its date and its times. */
+export function tripSummary({ originId, destinationId, locale, route }: CalendarTrip): string {
+  return [
+    `🚆 ${tripTitle({ originId, destinationId, locale })}`,
+    "",
+    `📅 ${formatLongDate(route.departureTime, locale)}`,
+    `${locale === "he" ? "יוצאת ב" : "Departs at"} ${formatClock(route.departureTime)}`,
+    `${locale === "he" ? "מגיעה ב" : "Arrives at"} ${formatClock(route.arrivalTime)}`,
+  ].join("\n")
+}
+
+function tripTitle({ originId, destinationId, locale }: Omit<CalendarTrip, "route">): string {
+  const arrow = locale === "he" ? "←" : "→"
+  return `${stationNameById(originId, locale)} ${arrow} ${stationNameById(destinationId, locale)}`
+}
+
+/** `url` is the page the event links back to — the shared link on the client, rebuilt from the request on the server. */
+export function tripCalendarEvent(trip: CalendarTrip, url: string): CalendarEvent {
+  const origin = stationNameById(trip.originId, trip.locale)
+  return {
+    title: `🚆 ${tripTitle(trip)}`,
+    description: tripSummary(trip),
+    location: trip.locale === "he" ? `תחנת רכבת ${origin}` : `${origin} train station`,
+    url,
+    route: trip.route,
+  }
+}
+
+/** Site path of the journey's results page with the trip selected — where a saved event links back to. */
+export const tripPagePath = ({ originId, destinationId, locale, route }: CalendarTrip) =>
+  `${localePath(locale, `/routes/${originId}/${destinationId}`)}?${new URLSearchParams({
+    date: dateKey(route.departureTime),
+    trip: route.id,
+  })}`
+
+/** `YYYY-MM-DDTHH:mm`, the shape a hosted file's link carries its times in. */
+const linkTime = (naive: number) => new Date(naive).toISOString().slice(0, 16)
+
+/**
+ * Site path of the journey's `.ics`, served by the `/calendar` route. Opening it on iOS shows Calendar's "add event"
+ * sheet — a `webcal://` link would instead offer to subscribe to it as a whole new calendar.
+ */
+export const tripCalendarFilePath = ({ originId, destinationId, locale, route }: CalendarTrip) =>
+  `/calendar/routes/${originId}/${destinationId}.ics?${new URLSearchParams({
+    trip: route.id,
+    dep: linkTime(route.departureTime),
+    arr: linkTime(route.arrivalTime),
+    lang: locale,
+  })}`
 
 export function buildIcs(event: CalendarEvent): string {
   const { route } = event
@@ -107,7 +168,9 @@ export function googleCalendarUrl(event: CalendarEvent): string {
 }
 
 export function downloadIcs(event: CalendarEvent) {
-  const blob = new Blob([buildIcs(event)], { type: "text/calendar;charset=utf-8" })
+  const blob = new Blob([buildIcs(event)], {
+    type: "text/calendar;charset=utf-8",
+  })
   const href = URL.createObjectURL(blob)
   const anchor = document.createElement("a")
   anchor.href = href

@@ -24,6 +24,7 @@ import { Route as Char123LocaleChar125IndexRouteImport } from './routes/{-$local
 import { Route as Char123LocaleChar125PrivacyPolicyRouteImport } from './routes/{-$locale}/privacy-policy'
 import { Route as SiteReleases2Dot8RouteImport } from './routes/_site/releases/2[.]8'
 import { Route as SitemapsRoutesPageRouteImport } from './routes/sitemaps/routes.$page'
+import { Route as CalendarRoutesFromChar123toChar125DoticsRouteImport } from './routes/calendar/routes.$from.{$to}[.]ics'
 import { Route as OgRoutesFromChar123toChar125DotjpgRouteImport } from './routes/og/routes.$from.{$to}[.]jpg'
 import { Route as Char123LocaleChar125RoutesFromToRouteImport } from './routes/{-$locale}/routes.$from.$to'
 
@@ -105,6 +106,12 @@ const SitemapsRoutesPageRoute = SitemapsRoutesPageRouteImport.update({
   path: '/sitemaps/routes/$page',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CalendarRoutesFromChar123toChar125DoticsRoute =
+  CalendarRoutesFromChar123toChar125DoticsRouteImport.update({
+    id: '/calendar/routes/$from/{$to}.ics',
+    path: '/calendar/routes/$from/{$to}.ics',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OgRoutesFromChar123toChar125DotjpgRoute =
   OgRoutesFromChar123toChar125DotjpgRouteImport.update({
     id: '/og/routes/$from/{$to}.jpg',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/calendar/routes/$from/{$to}.ics': typeof CalendarRoutesFromChar123toChar125DoticsRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/{-$locale}': typeof Char123LocaleChar125IndexRoute
   '/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/calendar/routes/$from/{$to}.ics': typeof CalendarRoutesFromChar123toChar125DoticsRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
@@ -172,6 +181,7 @@ export interface FileRoutesById {
   '/{-$locale}/': typeof Char123LocaleChar125IndexRoute
   '/_site/releases/2.8': typeof SiteReleases2Dot8Route
   '/sitemaps/routes/$page': typeof SitemapsRoutesPageRoute
+  '/calendar/routes/$from/{$to}.ics': typeof CalendarRoutesFromChar123toChar125DoticsRoute
   '/og/routes/$from/{$to}.jpg': typeof OgRoutesFromChar123toChar125DotjpgRoute
   '/{-$locale}/routes/$from/$to': typeof Char123LocaleChar125RoutesFromToRoute
 }
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/'
     | '/releases/2.8'
     | '/sitemaps/routes/$page'
+    | '/calendar/routes/$from/{$to}.ics'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesByTo: FileRoutesByTo
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/{-$locale}'
     | '/releases/2.8'
     | '/sitemaps/routes/$page'
+    | '/calendar/routes/$from/{$to}.ics'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   id:
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
     | '/{-$locale}/'
     | '/_site/releases/2.8'
     | '/sitemaps/routes/$page'
+    | '/calendar/routes/$from/{$to}.ics'
     | '/og/routes/$from/{$to}.jpg'
     | '/{-$locale}/routes/$from/$to'
   fileRoutesById: FileRoutesById
@@ -240,6 +253,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SitemapsPagesRoute: typeof SitemapsPagesRoute
   SitemapsRoutesPageRoute: typeof SitemapsRoutesPageRoute
+  CalendarRoutesFromChar123toChar125DoticsRoute: typeof CalendarRoutesFromChar123toChar125DoticsRoute
   OgRoutesFromChar123toChar125DotjpgRoute: typeof OgRoutesFromChar123toChar125DotjpgRoute
 }
 
@@ -350,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapsRoutesPageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/calendar/routes/$from/{$to}.ics': {
+      id: '/calendar/routes/$from/{$to}.ics'
+      path: '/calendar/routes/$from/{$to}.ics'
+      fullPath: '/calendar/routes/$from/{$to}.ics'
+      preLoaderRoute: typeof CalendarRoutesFromChar123toChar125DoticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/og/routes/$from/{$to}.jpg': {
       id: '/og/routes/$from/{$to}.jpg'
       path: '/og/routes/$from/{$to}.jpg'
@@ -417,6 +438,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SitemapsPagesRoute: SitemapsPagesRoute,
   SitemapsRoutesPageRoute: SitemapsRoutesPageRoute,
+  CalendarRoutesFromChar123toChar125DoticsRoute:
+    CalendarRoutesFromChar123toChar125DoticsRoute,
   OgRoutesFromChar123toChar125DotjpgRoute:
     OgRoutesFromChar123toChar125DotjpgRoute,
 }

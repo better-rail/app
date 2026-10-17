@@ -1,11 +1,16 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FocusEvent } from "react"
 import { CalendarPlus, Share2 } from "lucide-react"
 import type { RouteItem } from "@/lib/api/types"
-import { stationNameById } from "@/data/stations"
 import { useLocale, useT } from "@/i18n"
-import { formatClock } from "@/lib/time"
-import { formatLongDate } from "@/lib/format"
-import { downloadIcs, googleCalendarUrl, type CalendarEvent } from "@/lib/calendar"
+import { useMobilePlatform } from "@/hooks/use-mobile-platform"
+import {
+  downloadIcs,
+  googleCalendarUrl,
+  tripCalendarEvent,
+  tripCalendarFilePath,
+  tripSummary,
+  type CalendarTrip,
+} from "@/lib/calendar"
 import { trackEvent } from "@/lib/analytics"
 import { cn } from "@/lib/cn"
 import { Tooltip } from "../tooltip"
@@ -31,6 +36,7 @@ export function RouteActions({
 }) {
   const t = useT()
   const locale = useLocale()
+  const platform = useMobilePlatform()
   const [copied, setCopied] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   /** Anchored at the button's end edge, growing towards the start — right when the actions sit at the end of the row. */
@@ -76,30 +82,33 @@ export function RouteActions({
     }
   }, [calendarOpen])
 
-  const origin = stationNameById(originId, locale)
-  const destination = stationNameById(destinationId, locale)
-  const arrow = locale === "he" ? "←" : "→"
-  const shareText = [
-    `🚆 ${origin} ${arrow} ${destination}`,
-    "",
-    `📅 ${formatLongDate(route.departureTime, locale)}`,
-    `${locale === "he" ? "יוצאת ב" : "Departs at"} ${formatClock(route.departureTime)}`,
-    `${locale === "he" ? "מגיעה ב" : "Arrives at"} ${formatClock(route.arrivalTime)}`,
-  ].join("\n")
+  const trip: CalendarTrip = { originId, destinationId, locale, route }
+  const shareText = tripSummary(trip)
+  const event = tripCalendarEvent(trip, shareUrl)
 
-  const event: CalendarEvent = {
-    title: `🚆 ${origin} ${arrow} ${destination}`,
-    description: shareText,
-    location: locale === "he" ? `תחנת רכבת ${origin}` : `${origin} train station`,
-    url: shareUrl,
-    route,
+  /**
+   * Phones skip the menu and go to the calendar the OS has: iOS opens the hosted `.ics` into Calendar's "add event"
+   * sheet, and Android — which has no handler for calendar files or `webcal://` out of the box — gets Google Calendar.
+   */
+  const addToPhoneCalendar = () => {
+    if (platform === "ios") {
+      trackEvent("route_calendar", { provider: "ios" })
+      window.location.href = tripCalendarFilePath(trip)
+    } else {
+      trackEvent("route_calendar", { provider: "google" })
+      window.open(googleCalendarUrl(event), "_blank", "noopener,noreferrer")
+    }
   }
 
   const share = async () => {
     trackEvent("route_share")
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ title: event.title, text: shareText, url: shareUrl })
+        await navigator.share({
+          title: event.title,
+          text: shareText,
+          url: shareUrl,
+        })
         return
       } catch (error) {
         if ((error as Error)?.name === "AbortError") return
@@ -138,9 +147,9 @@ export function RouteActions({
           <button
             ref={menuButton}
             type="button"
-            onClick={() => setCalendarOpen((open) => !open)}
-            aria-expanded={calendarOpen}
-            aria-controls={menuId}
+            onClick={() => (platform ? addToPhoneCalendar() : setCalendarOpen((open) => !open))}
+            aria-expanded={platform ? undefined : calendarOpen}
+            aria-controls={platform ? undefined : menuId}
             className={cn("icon-btn", calendarOpen && "bg-surface-3")}
             aria-label={t("details.addToCalendar")}
           >

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { buildIcs, foldIcsLine, googleCalendarUrl, type CalendarEvent } from "./calendar"
+import { buildIcs, foldIcsLine, googleCalendarUrl, tripCalendarFilePath, tripPagePath, type CalendarEvent } from "./calendar"
 import { parseNaive } from "./time"
 import type { RouteItem } from "./api/types"
 
@@ -65,5 +65,28 @@ describe("googleCalendarUrl", () => {
     const url = new URL(googleCalendarUrl(event))
     expect(url.searchParams.get("dates")).toBe("20260905T082400/20260905T090000")
     expect(url.searchParams.get("ctz")).toBe("Asia/Jerusalem")
+  })
+})
+
+describe("trip links", () => {
+  const trip = {
+    originId: "3700",
+    destinationId: "2300",
+    locale: "en" as const,
+    route,
+  }
+
+  test("the hosted file carries the trip and its times", () => {
+    const url = new URL(tripCalendarFilePath(trip), "https://better-rail.co.il")
+    expect(url.pathname).toBe("/calendar/routes/3700/2300.ics")
+    expect(url.searchParams.get("trip")).toBe("100")
+    expect(url.searchParams.get("dep")).toBe("2026-09-05T08:24")
+    expect(url.searchParams.get("arr")).toBe("2026-09-05T09:00")
+    expect(url.searchParams.get("lang")).toBe("en")
+  })
+
+  test("links back to the trip on its day", () => {
+    expect(tripPagePath(trip)).toBe("/en/routes/3700/2300?date=2026-09-05&trip=100")
+    expect(tripPagePath({ ...trip, locale: "he" })).toBe("/routes/3700/2300?date=2026-09-05&trip=100")
   })
 })
