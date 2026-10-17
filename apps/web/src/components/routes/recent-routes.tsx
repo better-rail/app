@@ -76,7 +76,7 @@ export function RecentRoutes() {
                   key={index}
                   aria-hidden="true"
                   className={cn(
-                    "h-28 rounded-card border border-dashed border-line lg:h-32",
+                    "h-28 rounded-card border-2 border-dashed border-line-strong bg-surface-3/40 lg:h-32",
                     index >= recent.length % 2 && "max-lg:hidden",
                   )}
                 />
