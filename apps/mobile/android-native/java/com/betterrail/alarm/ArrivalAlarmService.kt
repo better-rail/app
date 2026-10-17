@@ -56,13 +56,14 @@ class ArrivalAlarmService : Service() {
         }
 
         val state = ArrivalAlarmStore.load(this)
-        if (state == null) {
+        val title = intent?.getStringExtra(EXTRA_TITLE)
+        if (state == null || title == null) {
             stopSelf()
             return START_NOT_STICKY
         }
 
         // Within 5 seconds of the start, and before anything that could be slow.
-        if (!startInForeground(state)) {
+        if (!startInForeground(title, state.stopText)) {
             // Keep the fallback notification up until the rider stops it.
             isStopped = true
             stopSelf()
@@ -85,7 +86,7 @@ class ArrivalAlarmService : Service() {
         super.onDestroy()
     }
 
-    private fun startInForeground(state: ArrivalAlarmState): Boolean {
+    private fun startInForeground(title: String, stopText: String): Boolean {
         createChannel(this)
         return try {
             val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -93,23 +94,24 @@ class ArrivalAlarmService : Service() {
             } else {
                 0
             }
-            ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(state), type)
+            ServiceCompat.startForeground(this, NOTIFICATION_ID, buildNotification(title, stopText), type)
             true
         } catch (e: Exception) {
             // The exact alarm permission was revoked, or the system refused the start: show the alarm
             // without sound rather than nothing.
             Log.w(TAG, "Couldn't start the alarm in the foreground", e)
             val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            manager.notify(NOTIFICATION_ID, buildNotification(state))
+            manager.notify(NOTIFICATION_ID, buildNotification(title, stopText))
             false
         }
     }
 
-    private fun buildNotification(state: ArrivalAlarmState): Notification {
+    private fun buildNotification(title: String, stopText: String): Notification {
         val fullScreen = PendingIntent.getActivity(
             this,
             0,
             Intent(this, ArrivalAlarmActivity::class.java)
+                .putExtra(EXTRA_TITLE, title)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
@@ -123,7 +125,7 @@ class ArrivalAlarmService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
             .setColor(BRAND_COLOR)
-            .setContentTitle(state.title)
+            .setContentTitle(title)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -133,7 +135,7 @@ class ArrivalAlarmService : Service() {
             .setContentIntent(fullScreen)
             // Without the full-screen intent permission, Android shows this as a heads-up notification instead.
             .setFullScreenIntent(fullScreen, true)
-            .addAction(0, state.stopText, stop)
+            .addAction(0, stopText, stop)
             // Android 14 lets riders swipe away even ongoing notifications.
             .setDeleteIntent(stop)
             .build()
@@ -257,6 +259,8 @@ class ArrivalAlarmService : Service() {
     companion object {
         private const val TAG = "ArrivalAlarm"
         const val ACTION_STOP = "com.betterrail.alarm.ACTION_STOP"
+        /** The ringing stop's title */
+        const val EXTRA_TITLE = "title"
         const val CHANNEL_ID = "better-rail-arrival-alarm"
         private const val NOTIFICATION_ID = 7301
         private const val RING_DURATION_MS = 2 * 60 * 1000L
@@ -277,8 +281,11 @@ class ArrivalAlarmService : Service() {
 
         val isRinging: Boolean get() = instance != null
 
-        fun start(context: Context) {
-            ContextCompat.startForegroundService(context, Intent(context, ArrivalAlarmService::class.java))
+        fun start(context: Context, title: String) {
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, ArrivalAlarmService::class.java).putExtra(EXTRA_TITLE, title),
+            )
         }
 
         fun stopRinging() {

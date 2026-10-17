@@ -6,7 +6,7 @@ Better Rail's notification server provides real-time updates on ride progress, k
 
 To follow these steps, ensure that [Bun](https://bun.sh) is installed (the server runs TypeScript directly with Bun — no build/transpile step).
 
-> Note: Requires Bun 1.0+, a redis server to store active rides, mongodb to store logs, and Postgres for the GTFS timetable.
+> Note: Requires Bun 1.0+, a redis server to store active rides, and Postgres for the GTFS timetable.
 
 - Fork the repo and clone to your machine.
 - Run `bun install`

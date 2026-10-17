@@ -13,15 +13,11 @@ function ScreenWithoutScrolling(props: ScreenProps) {
   return (
     <KeyboardAvoidingView
       style={[styles.fixedOuter, backgroundStyle]}
-      behavior={isIos ? "padding" : null}
+      behavior={isIos ? "padding" : undefined}
+      enabled={props.keyboardAvoiding ?? true}
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
-      <StatusBar
-        barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"}
-        translucent={props.translucent || false}
-        backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
-        animated={true}
-      />
+      <StatusBar barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"} animated={true} />
       <View testID={props.testID} style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}>
         {props.children}
       </View>
@@ -37,15 +33,11 @@ function ScreenWithScrolling(props: ScreenProps) {
   return (
     <KeyboardAvoidingView
       style={[styles.scrollOuter, backgroundStyle]}
-      behavior={isIos ? "padding" : null}
+      behavior={isIos ? "padding" : undefined}
+      enabled={props.keyboardAvoiding ?? true}
       keyboardVerticalOffset={offsets[props.keyboardOffset || "none"]}
     >
-      <StatusBar
-        barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"}
-        translucent={props.translucent || false}
-        backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
-        animated={true}
-      />
+      <StatusBar barStyle={props.statusBar || isDarkMode ? "light-content" : "dark-content"} animated={true} />
       <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
         <ScrollView style={[styles.scrollOuter, backgroundStyle]} contentContainerStyle={[styles.scrollInner, style]}>
           {props.children}

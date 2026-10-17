@@ -36,6 +36,7 @@ export interface StationCardProps extends TouchableScaleProps {
   style?: ViewStyle
   loading?: boolean
   badges?: StationCardBadge[]
+  selected?: boolean
 }
 
 export type StationCardBadge = {
@@ -44,7 +45,18 @@ export type StationCardBadge = {
   tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, loading, badges, ...rest } = props
+  const { name, image, style, loading, badges, selected, ...rest } = props
+
+  const selectionMark = selected && (
+    <>
+      <View pointerEvents="none" style={styles.selectionRing} />
+      <View style={styles.selectionMark}>
+        <Image source={require("../../../assets/checkmark.png")} style={styles.selectionMarkIcon} />
+      </View>
+    </>
+  )
+
+  const title = <Text style={styles.text}>{name}</Text>
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
@@ -91,7 +103,8 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ThemedTouchableScale>
     )
@@ -112,7 +125,8 @@ export function StationCard(props: StationCardProps) {
         />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ImageBackground>
     </ThemedTouchableScale>
@@ -127,6 +141,12 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { height: 1, width: 0 },
     shadowOpacity: 0.2,
     elevation: 3,
+  },
+  selectionRing: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 3,
+    borderColor: theme.colors.link,
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
   },
   imagelessCard: {
     height: getCardHeight(rt.screen.height),
@@ -164,6 +184,26 @@ const styles = StyleSheet.create((theme, rt) => ({
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+  },
+  selectionMark: {
+    position: "absolute",
+    top: theme.spacing[2],
+    start: theme.spacing[2],
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: theme.colors.link,
+    borderWidth: 2,
+    borderColor: theme.colors.palette.white,
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+  },
+  selectionMarkIcon: {
+    width: 13,
+    height: 13,
+    resizeMode: "contain",
+    tintColor: theme.colors.palette.white,
   },
   badges: {
     position: "absolute",

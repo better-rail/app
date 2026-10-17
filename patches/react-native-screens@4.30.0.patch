@@ -1,13 +1,14 @@
 diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-index 76bb694854b29d7f779f38244cd48113b429ea1f..5cae7e4869fc14c74eeabf3a8ab818fa879556ce 100644
+index 2f2133bf28c8e7e0fe0d63f71ba34c6b070ae06e..4eb0287592816546ff306b9a105d46d9a0d8fc0f 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-@@ -451,27 +451,21 @@ class Screen(
-             return
+@@ -466,24 +466,18 @@ class Screen(
+         if (isRemovalTransitionStarted) {
+             isRemovalTransitionStarted = false
+             isBeingRemoved = false
+-            endTransitionRecursive(this)
++            endViewTransition()
          }
-         isBeingRemoved = false
--        endTransitionRecursive(this)
-+        endViewTransition()
      }
  
 -    private fun endTransitionRecursive(parent: ViewGroup) {
@@ -32,31 +33,21 @@ index 76bb694854b29d7f779f38244cd48113b429ea1f..5cae7e4869fc14c74eeabf3a8ab818fa
 +     * would instantly disappear from the screen).
 +     */
      private fun startTransitionRecursive(parent: ViewGroup?) {
--        parent?.let {
--            for (i in 0 until it.childCount) {
--                val child = it.getChildAt(i)
-+        parent?.let { parentView ->
-+            for (i in 0 until parentView.childCount) {
-+                val child = parentView.getChildAt(i)
- 
-                 if (parent is SwipeRefreshLayout && child is ImageView) {
-                     // SwipeRefreshLayout class which has CircleImageView as a child,
-@@ -480,9 +474,12 @@ class Screen(
-                     // wrong index if we called `startViewTransition` on the views on new arch.
-                     // We add a simple View to bump the number of children to make it work.
+         parent?.let {
+             for (i in 0 until it.childCount) {
+@@ -500,7 +494,10 @@ class Screen(
                      // TODO: find a better way to handle this scenario
--                    it.addView(View(context), i)
-+                    parentView.addView(View(context), i)
+                     it.addView(View(context))
                  } else {
 -                    child?.let { view -> it.startViewTransition(view) }
-+                    child?.let { childView ->
-+                        parentView.startViewTransition(childView)
-+                        transitioningViews.add(Pair(parentView, childView))
++                    child?.let { view ->
++                        it.startViewTransition(view)
++                        transitioningViews.add(Pair(it, view))
 +                    }
                  }
  
                  if (child is ScreenStackHeaderConfig) {
-@@ -498,6 +495,21 @@ class Screen(
+@@ -516,6 +513,21 @@ class Screen(
          }
      }
  
@@ -79,7 +70,7 @@ index 76bb694854b29d7f779f38244cd48113b429ea1f..5cae7e4869fc14c74eeabf3a8ab818fa
      @SuppressLint("ClickableViewAccessibility")
      override fun onTouchEvent(event: MotionEvent?): Boolean =
 diff --git a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
-index 9f9f8647a50a537d9eec0643db5be69d05089688..b9afc3c873c9e43c1921ddd039f2f365d20cf482 100644
+index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b244e581c70 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 @@ -83,6 +83,8 @@ class ScreenStack(

@@ -61,7 +61,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.8.4",
+  version: "2.8.6",
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
@@ -183,6 +183,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "expo-iap",
+    // Patched: SDK 58 resets the app's forceRTL on every launch. Built from source on Android (package.json
+    // expo.autolinking) so the patch applies. Drop both once an expo-localization release keeps runtime RTL.
     ["expo-localization", { supportedLocales: { ios: IOS_SUPPORTED_LOCALES } }],
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
@@ -204,15 +206,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         ios: {
           deploymentTarget: "16.4",
-          // UIScene lifecycle, required by the iOS 27 SDK. Remove on SDK 58 (default there).
-          enableSceneSupport: true,
         },
         android: {
-          kotlinVersion: "2.1.20",
-          compileSdkVersion: 36,
+          compileSdkVersion: 37,
           targetSdkVersion: 36,
           minSdkVersion: 24,
-          enableProguardInReleaseBuilds: false,
+          // SDK 58 turns R8 on by default; keep it off until reflection-heavy libs have keep rules.
+          enableMinifyInReleaseBuilds: false,
         },
       },
     ],

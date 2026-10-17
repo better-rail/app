@@ -47,6 +47,23 @@ function PrivacyPage() {
           For this feature to work we keep the ride details during the time of the ride in an anonymized form. We also store logs
           to help us identify and resolve issues with the feature.
         </p>
+        <h2 className="mt-6 text-lg">Jerusalem travel vouchers</h2>
+        <p>
+          When you order a travel voucher for Jerusalem – Yitzhak Navon station, your phone number, the verification code and the
+          trip details (train number, date, stations and number of passengers) are sent directly from your device to Israel
+          Railways, and don't pass through our servers. Israel Railways texts you the verification code and the voucher, and
+          handles these details under its own privacy policy.
+        </p>
+        <p>
+          The voucher and the last phone number you entered are saved on your device only, to show the voucher and prefill the
+          number next time. The voucher is deleted from your device the next time you open the app, starting a day after the ride.
+          Your phone number and verification code are not collected by PostHog or Sentry, and are hidden in session replays.
+        </p>
+        <p>
+          When you view a route through Yitzhak Navon, the app checks with Israel Railways whether vouchers are left for the
+          train. These requests contain no identifying information, except in the few minutes after you verify your phone number,
+          when they include your Israel Railways sign-in details.
+        </p>
         <h2 className="mt-6 text-lg">Where our data comes from</h2>
         <p>
           Train schedules and routes are calculated on our own servers, based on the Israeli Ministry of Transport's open public
@@ -54,11 +71,11 @@ function PrivacyPage() {
           Transport's SIRI service.
         </p>
         <p>
-          Searches you make in the app or on this website are sent only to our servers, and are not forwarded to Israel Railways.
-          These requests contain no identifying information, and we don't store them. On the website, your recent searches are
-          kept only in your own browser.
+          Searches you make in the app or on this website are sent only to our servers, and are not forwarded to Israel Railways
+          (except for the voucher requests described above). These requests contain no identifying information, and we don't store
+          them. On the website, your recent searches are kept only in your own browser.
         </p>
-        <p className="text-[15px] text-dim">Last updated on September 5th, 2026</p>
+        <p className="text-[15px] text-dim">Last updated on October 16th, 2026</p>
       </ContentPage>
     )
   }
@@ -85,16 +102,31 @@ function PrivacyPage() {
         כדי שתכונה זו תפעל, אנו שומרים את פרטי הנסיעה במהלך הנסיעה בצורה אנונימית. אנו גם מאחסנים לוגים של השרת כדי לעזור לנו
         לזהות ולפתור בעיות.
       </p>
+      <h2 className="mt-6 text-lg">שוברי נסיעה לירושלים</h2>
+      <p>
+        בהזמנת שובר נסיעה לתחנת ירושלים – יצחק נבון, מספר הטלפון, קוד האימות ופרטי הנסיעה (מספר הרכבת, התאריך, התחנות ומספר
+        הנוסעים) נשלחים ישירות מהמכשיר שלך לרכבת ישראל, ואינם עוברים דרך השרתים שלנו. רכבת ישראל שולחת את קוד האימות ואת השובר
+        ב-SMS, ומעבדת את הפרטים בהתאם למדיניות הפרטיות שלה.
+      </p>
+      <p>
+        השובר ומספר הטלפון האחרון שהזנת נשמרים במכשיר שלך בלבד, כדי להציג את השובר ולמלא את המספר מראש בפעם הבאה. השובר נמחק
+        מהמכשיר בפתיחה הבאה של האפליקציה, החל מיום לאחר הנסיעה. מספר הטלפון וקוד האימות אינם נאספים ב-PostHog וב-Sentry, ומוסתרים
+        בהקלטות המסך.
+      </p>
+      <p>
+        בצפייה במסלול שעובר בתחנת יצחק נבון, האפליקציה בודקת מול רכבת ישראל אם נותרו שוברים לרכבת. בקשות אלה אינן כוללות מידע
+        מזהה, למעט בדקות שלאחר אימות מספר הטלפון, שבהן הן כוללות את פרטי ההתחברות שלך לרכבת ישראל.
+      </p>
       <h2 className="mt-6 text-lg">מקורות המידע</h2>
       <p>
         לוחות הזמנים ומסלולי הנסיעה מחושבים בשרתים שלנו, על בסיס נתוני התחבורה הציבורית הפתוחים (GTFS) של משרד התחבורה. מידע על
         עיכובים, ביטולים ושינויי רציף מתקבל בזמן אמת משירות ה-SIRI של משרד התחבורה.
       </p>
       <p>
-        החיפושים באפליקציה ובאתר נשלחים לשרתים שלנו בלבד, ואינם מועברים לרכבת ישראל. בקשות החיפוש אינן כוללות מידע מזהה, ואיננו
-        שומרים אותן. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
+        החיפושים באפליקציה ובאתר נשלחים לשרתים שלנו בלבד, ואינם מועברים לרכבת ישראל (למעט בקשות השוברים שתוארו למעלה). בקשות
+        החיפוש אינן כוללות מידע מזהה, ואיננו שומרים אותן. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
       </p>
-      <p className="text-[15px] text-dim">עודכן לאחרונה ב-5 בספטמבר 2026</p>
+      <p className="text-[15px] text-dim">עודכן לאחרונה ב-16 באוקטובר 2026</p>
     </ContentPage>
   )
 }

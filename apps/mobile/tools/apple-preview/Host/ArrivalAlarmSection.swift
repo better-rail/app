@@ -28,12 +28,12 @@ struct ArrivalAlarmSection: View {
       }
       LabeledContent("Alarm authorization", value: authorization)
 
-      Stepper("Rings in \(minutes) min", value: $minutes, in: 1...30)
-      Button("Schedule alarm") {
+      Stepper("Transfer rings in \(minutes) min", value: $minutes, in: 1...30)
+      Button("Schedule alarm (transfer, destination a minute later)") {
         Task { await schedule() }
       }
       // Runs the push payload through the same code path as the extension; simctl push doesn't launch extensions.
-      Button("Simulate push: move to \(minutes) min from now") {
+      Button("Simulate push: move the transfer to \(minutes) min from now") {
         Task { await simulatePush() }
       }
       Button("Cancel alarm", role: .destructive) {
@@ -41,7 +41,13 @@ struct ArrivalAlarmSection: View {
         refresh()
       }
 
-      LabeledContent("Rings at", value: state.map { $0.fireDate.formatted(date: .omitted, time: .standard) } ?? "No alarm")
+      if let state {
+        ForEach(state.stops, id: \.train) { stop in
+          LabeledContent(stop.title, value: stop.fireDate.formatted(date: .omitted, time: .standard))
+        }
+      } else {
+        LabeledContent("Rings at", value: "No alarm")
+      }
       if let error {
         Text(error).font(.footnote).foregroundStyle(.red)
       }
@@ -56,8 +62,11 @@ struct ArrivalAlarmSection: View {
   private func schedule() async {
     guard #available(iOS 26.0, *) else { return }
 
-    let alarm = ArrivalAlarmState(rideId: "preview-ride", alarmId: alarmId, title: "Approaching Tel Aviv - HaHagana",
-                                  stopText: "Stop", fireDate: Date().addingTimeInterval(TimeInterval(minutes * 60)))
+    let transfer = Date().addingTimeInterval(TimeInterval(minutes * 60))
+    let alarm = ArrivalAlarmState(rideId: "preview-ride", alarmId: alarmId, stopText: "Stop", stops: [
+      ArrivalAlarmStop(train: 0, title: "Approaching Tel Aviv - Savidor Center, change trains", fireDate: transfer),
+      ArrivalAlarmStop(train: 1, title: "Approaching Tel Aviv - HaHagana", fireDate: transfer.addingTimeInterval(60)),
+    ])
     do {
       try await ArrivalAlarmScheduler.schedule(alarm)
       error = nil
@@ -70,10 +79,14 @@ struct ArrivalAlarmSection: View {
   private func simulatePush() async {
     guard #available(iOS 26.0, *) else { return }
 
+    let transfer = Int(Date().timeIntervalSince1970) + minutes * 60
     let userInfo: [AnyHashable: Any] = ["alarm": [
       "rideId": "preview-ride",
       "alarmId": alarmId.uuidString.lowercased(),
-      "fireDate": NSNumber(value: Int(Date().timeIntervalSince1970) + minutes * 60),
+      "stops": [
+        ["train": NSNumber(value: 0), "fireDate": NSNumber(value: transfer)],
+        ["train": NSNumber(value: 1), "fireDate": NSNumber(value: transfer + 60)],
+      ],
     ]]
     guard let push = ArrivalAlarmPush(userInfo: userInfo) else {
       error = "Couldn't parse the push"

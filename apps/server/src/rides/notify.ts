@@ -5,8 +5,8 @@ import { FirebaseError } from "firebase-admin"
 
 import { logNames } from "../logs"
 import { RouteItem } from "../types/rail"
-import { Ride, RideAlarm } from "../types/ride"
-import { buildAlarmMovedTexts, buildAndroidAlarmMessage } from "../utils/alarm-utils"
+import { Ride, RideAlarm, RideAlarmStop } from "../types/ride"
+import { buildAlarmMovedTexts, buildAndroidAlarmMessage, buildApnAlarmData } from "../utils/alarm-utils"
 import { sendApnAlarmNotification, sendApnNotification } from "../utils/apn-utils"
 import { sendFcmNotification } from "../utils/fcm-utils"
 import { Message } from "firebase-admin/lib/messaging/messaging-api"
@@ -92,29 +92,27 @@ export const sendAlarmMovedNotification = async (
   ride: Ride,
   alarm: RideAlarm,
   route: RouteItem,
-  fireDate: number,
+  stops: RideAlarmStop[],
   logger: Logger,
 ) => {
-  const texts = buildAlarmMovedTexts(alarm, route, fireDate)
+  const texts = buildAlarmMovedTexts(alarm, route, stops)
   const { title, body, failedBody } = texts
 
   try {
     if (ride.provider === Provider.android) {
-      await sendFcmNotification(buildAndroidAlarmMessage(ride.rideId, alarm, texts, fireDate, Date.now()))
+      await sendFcmNotification(buildAndroidAlarmMessage(ride.rideId, alarm, texts, stops, Date.now()))
     } else {
       await sendApnAlarmNotification(alarm.token, {
         alert: { title, body },
         collapseId: `arrival-alarm-${ride.rideId}`,
-        data: {
-          alarm: { rideId: ride.rideId, alarmId: alarm.alarmId, fireDate: Math.floor(fireDate / 1000), failedBody },
-        },
+        data: buildApnAlarmData(ride.rideId, alarm, stops, failedBody),
       })
     }
 
-    logger.info(logNames.notifications.alarm.success, { fireDate, provider: ride.provider })
+    logger.info(logNames.notifications.alarm.success, { stops, provider: ride.provider })
     return true
   } catch (error) {
-    logger.error(logNames.notifications.alarm.failed, { error, fireDate, provider: ride.provider })
+    logger.error(logNames.notifications.alarm.failed, { error, stops, provider: ride.provider })
     return false
   }
 }

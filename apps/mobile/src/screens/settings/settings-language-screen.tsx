@@ -3,7 +3,6 @@ import { Alert, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { isDarkMode } from "@/theme"
 import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
 import { settingsStyles } from "./settings-styles"
@@ -42,8 +41,6 @@ export function LanguageScreen() {
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
     >
       <View style={settingsStyles.group}>
         <SettingBox

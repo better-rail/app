@@ -59,6 +59,7 @@
     "updates": "تحديثات من قطار اسرائيل",
     "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
     "shortRoute": "طريق قصير",
+    "shortRouteCompact": "قصير",
     "maxBackwardsDate": "لا يمكن الرجوع أكثر من 3 أيام",
     "routeDetails": "تفاصيل المسار",
     "routeActions": "إجراءات المسار",
@@ -298,6 +299,8 @@
     "alarmTurnOff": "إيقاف المنبّه",
     "alarmSetFor": "المنبّه في %{time}",
     "alarmTitle": "اقتربت من %{station}",
+    "alarmTitleTransfer": "اقتربت من %{station}، بدّل القطار",
+    "alarmStopsTitle": "المنبّه قبل",
     "alarmStop": "إيقاف",
     "alarmTooLateTitle": "الوصول قريب جدًا",
     "alarmTooLateMessage": "يصل القطار خلال أقل من %{minutes} دقائق. اختر وقتًا أقصر.",
@@ -314,5 +317,54 @@
     "title": "التحديث مطلوب",
     "description": "يتوفر إصدار جديد من Better Rail. يرجى التحديث للمتابعة.",
     "button": "تحديث الآن"
+  },
+  "voucher": {
+    "title": "قسيمة سفر إلى القدس",
+    "short": "قسيمة",
+    "orderTitle": "طلب قسيمة",
+    "book": "لطلب قسيمة سفر",
+    "seatsAvailable": "%{count} مقاعد متاحة",
+    "almostSoldOut": "القسائم على وشك النفاد · %{count} مقاعد متاحة",
+    "soldOut": "نفدت القسائم لهذا القطار",
+    "booked": {
+      "one": "تم طلب القسيمة · راكب واحد",
+      "other": "تم طلب القسيمة · %{count} ركاب"
+    },
+    "show": "عرض القسيمة",
+    "passengers": "كم عدد الركاب؟",
+    "addPassenger": "إضافة راكب",
+    "removePassenger": "إزالة راكب",
+    "phoneHint": "سترسل سكك حديد إسرائيل رمز تحقق برسالة SMS",
+    "invalidPhone": "أدخل رقم هاتف صحيحًا",
+    "sendCode": "إرسال الرمز",
+    "codeTitle": "أدخل الرمز",
+    "codeSentTo": "أرسلت سكك حديد إسرائيل رمزًا من 5 أرقام إلى %{phone}",
+    "changeNumber": "تغيير الرقم",
+    "resend": "لم أستلم، أرسل مرة أخرى",
+    "resendIn": "إعادة الإرسال بعد %{seconds} ث",
+    "codeResent": "تم إرسال رمز التحقق مرة أخرى",
+    "noneLeftForPhone": "طلب هذا الرقم الحد الأقصى من القسائم لهذا القطار.",
+    "orderVouchers": "طلب القسائم",
+    "codeExpired": "انتهت صلاحية الرمز. أرسل رمزًا جديدًا وحاول مرة أخرى.",
+    "genericError": "حدث خطأ ما. حاول مرة أخرى.",
+    "connectionError": "تعذر الاتصال بسكك حديد إسرائيل. تحقق من الاتصال وحاول مرة أخرى.",
+    "errors": {
+      "INVALID_OTP": "رمز التحقق غير صحيح.",
+      "OTP_NOT_FOUND": "لا يمكن استخدام هذا الرمز. أرسل رمزًا جديدًا وحاول مرة أخرى.",
+      "MAX_PASSENGERS_PER_TRIP_EXCEEDED": "وصلت إلى الحد الأقصى من القسائم لرقم الهاتف المحمول هذا."
+    },
+    "forPassengers": {
+      "one": "لراكب واحد",
+      "other": "لـ %{count} ركاب"
+    },
+    "phoneTitle": "ما رقم هاتفك المحمول؟",
+    "upTo": "يمكنك طلب حتى %{count} قسائم لهذا القطار",
+    "cancelHint": "للإلغاء، استخدم الرابط في رسالة SMS من سكك حديد إسرائيل",
+    "trainOnDate": "قطار %{trainNumber} · %{date}",
+    "privacyNote": "تُرسل بياناتك مباشرة إلى سكك حديد إسرائيل",
+    "removeCancelled": "ألغيتها بالفعل؟ احذفها من التطبيق",
+    "removeTitle": "حذف هذه القسيمة؟",
+    "removeMessage": "احذفها فقط إذا ألغيتها عبر الرابط في رسالة SMS من سكك حديد إسرائيل. ستُحذف من هذا الجهاز فقط.",
+    "remove": "حذف"
   }
 }

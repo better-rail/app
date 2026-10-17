@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter } from "expo-router"
+import { enableLegacyHeaderAppearance, useRouter } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
@@ -37,6 +37,7 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
+import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -46,8 +47,11 @@ enableScreens()
 // Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
 // module scope before any screen mounts — it cannot be toggled at runtime.
 Observe.configure({
-  integrations: { "expo-router": true },
+  integrations: { "expo-router": { filteredParams: ["phone", "code"] } },
 })
+
+// SDK 58 made iOS 26+ stack headers transparent with system fonts; keep the opaque, themed headers.
+enableLegacyHeaderAppearance()
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
@@ -84,6 +88,11 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
+// Usually just a connectivity blip, so group them into one warning issue. A spike there can
+// still mean the API is unreachable (DNS, TLS, outage), since those fail the same way.
+const networkErrorContext = (error: unknown) =>
+  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -99,6 +108,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -107,6 +117,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -133,6 +144,7 @@ function AppStack() {
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
+        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen
           name="lawsuit"
           options={{

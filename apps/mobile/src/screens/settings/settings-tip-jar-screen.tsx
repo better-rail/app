@@ -2,7 +2,6 @@ import React from "react"
 import { View, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
-import { isDarkMode } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useSettingsStore } from "@/models"
@@ -23,14 +22,7 @@ export function TipJarScreen() {
 
   return (
     <>
-      <Screen
-        style={styles.root}
-        preset="scroll"
-        unsafe={true}
-        statusBar={Platform.select({ ios: "light-content" })}
-        statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-        translucent
-      >
+      <Screen style={styles.root} preset="scroll" unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
         <Text style={styles.heartIcon}>💖</Text>
         <Text tx="settings.tipJarTitle" style={styles.tipIntroTitle} />
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />

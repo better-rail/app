@@ -74,13 +74,10 @@ export function RouteListWarning({ requestedTime, routesDate, warningType }: Rou
       {useNativeToolbar ? (
         <Stack.Toolbar>
           <Stack.Toolbar.View hidesSharedBackground>
-            <GlassView
-              testID="route-list-warning"
-              accessibilityRole="alert"
-              style={styles.toolbarContent}
-              tintColor="rgba(255, 159, 10, 0.55)"
-            >
-              {warningContent}
+            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+              <View testID="route-list-warning" accessible accessibilityRole="alert" accessibilityLabel={`${title}. ${message}`}>
+                {warningContent}
+              </View>
             </GlassView>
           </Stack.Toolbar.View>
         </Stack.Toolbar>
