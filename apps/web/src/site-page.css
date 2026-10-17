@@ -1,0 +1,597 @@
+/*
+ * The content pages (about, terms, the lawsuit post, …) keep the design of the old static site: the values below are
+ * ported as-is from its style.css and per-page <style> blocks. Light mode is the original; dark mode maps it onto the theme.
+ */
+@layer components {
+  /* The old pages sat on white; the header keeps its own background. */
+  :root:not(.dark) body:has(.site-page) {
+    background-color: #fff;
+  }
+
+  .site-page {
+    --page-text: #000;
+    --page-link: dodgerblue;
+    --page-role: #2c2c2e;
+    --page-dim: #8e8e93;
+    --page-rule: rgb(0 0 0 / 0.2);
+    --page-callout: #eaf5fe;
+    --page-update-bg: #e8f6ec;
+    --page-update-border: rgb(38 138 74 / 0.18);
+    --page-update-label: #1c7a41;
+    --page-panel: #f1f1f6;
+    --page-image-border: rgb(0 0 0 / 0.08);
+    --page-image-border-hover: rgb(0 0 0 / 0.14);
+    --page-alert-bg: #e6f7ff;
+    --page-alert-border: #91d5ff;
+    --page-alert-text: rgb(0 0 0 / 0.85);
+    --page-card: #fff;
+    --page-card-border: rgb(0 0 0 / 0.07);
+    --page-card-title: #1c1c1e;
+    --page-card-meta: #6e6e73;
+    --page-card-outlet: #3a3a3c;
+
+    width: 100%;
+    margin: 30px 0 12px;
+    padding: 24px 18px 12px 32px;
+    font-size: 16px;
+    line-height: 1.75;
+    letter-spacing: -0.85px;
+    color: var(--page-text);
+  }
+
+  .dark .site-page {
+    --page-text: var(--color-text);
+    --page-role: var(--color-text-2);
+    --page-rule: rgb(255 255 255 / 0.2);
+    --page-callout: var(--color-brand-soft);
+    --page-update-bg: var(--color-success-soft);
+    --page-update-border: rgb(143 220 123 / 0.2);
+    --page-update-label: var(--color-success-text);
+    --page-panel: var(--color-surface);
+    --page-image-border: var(--color-line);
+    --page-image-border-hover: var(--color-line-strong);
+    --page-alert-bg: var(--color-brand-soft);
+    --page-alert-border: rgb(59 156 240 / 0.4);
+    --page-alert-text: var(--color-text);
+    --page-card: var(--color-surface);
+    --page-card-border: var(--color-line);
+    --page-card-title: var(--color-text);
+    --page-card-meta: var(--color-muted);
+    --page-card-outlet: var(--color-text-2);
+  }
+
+  .site-page a {
+    color: var(--page-link);
+    text-decoration: none;
+  }
+
+  .site-page ul {
+    margin: 1em 0;
+    padding-inline-start: 40px;
+    list-style: disc;
+  }
+
+  .site-page-content-title {
+    margin: 8px 0 4px;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .site-page-content-subtitle {
+    margin: 0;
+    font-size: 1.17rem;
+    font-weight: 700;
+  }
+
+  .site-page-content-text {
+    margin: 0 0 8px;
+    line-height: 1.6;
+    letter-spacing: -0.3px;
+  }
+
+  .site-page .divider {
+    width: 60px;
+    height: 0;
+    margin: 26px 0 22px;
+    border: none;
+    border-top: 1px solid var(--page-rule);
+  }
+
+  .site-page-content-last-updated {
+    margin: 22px 0 0;
+    font-size: 15px;
+    letter-spacing: -0.1px;
+    opacity: 0.75;
+  }
+
+  .site-page .alert {
+    margin: 0 0 12px;
+    padding: 8px 15px;
+    border: 1px solid var(--page-alert-border);
+    border-radius: 2px;
+    background-color: var(--page-alert-bg);
+    font-size: 16px;
+    line-height: 1.5715;
+    color: var(--page-alert-text);
+  }
+
+  .site-page .business-details {
+    line-height: 1.9;
+  }
+
+  .site-page .signature {
+    margin-top: 26px;
+    line-height: 1.6;
+    letter-spacing: -0.3px;
+  }
+
+  .site-page .signature strong {
+    display: block;
+  }
+
+  @media (min-width: 620px) {
+    .site-page {
+      max-width: 620px;
+      margin: 30px auto 0;
+    }
+
+    .site-page-content-title {
+      margin-bottom: 8px;
+      font-size: 27px;
+      text-align: center;
+    }
+
+    .site-page-content-subtitle {
+      font-size: 23.5px;
+    }
+
+    .site-page-content-text,
+    .site-page li {
+      font-size: 18px;
+    }
+  }
+
+  /* About */
+  .team-member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .team-member {
+    display: flex;
+    gap: 12px;
+  }
+
+  .team-member-details {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+  }
+
+  .team-member-image {
+    width: 111px;
+    height: 146px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .team-member-name,
+  .team-member-role,
+  .team-member-station {
+    margin: 0;
+  }
+
+  .team-member-name {
+    font-size: 18px;
+    line-height: 1.6;
+    font-weight: 700;
+    letter-spacing: -0.6px;
+  }
+
+  .team-member-role,
+  .team-member-station {
+    margin-top: -4px;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .team-member-role {
+    color: var(--page-role);
+  }
+
+  .team-member-station {
+    color: var(--page-dim);
+  }
+
+  @media (min-width: 768px) {
+    .team-member-list {
+      justify-content: center;
+      gap: 42px;
+    }
+
+    .team-member {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .team-member-details {
+      margin-top: 0;
+    }
+
+    .team-member-image {
+      width: 150px;
+      height: 206px;
+      border-radius: 18px;
+    }
+  }
+
+  /* Thank you */
+  .thank-you-emoji {
+    margin: 10px 0 0;
+    font-size: 52px;
+    text-align: center;
+  }
+
+  /* Press */
+  .site-page .press-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 22px 0 36px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-page .press-list li {
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-page .press-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--page-card-border);
+    border-radius: 14px;
+    background: var(--page-card);
+    color: inherit;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.03),
+      0 6px 18px rgb(0 0 0 / 0.05);
+    transition:
+      box-shadow 0.15s ease-out,
+      border-color 0.15s ease-out;
+  }
+
+  .press-card-icon {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    margin-top: 4px;
+    object-fit: contain;
+    border-radius: 6px;
+  }
+
+  .press-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .press-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -0.2px;
+    color: var(--page-card-title);
+    transition: color 0.08s ease-out;
+  }
+
+  .press-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--page-card-meta);
+  }
+
+  .press-card-outlet {
+    font-weight: 500;
+    color: var(--page-card-outlet);
+  }
+
+  @media (hover: hover) {
+    .site-page .press-card:hover {
+      border-color: rgb(10 129 221 / 0.35);
+      box-shadow:
+        0 2px 4px rgb(0 0 0 / 0.05),
+        0 8px 20px rgb(0 0 0 / 0.08);
+      transition-delay: 70ms;
+    }
+
+    .press-card:hover .press-card-title {
+      color: #0a81dd;
+      transition-delay: 70ms;
+    }
+  }
+
+  /* Lawsuit post */
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 0 18px;
+  }
+
+  .byline-image {
+    width: 34px;
+    height: 34px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 50%;
+  }
+
+  .byline-details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+
+  .byline-name {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .byline-role {
+    margin: 0;
+    font-size: 14px;
+    letter-spacing: -0.2px;
+    opacity: 0.7;
+  }
+
+  .update-note {
+    margin: 0 0 22px;
+    padding: 16px 18px;
+    border: 1px solid var(--page-update-border);
+    border-radius: 12px;
+    background-color: var(--page-update-bg);
+  }
+
+  .update-note-label {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--page-update-label);
+  }
+
+  .update-note-text {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.55;
+    letter-spacing: -0.3px;
+  }
+
+  .update-note-link {
+    font-weight: 400;
+  }
+
+  /* Dodger blue is unreadable on the dark green fill. */
+  .dark .site-page .update-note-link {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .site-page .lead {
+    margin-bottom: 14px;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+  }
+
+  .post-hero {
+    margin: 0 0 26px;
+  }
+
+  .site-page .post-hero-link {
+    display: block;
+    border-radius: 12px;
+    transition:
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.25s ease-out;
+  }
+
+  .post-hero-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1780 / 820;
+    border: 1px solid var(--page-image-border);
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.04),
+      0 8px 24px rgb(0 0 0 / 0.09);
+    transition:
+      box-shadow 0.25s ease-out,
+      border-color 0.25s ease-out;
+  }
+
+  .post-hero-link:hover,
+  .post-hero-link:focus-visible {
+    transform: translateY(-2px);
+  }
+
+  .post-hero-link:hover .post-hero-image,
+  .post-hero-link:focus-visible .post-hero-image {
+    border-color: var(--page-image-border-hover);
+    box-shadow:
+      0 2px 4px rgb(0 0 0 / 0.06),
+      0 14px 34px rgb(0 0 0 / 0.14);
+  }
+
+  .post-hero-caption {
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.2px;
+    text-align: center;
+    opacity: 0.6;
+  }
+
+  .site-page .claims-list,
+  .site-page .changes-list {
+    margin: 0 0 14px;
+    padding-inline-start: 22px;
+  }
+
+  .claims-list li,
+  .changes-list li {
+    margin-bottom: 4px;
+  }
+
+  .callout {
+    margin: 26px 0;
+    padding: 20px 22px;
+    border-radius: 12px;
+    background-color: var(--page-callout);
+  }
+
+  .callout-text {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.6;
+    letter-spacing: -0.3px;
+  }
+
+  .callout-punchline {
+    margin-top: 12px;
+    font-weight: 700;
+  }
+
+  @media (min-width: 620px) {
+    .byline {
+      justify-content: center;
+    }
+
+    .update-note {
+      padding: 18px 22px;
+    }
+
+    .update-note-text {
+      font-size: 19px;
+    }
+
+    .callout {
+      padding: 24px 26px;
+    }
+
+    .callout-text {
+      font-size: 19px;
+    }
+
+    .callout-punchline {
+      font-size: 20px;
+    }
+  }
+
+  /* Release notes */
+  .release-meta {
+    margin: 0 0 18px;
+    font-size: 15px;
+    letter-spacing: -0.2px;
+    opacity: 0.7;
+  }
+
+  .feature {
+    margin-bottom: 22px;
+  }
+
+  .feature-image {
+    margin: 10px 0 14px;
+  }
+
+  .feature-image img,
+  .feature-image video {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+  }
+
+  .release-download {
+    margin: 30px 0 8px;
+    padding: 22px 18px;
+    border-radius: 12px;
+    background-color: var(--page-panel);
+    text-align: center;
+  }
+
+  .release-download-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+  }
+
+  .download-app-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7.5px;
+  }
+
+  .download-app-badge {
+    display: block;
+    width: 145px;
+    height: auto;
+  }
+
+  .site-page .release-feedback {
+    margin-top: 24px;
+  }
+
+  @media (min-width: 410px) {
+    .download-app-badge {
+      width: 160px;
+    }
+  }
+
+  @media (min-width: 620px) {
+    .release-meta {
+      text-align: center;
+    }
+
+    .release-download-title {
+      font-size: 20px;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .download-app-section {
+      flex-direction: row-reverse;
+      gap: 16px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-page .press-card,
+    .press-card-title {
+      transition: none;
+    }
+
+    .post-hero-link:hover,
+    .post-hero-link:focus-visible {
+      transform: none;
+    }
+  }
+}

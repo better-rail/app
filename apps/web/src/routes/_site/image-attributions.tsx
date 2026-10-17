@@ -46,7 +46,9 @@ export const Route = createFileRoute("/_site/image-attributions")({
   headers: () => cacheHeaders(3600, 86400),
   component: () => (
     <ContentPage title="צלמי Better Rail">
-      <p>התמונות של תחנות הרכבת ב-Better Rail צולמו על ידי משתמשי האפליקצייה, וכאן המקום להגיד להם תודה:</p>
+      <p className="site-page-content-text">
+        התמונות של תחנות הרכבת ב-Better Rail צולמו על ידי משתמשי האפליקצייה, וכאן המקום להגיד להם תודה:
+      </p>
       <ul>
         {photographers.map(([name, credit]) => (
           <li key={name}>
@@ -54,14 +56,14 @@ export const Route = createFileRoute("/_site/image-attributions")({
           </li>
         ))}
       </ul>
-      <div className="mb-6 rounded-xl border border-brand/30 bg-brand-soft px-4 py-3 text-[16px]" role="note">
+      <div className="alert" role="note">
         מצאתם תחנה עם תמונה חסרה? נשמח אם תוכלו לעזור ולצלם את התחנה מבחוץ, כך שניתן לזהות את מבנה התחנה. תמונות אפשר לשלוח למייל{" "}
-        <a href="mailto:feedback@better-rail.co.il?subject=תמונת תחנה" dir="ltr">
+        <a href="mailto:feedback@better-rail.co.il?subject=תמונת תחנה" className="mx-[3px]">
           feedback@better-rail.co.il
         </a>
       </div>
-      <h2 className="mt-6 text-lg">תמונות מוויקיפדיה</h2>
-      <p>תמונות התחנות הבאות צולמו על ידי משתמשי וויקיפדיה:</p>
+      <h2 className="site-page-content-subtitle">תמונות מוויקיפדיה</h2>
+      <p className="site-page-content-text">תמונות התחנות הבאות צולמו על ידי משתמשי וויקיפדיה:</p>
       <ul>
         <li>מיכאל יעקובסון - תחנת מגדל העמק וראשון לציון משה דיין</li>
         <li>Ori~ - אשדוד עד הלום</li>
@@ -85,8 +87,8 @@ export const Route = createFileRoute("/_site/image-attributions")({
           McKaby - תחנת נתניה תחת רשיון <a href={CC3}>CC BY-SA 4.0</a>
         </li>
       </ul>
-      <h2 className="mt-6 text-lg">אייקונים</h2>
-      <p>
+      <h2 className="site-page-content-subtitle">אייקונים</h2>
+      <p className="site-page-content-text">
         אייקון ההולך/ת ברגל במסך פרטי המסלול הוא מתוך <a href="https://github.com/jdecked/twemoji">Twemoji</a>, תחת רשיון{" "}
         <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
       </p>

@@ -26,30 +26,27 @@ export const Route = createFileRoute("/_site/about")({
 function AboutPage() {
   return (
     <ContentPage title="אודות">
-      <p>אפליקציית בטר רייל שמה לעצמה כמטרה להנגיש את שירותי רכבת ישראל לציבור.</p>
-      <p>האפליקצייה מציעה חווית משתמש מעולה וממשק נגיש ונח, שנוצרו מתוך ההיכרות הקרובה שלנו עם חווית הנסיעה ברכבת.</p>
-      <p>בטר רייל מוצעת להורדה בחינם, ללא פרסומות וכתובה בקוד פתוח.</p>
-      <h2 className="mt-6 text-lg">צוות</h2>
-      <p>
+      <p className="site-page-content-text">אפליקציית בטר רייל שמה לעצמה כמטרה להנגיש את שירותי רכבת ישראל לציבור.</p>
+      <p className="site-page-content-text">
+        האפליקצייה מציעה חווית משתמש מעולה וממשק נגיש ונח, שנוצרו מתוך ההיכרות הקרובה שלנו עם חווית הנסיעה ברכבת.
+      </p>
+      <p className="site-page-content-text">בטר רייל מוצעת להורדה בחינם, ללא פרסומות וכתובה בקוד פתוח.</p>
+      <h2 className="site-page-content-subtitle">צוות</h2>
+      <p className="site-page-content-text">
         אנחנו נוסעי רכבת עם אהבה גדולה לפיתוח אפליקציות. בטר רייל מפגישה שני עולמות שאנחנו אוהבים - תחבורה ציבורית וטכנולוגיה.
       </p>
-      <ul className="!mb-0 !list-none grid gap-6 !ps-0 sm:grid-cols-3">
+      <div className="team-member-list">
         {team.map((member) => (
-          <li key={member.name} className="flex flex-col items-center text-center">
-            <img
-              src={member.image}
-              alt={member.name}
-              width={150}
-              height={206}
-              className="h-[206px] w-[150px] rounded-2xl object-cover shadow-card"
-              loading="lazy"
-            />
-            <p className="mt-3 !mb-0 text-lg font-bold text-text">{member.name}</p>
-            <p className="!mb-0 text-[15px] text-text-2">{member.role}</p>
-            <p className="!mb-0 text-[15px] text-dim">תחנה אהובה: {member.station}</p>
-          </li>
+          <div key={member.name} className="team-member">
+            <img src={member.image} alt={member.name} width={150} height={206} className="team-member-image" loading="lazy" />
+            <div className="team-member-details">
+              <h3 className="team-member-name">{member.name}</h3>
+              <p className="team-member-role">{member.role}</p>
+              <p className="team-member-station">תחנה אהובה: {member.station}</p>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </ContentPage>
   )
 }

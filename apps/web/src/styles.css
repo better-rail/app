@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./site-page.css";
 
 /*
  * Heebo as two subsets, the way Google Fonts serves it: the Latin one carries the digits and punctuation every page
@@ -340,34 +341,6 @@ html:active-view-transition-type(page)::view-transition-new(root) {
 
   .tabular {
     font-variant-numeric: tabular-nums;
-  }
-
-  .prose-page {
-    @apply text-[17px] leading-[1.7] text-text-2;
-  }
-
-  .prose-page h2 {
-    @apply text-text mt-8 mb-2 text-xl font-bold;
-  }
-
-  .prose-page h3 {
-    @apply text-text mt-6 mb-2 text-lg font-bold;
-  }
-
-  .prose-page p {
-    @apply mb-3;
-  }
-
-  .prose-page a {
-    @apply text-brand-text underline decoration-brand-text/40 underline-offset-2 hover:decoration-brand-text;
-  }
-
-  .prose-page ul {
-    @apply mb-4 list-disc ps-6;
-  }
-
-  .prose-page li {
-    @apply mb-1;
   }
 
   .badge {
