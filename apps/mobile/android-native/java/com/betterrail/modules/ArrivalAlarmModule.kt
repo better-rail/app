@@ -9,12 +9,15 @@ import androidx.core.app.NotificationManagerCompat
 import com.betterrail.alarm.ArrivalAlarmScheduler
 import com.betterrail.alarm.ArrivalAlarmService
 import com.betterrail.alarm.ArrivalAlarmState
+import com.betterrail.alarm.ArrivalAlarmStop
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableArray
 import com.facebook.react.module.annotations.ReactModule
 
 /** The Android side of the arrival alarm. Mirrors the alarm methods of the iOS RNBetterRail module. */
@@ -34,39 +37,49 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
         promise.resolve(authorization())
     }
 
-    /** alarm - { rideId, alarmId, title, stopText, fireDate (ms) }. Resolves with when it will ring, in ms. */
+    /** alarm - { rideId, alarmId, stopText, stops: [{ train, title, fireDate (ms) }] }. Resolves with [{ train, fireDate (ms) }], when each will ring. */
     @ReactMethod
     fun scheduleArrivalAlarm(alarm: ReadableMap, promise: Promise) {
         try {
+            val stops = maps(alarm.getArray("stops")).map {
+                ArrivalAlarmStop(
+                    train = it.getInt("train"),
+                    title = it.getString("title") ?: throw IllegalArgumentException("title"),
+                    fireDate = it.getDouble("fireDate").toLong(),
+                    isScheduled = true,
+                )
+            }
+            if (stops.isEmpty()) throw IllegalArgumentException("stops")
+
             val state = ArrivalAlarmState(
                 rideId = alarm.getString("rideId") ?: throw IllegalArgumentException("rideId"),
                 alarmId = alarm.getString("alarmId") ?: throw IllegalArgumentException("alarmId"),
-                title = alarm.getString("title") ?: throw IllegalArgumentException("title"),
                 stopText = alarm.getString("stopText") ?: throw IllegalArgumentException("stopText"),
-                fireDate = alarm.getDouble("fireDate").toLong(),
-                isScheduled = true,
+                stops = stops,
             )
             // A new alarm replaces one that's ringing, like the dev test alarm.
             ArrivalAlarmService.stopRinging()
             val scheduled = ArrivalAlarmScheduler.schedule(reactApplicationContext, state)
-            promise.resolve(scheduled.fireDate.toDouble())
+            promise.resolve(stopsArray(scheduled.stops, withState = false))
         } catch (e: Exception) {
             promise.reject("error", "Couldn't schedule the arrival alarm", e)
         }
     }
 
-    /** Applies an arrival-alarm push (`fireDate` in seconds, as the server sends it). False when it couldn't move the alarm. */
+    /** Applies an arrival-alarm push (fire dates in seconds, as the server sends them). False when it couldn't move the alarm. */
     @ReactMethod
     fun moveArrivalAlarm(push: ReadableMap, promise: Promise) {
         val rideId = push.getString("rideId")
         val alarmId = push.getString("alarmId")
-        if (rideId == null || alarmId == null || !push.hasKey("fireDate")) {
+        val fireDates = maps(if (push.hasKey("stops")) push.getArray("stops") else null)
+            .filter { it.hasKey("train") && it.hasKey("fireDate") }
+            .associate { it.getInt("train") to (it.getDouble("fireDate") * 1000).toLong() }
+        if (rideId == null || alarmId == null || fireDates.isEmpty()) {
             promise.resolve(false)
             return
         }
 
-        val fireDate = (push.getDouble("fireDate") * 1000).toLong()
-        promise.resolve(ArrivalAlarmScheduler.move(reactApplicationContext, rideId, alarmId, fireDate))
+        promise.resolve(ArrivalAlarmScheduler.move(reactApplicationContext, rideId, alarmId, fireDates))
     }
 
     @ReactMethod
@@ -74,7 +87,7 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
         ArrivalAlarmScheduler.cancel(reactApplicationContext)
     }
 
-    /** Resolves with { rideId, alarmId, fireDate (ms), isScheduled }, or null when there's no alarm. */
+    /** Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), isScheduled }] }, or null when there's no alarm. */
     @ReactMethod
     fun getArrivalAlarm(promise: Promise) {
         val state = ArrivalAlarmScheduler.current(reactApplicationContext)
@@ -87,8 +100,7 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
             Arguments.createMap().apply {
                 putString("rideId", state.rideId)
                 putString("alarmId", state.alarmId)
-                putDouble("fireDate", state.fireDate.toDouble())
-                putBoolean("isScheduled", state.isScheduled)
+                putArray("stops", stopsArray(state.stops, withState = true))
             },
         )
     }
@@ -128,6 +140,22 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
             )
         }
     }
+
+    private fun maps(array: ReadableArray?): List<ReadableMap> =
+        (0 until (array?.size() ?: 0)).mapNotNull { array?.getMap(it) }
+
+    private fun stopsArray(stops: List<ArrivalAlarmStop>, withState: Boolean): WritableArray =
+        Arguments.createArray().apply {
+            stops.forEach { stop ->
+                pushMap(
+                    Arguments.createMap().apply {
+                        putInt("train", stop.train)
+                        putDouble("fireDate", stop.fireDate.toDouble())
+                        if (withState) putBoolean("isScheduled", stop.isScheduled)
+                    },
+                )
+            }
+        }
 
     private fun authorization(): String {
         val context = reactApplicationContext

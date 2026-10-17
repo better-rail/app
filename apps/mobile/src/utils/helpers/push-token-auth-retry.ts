@@ -24,8 +24,8 @@ export const getDevicePushTokenWithAuthRetry = async <Token>(
     if (!isFirebaseInstallationsAuthError(error)) throw error
   }
 
-  // FIS_AUTH_ERROR can be transient. Retry once; the expo-notifications patch guarantees this
-  // invokes the native token manager again instead of replaying its cached rejected promise.
+  // FIS_AUTH_ERROR can be transient. Retry once; expo-notifications (58+) clears a rejected
+  // request, so this invokes the native token manager again instead of replaying the rejection.
   try {
     const token = await getDevicePushToken()
     reportRetryOutcome(onRetryFinished, "success")

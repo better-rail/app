@@ -38,6 +38,8 @@ mock.module("@/components", () => ({
   RouteDetailsHeader: () => null,
   WebsiteHandoff: () => null,
   RouteCard: "RouteCard",
+  RouteCardHeight: 75,
+  RouteCardHeightWithHeader: 95,
   Button: "Button",
 }))
 mock.module("expo-network", () => ({ useNetworkState: () => ({ isInternetReachable: true }) }))
@@ -73,10 +75,14 @@ mock.module("@/models", () => ({
     selector({ route: null, isRouteActive: () => false }),
 }))
 const { RouteListWarning }: typeof import("./components/route-list-warning") = require("./components/route-list-warning")
-const { ResultDateCard }: typeof import("./components/result-date-card") = require("./components/result-date-card")
+const {
+  ResultDateCard,
+  RESULT_DATE_CARD_HEIGHT,
+}: typeof import("./components/result-date-card") = require("./components/result-date-card")
 mock.module("./components", () => ({
   RouteListWarning,
   ResultDateCard,
+  RESULT_DATE_CARD_HEIGHT,
   RouteListError: "RouteListError",
   NoTrainsFoundMessage: "NoTrainsFoundMessage",
   FilteredTrainsMessage: "FilteredTrainsMessage",
@@ -84,7 +90,10 @@ mock.module("./components", () => ({
   HourIndexBar: () => null,
   HOUR_INDEX_MAX_FONT_SCALE: 1.5,
 }))
-function TestFlashList(props: { data: RouteData[]; renderItem: (props: { item: RouteData; index: number }) => React.ReactNode }) {
+function TestLegendList(props: {
+  data: RouteData[]
+  renderItem: (props: { item: RouteData; index: number }) => React.ReactNode
+}) {
   return (
     <View>
       {props.data.map((item, index) => (
@@ -93,7 +102,7 @@ function TestFlashList(props: { data: RouteData[]; renderItem: (props: { item: R
     </View>
   )
 }
-mock.module("@shopify/flash-list", () => ({ FlashList: TestFlashList }))
+mock.module("@legendapp/list/react-native", () => ({ LegendList: TestLegendList }))
 const { RouteListScreen }: typeof import("./route-list-screen") = require("./route-list-screen")
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -152,8 +161,8 @@ function expectSundayWarning() {
   })
   expect(renderer!.root.findByProps({ testID: "route-list-warning" })).toBeDefined()
   expect(renderer!.root.findByProps({ testID: "route-results-date" })).toBeDefined()
-  const list = renderer!.root.findByType(TestFlashList)
-  expect(list.props.data[list.props.initialScrollIndex]).toBe(new Date(sundayRoutes[0].departureTime).toDateString())
+  const list = renderer!.root.findByType(TestLegendList)
+  expect(list.props.data[list.props.initialScrollIndex.index]).toBe(new Date(sundayRoutes[0].departureTime).toDateString())
   expect(list.props.stickyHeaderIndices).toEqual([0])
 }
 
@@ -210,7 +219,7 @@ describe("Friday search with Sunday trains", () => {
       await client.refetchQueries(queryKey, { exact: true })
       await Bun.sleep(0)
     })
-    const list = renderer!.root.findByType(TestFlashList)
+    const list = renderer!.root.findByType(TestLegendList)
     expect(list.props.data).toEqual([friday.toDateString(), ...fridayRoutes])
     expect(list.props.stickyHeaderIndices).toEqual([])
     expect(renderer!.root.findAllByProps({ testID: "route-list-warning" })).toHaveLength(0)
@@ -222,7 +231,7 @@ describe("Friday search with Sunday trains", () => {
       return date === "2026-10-11" ? sundayRoutes : []
     })
     await renderScreen()
-    const nextDayButton = () => renderer!.root.findByType(TestFlashList).props.ListFooterComponent
+    const nextDayButton = () => renderer!.root.findByType(TestLegendList).props.ListFooterComponent
 
     await act(async () => {
       nextDayButton().props.setTime()
@@ -239,7 +248,7 @@ describe("Friday search with Sunday trains", () => {
       nextDayButton().props.setTime()
       await Bun.sleep(0)
     })
-    expect(renderer!.root.findByType(TestFlashList).props.data).toEqual([
+    expect(renderer!.root.findByType(TestLegendList).props.data).toEqual([
       new Date(sundayRoutes[0].departureTime).toDateString(),
       ...sundayRoutes,
       new Date(mondayRoutes[0].departureTime).toDateString(),

@@ -12,7 +12,7 @@ import { type DelayGuard, type StationAlert, useFavoritesStore, useSettingsStore
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { guardKey } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
-import { useIsDarkMode, usePushPermission } from "@/hooks"
+import { usePushPermission } from "@/hooks"
 import { DELAY_GUARD_CHANNEL, STATION_ALERTS_CHANNEL } from "@/utils/push-channels"
 import { usePushSyncStatus } from "@/utils/push-subscription-sync"
 import { StationListItem } from "./station-list-item"
@@ -44,7 +44,6 @@ export const guardSummary = (guard: DelayGuard): string =>
  */
 export function NotificationsSetupScreen() {
   const router = useRouter()
-  const isDarkMode = useIsDarkMode()
   const { alerts, setStationAlert, removeStationAlert, guards, removeDelayGuard } = useSettingsStore(
     useShallow((s) => ({
       alerts: s.stationAlerts,
@@ -119,7 +118,7 @@ export function NotificationsSetupScreen() {
   )
 
   return (
-    <Screen style={styles.screen} unsafe statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
+    <Screen style={styles.screen} unsafe>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Text
           tx={

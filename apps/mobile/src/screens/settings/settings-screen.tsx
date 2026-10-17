@@ -7,7 +7,7 @@ import { getVersion, getBuildNumber } from "react-native-device-info"
 import { translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
 import { settingsStyles } from "./settings-styles"
-import { useIsDarkMode, useIsBetaTester } from "@/hooks"
+import { useIsBetaTester } from "@/hooks"
 import { useRoutePlanStore } from "@/models"
 import { shareApp } from "./helpers/app-share-sheet"
 import { openSupportBetterRail } from "@/utils/helpers/open-support-better-rail"
@@ -21,7 +21,6 @@ import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 
 export function SettingsScreen() {
   const router = useRouter()
-  const isDarkMode = useIsDarkMode()
   const isBetaTester = useIsBetaTester()
   const [showWidgetModal, setShowWidgetModal] = useState(false)
 
@@ -45,8 +44,6 @@ export function SettingsScreen() {
       preset="scroll"
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
     >
       <View style={settingsStyles.group}>
         <SettingBox
@@ -149,7 +146,7 @@ export function SettingsScreen() {
 
       {__DEV__ && isArrivalAlarmSupported() && (
         <View style={settingsStyles.group}>
-          <SettingBox first last title="Test arrival alarm (10s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
+          <SettingBox first last title="Test arrival alarms (10s, 40s)" icon="⏰" onPress={() => scheduleTestArrivalAlarm(10)} />
         </View>
       )}
 

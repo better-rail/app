@@ -33,7 +33,6 @@ export interface SettingsState {
   maxChanges: MaxChanges
   trainSearchCount: number
   seenTrainInfoPrompt: boolean
-  seenLawsuitAnnouncement: boolean
   stationAlerts: StationAlert[]
   /**
    * The push token the server holds this device's subscription under (null: none), so an emptied
@@ -57,7 +56,6 @@ export interface SettingsActions {
   recordTrainSearch: () => void
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void
   setSeenTrainInfoPrompt: (seen: boolean) => void
-  setSeenLawsuitAnnouncement: (seen: boolean) => void
   /** Adds the station (every line, always), or changes the lines or days of one already there. */
   setStationAlert: (stationId: string, choice?: Partial<Omit<StationAlert, "stationId">>) => void
   removeStationAlert: (stationId: string) => void
@@ -87,7 +85,6 @@ const initialSettingsState: SettingsState = {
   maxChanges: null,
   trainSearchCount: 0,
   seenTrainInfoPrompt: false,
-  seenLawsuitAnnouncement: false,
   stationAlerts: [],
   stationAlertsToken: null,
   delayGuards: [],
@@ -142,10 +139,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setSeenTrainInfoPrompt(seen) {
     set({ seenTrainInfoPrompt: seen })
-  },
-
-  setSeenLawsuitAnnouncement(seen) {
-    set({ seenLawsuitAnnouncement: seen })
   },
 
   setStationAlert(stationId, choice = {}) {
@@ -243,7 +236,6 @@ export function getSettingsSnapshot(state: SettingsState) {
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
-    seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
     stationAlerts: state.stationAlerts,
     stationAlertsToken: state.stationAlertsToken,
     delayGuards: state.delayGuards,
@@ -335,7 +327,6 @@ export function hydrateSettingsStore(data: any) {
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
-    seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
     stationAlerts: normalizeStationAlerts(processedData),
     stationAlertsToken: normalizeRegisteredToken(processedData.stationAlertsToken, processedData.stationAlertsRegistered),
     delayGuards: normalizeDelayGuards(processedData),

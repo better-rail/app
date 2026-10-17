@@ -7,7 +7,10 @@
   "alarm": {
     "rideId": "preview-ride",
     "alarmId": "6f1c7a52-58f1-4b47-9c55-6c1d5d1d2a11",
-    "fireDate": 0,
+    "stops": [
+      { "train": 0, "fireDate": 0 },
+      { "train": 1, "fireDate": 60 }
+    ],
     "failedBody": "Your arrival time changed. Open Better Rail to update the alarm."
   }
 }

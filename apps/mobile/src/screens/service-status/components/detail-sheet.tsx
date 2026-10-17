@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { Image, ScrollView, TouchableOpacity, View, useColorScheme } from "react-native"
+import { Image, ScrollView, type ScrollViewInstance, TouchableOpacity, View, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { TrueSheet } from "@lodev09/react-native-true-sheet"
 import { Text } from "@/components"
@@ -57,7 +57,7 @@ export function DetailSheet({
   onSelectStation,
   onGoNow,
 }: DetailSheetProps) {
-  const scroll = useRef<ScrollView>(null)
+  const scroll = useRef<ScrollViewInstance>(null)
   // Where a station's sections sit (from the top of the card's content), for the pills and bell in its header.
   const sectionTops = useRef<Partial<Record<StationSection, number>>>({})
   const scheme = useColorScheme()

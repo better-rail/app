@@ -4,13 +4,13 @@ import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
 import HapticFeedback from "react-native-haptic-feedback"
-import { FlashList } from "@shopify/flash-list"
+import { LegendList } from "@legendapp/list/react-native"
 import { Screen, Text } from "@/components"
 import { SearchInput } from "@/screens/select-station/search-input"
 import { translate } from "@/i18n"
 import { useSettingsStore } from "@/models"
 import { useStations } from "@/data/stations"
-import { useFilteredStations, useIsDarkMode, usePushPermission } from "@/hooks"
+import { useFilteredStations, usePushPermission } from "@/hooks"
 import { STATION_ALERTS_CHANNEL } from "@/utils/push-channels"
 import { trackEvent } from "@/services/analytics"
 import { StationListItem } from "./station-list-item"
@@ -18,7 +18,6 @@ import { StationListItem } from "./station-list-item"
 /** Every station, searchable, each toggling whether it is followed (on every line; its card narrows that). */
 export function NotificationsSelectStationsScreen() {
   const router = useRouter()
-  const isDarkMode = useIsDarkMode()
   const [searchTerm, setSearchTerm] = useState("")
   const { alerts, setStationAlert, removeStationAlert } = useSettingsStore(
     useShallow((s) => ({
@@ -48,30 +47,31 @@ export function NotificationsSelectStationsScreen() {
   }
 
   return (
-    <Screen style={{ flex: 1 }} unsafe={true} statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"} translucent>
+    <Screen style={{ flex: 1 }} unsafe={true}>
       <View style={styles.container}>
         <View style={styles.searchRow}>
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={false} />
-          <Pressable onPress={router.back} testID="station-alerts-done">
+          <Pressable onPress={() => router.back()} testID="station-alerts-done">
             <Text style={styles.doneText}>
               {translate("common.done")} ({followed.length})
             </Text>
           </Pressable>
         </View>
 
-        <FlashList
+        <LegendList
           data={displayedStations}
-          renderItem={({ item, extraData: selected }) => (
+          renderItem={({ item }) => (
             <StationListItem
               title={item.name}
               image={item.image}
-              selected={(selected as string[]).includes(item.id)}
+              selected={followed.includes(item.id)}
               onSelect={() => void onSelected(item.id)}
               style={styles.listItem}
               testID={`station-alert-option-${item.id}`}
             />
           )}
           keyExtractor={(item) => item.id}
+          recycleItems
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.listContent}

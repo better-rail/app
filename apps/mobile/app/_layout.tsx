@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter } from "expo-router"
+import { enableLegacyHeaderAppearance } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
@@ -29,9 +29,8 @@ import {
   setInitialLanguage,
   setUserLanguage,
 } from "@/i18n/i18n"
-import { translate } from "@/i18n"
 import { posthog } from "@/services/analytics"
-import { identifyPosthogUser, setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
+import { identifyPosthogUser, setAnalyticsUserProperty } from "@/services/analytics"
 import { trackInstalledWidgets } from "@/utils/widget-helpers"
 import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
@@ -43,6 +42,7 @@ import { watchStationAlerts } from "@/utils/station-alerts"
 import { watchDelayGuards } from "@/utils/delay-guards"
 import * as Notifications from "expo-notifications"
 import notifee, { EventType } from "@notifee/react-native"
+import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -52,8 +52,11 @@ enableScreens()
 // Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
 // module scope before any screen mounts — it cannot be toggled at runtime.
 Observe.configure({
-  integrations: { "expo-router": true },
+  integrations: { "expo-router": { filteredParams: ["phone", "code"] } },
 })
+
+// SDK 58 made iOS 26+ stack headers transparent with system fonts; keep the opaque, themed headers.
+enableLegacyHeaderAppearance()
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
@@ -90,6 +93,11 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
+// Usually just a connectivity blip, so group them into one warning issue. A spike there can
+// still mean the API is unreachable (DNS, TLS, outage), since those fail the same way.
+const networkErrorContext = (error: unknown) =>
+  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -105,6 +113,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -113,6 +122,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -127,7 +137,6 @@ focusManager.setEventListener((handleFocus) => {
 
 function AppStack() {
   const colorScheme = useColorScheme()
-  const router = useRouter()
   const { isUpdateRequired } = useForceUpdate()
 
   if (isUpdateRequired) return <ForceUpdateScreen />
@@ -140,28 +149,7 @@ function AppStack() {
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
         <Stack.Screen name="service-status" options={{ presentation: "fullScreenModal" }} />
-        <Stack.Screen
-          name="lawsuit"
-          options={{
-            presentation: "modal",
-            ...(Platform.OS === "ios" && {
-              headerShown: true,
-              headerTransparent: true,
-              title: "",
-              unstable_headerLeftItems: () => [
-                {
-                  type: "button",
-                  label: translate("common.close") ?? "Close",
-                  icon: { type: "sfSymbol", name: "xmark" },
-                  onPress: () => {
-                    trackEvent("lawsuit_close_press")
-                    router.back()
-                  },
-                },
-              ],
-            }),
-          }}
-        />
+        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal" }} />

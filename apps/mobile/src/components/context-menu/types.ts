@@ -7,6 +7,7 @@ export interface ContextMenuAction {
   /** Renders a checkmark next to the action, on both platforms. */
   selected?: boolean
   destructive?: boolean
+  disabled?: boolean
   onPress: () => void
 }
 

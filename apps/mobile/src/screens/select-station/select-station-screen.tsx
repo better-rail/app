@@ -7,11 +7,10 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
-import { isDarkMode } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
-import { FlashList, FlashListRef } from "@shopify/flash-list"
+import { LegendList, type LegendListRef } from "@legendapp/list/react-native"
 import { useFilteredStations } from "@/hooks"
 import { fetchChangeStationRoute, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
 import { useQueryClient } from "react-query"
@@ -27,9 +26,10 @@ export type SelectionType = "origin" | "destination" | "via"
 export function SelectStationScreen() {
   const router = useRouter()
   const navigation = useNavigation()
-  const { selectionType, stationIds, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
+  const { selectionType, stationIds, currentStationId, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
     selectionType: SelectionType
     stationIds?: string
+    currentStationId?: string
     trainStartId?: string
     samePlatformIds?: string
     acrossPlatformIds?: string
@@ -55,15 +55,15 @@ export function SelectStationScreen() {
   const setRouteItem = useNavigationParamsStore((s) => s.setRouteItem)
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
-  const listRef = useRef<FlashListRef<NormalizedStation>>(null)
+  const listRef = useRef<LegendListRef>(null)
 
   useEffect(() => {
     if (selectionType !== "via" || !allowedStations) return
     prefetchChangeStations(
       queryClient,
-      allowedStations.map((s) => s.id),
+      allowedStations.filter((s) => s.id !== currentStationId).map((s) => s.id),
     )
-  }, [selectionType, allowedStations, queryClient])
+  }, [selectionType, allowedStations, currentStationId, queryClient])
 
   // Scroll back to the top whenever the search results change.
   useEffect(() => {
@@ -72,6 +72,10 @@ export function SelectStationScreen() {
 
   const pickChangeStation = async (stationId: string) => {
     if (replacingStationId) return
+    if (stationId === currentStationId) {
+      router.back()
+      return
+    }
     setReplacingStationId(stationId)
     const replacement = await fetchChangeStationRoute(queryClient, stationId).catch(() => null)
     setReplacingStationId(undefined)
@@ -115,9 +119,13 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       badges={changeBadges(station.id)}
+      selected={selectionType === "via" && station.id === currentStationId}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
+      accessibilityState={
+        selectionType === "via" ? { selected: station.id === currentStationId, disabled: !!replacingStationId } : undefined
+      }
       onPress={() => {
         if (selectionType === "origin") {
           saveRecentSearch({ id: station.id })
@@ -137,13 +145,7 @@ export function SelectStationScreen() {
   )
 
   return (
-    <Screen
-      testID="select-station-screen"
-      style={styles.root}
-      preset="fixed"
-      unsafe={true}
-      statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
-    >
+    <Screen testID="select-station-screen" style={styles.root} preset="fixed" unsafe={true}>
       <View style={styles.searchBarWrapper}>
         {!allowedStations && (
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
@@ -166,17 +168,16 @@ export function SelectStationScreen() {
       </View>
 
       <View style={styles.listContainer}>
-        <FlashList
+        <LegendList
           ref={listRef}
           data={listData}
           renderItem={({ item }) => renderItem(item)}
           keyExtractor={(item) => item.id}
+          recycleItems
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.listContent}
           ListFooterComponent={<View style={styles.listFooter} />}
           extraData={replacingStationId}
-          // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-          maintainVisibleContentPosition={{ disabled: true }}
           ListEmptyComponent={() =>
             allowedStations ? null : (
               <View>
@@ -204,7 +205,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   listContent: {
     paddingBottom: theme.spacing[0],
   },
-  // A native view, since FlashList doesn't apply contentContainerStyle changes without a re-render.
+  // A native view, since the list doesn't apply contentContainerStyle changes without a re-render.
   listFooter: {
     height: rt.insets.ime > 0 ? 0 : rt.insets.bottom,
   },

@@ -72,8 +72,8 @@ rideRouter.put(
   createRateLimiter(rideRateLimitWindowMs, 30, (request) => request.body.rideId),
   async (req, res) => {
     const { rideId, ...alarm } = req.body
-    const fireDate = await setRideAlarm(rideId, alarm)
-    res.status(fireDate === undefined ? 404 : 200).send({ success: fireDate !== undefined, fireDate })
+    const stops = await setRideAlarm(rideId, alarm)
+    res.status(stops ? 200 : 404).send({ success: Boolean(stops), stops })
   },
 )
 

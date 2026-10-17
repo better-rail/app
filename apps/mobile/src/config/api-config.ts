@@ -29,3 +29,9 @@ export const API_CONFIG = {
   DELAY_GUARDS: `${serverBaseURL}/delay-guards`,
   FARES: `${serverBaseURL}/fares`,
 }
+
+// Israel Rail's own API, called directly for Jerusalem vouchers. The key is the one rail.co.il ships publicly.
+export const RAIL_WEBSITE_API = {
+  BASE_URL: "https://rail-api.rail.co.il/common/api/v1",
+  SUBSCRIPTION_KEY: "5e64d66cf03f4547bcac5de2de06b566",
+}

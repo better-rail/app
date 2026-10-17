@@ -162,28 +162,35 @@ class RNBetterRail: NSObject {
     }
   }
 
-  /// alarm - { rideId, alarmId, title, stopText, fireDate (ms) }. Resolves with when it will ring, in ms.
+  /// alarm - { rideId, alarmId, stopText, stops: [{ train, title, fireDate (ms) }] }. Resolves with [{ train, fireDate (ms) }], when each will ring.
   @objc func scheduleArrivalAlarm(_ alarm: NSDictionary, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
     guard #available(iOS 26.0, *) else {
       reject("unsupported", "Alarms need iOS 26", nil)
       return
     }
 
+    let stops = (alarm["stops"] as? [NSDictionary])?.compactMap { stop -> ArrivalAlarmStop? in
+      guard let train = (stop["train"] as? NSNumber)?.intValue,
+            let title = stop["title"] as? String,
+            let fireDate = (stop["fireDate"] as? NSNumber)?.doubleValue
+      else { return nil }
+      return ArrivalAlarmStop(train: train, title: title, fireDate: Date(timeIntervalSince1970: fireDate / 1000))
+    }
+
     guard let rideId = alarm["rideId"] as? String,
           let alarmId = (alarm["alarmId"] as? String).flatMap(UUID.init(uuidString:)),
-          let title = alarm["title"] as? String,
           let stopText = alarm["stopText"] as? String,
-          let fireDate = (alarm["fireDate"] as? NSNumber)?.doubleValue
+          let stops, !stops.isEmpty
     else {
       reject("invalid", "Invalid arrival alarm", nil)
       return
     }
 
-    let state = ArrivalAlarmState(rideId: rideId, alarmId: alarmId, title: title, stopText: stopText, fireDate: Date(timeIntervalSince1970: fireDate / 1000))
+    let state = ArrivalAlarmState(rideId: rideId, alarmId: alarmId, stopText: stopText, stops: stops)
     Task {
       do {
         let scheduled = try await ArrivalAlarmScheduler.schedule(state)
-        resolve(scheduled.fireDate.timeIntervalSince1970 * 1000)
+        resolve(scheduled.stops.map { ["train": $0.train, "fireDate": $0.fireDate.timeIntervalSince1970 * 1000] as [String: Any] })
       } catch {
         reject("error", "Couldn't schedule the arrival alarm", error)
       }
@@ -207,19 +214,19 @@ class RNBetterRail: NSObject {
     ArrivalAlarmScheduler.cancel()
   }
 
-  /// Resolves with { rideId, alarmId, fireDate (ms), isScheduled }, or nil when there's no alarm.
+  /// Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), isScheduled }] }, or nil when there's no alarm.
   @objc func getArrivalAlarm(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
     guard #available(iOS 26.0, *), let state = ArrivalAlarmStore.load() else {
       resolve(nil)
       return
     }
 
-    let isScheduled = ArrivalAlarmScheduler.isScheduled(state)
     resolve([
       "rideId": state.rideId,
       "alarmId": state.alarmId.uuidString.lowercased(),
-      "fireDate": state.fireDate.timeIntervalSince1970 * 1000,
-      "isScheduled": isScheduled,
+      "stops": state.stops.map {
+        ["train": $0.train, "fireDate": $0.fireDate.timeIntervalSince1970 * 1000, "isScheduled": ArrivalAlarmScheduler.isScheduled($0)] as [String: Any]
+      },
     ])
   }
 

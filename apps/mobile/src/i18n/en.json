@@ -65,6 +65,7 @@
     "updates": "Updates from Israel Railways",
     "updatesError": "An error occurred while attempting to load updates from Israel Railways",
     "shortRoute": "Short Route",
+    "shortRouteCompact": "Short",
     "maxBackwardsDate": "Cannot go back more than 3 days",
     "routeDetails": "Route Details",
     "routeActions": "Actions",
@@ -257,13 +258,6 @@
     "noTrainsFoundForHour": "No trains found at the requested time",
     "foundTrainsAtHour": "Trains available at different times on the selected date"
   },
-  "lawsuit": {
-    "title": "Israel Railways threatens to sue us",
-    "intro": "We received a pre-lawsuit warning for using the Israel Railways timetable",
-    "whatNow": "In response to the letter, the app has switched to using data from the Ministry of Transport.\n\nThis data may at times be less up to date than Israel Railways - the railway keeps the fresh information to itself and prevents us from making it accessible to you, the passengers.\n\nWe need your help: please tell your friends about Better Rail. The more users we have, the stronger we become!",
-    "readPost": "Read the full post",
-    "followTwitter": "Follow us on Twitter for updates"
-  },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
@@ -360,6 +354,8 @@
     "alarmTurnOff": "Turn Off Alarm",
     "alarmSetFor": "Alarm at %{time}",
     "alarmTitle": "Approaching %{station}",
+    "alarmTitleTransfer": "Approaching %{station}, change trains",
+    "alarmStopsTitle": "Ring before",
     "alarmStop": "Stop",
     "alarmTooLateTitle": "Arriving too soon",
     "alarmTooLateMessage": "The train arrives in less than %{minutes} minutes. Pick a shorter time.",
@@ -591,5 +587,54 @@
     "permissionDenied": "Notifications are turned off for Better Rail. Turn them on in your device settings to use Delay Notifications.",
     "channelMuted": "Delay Notifications are muted in your device settings, so you won't get them.",
     "onButOff": "Saved for this train, but notifications are turned off, so you won't be notified."
+  },
+  "voucher": {
+    "title": "Jerusalem travel voucher",
+    "short": "Voucher",
+    "orderTitle": "Voucher order",
+    "book": "Order a voucher",
+    "seatsAvailable": "%{count} seats available",
+    "almostSoldOut": "Almost sold out · %{count} seats left",
+    "soldOut": "No vouchers left for this train",
+    "booked": {
+      "one": "Voucher booked · 1 passenger",
+      "other": "Voucher booked · %{count} passengers"
+    },
+    "show": "Show voucher",
+    "passengers": "How many passengers?",
+    "addPassenger": "Add a passenger",
+    "removePassenger": "Remove a passenger",
+    "phoneHint": "Israel Railways will text you a verification code",
+    "invalidPhone": "Enter a valid phone number",
+    "sendCode": "Send code",
+    "codeTitle": "Enter the code",
+    "codeSentTo": "Israel Railways sent a 5-digit code to %{phone}",
+    "changeNumber": "Change number",
+    "resend": "I didn't get it, send it again",
+    "resendIn": "Send again in %{seconds}s",
+    "codeResent": "Code sent again",
+    "noneLeftForPhone": "This number has already ordered the maximum vouchers for this train.",
+    "orderVouchers": "Order vouchers",
+    "codeExpired": "The code has expired. Send a new one and try again.",
+    "genericError": "Something went wrong. Please try again.",
+    "connectionError": "Couldn't reach Israel Railways. Check your connection and try again.",
+    "errors": {
+      "INVALID_OTP": "The verification code is incorrect.",
+      "OTP_NOT_FOUND": "This code can't be used anymore. Send a new one and try again.",
+      "MAX_PASSENGERS_PER_TRIP_EXCEEDED": "You've reached the voucher limit for this mobile number."
+    },
+    "forPassengers": {
+      "one": "For 1 passenger",
+      "other": "For %{count} passengers"
+    },
+    "phoneTitle": "What's your mobile number?",
+    "upTo": "You can order up to %{count} vouchers for this train",
+    "cancelHint": "To cancel, use the link in Israel Railways' SMS",
+    "trainOnDate": "Train %{trainNumber} · %{date}",
+    "privacyNote": "Your details are sent directly to Israel Railways",
+    "removeCancelled": "Already cancelled? Remove it from the app",
+    "removeTitle": "Remove this voucher?",
+    "removeMessage": "Only remove it if you cancelled it with the link in Israel Railways' SMS. It's removed from this device only.",
+    "remove": "Remove"
   }
 }

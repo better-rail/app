@@ -52,6 +52,11 @@ export function timezoneCorrection(date: Date) {
   return new Date(tzString)
 }
 
+/** The current time on Israel's clock, in the same device-local convention schedule timestamps are parsed into. */
+export function israelNow() {
+  return timezoneCorrection(new Date()).getTime()
+}
+
 export function formatDateForAPI(date: number) {
   const formattedDate = format(date, "yyyy-MM-dd")
   const formattedTime = format(date, "HH:mm")

@@ -43,13 +43,14 @@ class ArrivalAlarmActivity : Activity() {
 
         // A late tap on the notification, after the alarm stopped.
         val state = ArrivalAlarmStore.load(this)
-        if (!ArrivalAlarmService.isRinging || state == null) {
+        val title = intent.getStringExtra(ArrivalAlarmService.EXTRA_TITLE)
+        if (!ArrivalAlarmService.isRinging || state == null || title == null) {
             finish()
             return
         }
 
         ArrivalAlarmService.stopListeners.add(finishWhenStopped)
-        setContentView(buildContent(state))
+        setContentView(buildContent(title, state.stopText))
     }
 
     override fun onResume() {
@@ -81,7 +82,7 @@ class ArrivalAlarmActivity : Activity() {
         window.navigationBarColor = BACKGROUND_BOTTOM
     }
 
-    private fun buildContent(state: ArrivalAlarmState): LinearLayout {
+    private fun buildContent(titleText: String, stopText: String): LinearLayout {
         val heebo = try {
             ResourcesCompat.getFont(this, R.font.heebo)
         } catch (e: Exception) {
@@ -104,7 +105,7 @@ class ArrivalAlarmActivity : Activity() {
         clock = time
 
         val title = TextView(this).apply {
-            text = state.title
+            text = titleText
             setTextColor(Color.WHITE)
             alpha = 0.85f
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
@@ -114,7 +115,7 @@ class ArrivalAlarmActivity : Activity() {
         }
 
         val stop = Button(this).apply {
-            text = state.stopText
+            text = stopText
             isAllCaps = false
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 22f)

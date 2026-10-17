@@ -21,7 +21,7 @@ import {
   clearBackgroundStorage,
 } from "./storage/background-storage"
 import { Platform } from "react-native"
-import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
+import { ArrivalAlarmPush, getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./arrival-alarm-native"
 import { RideStartError } from "./helpers/ride-errors"
 import { isStationAlertPayload, openStationAlert } from "./helpers/open-station-alert"
 import { isDelayGuardPayload, openDelayGuard } from "./helpers/open-delay-guard"
@@ -86,15 +86,28 @@ TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
 
 const ARRIVAL_ALARM_UPDATES_CHANNEL = "better-rail-alarm-updates"
 
+const isPushStops = (stops: unknown): stops is ArrivalAlarmPush["stops"] =>
+  Array.isArray(stops) && stops.every((stop) => typeof stop?.train === "number" && typeof stop?.fireDate === "number")
+
+const parseStops = (json: string | undefined) => {
+  try {
+    const stops = JSON.parse(json ?? "")
+    return isPushStops(stops) ? stops : undefined
+  } catch {
+    return undefined
+  }
+}
+
 // Android: the server sends a data message when the arrival time changed. Move the alarm, then tell
 // the rider quietly, like the passive notification iOS shows.
 const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
-  const push = { rideId: data.rideId, alarmId: data.alarmId, fireDate: Number(data.fireDate) }
-  if (!push.rideId || !push.alarmId || !Number.isFinite(push.fireDate)) return
+  const stops = parseStops(data.stops)
+  if (!data.rideId || !data.alarmId || !stops?.length) return
+  const push = { rideId: data.rideId, alarmId: data.alarmId, stops }
 
-  // A push for an alarm the rider turned off or changed, or that already rang.
+  // A push for an alarm the rider turned off or changed, or whose stops all rang.
   const current = await getArrivalAlarm().catch(() => null)
-  if (current?.alarmId !== push.alarmId || !current.isScheduled) return
+  if (current?.alarmId !== push.alarmId || !current.stops.some((stop) => stop.isScheduled)) return
 
   const moved = await moveArrivalAlarm(push).catch(() => false)
   await notifee.displayNotification({
@@ -105,19 +118,17 @@ const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
       channelId: ARRIVAL_ALARM_UPDATES_CHANNEL,
       smallIcon: "notification_icon",
       pressAction: { id: "default" },
-      // Pointless once the alarm rang.
-      timeoutAfter: Math.max(push.fireDate * 1000 - Date.now(), 60 * 1000),
+      // Pointless once the last alarm rang.
+      timeoutAfter: Math.max(Math.max(...stops.map((stop) => stop.fireDate)) * 1000 - Date.now(), 60 * 1000),
     },
   })
 }
-
-type ArrivalAlarmPush = { rideId: string; alarmId: string; fireDate: number }
 
 // Finds the `alarm` object of an arrival-alarm push, wherever expo-notifications nested it.
 const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null => {
   if (!raw || typeof raw !== "object" || depth > 5) return null
   const alarm = (raw as Record<string, any>).alarm
-  if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && typeof alarm.fireDate === "number") {
+  if (alarm && typeof alarm.rideId === "string" && typeof alarm.alarmId === "string" && isPushStops(alarm.stops)) {
     return alarm
   }
 

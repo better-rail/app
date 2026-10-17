@@ -14,9 +14,18 @@ describe("ride validation", () => {
   })
 
   it("accepts only sane arrival alarms", () => {
-    const alarm = { rideId: "ride-id", token: "device-token", alarmId: crypto.randomUUID(), leadMinutes: 7, locale: "he" }
+    const alarm = {
+      rideId: "ride-id",
+      token: "device-token",
+      alarmId: crypto.randomUUID(),
+      leadMinutes: 7,
+      locale: "he",
+      stops: [0, 1],
+    }
     expect(SetRideAlarmBody.safeParse(alarm).success).toBe(true)
     expect(SetRideAlarmBody.safeParse({ ...alarm, leadMinutes: 90 }).success).toBe(false)
     expect(SetRideAlarmBody.safeParse({ ...alarm, alarmId: "not-a-uuid" }).success).toBe(false)
+    expect(SetRideAlarmBody.safeParse({ ...alarm, stops: [] }).success).toBe(false)
+    expect(SetRideAlarmBody.safeParse({ ...alarm, stops: [-1] }).success).toBe(false)
   })
 })

@@ -27,13 +27,23 @@ export const RideAlarmRequestSchema = z.object({
   alarmId: z.string().uuid(),
   leadMinutes: z.number().int().min(1).max(30),
   locale: z.nativeEnum(LanguageCode),
+  /** The trains to ring before getting off, by their index in the route: a transfer, the destination, or both */
+  stops: z.number().int().min(0).max(10).array().nonempty(),
 })
 
 export type RideAlarmRequest = z.infer<typeof RideAlarmRequestSchema>
 
-export const RideAlarmSchema = RideAlarmRequestSchema.extend({
+export const RideAlarmStopSchema = z.object({
+  /** The train the rider gets off, by its index in the route */
+  train: z.number(),
   /** When the alarm on the device rings, in ms */
   fireDate: z.number(),
+})
+
+export type RideAlarmStop = z.infer<typeof RideAlarmStopSchema>
+
+export const RideAlarmSchema = RideAlarmRequestSchema.extend({
+  stops: RideAlarmStopSchema.array(),
 })
 
 export type RideAlarm = z.infer<typeof RideAlarmSchema>

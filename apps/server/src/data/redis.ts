@@ -87,7 +87,7 @@ export const updateRideAlarm = async (rideId: string, alarm: RideAlarm | undefin
       await client.hDel(getKey(rideId), "alarm")
     }
 
-    logger.info(logNames.redis.rides.updateAlarm.success, { rideId, fireDate: alarm?.fireDate })
+    logger.info(logNames.redis.rides.updateAlarm.success, { rideId, stops: alarm?.stops })
     return true
   } catch (error) {
     logger.error(logNames.redis.rides.updateAlarm.failed, { error, rideId })
