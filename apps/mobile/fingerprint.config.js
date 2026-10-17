@@ -16,5 +16,11 @@ module.exports = {
     { type: "file", filePath: "rnrepo.config.json", reasons },
     { type: "dir", filePath: "../../patches", reasons },
   ],
-  ignorePaths: ["**/*.md"],
+  // Gitignored files in targets/ aren't uploaded to EAS, so hashing them breaks the runtime match
+  ignorePaths: [
+    "**/*.md",
+    "**/.DS_Store",
+    "targets/**/generated.entitlements",
+    "targets/watch/Assets.xcassets/AppIcon.appiconset/**",
+  ],
 }
