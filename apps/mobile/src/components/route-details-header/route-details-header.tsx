@@ -23,7 +23,7 @@ import { ContextMenu } from "@/components/context-menu/context-menu"
 import { addRouteToCalendar as addRouteToCalendarHelper, CalendarEventConfig } from "@/utils/helpers/calendar-helpers"
 import { createContextMenuActions } from "@/components/route-card/route-context-menu-actions"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
 
@@ -58,6 +58,7 @@ export interface RouteDetailsHeaderProps {
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+  const glassTint = useGlassTint("secondary")
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const {
     routes: favoriteRoutesData,
@@ -381,7 +382,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
+            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={glassTint}>
               <Image source={arrowIcon} style={styles.arrowIcon} />
             </GlassView>
           </Pressable>
