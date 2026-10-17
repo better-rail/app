@@ -11,14 +11,16 @@ import { useRecentRoutes, useRecentTrayOpen } from "@/hooks/use-stored"
 type Pair = readonly [Station, Station]
 
 /**
- * Recent searches in a collapsible tray below the planner: a slim title row until opened, then photo cards. A route
+ * Recent searches in a collapsible tray below the planner: a slim title row while closed, photo cards when open. A route
  * and its return trip share one card.
  */
 export function RecentRoutes() {
   const t = useT()
   const recent = toPairs(useRecentRoutes()).slice(0, 4)
-  const [open, setOpen] = useRecentTrayOpen()
+  const [stored, setOpen] = useRecentTrayOpen()
   if (recent.length === 0) return null
+  // Until the rider toggles it, a lone search stays tucked away rather than opening onto three empty slots.
+  const open = stored ?? recent.length > 1
   const taken = (index: number) => recent.slice(0, index).map(([, to]) => to.id)
   return (
     <section
