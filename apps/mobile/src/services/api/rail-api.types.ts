@@ -212,10 +212,11 @@ export interface StationInfoApiResult {
   successStatus: number
   statusCode: number
   errorMessages: any
-  result: StationInfo
+  result: LegacyStationInfo
 }
 
-export interface StationInfo {
+/** The station page as the Israel Railways API sends it; the server's StationInfo (station-info.types.ts) is the cleaned-up form. */
+export interface LegacyStationInfo {
   creationDate: string
   version: any
   successStatus: number

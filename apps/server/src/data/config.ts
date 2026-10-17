@@ -38,6 +38,18 @@ const isDeployedService = Boolean(
 export const ridesEnabled = process.env.RIDES_ENABLED ? process.env.RIDES_ENABLED === "true" : isDeployedService
 
 /**
+ * Whether this process watches the subscribed stations and guarded trains and pushes
+ * about them (station-alerts/watcher.ts, delay-guards/watcher.ts), and takes subscriptions. Shared state and real
+ * riders' push tokens again, so the same opt-in as the rides: STATION_ALERTS_ENABLED,
+ * else "are we the deployed service?". Set it on the deployment explicitly.
+ */
+export const stationAlertsEnabled = process.env.STATION_ALERTS_ENABLED
+  ? process.env.STATION_ALERTS_ENABLED === "true"
+  : isDeployedService
+// How often the subscribed stations are checked (the status itself is cached for a few seconds).
+export const stationAlertsCheckSeconds = Number(process.env.STATION_ALERTS_CHECK_SECONDS) || 60
+
+/**
  * Where timetable data comes from.
  *
  * - "gtfs" (default) — the Ministry of Transport GTFS feed ingested into Postgres,
@@ -83,3 +95,27 @@ export const siriCarrySeconds = Number(process.env.SIRI_CARRY_SECONDS) || 86_400
 // "in-process" runs the poller inside the web service (fallback when the
 // MOT-registered egress IP belongs to it); default is the standalone `bun run siri`.
 export const siriPollerMode = process.env.SIRI_POLLER_MODE
+
+/**
+ * Israel Railways' published service updates → announced disruptions on the status
+ * screens, read by the service-status service (`bun run service-status`, its own Railway
+ * process like the SIRI poller). It fetches the updates from the rail API (RAIL_URL +
+ * RAIL_API_KEY, and PROXY_URL off-shore, like the timetable proxy) and has a Claude
+ * model turn them into the status schema, so it idles without ANTHROPIC_API_KEY.
+ */
+export const anthropicApiKey = process.env.ANTHROPIC_API_KEY as string
+export const anthropicModel = process.env.ANTHROPIC_MODEL || "claude-opus-5-5"
+// Effort for the extraction ("low" … "max"); the model's default ("medium" on Opus 5.5) when empty.
+export const anthropicEffort = process.env.ANTHROPIC_EFFORT ?? "medium"
+export const announcementsPollSeconds = Number(process.env.ANNOUNCEMENTS_POLL_SECONDS) || 300
+
+/**
+ * The same service also compares Israel Railways' own timetable with the GTFS schedule
+ * (service-status/timetable.ts): one search per station pair covers every train of the
+ * day through it, so a dozen requests cover the trains of the next couple of hours.
+ */
+export const timetableCheckSeconds = Number(process.env.TIMETABLE_CHECK_SECONDS) || 300
+// How far ahead (minutes of scheduled departure) the check looks.
+export const timetableWindowMinutes = Number(process.env.TIMETABLE_WINDOW_MINUTES) || 120
+// A check older than this is not laid over the status (three poll cycles).
+export const timetableStaleSeconds = Number(process.env.TIMETABLE_STALE_SECONDS) || 900

@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
+import { openDelayGuardSheet } from "@/utils/helpers/delay-guard-helpers"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
@@ -202,6 +203,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
           title: translate("fares.title"),
           systemIcon: "shekelsign.circle",
           onPress: openFaresSheet,
+        },
+        {
+          title: translate("delayGuard.title") ?? "",
+          systemIcon: "bell.badge",
+          onPress: () => routeItem && openDelayGuardSheet(routeItem, "route_details"),
         },
       ]
 

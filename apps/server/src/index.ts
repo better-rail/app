@@ -5,13 +5,15 @@ import { initSentry } from "./sentry"
 import { router } from "./routes/api"
 import { applySchema, getActiveFeed } from "./db"
 import { isRailApiConfigured } from "./requests/rail-api"
-import { env, port, railDataSource, ridesEnabled, siriPollerMode } from "./data/config"
+import { env, port, railDataSource, ridesEnabled, siriPollerMode, stationAlertsEnabled } from "./data/config"
 import { connectToRedis } from "./data/redis"
 import { connectToApn } from "./utils/apn-utils"
 import { connectToFcm } from "./utils/fcm-utils"
 import { logNames, logger, startLogger } from "./logs"
 import { startSiriPoller } from "./siri/poller"
 import { scheduleExistingRides } from "./utils/ride-utils"
+import { startStationAlerts } from "./station-alerts/watcher"
+import { startDelayGuards } from "./delay-guards/watcher"
 
 initSentry()
 
@@ -52,6 +54,12 @@ app.listen(port, async () => {
   // (and reschedule, or delete) the rides of real passengers. See data/config.ts.
   if (ridesEnabled) scheduleExistingRides()
   else logger.warn(logNames.server.ridesDisabled)
+
+  // Same opt-in: the watcher pushes to real riders' devices. Needs the GTFS status.
+  if (stationAlertsEnabled && railDataSource === "gtfs") {
+    startStationAlerts()
+    startDelayGuards()
+  } else logger.warn(logNames.server.stationAlertsDisabled)
 
   // The SIRI poller normally runs as its own Railway service (`bun run siri`);
   // this fallback hosts it here when the MOT-registered egress IP is ours.

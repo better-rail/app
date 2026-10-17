@@ -210,11 +210,16 @@ export const getRealtimeSnapshot = (): Promise<SiriSnapshot | null> => {
 
 export const zeroRealtimeLookup: RealtimeLookup = () => ({ delayMin: 0 })
 
+/**
+ * Whether the snapshot is recent enough to trust. A stale one means the poller is down;
+ * last-known delays are served up to siriStaleSeconds, after which everything reverts to
+ * schedule-only rather than keep showing hours-old predictions.
+ */
+export const isSnapshotFresh = (snapshot: SiriSnapshot | null, nowMs = Date.now()): snapshot is SiriSnapshot =>
+  snapshot !== null && nowMs - snapshot.updatedAt <= siriStaleSeconds * 1000
+
 export const makeRealtimeLookup = (snapshot: SiriSnapshot | null, nowMs = Date.now()): RealtimeLookup => {
-  // A stale snapshot means the poller is down; last-known delays are served up
-  // to siriStaleSeconds, after which we revert to schedule-only rather than
-  // keep showing hours-old predictions.
-  if (!snapshot || nowMs - snapshot.updatedAt > siriStaleSeconds * 1000) return zeroRealtimeLookup
+  if (!isSnapshotFresh(snapshot, nowMs)) return zeroRealtimeLookup
 
   return (serviceDate, trainNumber, railId) => {
     const train = snapshot.trains[`${serviceDate}#${trainNumber}`]

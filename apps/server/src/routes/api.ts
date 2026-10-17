@@ -1,25 +1,34 @@
-import { Router } from "express"
+import { type RequestHandler, Router } from "express"
 
-import { ridesEnabled } from "../data/config"
+import { ridesEnabled, stationAlertsEnabled } from "../data/config"
 import { buildRide } from "../utils/ride-utils"
 import { RideRequestSchema } from "../types/ride"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { handleRailApiRequest, handleSearchTrainRequest } from "./rail-api"
 import { faresRouter } from "./fares"
 import { siriDebugRouter } from "./siri-debug"
+import { handleServiceStatusRequest } from "./service-status"
+import { delayGuardsRouter } from "./delay-guards"
+import { stationAlertsRouter } from "./station-alerts"
+import { handleStationDeparturesRequest } from "./station-departures"
+import { handleStationInfoRequest } from "./station-info"
 import { DeleteRideBody, RemoveRideAlarmBody, SetRideAlarmBody, UpdateRideTokenBody, bodyValidator } from "./validations"
 import { endRideNotifications, removeRideAlarm, setRideAlarm, startRideNotifications, updateRideToken } from "../rides"
 
 const router = Router()
 
+/** 503 with `reason` while a feature is off (a local run, by default — see data/config.ts). */
+const requireEnabled =
+  (enabled: boolean, reason: string): RequestHandler =>
+  (req, res, next) => {
+    if (!enabled) return res.status(503).json({ success: false, reason })
+    next()
+  }
+
 const rideRouter = Router()
 const rideRateLimitWindowMs = 10 * 60 * 1000
-// Every route below reads or writes the shared rides state, so they're closed
-// while ride tracking is off (a local run, by default — see data/config.ts).
-rideRouter.use((req, res, next) => {
-  if (!ridesEnabled) return res.status(503).json({ success: false, reason: "rides_disabled" })
-  next()
-})
+// Every route below reads or writes the shared rides state, so they're closed while ride tracking is off.
+rideRouter.use(requireEnabled(ridesEnabled, "rides_disabled"))
 // Separate devices sharing a mobile carrier IP into independent buckets.
 rideRouter.use(createRateLimiter(rideRateLimitWindowMs, 1000))
 
@@ -81,8 +90,25 @@ rideRouter.delete(
 router.use("/ride", rideRouter)
 // Fares, from the Israel Railways snapshot `bun run rail:pull` keeps in redis (see routes/fares.ts)
 router.use("/fares", faresRouter)
+
+// Push subscriptions — station alerts (a device's stations and lines) and Delay Notifications (the trains it
+// wants to hear about when they run late). Both closed while the watchers are off, like the rides. As there,
+// devices sharing a carrier IP get a loose shared bucket and a tight one each, keyed by their push token.
+const pushAlertsGate = requireEnabled(stationAlertsEnabled, "station_alerts_disabled")
+const pushRateLimitWindowMs = 10 * 60 * 1000
+const pushTokenOf = (request: { body?: { token?: unknown } }) =>
+  typeof request.body?.token === "string" ? request.body.token : undefined
+const pushRateLimits = [createRateLimiter(pushRateLimitWindowMs, 1000), createRateLimiter(pushRateLimitWindowMs, 30, pushTokenOf)]
+router.use("/station-alerts", pushAlertsGate, ...pushRateLimits, stationAlertsRouter)
+router.use("/delay-guards", pushAlertsGate, ...pushRateLimits, delayGuardsRouter)
 // SIRI pipeline debugging (404s without SIRI_DEBUG_TOKEN — see routes/siri-debug.ts)
 router.use("/siri", siriDebugRouter)
+// Network health per line (read-only: GTFS timetable + SIRI snapshot)
+router.get("/service-status", createRateLimiter(60 * 1000, 60), handleServiceStatusRequest)
+// A station's page (entrances and their hours, facilities, notices) from the Israel Railways API, cached
+router.get("/stations/:stationId/info", createRateLimiter(60 * 1000, 120), handleStationInfoRequest)
+// The next trains calling at a station, per line and direction (GTFS timetable + SIRI snapshot)
+router.get("/stations/:stationId/departures", createRateLimiter(60 * 1000, 120), handleStationDeparturesRequest)
 // Handle the specific search train request with transformation
 router.get(
   "/rail-api/rjpa/api/v1/timetable/searchTrainLuzForDateTime",
