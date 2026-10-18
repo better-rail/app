@@ -337,7 +337,8 @@ export function RouteDetailsScreen() {
                 <VoucherButton train={voucherTrain} style={styles.infoButton} />
               </View>
             )}
-            <LiveRideSheet progress={progress} screenName={screenName} />
+            {/* The wrapper is already pinned to the bottom. Keeping the sheet in flow stacks the voucher button above it, not under it */}
+            <LiveRideSheet progress={progress} screenName={screenName} style={styles.liveRideSheet} />
           </Animated.View>
         )}
 
@@ -433,6 +434,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: "flex-end",
     paddingEnd: rt.insets.right + 18,
     marginBottom: theme.spacing[3],
+  },
+  liveRideSheet: {
+    position: "relative",
   },
   // Dims only the icon, so the button surface stays opaque over the route
   infoButtonIconDisabled: {
