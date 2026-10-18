@@ -2,32 +2,43 @@
 export const DEEP_LINK_PARAM = "deepLink"
 
 type NavigatorState = {
+  key?: string
   index?: number
   routes: readonly { name: string; params?: object; state?: NavigatorState }[]
 }
 
 const focusedIndex = (state: NavigatorState) => state.index ?? state.routes.length - 1
 
-// Follows the focused screens down from the root, since expo-router nests the app's layouts under its own navigator.
-// Returns nothing when a modal (settings, active ride, etc.) covers the main stack.
-function findFocusedMainStack(state: NavigatorState | undefined): NavigatorState | undefined {
-  const route = state?.routes[focusedIndex(state)]
-  if (!route) return undefined
-  return route.name === "(main)" ? route.state : findFocusedMainStack(route.state)
+// Follows the focused screens down to the navigator that holds the main stack and the modals presented over it.
+// expo-router nests the app's layouts under its own root navigator, so it isn't the top level.
+function findMainParent(state: NavigatorState | undefined): NavigatorState | undefined {
+  if (!state) return undefined
+  if (state.routes.some((route) => route.name === "(main)")) return state
+  return findMainParent(state.routes[focusedIndex(state)]?.state)
 }
 
 /**
- * Counts the screens a previous deep link left on the main stack: its route list and everything above it.
+ * Finds what to dismiss before opening a deep-linked route list:
+ * - `modals`: screens covering the main stack (active ride, settings, etc.), so the route list
+ *   opens in the existing main stack rather than in a new one with no way back.
+ * - `deepLinkedScreens`: the route list a previous deep link opened, and everything above it.
  */
-export function countDeepLinkedScreens(rootState: NavigatorState | undefined) {
-  const mainStack = findFocusedMainStack(rootState)
-  if (!mainStack) return 0
+export function getDeepLinkDismissals(rootState: NavigatorState | undefined) {
+  const parent = findMainParent(rootState)
+  if (!parent?.key) return undefined
 
-  const activeIndex = focusedIndex(mainStack)
-  const deepLinkIndex = mainStack.routes.findIndex(
-    (route) => route.name === "route-list" && (route.params as Record<string, unknown>)?.[DEEP_LINK_PARAM] === "true",
-  )
-  if (deepLinkIndex === -1 || deepLinkIndex > activeIndex) return 0
+  const mainIndex = parent.routes.findIndex((route) => route.name === "(main)")
+  const mainStack = parent.routes[mainIndex].state
+  const modals = Math.max(focusedIndex(parent) - mainIndex, 0)
 
-  return activeIndex - deepLinkIndex + 1
+  let deepLinkedScreens = 0
+  if (mainStack) {
+    const activeIndex = focusedIndex(mainStack)
+    const deepLinkIndex = mainStack.routes.findIndex(
+      (route) => route.name === "route-list" && (route.params as Record<string, unknown>)?.[DEEP_LINK_PARAM] === "true",
+    )
+    if (deepLinkIndex !== -1 && deepLinkIndex <= activeIndex) deepLinkedScreens = activeIndex - deepLinkIndex + 1
+  }
+
+  return { parentKey: parent.key, modals, deepLinkedScreens }
 }

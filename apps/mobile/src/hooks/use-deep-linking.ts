@@ -10,7 +10,7 @@ import { getWidgetFamilyFromURL } from "@/utils/widget-helpers"
 import { getStationById } from "@/data/stations"
 import { isWebsiteURL, parseWebsiteRouteURL } from "@/utils/helpers/web-links"
 import { getInitialWebsiteHandoffURL } from "@/utils/website-handoff"
-import { countDeepLinkedScreens, DEEP_LINK_PARAM } from "@/utils/helpers/deep-link-route-list"
+import { DEEP_LINK_PARAM, getDeepLinkDismissals } from "@/utils/helpers/deep-link-route-list"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
@@ -27,9 +27,13 @@ export function useDeepLinking(storeReady: boolean) {
    * Screens left by a previous deep link are dismissed first, so repeated widget taps don't pile up.
    */
   function openDeepLinkedRouteList(params: Record<string, string>) {
-    const previousScreens = countDeepLinkedScreens(navigationRef.isReady() ? navigationRef.getRootState() : undefined)
-    // Both go through the router's queue, so the push applies after the dismissal.
-    if (previousScreens > 0) router.dismiss(previousScreens)
+    const dismissals = getDeepLinkDismissals(navigationRef.isReady() ? navigationRef.getRootState() : undefined)
+    // Close modals right away (targeted, since the focused navigator is inside the modal), so the
+    // queued dismiss and push below run against the main stack.
+    if (dismissals?.modals) {
+      navigationRef.dispatch({ type: "POP", payload: { count: dismissals.modals }, target: dismissals.parentKey })
+    }
+    if (dismissals?.deepLinkedScreens) router.dismiss(dismissals.deepLinkedScreens)
 
     router.push({ pathname: "/route-list", params: { ...params, [DEEP_LINK_PARAM]: "true" } })
   }
