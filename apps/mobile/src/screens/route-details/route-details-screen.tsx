@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 
@@ -42,8 +42,13 @@ import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
 
+// The text button renders 4pt taller than its minimum at the default font
+// scale because of its line box and padding. Match that visible surface.
+const floatingButtonSize = (fontScale: number) => Math.max(59, 55 * Math.min(fontScale, 1.2))
+
 export function RouteDetailsScreen() {
   const router = useRouter()
+  const { rt } = useUnistyles()
   const pathname = usePathname()
   const screenName = pathname.includes("active-ride") ? "activeRide" : "routeDetails"
   const {
@@ -101,6 +106,8 @@ export function RouteDetailsScreen() {
   const insets = useSafeAreaInsets()
 
   const voucherTrain = getVoucherTrain(routeItem)
+  // During a ride the voucher button stacks above the sheet, so the route needs room to scroll past it
+  const liveVoucherRowHeight = isRideOnThisRoute && voucherTrain ? floatingButtonSize(rt.fontScale) + spacing[3] : 0
   const hasWagonData = routeItem.trains.some((train) => train.visaWagonData?.wagons?.length > 0)
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
   const [showEntireRoute, setShowEntireRoute] = useState(false)
@@ -149,7 +156,7 @@ export function RouteDetailsScreen() {
 
         <View style={{ flex: 1 }}>
           <ScrollView
-            contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom }}
+            contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom + liveVoucherRowHeight }}
             showsVerticalScrollIndicator={false}
           >
             {routeItem.isMuchLonger && screenName === "routeDetails" && <LongRouteWarning />}
@@ -339,7 +346,8 @@ export function RouteDetailsScreen() {
                 <VoucherButton train={voucherTrain} style={styles.infoButton} />
               </View>
             )}
-            <LiveRideSheet progress={progress} screenName={screenName} />
+            {/* The wrapper is already pinned to the bottom. Keeping the sheet in flow stacks the voucher button above it, not under it */}
+            <LiveRideSheet progress={progress} screenName={screenName} style={styles.liveRideSheet} />
           </Animated.View>
         )}
 
@@ -415,10 +423,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.background,
   },
   infoButton: {
-    // The text button renders 4pt taller than its minimum at the default font
-    // scale because of its line box and padding. Match that visible surface.
-    width: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
-    height: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
+    width: floatingButtonSize(rt.fontScale),
+    height: floatingButtonSize(rt.fontScale),
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Platform.select({ ios: 16, android: 6 }),
@@ -435,6 +441,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: "flex-end",
     paddingEnd: rt.insets.right + 18,
     marginBottom: theme.spacing[3],
+  },
+  liveRideSheet: {
+    position: "relative",
   },
   // Dims only the icon, so the button surface stays opaque over the route
   infoButtonIconDisabled: {
