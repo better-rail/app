@@ -13,6 +13,7 @@ import { Route as SiteRouteImport } from './routes/_site'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as Char123LocaleChar125RouteRouteImport } from './routes/{-$locale}/route'
 import { Route as SiteAboutRouteImport } from './routes/_site/about'
+import { Route as SiteAccessibilityRouteImport } from './routes/_site/accessibility'
 import { Route as SiteContactRouteImport } from './routes/_site/contact'
 import { Route as SiteImageAttributionsRouteImport } from './routes/_site/image-attributions'
 import { Route as SiteIsraelRailwaysLawsuitRouteImport } from './routes/_site/israel-railways-lawsuit'
@@ -46,6 +47,11 @@ const Char123LocaleChar125RouteRoute =
 const SiteAboutRoute = SiteAboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => SiteRoute,
+} as any)
+const SiteAccessibilityRoute = SiteAccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
   getParentRoute: () => SiteRoute,
 } as any)
 const SiteContactRoute = SiteContactRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/accessibility': typeof SiteAccessibilityRoute
   '/contact': typeof SiteContactRoute
   '/image-attributions': typeof SiteImageAttributionsRoute
   '/israel-railways-lawsuit': typeof SiteIsraelRailwaysLawsuitRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/about': typeof SiteAboutRoute
+  '/accessibility': typeof SiteAccessibilityRoute
   '/contact': typeof SiteContactRoute
   '/image-attributions': typeof SiteImageAttributionsRoute
   '/israel-railways-lawsuit': typeof SiteIsraelRailwaysLawsuitRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/_site': typeof SiteRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_site/about': typeof SiteAboutRoute
+  '/_site/accessibility': typeof SiteAccessibilityRoute
   '/_site/contact': typeof SiteContactRoute
   '/_site/image-attributions': typeof SiteImageAttributionsRoute
   '/_site/israel-railways-lawsuit': typeof SiteIsraelRailwaysLawsuitRoute
@@ -192,6 +201,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/about'
+    | '/accessibility'
     | '/contact'
     | '/image-attributions'
     | '/israel-railways-lawsuit'
@@ -211,6 +221,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/about'
+    | '/accessibility'
     | '/contact'
     | '/image-attributions'
     | '/israel-railways-lawsuit'
@@ -231,6 +242,7 @@ export interface FileRouteTypes {
     | '/_site'
     | '/sitemap.xml'
     | '/_site/about'
+    | '/_site/accessibility'
     | '/_site/contact'
     | '/_site/image-attributions'
     | '/_site/israel-railways-lawsuit'
@@ -285,6 +297,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof SiteAboutRouteImport
+      parentRoute: typeof SiteRoute
+    }
+    '/_site/accessibility': {
+      id: '/_site/accessibility'
+      path: '/accessibility'
+      fullPath: '/accessibility'
+      preLoaderRoute: typeof SiteAccessibilityRouteImport
       parentRoute: typeof SiteRoute
     }
     '/_site/contact': {
@@ -410,6 +429,7 @@ const Char123LocaleChar125RouteRouteWithChildren =
 
 interface SiteRouteChildren {
   SiteAboutRoute: typeof SiteAboutRoute
+  SiteAccessibilityRoute: typeof SiteAccessibilityRoute
   SiteContactRoute: typeof SiteContactRoute
   SiteImageAttributionsRoute: typeof SiteImageAttributionsRoute
   SiteIsraelRailwaysLawsuitRoute: typeof SiteIsraelRailwaysLawsuitRoute
@@ -421,6 +441,7 @@ interface SiteRouteChildren {
 
 const SiteRouteChildren: SiteRouteChildren = {
   SiteAboutRoute: SiteAboutRoute,
+  SiteAccessibilityRoute: SiteAccessibilityRoute,
   SiteContactRoute: SiteContactRoute,
   SiteImageAttributionsRoute: SiteImageAttributionsRoute,
   SiteIsraelRailwaysLawsuitRoute: SiteIsraelRailwaysLawsuitRoute,

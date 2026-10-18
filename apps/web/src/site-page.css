@@ -10,9 +10,9 @@
 
   .site-page {
     --page-text: #000;
-    --page-link: dodgerblue;
+    --page-link: var(--color-brand-text);
     --page-role: #2c2c2e;
-    --page-dim: #8e8e93;
+    --page-dim: #6e6e73;
     --page-rule: rgb(0 0 0 / 0.2);
     --page-callout: #eaf5fe;
     --page-update-bg: #e8f6ec;
@@ -41,6 +41,7 @@
 
   .dark .site-page {
     --page-text: var(--color-text);
+    --page-link: var(--color-brand-text);
     --page-role: var(--color-text-2);
     --page-rule: rgb(255 255 255 / 0.2);
     --page-callout: var(--color-brand-soft);
@@ -63,6 +64,17 @@
   .site-page a {
     color: var(--page-link);
     text-decoration: none;
+  }
+
+  /* Links inside running text are underlined so they don't rely on colour alone (WCAG 1.4.1). */
+  .site-page :is(p, li, .alert) a:not(.press-card) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .site-page :is(p, li, .alert) .link-underline::after {
+    display: none;
   }
 
   .site-page ul {
@@ -385,10 +397,9 @@
     font-weight: 400;
   }
 
-  /* Dodger blue is unreadable on the dark green fill. */
+  /* The brand blue is unreadable on the dark green fill. */
   .dark .site-page .update-note-link {
     color: var(--color-text);
-    text-decoration: underline;
   }
 
   .site-page .lead {

@@ -49,7 +49,11 @@ export function RecentRoutes() {
             // The vertical padding stretches the tap target to 40px without moving the cards.
             <button
               type="button"
-              onClick={recentRoutes.clear}
+              onClick={() => {
+                recentRoutes.clear()
+                // The tray goes with its button; focus moves back up to the planner instead of dropping to the page.
+                document.querySelector<HTMLElement>("#main form :is(button, input)")?.focus()
+              }}
               className="-my-2.5 animate-fade-in py-2.5 text-[13px] font-medium text-dim transition-colors hover:text-text-2"
             >
               {t("home.clearRecent")}
@@ -117,6 +121,7 @@ function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
           <span className="flex items-center gap-1 text-[14px] font-semibold text-white/75">
             <span className="truncate">{stationName(from, locale)}</span>
             <Arrow className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden="true" />
+            <span className="sr-only">{t("a11y.to")}</span>
           </span>
           <span className="truncate text-[17px] font-bold">{stationName(to, locale)}</span>
         </span>
@@ -125,7 +130,7 @@ function RecentRouteCard({ pair, taken }: { pair: Pair; taken: string[] }) {
       <button
         type="button"
         onClick={() => setReversed(!reversed)}
-        aria-label={t("home.reverseRoute")}
+        aria-label={`${t("home.reverseRoute")}: ${t("routes.summaryTitle", { from: stationName(to, locale), to: stationName(from, locale) })}`}
         title={t("home.reverseRoute")}
         className="absolute end-2 top-2 inline-flex size-8 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-sm transition-[background-color,scale,opacity] duration-150 ease-out-expo hover:bg-black/55 focus-visible:opacity-100 active:scale-90 group-hover/card:opacity-100 pointer-fine:opacity-0"
       >

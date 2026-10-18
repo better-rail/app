@@ -60,6 +60,7 @@ export function Calendar({
   const cells = useMemo(() => monthGrid(month), [month])
   const weeks = useMemo(() => Array.from({ length: 6 }, (_, week) => cells.slice(week * 7, week * 7 + 7)), [cells])
   const weekdays = useMemo(() => weekdayLabels(locale), [locale])
+  const weekdayNames = useMemo(() => weekdayLabels(locale, true), [locale])
   const tomorrow = dateKey(addDays(parseNaive(today), 1))
   const canGoBack = compareYearMonth(month, yearMonthOf(min)) > 0
   const canGoForward = compareYearMonth(month, yearMonthOf(max)) < 0
@@ -153,7 +154,8 @@ export function Calendar({
               role="columnheader"
               className="py-1 text-center text-[12px] font-semibold uppercase tracking-wide text-dim"
             >
-              {weekday}
+              <span aria-hidden="true">{weekday}</span>
+              <span className="sr-only">{weekdayNames[index]}</span>
             </div>
           ))}
         </div>
@@ -236,7 +238,7 @@ function DayCell({
       onFocus={onFocus}
       className={cn(
         "relative mx-auto flex aspect-square w-full max-w-12 items-center justify-center rounded-full text-[15px] tabular transition-colors duration-150",
-        selected ? "bg-brand font-bold text-white shadow-[0_1px_2px_rgb(0_0_0/0.2)]" : "hover:bg-surface-3",
+        selected ? "bg-brand-fill font-bold text-white shadow-[0_1px_2px_rgb(0_0_0/0.2)]" : "hover:bg-surface-3",
         !selected && isToday && "font-bold text-brand-text",
         !selected && !isToday && cell.weekend && "text-muted",
         disabled && "cursor-not-allowed opacity-35 hover:bg-transparent",

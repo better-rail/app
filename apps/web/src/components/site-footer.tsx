@@ -28,6 +28,7 @@ export function SiteFooter() {
     { to: "/privacy-policy", label: t("footer.privacy") },
     { to: "/terms", label: t("footer.terms") },
     { to: "/contact", label: t("footer.contact") },
+    { to: "/accessibility", label: t("footer.accessibility") },
   ]
 
   const socials = [

@@ -47,7 +47,8 @@ export function RouteDetails({
 
   return (
     <section className={cn("flex flex-col", className)} aria-labelledby={headingId}>
-      <h2 id={headingId} className="sr-only">
+      {/* Takes focus when a trip is picked from the list beside it (desktop). */}
+      <h2 id={headingId} tabIndex={-1} className="sr-only outline-none">
         {t("details.title")}
       </h2>
       <header className="border-b border-line/70 px-4 pb-4 pt-4 sm:px-5">
@@ -281,7 +282,7 @@ function StationRow({
         }
       />
       <div className="min-w-0 flex-1 leading-snug">
-        <p className={cn("text-[16px] font-bold", cancelled && "line-through opacity-60")}>
+        <p className={cn("text-[16px] font-bold", cancelled && "line-through text-muted")}>
           {name}
           {cancelled && <span className="sr-only">, {t("a11y.stopCancelled")}</span>}
         </p>
@@ -325,7 +326,7 @@ function StopRow({
   const t = useT()
   const delayedTime = delay > 0 ? shiftClock(time, delay) : undefined
   return (
-    <li className={cn("flex items-center gap-3 px-3 py-1.5", outside && "opacity-60")}>
+    <li className={cn("flex items-center gap-3 px-3 py-1.5", outside && "text-muted")}>
       <RowTimes
         time={time}
         delayedTime={delayedTime}
@@ -342,7 +343,7 @@ function StopRow({
           />
         }
       />
-      <p className={cn("min-w-0 flex-1 text-[14.5px] font-medium", cancelled && "line-through opacity-60")}>
+      <p className={cn("min-w-0 flex-1 text-[14.5px] font-medium", cancelled && "line-through text-muted")}>
         {name}
         {cancelled && <span className="sr-only">, {t("a11y.stopCancelled")}</span>}
       </p>
@@ -369,7 +370,7 @@ function RowTimes({
   strikeClassName: string
 }) {
   const t = useT()
-  const struck = cn("tabular line-through opacity-60", className, strikeClassName)
+  const struck = cn("tabular line-through text-muted", className, strikeClassName)
   return (
     <div className="flex w-[44px] shrink-0 flex-col items-end leading-tight" dir="ltr">
       {delayedTime && !cancelled ? (
@@ -411,7 +412,7 @@ function ExchangeBlock({ first, second }: { first: Train; second: Train }) {
             : t("details.platformChange", { platform: second.originPlatform })}
         </p>
         <p>{t("details.waitingTime", { duration: formatDuration(wait * 60_000, locale) })}</p>
-        {!safe && <p className="font-bold text-danger">{t("details.unsafeChange")}</p>}
+        {!safe && <p className="font-bold text-danger-text">{t("details.unsafeChange")}</p>}
       </div>
     </div>
   )
@@ -426,7 +427,10 @@ function Callout({ icon, title, text, tone }: { icon: ReactNode; title: string; 
       )}
       role="status"
     >
-      <span className={cn("mt-0.5 shrink-0 text-[22px] leading-none", tone === "warning" ? "text-warning-text" : "text-danger")}>
+      <span
+        aria-hidden="true"
+        className={cn("mt-0.5 shrink-0 text-[22px] leading-none", tone === "warning" ? "text-warning-text" : "text-danger")}
+      >
         {icon}
       </span>
       <div>

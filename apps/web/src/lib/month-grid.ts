@@ -65,9 +65,10 @@ export function monthTitle({ year, month }: YearMonth, locale: Locale): string {
   )
 }
 
-/** Sunday-first column headers: "א׳ … ש׳" / "Sun … Sat". Israel's week starts on Sunday in either language. */
-export function weekdayLabels(locale: Locale): string[] {
+/** Sunday-first column headers: "א׳ … ש׳" / "Sun … Sat", or with `long` the full names for screen readers. */
+export function weekdayLabels(locale: Locale, long = false): string[] {
   const sunday = Date.UTC(2023, 0, 1)
-  const format = new Intl.DateTimeFormat(intlLocale(locale), { weekday: locale === "he" ? "narrow" : "short", timeZone: "UTC" })
+  const weekday = long ? "long" : locale === "he" ? "narrow" : "short"
+  const format = new Intl.DateTimeFormat(intlLocale(locale), { weekday, timeZone: "UTC" })
   return Array.from({ length: 7 }, (_, index) => format.format(addDays(sunday, index)))
 }

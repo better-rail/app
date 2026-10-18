@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from "react"
 import { createFileRoute } from "@tanstack/react-router"
-import { ContentPage } from "@/components/content-page"
+import { ContentPage, NewTabHint } from "@/components/content-page"
 import { trackEvent } from "@/lib/analytics"
 import {
   APP_STORE_URL,
@@ -255,6 +255,7 @@ function ReleasePage() {
             onClick={() => trackEvent("download_click", { platform: "ios", source: "release-2.8" })}
           >
             <img className="download-app-badge" src="/assets/images/app-store-badge.svg" alt="הורדה לאייפון" />
+            <NewTabHint />
           </a>
           <a
             href={PLAY_STORE_URL}
@@ -263,6 +264,7 @@ function ReleasePage() {
             onClick={() => trackEvent("download_click", { platform: "android", source: "release-2.8" })}
           >
             <img className="download-app-badge" src="/assets/images/google-play-badge.svg" alt="הורדה לאנדרואיד" />
+            <NewTabHint />
           </a>
         </div>
       </aside>
@@ -271,6 +273,7 @@ function ReleasePage() {
         נשמח לשמוע מכם! מוזמנים לשלוח פידבק ולדבר איתנו ב
         <a className="link-underline" href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
           דיסקורד
+          <NewTabHint />
         </a>{" "}
         החדש שלנו.
       </p>

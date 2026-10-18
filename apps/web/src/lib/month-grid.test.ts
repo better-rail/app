@@ -53,11 +53,13 @@ describe("month arithmetic", () => {
 describe("labels", () => {
   test("hebrew", () => {
     expect(weekdayLabels("he")).toEqual(["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"])
+    expect(weekdayLabels("he", true)[0]).toBe("יום ראשון")
     expect(monthTitle({ year: 2026, month: 9 }, "he")).toBe("ספטמבר 2026")
   })
 
   test("english", () => {
     expect(weekdayLabels("en")).toEqual(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+    expect(weekdayLabels("en", true)[6]).toBe("Saturday")
     expect(monthTitle({ year: 2026, month: 9 }, "en")).toBe("September 2026")
   })
 })

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { ContentPage } from "@/components/content-page"
+import { ContentPage, NewTabHint } from "@/components/content-page"
 import { pageHead, cacheHeaders } from "@/lib/seo"
 
 const articles = [
@@ -150,6 +150,7 @@ export const Route = createFileRoute("/_site/press")({
                   <time dateTime={article.date}>{article.dateText}</time>
                 </span>
               </span>
+              <NewTabHint />
             </a>
           </li>
         ))}

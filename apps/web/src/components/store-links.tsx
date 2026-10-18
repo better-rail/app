@@ -71,11 +71,12 @@ function StoreLink({ store, showQr }: { store: Store; showQr: boolean }) {
         {store.platform === "ios" ? <AppleIcon className="size-[22px]" /> : <PlayIcon className="size-5" />}
       </a>
 
+      {/* The pseudo-element bridges the gap, so the pointer can move onto the card without closing it (WCAG 1.4.13). */}
       {showQr && open && (
         <div
           id={`qr-${store.platform}`}
           role="tooltip"
-          className="animate-fade-up absolute end-1/2 top-full z-20 mt-1 w-[168px] translate-x-1/2 rounded-2xl border border-line bg-surface p-3 text-center shadow-pop rtl:-translate-x-1/2"
+          className="animate-fade-up absolute end-1/2 top-full z-20 mt-1 w-[168px] before:absolute before:inset-x-0 before:-top-1.5 before:h-1.5 translate-x-1/2 rounded-2xl border border-line bg-surface p-3 text-center shadow-pop rtl:-translate-x-1/2"
         >
           <span className="block rounded-xl bg-white p-2">
             <img src={store.qr} alt="" aria-hidden="true" className="size-full" width={128} height={128} />

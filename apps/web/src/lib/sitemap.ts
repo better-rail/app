@@ -10,6 +10,7 @@ export const STATIC_PAGES = [
   "/press",
   "/contact",
   "/terms",
+  "/accessibility",
   "/image-attributions",
   "/israel-railways-lawsuit",
   "/gtfs-siri-issues.html",

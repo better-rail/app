@@ -127,6 +127,7 @@ export const he = {
   "footer.privacy": "מדיניות פרטיות",
   "footer.terms": "תקנון",
   "footer.contact": "יצירת קשר",
+  "footer.accessibility": "הצהרת נגישות",
   "footer.support": "תמכו בנו",
   "footer.openSource": "קוד פתוח",
   "footer.github": "GitHub",
@@ -149,6 +150,7 @@ export const he = {
   "error.genericText": "אירעה שגיאה בלתי צפויה. נסו לטעון את העמוד מחדש.",
   "error.home": "לדף הבית",
 
+  "a11y.to": "אל",
   "a11y.newTab": "(נפתח בכרטיסייה חדשה)",
   "a11y.scheduled": "מתוכנן",
   "a11y.expected": "צפוי",

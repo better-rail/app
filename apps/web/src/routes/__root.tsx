@@ -7,6 +7,7 @@ import heeboLatin from "../fonts/Heebo-latin.woff2?url"
 import { defaultLocale, dir, htmlLang, isLocale, type Locale } from "@/i18n"
 import { POSTHOG_SNIPPET } from "@/lib/analytics"
 import { APP_STORE_ID, SITE_NAME } from "@/lib/seo"
+import { RouteAnnouncer } from "@/components/route-announcer"
 
 interface RouterContext {
   queryClient: QueryClient
@@ -62,6 +63,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <RouteAnnouncer />
         <Scripts />
       </body>
     </html>

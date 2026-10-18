@@ -1,10 +1,15 @@
 import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
+import { useEffect } from "react"
 import { useLocale, translate } from "@/i18n"
+import { SITE_NAME } from "@/lib/seo"
 import { EnsureSiteLayout } from "./site-layout"
 
 export function ErrorPage({ error, reset }: ErrorComponentProps) {
   const locale = useLocale()
   const router = useRouter()
+  useEffect(() => {
+    document.title = `${SITE_NAME} - ${translate(locale, "error.generic")}`
+  }, [locale])
   // `reset` only clears the boundary; the match still holds the error, so the route has to load again as well.
   const tryAgain = () => {
     reset()
