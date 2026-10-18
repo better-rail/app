@@ -96,8 +96,9 @@ export function VoucherOrderScreen() {
           textContentType="telephoneNumber"
           autoComplete="tel"
           autoFocus={!savedPhone}
-          returnKeyType="send"
-          onSubmitEditing={sendCode}
+          // iOS floats the phone pad's return key over the send button, so it's Android-only
+          returnKeyType={Platform.OS === "android" ? "send" : undefined}
+          onSubmitEditing={Platform.OS === "android" ? sendCode : undefined}
           style={[styles.phoneInput, !!error && styles.phoneInputError]}
           placeholderTextColor={theme.colors.placeholder}
         />
