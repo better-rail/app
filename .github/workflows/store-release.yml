@@ -1,0 +1,79 @@
+name: Store Release
+
+# Runs on version tags like v2.8.7; OTA tags (v2.8.7-update.1) don't match.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  eas-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the tag matches the app version
+        run: |
+          VERSION=$(grep -oE '^  version: "[^"]+"' apps/mobile/app.config.ts | cut -d'"' -f2)
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match app version $VERSION in app.config.ts"
+            exit 1
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Start production builds and submit them to the stores
+        working-directory: apps/mobile
+        run: eas build --platform all --profile production --auto-submit --non-interactive --no-wait
+
+  draft-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Draft GitHub release
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping"
+            exit 0
+          fi
+
+          PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' "$TAG^")
+
+          # Group the PRs merged since the last version by their Conventional Commit type.
+          # Scoped web/server/conductor changes stay out of the app's release notes.
+          features="" improvements="" fixes=""
+          for pr in $(git log --format=%s "$PREV..$TAG" | grep -oE '\(#[0-9]+\)$' | tr -dc '0-9\n'); do
+            read -r author title < <(gh pr view "$pr" --json author,title -q '.author.login + " " + .title')
+            [[ "$title" =~ ^([a-z]+)(\(([a-z-]+)\))?!?:\ (.*)$ ]] || continue
+            type="${BASH_REMATCH[1]}" scope="${BASH_REMATCH[3]}" desc="${BASH_REMATCH[4]}"
+            [[ -z "$scope" || "$scope" == "mobile" ]] || continue
+            line="- ${desc^} by @$author in $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$pr"$'\n'
+            case "$type" in
+              feat) features+="$line" ;;
+              perf | refactor) improvements+="$line" ;;
+              fix) fixes+="$line" ;;
+            esac
+          done
+
+          {
+            [ -n "$features" ] && printf '## ✨ New Features\n%s\n' "$features"
+            [ -n "$improvements" ] && printf '## 👍 Improvements\n%s\n' "$improvements"
+            [ -n "$fixes" ] && printf '## 🐛 Bug Fixes\n%s\n' "$fixes"
+            echo "**Full Changelog**: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/compare/$PREV...$TAG"
+          } > notes.md
+
+          gh release create "$TAG" --draft --verify-tag --title "$TAG" --notes-file notes.md
