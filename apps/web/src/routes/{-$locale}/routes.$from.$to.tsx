@@ -3,12 +3,12 @@ import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@ta
 import { useDeferredValue, useEffect, useId, useRef, useState, ViewTransition } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Eye, EyeOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
-import { RouteList } from "@/components/routes/route-list"
+import { RouteList, type ArriveByLine } from "@/components/routes/route-list"
 import { RouteDetails } from "@/components/routes/route-details"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
-import { summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/route-format"
+import { arriveByRoute, firstArrival, summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/route-format"
 import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
 import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
 import { requestOrigin } from "@/lib/request-origin"
@@ -23,6 +23,7 @@ import {
   formatClock,
   isValidClock,
   isValidDateKey,
+  minutesBetween,
   naiveFromParts,
   naiveNow,
   startOfDay,
@@ -73,6 +74,8 @@ interface RoutesPageSearch {
   /** First day shown in the list */
   date?: string
   time?: string
+  /** An arrival time, asked for instead of `time` */
+  arrive?: string
   /** Train numbers of the selected journey */
   trip?: string
   /** Service day of the selected journey, when it is not the first day shown */
@@ -90,15 +93,25 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
   validateSearch: (search: Record<string, unknown>): RoutesPageSearch => {
     const date = searchString(search.date)
     const time = searchString(search.time)
+    const arrive = searchString(search.arrive)
     const day = searchString(search.day)
+    const arriveBy = arrive && isValidClock(arrive) ? arrive : undefined
     return {
       date: date && isValidDateKey(date) ? date : undefined,
-      time: time && isValidClock(time) ? time : undefined,
+      // One or the other: an arrival time wins over a departure time left beside it.
+      time: !arriveBy && time && isValidClock(time) ? time : undefined,
+      arrive: arriveBy,
       trip: searchString(search.trip),
       day: day && isValidDateKey(day) ? day : undefined,
     }
   },
-  loaderDeps: ({ search }) => ({ date: search.date, time: search.time, trip: search.trip, day: search.day }),
+  loaderDeps: ({ search }) => ({
+    date: search.date,
+    time: search.time,
+    arrive: search.arrive,
+    trip: search.trip,
+    day: search.day,
+  }),
   beforeLoad: ({ params }) => {
     const origin = getStationById(params.from)
     const destination = getStationById(params.to)
@@ -108,27 +121,42 @@ export const Route = createFileRoute("/{-$locale}/routes/$from/$to")({
   loader: async ({ context, deps }) => {
     const now = naiveNow()
     const date = deps.date ?? dateKey(now)
-    const hour = deps.time ?? formatClock(now)
-    const search = { originId: context.origin.id, destinationId: context.destination.id, date, hour }
+    const hour = deps.arrive ?? deps.time ?? formatClock(now)
+    const stations = { originId: context.origin.id, destinationId: context.destination.id }
+    let search: RoutesSearch = { ...stations, date, hour }
 
     let result: RoutesResult | null = null
     try {
       result = await context.queryClient.ensureQueryData(routesQueryOptions(search))
+      // A day's list starts at midnight, so an arrival in the small hours that nothing after midnight makes is answered
+      // by the night before, whose last trains get in after it. From 04:00, when the service day starts (`apiHourFor`),
+      // the day's own list stands, with its "first one arrives at" notice.
+      const deadline = naiveFromParts(date, hour)
+      if (deps.arrive && hour < "04:00" && result.resultType === "normal" && !arriveByRoute(result.routes, deadline)) {
+        const nightBefore = { ...stations, date: dateKey(addDays(parseNaive(date), -1)), hour: "12:00" }
+        const earlier = await context.queryClient.ensureQueryData(routesQueryOptions(nightBefore))
+        if (earlier.resultType === "normal" && arriveByRoute(earlier.routes, deadline)) {
+          search = nightBefore
+          result = earlier
+        }
+      }
     } catch {
       // The page still renders (with an error state + retry) when the timetable API is unreachable.
     }
 
     const routes = result?.routes ?? []
-    const resultDate = result?.resultDate ?? date
+    const resultDate = result?.resultDate ?? search.date
     return {
       date,
       hour,
+      /** The list shown: the requested day's, or the night before's for an arrival in the small hours */
+      list: { date: search.date, hour: search.hour },
       now,
       apiFailed: result === null,
       summary: summarizeRoutes(routes),
       resultDate,
       selected: deps.trip ? await selectedTrip(context.queryClient, search, routes, resultDate, deps.trip, deps.day) : null,
-      requested: { date: deps.date, time: deps.time },
+      requested: { date: deps.date, time: deps.time, arrive: deps.arrive },
       siteOrigin: requestOrigin(),
       trips: routes.slice(0, 40).map<JsonLdTrip>((route) => ({
         departureTime: toIsoWithOffset(route.departureTime),
@@ -156,7 +184,7 @@ interface RoutesHeadData {
   summary: RouteSummary | null
   trips: JsonLdTrip[]
   selected: TripFacts | null
-  requested: { date?: string; time?: string }
+  requested: { date?: string; time?: string; arrive?: string }
   siteOrigin: string
 }
 
@@ -274,13 +302,11 @@ function RoutesPage() {
   const [hideSlowTrains, setHideSlowTrains] = useHideSlowTrains()
   const href = useRouterState({ select: (s) => s.location.href })
 
-  const baseSearch = { originId: origin.id, destinationId: destination.id, date: data.date, hour: data.hour }
+  const baseSearch = { originId: origin.id, destinationId: destination.id, ...data.list }
   const query = useQuery({ ...routesQueryOptions(baseSearch), refetchInterval: ROUTES_REFETCH_INTERVAL_MS })
   const routes = query.data?.routes ?? []
   const resultType = query.data?.resultType ?? "normal"
-  // Judged here rather than on the server: the query is shared across hours (`routesQueryOptions` normalises it), so
-  // only the page knows the hour actually asked for.
-  const differentHour = resultType === "normal" && isDifferentHour(routes, naiveFromParts(data.date, data.hour))
+  const requested = naiveFromParts(data.date, data.hour)
 
   const [extraDays, setExtraDays] = useState(0)
   useEffect(() => setExtraDays(0), [data.date, origin.id, destination.id])
@@ -324,6 +350,21 @@ function RoutesPage() {
   // With the filter on, a sparse day can lose every one of its trains; the list says so rather than going blank.
   const visibleRoutes = filterSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
+  // Arrive-by: the list draws the time asked for under the trip that makes it, and the page opens there. Not on another
+  // day's timetable (the requested one had no service), where that time means nothing.
+  const arrivalTarget = search.arrive && resultType === "normal" ? arriveByRoute(visibleRoutes, requested) : undefined
+  const arriveBy: ArriveByLine | undefined =
+    search.arrive && resultType === "normal" && visibleRoutes.length > 0
+      ? { time: search.arrive, afterId: arrivalTarget?.id ?? null }
+      : undefined
+  const firstIn = arriveBy && !arrivalTarget ? firstArrival(visibleRoutes) : undefined
+  // Judged here rather than on the server: the query is shared across hours (`routesQueryOptions` normalises it), so
+  // only the page knows the hour actually asked for.
+  const differentHour =
+    resultType === "normal" &&
+    (search.arrive
+      ? arrivalTarget !== undefined && minutesBetween(arrivalTarget.arrivalTime, requested) >= 90
+      : isDifferentHour(routes, requested))
   // What the live region says. A failed load is left to the error card's alert; a background refresh keeps the text,
   // so it is not read out again every interval.
   const resultsStatus = query.isPending
@@ -440,7 +481,7 @@ function RoutesPage() {
   // The API returns the whole day, so a search for tomorrow at 16:00 would otherwise open on the first train of the
   // morning. Once the day's cards are in, the one leaving closest to the requested time is brought up under the
   // toolbar, as the app opens its list — unless it is already on screen, which the next train is for a search for
-  // "now". A trip in the link is what the reader was sent to look at, so on arrival that scroll wins instead.
+  // "now". An arrival time opens on the line drawn under the trip that makes it instead. A trip in the link is what the reader was sent to look at, so on arrival that scroll wins instead.
   // Measured a frame later, like the details panel: on a cold load the toolbar may still be re-laying out for the
   // viewport.
   const scrolledToTime = useRef<string>(undefined)
@@ -450,7 +491,7 @@ function RoutesPage() {
     const pair = `${origin.id}-${destination.id}`
     // Keyed on the search itself: the loader's own clock moves on with every trip picked (`trip` is one of its
     // deps), and a key built from it would send the list back to "now" a moment after each selection.
-    const key = `${pair}@${search.date ?? "now"}T${search.time ?? "now"}`
+    const key = `${pair}@${search.date ?? "now"}T${search.arrive ? `arrive-${search.arrive}` : (search.time ?? "now")}`
     if (scrolledToTime.current === key) return
     const arriving = scrolledToTime.current === undefined
     // A trip still on the page is what the reader is looking at; the trip effect above owns the scroll while it is.
@@ -473,10 +514,21 @@ function RoutesPage() {
       if (standDown) return
     }
 
-    const requested = naiveFromParts(data.date, data.hour)
     requestAnimationFrame(() => {
       // Below `lg` the list is hidden while a trip's details are open — nothing to scroll to.
       if (!list.isConnected || list.offsetParent === null) return
+      const line = search.arrive ? list.querySelector<HTMLElement>("ol:not([data-day]) [data-arrive-by]") : null
+      if (line) {
+        // The line goes two thirds of the way down the room below the bars: the trip that makes it sits just above,
+        // the earlier ones above that, and a late one or two show below. Left alone when it and that trip are in view.
+        const { top, bottom } = line.getBoundingClientRect()
+        const cardTop = line.previousElementSibling?.getBoundingClientRect().top ?? top
+        if (cardTop >= resultsTop() && bottom <= window.innerHeight) return
+        const bars = barsBottom()
+        const delta = Math.min(top - (bars + (window.innerHeight - bars) * 0.65), roomBelowList(detailsRef.current))
+        window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
+        return
+      }
       let card: HTMLElement | undefined
       let closest = Infinity
       for (const candidate of Array.from(list.querySelectorAll<HTMLElement>("ol:not([data-day]) [data-route-id]"))) {
@@ -498,7 +550,18 @@ function RoutesPage() {
       // turns off).
       window.scrollTo({ top: window.scrollY + delta, behavior: replaced ? "instant" : "auto" })
     })
-  }, [query.data, data.date, data.hour, origin.id, destination.id, search.date, search.time, search.trip, selected, remembered])
+  }, [
+    query.data,
+    requested,
+    origin.id,
+    destination.id,
+    search.date,
+    search.time,
+    search.arrive,
+    search.trip,
+    selected,
+    remembered,
+  ])
 
   return (
     <div ref={pageRef} className="flex flex-1 flex-col">
@@ -515,7 +578,13 @@ function RoutesPage() {
             variant="results"
             today={dateKey(now)}
             now={formatClock(now)}
-            initial={{ origin, destination, date: search.date, time: search.time }}
+            initial={{
+              origin,
+              destination,
+              date: search.date,
+              time: search.arrive ?? search.time,
+              arrive: search.arrive ? true : undefined,
+            }}
           />
         </div>
       </section>
@@ -556,6 +625,9 @@ function RoutesPage() {
             />
           )}
           {differentHour && <Notice text={t("routes.differentHour")} />}
+          {search.arrive && firstIn !== undefined && (
+            <Notice text={t("routes.noneArriveBy", { time: search.arrive, first: formatClock(firstIn) })} />
+          )}
 
           {/* Always mounted, so screen readers hear the search settle — the skeleton and the cards say it only by sight. */}
           <p role="status" className="sr-only">
@@ -606,6 +678,8 @@ function RoutesPage() {
               to={destination.id}
               date={search.date}
               time={search.time}
+              arrive={search.arrive}
+              arriveBy={arriveBy}
               selectedId={search.trip}
               now={now}
             />
@@ -622,6 +696,7 @@ function RoutesPage() {
                     destination={destination}
                     date={search.date}
                     time={search.time}
+                    arrive={search.arrive}
                     selectedId={search.trip}
                     now={now}
                     hideSlowTrains={filterSlowTrains}
@@ -747,6 +822,7 @@ function ExtraDay({
   destination,
   date,
   time,
+  arrive,
   selectedId,
   now,
   hideSlowTrains,
@@ -757,6 +833,7 @@ function ExtraDay({
   destination: Station
   date?: string
   time?: string
+  arrive?: string
   selectedId?: string
   now: NaiveTime
   hideSlowTrains: boolean
@@ -794,6 +871,7 @@ function ExtraDay({
           to={destination.id}
           date={date}
           time={time}
+          arrive={arrive}
           selectedId={selectedId}
           now={now}
           day={dateKey(day)}

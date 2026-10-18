@@ -1,5 +1,13 @@
 import { describe, expect, test } from "bun:test"
-import { belongsToRequestedDay, formatTravels, summarizeRoutes, isRouteInThePast, isDifferentHour } from "./route-format"
+import {
+  arriveByRoute,
+  belongsToRequestedDay,
+  firstArrival,
+  formatTravels,
+  summarizeRoutes,
+  isRouteInThePast,
+  isDifferentHour,
+} from "./route-format"
 import { parseNaive } from "@/lib/time"
 import type { ApiTravel } from "./types"
 
@@ -121,6 +129,39 @@ describe("helpers", () => {
     expect(isDifferentHour(routes, parseNaive("2026-09-05T11:30:00"))).toBe(true)
     expect(isDifferentHour(routes, parseNaive("2026-09-05T21:40:00"))).toBe(true)
     expect(isDifferentHour([], parseNaive("2026-09-05T09:00:00"))).toBe(false)
+  })
+
+  test("arriveByRoute takes the last trip to leave of those that make it", () => {
+    const withSlow = formatTravels(
+      [
+        travel([train(1, 3700, 680, "2026-09-05T08:00:00", "2026-09-05T08:40:00")]),
+        travel([train(4, 3700, 680, "2026-09-05T08:50:00", "2026-09-05T09:55:00")]),
+        travel([train(2, 3700, 680, "2026-09-05T09:00:00", "2026-09-05T09:40:00")]),
+      ],
+      "2026-09-05",
+    )
+    // The slow train arrives closest to 09:58, but the 09:00 leaves later and is in first.
+    expect(arriveByRoute(withSlow, parseNaive("2026-09-05T09:58:00"))?.trains[0].trainNumber).toBe(2)
+    expect(arriveByRoute(withSlow, parseNaive("2026-09-05T09:40:00"))?.trains[0].trainNumber).toBe(2)
+    expect(arriveByRoute(withSlow, parseNaive("2026-09-05T09:39:00"))?.trains[0].trainNumber).toBe(1)
+    expect(arriveByRoute(withSlow, parseNaive("2026-09-05T08:39:00"))).toBeUndefined()
+  })
+
+  test("arriveByRoute counts the live delay", () => {
+    const late = formatTravels(
+      [
+        travel([train(1, 3700, 680, "2026-09-05T08:00:00", "2026-09-05T08:40:00")]),
+        travel([train(2, 3700, 680, "2026-09-05T09:00:00", "2026-09-05T09:40:00", { trainPosition: { calcDiffMinutes: 10 } })]),
+      ],
+      "2026-09-05",
+    )
+    expect(arriveByRoute(late, parseNaive("2026-09-05T09:45:00"))?.trains[0].trainNumber).toBe(1)
+    expect(arriveByRoute(late, parseNaive("2026-09-05T09:50:00"))?.trains[0].trainNumber).toBe(2)
+  })
+
+  test("firstArrival", () => {
+    expect(firstArrival(routes)).toBe(parseNaive("2026-09-05T08:40:00"))
+    expect(firstArrival([])).toBeUndefined()
   })
 
   test("summarizeRoutes", () => {

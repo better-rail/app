@@ -14,6 +14,7 @@ import { useLocaleParam } from "../locale-link"
 import { StationPicker } from "./station-picker"
 import { DateTimePicker, type DateTimeValue } from "./date-time-picker"
 import { SwapButton } from "./swap-button"
+import { snapClock } from "./time-wheel"
 
 export interface PlannerValue extends DateTimeValue {
   origin?: Station
@@ -21,11 +22,17 @@ export interface PlannerValue extends DateTimeValue {
 }
 
 /**
- * Both keys are always present so that merging this over the current search clears a stale `?date=&time=` when the
- * planner is reset back to "now" — TanStack Router drops the undefined ones from the URL.
+ * Every key is always present so that merging this over the current search clears a stale `?date=&time=` when the
+ * planner is reset back to "now" — TanStack Router drops the undefined ones from the URL. An arrival time goes out as
+ * `?arrive=` instead of `?time=`; "arrive by now" has no time of its own, so it takes the one the wheel showed.
  */
-export function routeSearchParams(value: DateTimeValue) {
-  return { date: value.date || undefined, time: value.time || undefined }
+export function routeSearchParams(value: DateTimeValue, now: string) {
+  const time = value.time || undefined
+  return {
+    date: value.date || undefined,
+    time: value.arrive ? undefined : time,
+    arrive: value.arrive ? (time ?? snapClock(now)) : undefined,
+  }
 }
 
 /** The swap's glide: the cards leave and land gently, like two things physically trading places. */
@@ -71,7 +78,7 @@ export function Planner({
   useEffect(() => {
     if (initial && (autoNavigate || !dirty)) setValue((current) => ({ ...current, ...initial }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initial?.origin?.id, initial?.destination?.id, initial?.date, initial?.time, autoNavigate])
+  }, [initial?.origin?.id, initial?.destination?.id, initial?.date, initial?.time, initial?.arrive, autoNavigate])
 
   const sameStation = Boolean(value.origin && value.destination && value.origin.id === value.destination.id)
   const ready = Boolean(value.origin && value.destination) && !sameStation
@@ -101,7 +108,12 @@ export function Planner({
     if (!next.origin || !next.destination || next.origin.id === next.destination.id) return
     if (record) {
       recentRoutes.add({ originId: next.origin.id, destinationId: next.destination.id })
-      trackEvent("route_search", { origin: next.origin.id, destination: next.destination.id, variant })
+      trackEvent("route_search", {
+        origin: next.origin.id,
+        destination: next.destination.id,
+        variant,
+        time_type: next.arrive ? "arrival" : "departure",
+      })
     }
     // Settles once the results page has loaded: the router keeps this page on screen until then.
     return navigate({
@@ -109,7 +121,7 @@ export function Planner({
       params: { locale, from: next.origin.id, to: next.destination.id },
       search: (prev: Record<string, unknown>) => ({
         ...(autoNavigate ? prev : {}),
-        ...routeSearchParams(next),
+        ...routeSearchParams(next, now),
         ...(keepTrip ? {} : { trip: undefined, day: undefined }),
       }),
     })
@@ -190,7 +202,7 @@ export function Planner({
         </div>
         <div role="group" aria-labelledby={leaveAtId} className="col-span-2 min-w-0 lg:col-span-1">
           <span id={leaveAtId} className="sr-only">
-            {t("plan.leaveAt")}
+            {t(value.arrive ? "plan.arriveAt" : "plan.leaveAt")}
           </span>
           <DateTimePicker
             today={today}
@@ -260,8 +272,9 @@ export function Planner({
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
         <div role="group" aria-labelledby={leaveAtId} className="flex-1">
-          <span id={leaveAtId} className="mb-1.5 block text-[13px] font-semibold uppercase tracking-wide text-muted">
-            {t("plan.leaveAt")}
+          {/* Named for screen readers only: an arrival time says so in the field itself. */}
+          <span id={leaveAtId} className="sr-only">
+            {t(value.arrive ? "plan.arriveAt" : "plan.leaveAt")}
           </span>
           {/* Through `update` like the stations: it marks the form dirty, so the stored plan can no longer overwrite
               the day the user just picked. Nothing is persisted or navigated — the stations haven't changed. */}
