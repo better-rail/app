@@ -131,7 +131,7 @@ export const en: Record<TranslationKey, string> = {
   "footer.privacy": "Privacy policy",
   "footer.terms": "Terms",
   "footer.contact": "Contact",
-  "footer.accessibility": "Accessibility statement",
+  "footer.accessibility": "Accessibility",
   "footer.support": "Support us",
   "footer.openSource": "Open source",
   "footer.github": "GitHub",
