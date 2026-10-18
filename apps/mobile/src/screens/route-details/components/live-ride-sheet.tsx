@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, Platform, View } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, Platform, View, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -15,11 +15,11 @@ import { getNextArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
 // TODO: add typings to progress
-export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
+export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide"; style?: ViewStyle }) {
   const { id, stopRide, arrivalAlarm } = useRideStore(
     useShallow((s) => ({ id: s.id, stopRide: s.stopRide, arrivalAlarm: s.arrivalAlarm })),
   )
-  const { progress, screenName } = props
+  const { progress, screenName, style } = props
 
   const router = useRouter()
 
@@ -43,7 +43,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
   })()
 
   return (
-    <BottomScreenSheet>
+    <BottomScreenSheet style={style}>
       <View style={styles.progress}>
         <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
           {progressText}
