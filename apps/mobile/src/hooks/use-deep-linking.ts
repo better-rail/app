@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import { EmitterSubscription, Linking, NativeEventEmitter } from "react-native"
 import { router, useNavigationContainerRef } from "expo-router"
+import type { NavigationState } from "expo-router/react-navigation"
 import { extractURLParams } from "@/utils/helpers/url"
 import { donateRouteIntent, reloadAllTimelines } from "@/utils/ios-helpers"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
@@ -10,7 +11,6 @@ import { getWidgetFamilyFromURL } from "@/utils/widget-helpers"
 import { getStationById } from "@/data/stations"
 import { isWebsiteURL, parseWebsiteRouteURL } from "@/utils/helpers/web-links"
 import { getInitialWebsiteHandoffURL } from "@/utils/website-handoff"
-import { DEEP_LINK_PARAM, getDeepLinkDismissals } from "@/utils/helpers/deep-link-route-list"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
@@ -23,19 +23,26 @@ export function useDeepLinking(storeReady: boolean) {
   const navigationRef = useNavigationContainerRef()
 
   /**
-   * Opens the route list on top of the current screen, so going back returns to where the user was.
-   * Screens left by a previous deep link are dismissed first, so repeated widget taps don't pile up.
+   * Closes modals covering the main stack and the screens a previous deep link opened, so the next
+   * deep-linked route list opens where the user was, without piling up on repeated widget taps.
    */
-  function openDeepLinkedRouteList(params: Record<string, string>) {
-    const dismissals = getDeepLinkDismissals(navigationRef.isReady() ? navigationRef.getRootState() : undefined)
-    // Close modals right away (targeted, since the focused navigator is inside the modal), so the
-    // queued dismiss and push below run against the main stack.
-    if (dismissals?.modals) {
-      navigationRef.dispatch({ type: "POP", payload: { count: dismissals.modals }, target: dismissals.parentKey })
+  function dismissDeepLinkedScreens() {
+    // expo-router nests the app's layouts under its own root navigator.
+    let parent = navigationRef.isReady() ? navigationRef.getRootState() : undefined
+    while (parent && !parent.routes.some((route) => route.name === "(main)")) {
+      parent = parent.routes[parent.index]?.state as NavigationState | undefined
     }
-    if (dismissals?.deepLinkedScreens) router.dismiss(dismissals.deepLinkedScreens)
+    if (!parent) return
 
-    router.push({ pathname: "/route-list", params: { ...params, [DEEP_LINK_PARAM]: "true" } })
+    const mainIndex = parent.routes.findIndex((route) => route.name === "(main)")
+    // Targeted, since the focused navigator is inside the modal. The queued dismiss and push then run on the main stack.
+    if (parent.index > mainIndex) {
+      navigationRef.dispatch({ type: "POP", payload: { count: parent.index - mainIndex }, target: parent.key })
+    }
+
+    const mainRoutes = parent.routes[mainIndex].state?.routes ?? []
+    const deepLinkIndex = mainRoutes.findIndex((route) => (route.params as { deepLink?: string })?.deepLink === "true")
+    if (deepLinkIndex !== -1) router.dismiss(mainRoutes.length - deepLinkIndex)
   }
 
   function deepLinkWidgetURL(url: string) {
@@ -53,11 +60,16 @@ export function useDeepLinking(storeReady: boolean) {
     routePlan.setOrigin(origin)
     routePlan.setDestination(destination)
 
-    openDeepLinkedRouteList({
-      originId,
-      destinationId,
-      time: String(new Date().getTime()),
-      enableQuery: "true",
+    dismissDeepLinkedScreens()
+    router.push({
+      pathname: "/route-list",
+      params: {
+        originId,
+        destinationId,
+        time: String(new Date().getTime()),
+        enableQuery: "true",
+        deepLink: "true",
+      },
     })
 
     reloadAllTimelines()
@@ -89,13 +101,18 @@ export function useDeepLinking(storeReady: boolean) {
     // The website searches by departure time only.
     routePlan.setDateType("departure")
 
-    openDeepLinkedRouteList({
-      originId: origin.id,
-      destinationId: destination.id,
-      time: String(route.time),
-      enableQuery: "true",
-      ...(route.trip ? { trip: route.trip } : {}),
-      ...(viaStation ? { viaStationId: viaStation.id } : {}),
+    dismissDeepLinkedScreens()
+    router.push({
+      pathname: "/route-list",
+      params: {
+        originId: origin.id,
+        destinationId: destination.id,
+        time: String(route.time),
+        enableQuery: "true",
+        deepLink: "true",
+        ...(route.trip ? { trip: route.trip } : {}),
+        ...(viaStation ? { viaStationId: viaStation.id } : {}),
+      },
     })
   }
 
@@ -128,12 +145,16 @@ export function useDeepLinking(storeReady: boolean) {
     routePlan.setDestination(destination)
     routePlan.setDate(new Date())
 
-    if (!origin || !destination) return
-    openDeepLinkedRouteList({
-      originId: origin.id,
-      destinationId: destination.id,
-      time: String(new Date().getTime()),
-      enableQuery: "true",
+    dismissDeepLinkedScreens()
+    router.push({
+      pathname: "/route-list",
+      params: {
+        originId: origin?.id,
+        destinationId: destination?.id,
+        time: String(new Date().getTime()),
+        enableQuery: "true",
+        deepLink: "true",
+      },
     })
   }
 
