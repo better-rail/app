@@ -299,8 +299,7 @@ function TimeField({
   }
   const { input, button, focusTrigger, onInputFocus } = useTrigger(open, openPicker)
 
-  // "Arrive by now" searches on the wheel's minute (see `routeSearchParams`), so that's the one shown.
-  const display = open ? draft : (value ?? (arrive ? snapClock(now) : now))
+  const display = open ? draft : (value ?? now)
   // Only an arrival time is marked: leaving at the time shown is what the field has always meant.
   const caption = (open ? draftArrive : arrive) ? t("plan.arriveBy") : undefined
 

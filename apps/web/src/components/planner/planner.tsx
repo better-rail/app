@@ -14,7 +14,6 @@ import { useLocaleParam } from "../locale-link"
 import { StationPicker } from "./station-picker"
 import { DateTimePicker, type DateTimeValue } from "./date-time-picker"
 import { SwapButton } from "./swap-button"
-import { snapClock } from "./time-wheel"
 
 export interface PlannerValue extends DateTimeValue {
   origin?: Station
@@ -24,14 +23,15 @@ export interface PlannerValue extends DateTimeValue {
 /**
  * Every key is always present so that merging this over the current search clears a stale `?date=&time=` when the
  * planner is reset back to "now" — TanStack Router drops the undefined ones from the URL. An arrival time goes out as
- * `?arrive=` instead of `?time=`; "arrive by now" has no time of its own, so it takes the one the wheel showed.
+ * `?arrive=` instead of `?time=`; "arrive by now" has no time of its own, so it takes the current minute — unrounded,
+ * as the wheel's rounding would carry 23:58 into 00:00 of the same day.
  */
 export function routeSearchParams(value: DateTimeValue, now: string) {
   const time = value.time || undefined
   return {
     date: value.date || undefined,
     time: value.arrive ? undefined : time,
-    arrive: value.arrive ? (time ?? snapClock(now)) : undefined,
+    arrive: value.arrive ? (time ?? now) : undefined,
   }
 }
 
