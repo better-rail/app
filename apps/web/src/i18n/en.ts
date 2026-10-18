@@ -131,6 +131,7 @@ export const en: Record<TranslationKey, string> = {
   "footer.privacy": "Privacy policy",
   "footer.terms": "Terms",
   "footer.contact": "Contact",
+  "footer.accessibility": "Accessibility",
   "footer.support": "Support us",
   "footer.openSource": "Open source",
   "footer.github": "GitHub",
@@ -153,6 +154,7 @@ export const en: Record<TranslationKey, string> = {
   "error.genericText": "An unexpected error occurred. Try reloading the page.",
   "error.home": "Back home",
 
+  "a11y.to": "to",
   "a11y.newTab": "(opens in a new tab)",
   "a11y.scheduled": "scheduled",
   "a11y.expected": "expected",

@@ -148,7 +148,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-text: #1c1c1e;
   --color-text-2: #3a3a3c;
   --color-muted: #6e6e73;
-  --color-dim: #686e7c;
+  --color-dim: #5f6470;
   --color-line: #e2e2e8;
   --color-line-strong: #c9c9d1;
   --color-brand: #0a81dd;
@@ -165,6 +165,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   /* Text on the soft fills (and on surfaces): the accents themselves are too light for small text to pass AA. */
   --color-success-text: #1a7f05;
   --color-danger: #cc3329;
+  --color-danger-text: #b8291f;
   --color-danger-badge: #cf4535;
   --color-warning: #ff9500;
   --color-warning-soft: #fff3df;
@@ -184,7 +185,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-text: #f2f2f7;
   --color-text-2: #d1d1d6;
   --color-muted: #a1a1aa;
-  --color-dim: #8e8e93;
+  --color-dim: #9a9aa0;
   --color-line: #2f2f33;
   --color-line-strong: #46464b;
   --color-brand: #3b9cf0;
@@ -199,6 +200,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-success-soft: #475a42;
   --color-success-text: #8fdc7b;
   --color-danger: #ff6b5e;
+  --color-danger-text: #ff9b92;
   --color-danger-badge: #b22e4d;
   --color-warning: #ffb340;
   --color-warning-soft: #3a2d12;
@@ -236,6 +238,7 @@ html:active-view-transition-type(page)::view-transition-new(root) {
   --color-success-soft: var(--color-success-soft);
   --color-success-text: var(--color-success-text);
   --color-danger: var(--color-danger);
+  --color-danger-text: var(--color-danger-text);
   --color-danger-badge: var(--color-danger-badge);
   --color-warning: var(--color-warning);
   --color-warning-soft: var(--color-warning-soft);
@@ -401,8 +404,9 @@ html:active-view-transition-type(page)::view-transition-new(root) {
     transform: scaleX(1);
   }
 
+  /* Darkens fast enough that the station name, in the lower half, keeps 3:1 even over a white patch of sky. */
   .station-photo-gradient {
-    background: linear-gradient(to bottom, rgb(0 0 0 / 0.05) 0%, rgb(0 0 0 / 0.65) 100%);
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.05) 0%, rgb(0 0 0 / 0.45) 50%, rgb(0 0 0 / 0.7) 100%);
   }
 }
 

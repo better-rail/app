@@ -127,15 +127,19 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
   const [text, setText] = useState<string | null>(null)
   const anchor = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
-  const { input, button, focusTrigger, onInputFocus } = useTrigger(open, () => setOpen(true))
+  /** Shown and read out when typed text is dropped, since the field quietly reverts to its last value */
+  const [notice, setNotice] = useState("")
+  const openPicker = () => {
+    setNotice("")
+    setOpen(true)
+  }
+  const { input, button, focusTrigger, onInputFocus } = useTrigger(open, openPicker)
 
   const typed = text === null ? null : parseDateInput(text, today)
   const selected = typed ?? value ?? today
   const display = formatDateField(selected, locale, today)
   const max = dateKey(addDays(parseNaive(today), MAX_DAYS_AHEAD))
   const invalid = Boolean(text?.trim()) && (!typed || typed > max)
-  /** Read out when typed text is dropped, which would otherwise go unnoticed off screen */
-  const [notice, setNotice] = useState("")
 
   /** Applies what was typed; text that is unparseable — or past the last day with a timetable — is dropped. */
   const applyTyped = () => {
@@ -153,7 +157,7 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
 
   const toggle = () => {
     if (open) return close("done")
-    setOpen(true)
+    openPicker()
     focusTrigger()
   }
 
@@ -172,7 +176,7 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
     } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault()
       if (open) panel.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
-      else setOpen(true)
+      else openPicker()
     }
   }
 
@@ -201,7 +205,7 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
             // Cleared as typing resumes, so the same message is announced again next time.
             setNotice("")
           }}
-          onOpen={() => setOpen(true)}
+          onOpen={openPicker}
           onToggle={toggle}
           onFocus={onInputFocus}
           onBlur={onBlur}
@@ -214,13 +218,11 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
           label={t("plan.date")}
           display={display}
           open={open}
-          onClick={() => setOpen(true)}
+          onClick={openPicker}
           className={fieldClass}
         />
       )}
-      <span role="status" className="sr-only">
-        {notice}
-      </span>
+      <FieldNotice text={notice} error />
       <PickerPopover
         id={popoverId}
         open={open}
@@ -272,13 +274,14 @@ function TimeField({
   const anchor = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLDivElement>(null)
   const invalid = Boolean(text?.trim()) && !parseTimeInput(text ?? "")
-  /** Read out when a typed time is dropped or snapped to the wheel's five minutes */
-  const [notice, setNotice] = useState("")
+  /** Read out when a typed time is dropped (and shown, as an error) or snapped to the wheel's five minutes */
+  const [notice, setNotice] = useState({ text: "", error: false })
 
   const openPicker = () => {
     setDraft(value ?? now)
     touched.current = false
     setText(null)
+    setNotice({ text: "", error: false })
     setOpen(true)
   }
   const { input, button, focusTrigger, onInputFocus } = useTrigger(open, openPicker)
@@ -295,7 +298,7 @@ function TimeField({
 
   const type = (raw: string) => {
     setText(raw)
-    setNotice("")
+    setNotice({ text: "", error: false })
     const parsed = parseTimeInput(raw)
     if (parsed) {
       setDraft(parsed)
@@ -309,8 +312,9 @@ function TimeField({
     // Snapped on the way out, so the minute that is applied is the one the drum was showing all along: typing "16:17"
     // rolls the wheel to 16:15, and it would be a surprise for the search to run on 16:17.
     const applied = snapClock(draft)
-    if (reason !== "cancel" && invalid) setNotice(t("a11y.invalidTime"))
-    else if (reason !== "cancel" && touched.current && applied !== draft) setNotice(t("a11y.timeRounded", { time: applied }))
+    if (reason !== "cancel" && invalid) setNotice({ text: t("a11y.invalidTime"), error: true })
+    else if (reason !== "cancel" && touched.current && applied !== draft)
+      setNotice({ text: t("a11y.timeRounded", { time: applied }), error: false })
     if (reason !== "cancel" && touched.current && applied !== value) onChange(applied)
     if (reason !== "dismiss") focusTrigger()
   }
@@ -399,9 +403,7 @@ function TimeField({
         />
       )}
       {!isDesktop && resetButton}
-      <span role="status" className="sr-only">
-        {notice}
-      </span>
+      <FieldNotice text={notice.text} error={notice.error} />
       <PickerPopover
         id={popoverId}
         open={open}
@@ -486,7 +488,8 @@ function FieldInput({
     <div
       className={cn(
         className,
-        "cursor-text focus-within:border-brand focus-within:ring-2 focus-within:ring-brand",
+        "cursor-text focus-within:ring-2",
+        invalid ? "focus-within:border-danger focus-within:ring-danger" : "focus-within:border-brand focus-within:ring-brand",
         open && "border-brand ring-3 ring-brand/20",
       )}
       onMouseDown={(event) => {
@@ -549,6 +552,18 @@ function FieldInput({
         <ChevronDown className={cn("size-4 transition-transform duration-200 ease-out-expo", open && "rotate-180")} />
       </span>
     </div>
+  )
+}
+
+/** A field's status message. Errors also show under the field, as the field itself has already reverted (WCAG 3.3.1). */
+function FieldNotice({ text, error = false }: { text: string; error?: boolean }) {
+  return (
+    <span
+      role="status"
+      className={error && text ? "absolute start-1 top-full mt-1 text-[12.5px] font-medium text-danger-text" : "sr-only"}
+    >
+      {text}
+    </span>
   )
 }
 

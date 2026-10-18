@@ -42,16 +42,16 @@ export const RouteCard = memo(function RouteCard({
       href={href}
       onClick={handleClick}
       aria-current={selected ? "true" : undefined}
+      data-past={(isPast && !selected) || undefined}
       data-route-id={route.id}
       data-departure={route.departureTime}
       className={cn(
         "group relative block rounded-card border bg-surface px-4 py-3 shadow-card transition-[box-shadow,border-color,transform] duration-200 ease-out-expo hover:shadow-card-hover active:scale-[0.985]",
         selected ? "border-brand ring-2 ring-brand/25" : "border-line/60 hover:border-line-strong",
-        isPast && !selected && "opacity-70 hover:opacity-90",
         route.isCancelled && "border-danger/40",
       )}
     >
-      {/* The faded card is all that marks a trip gone by; this says it out loud. */}
+      {/* The greyed-out times are all that marks a trip gone by; this says it out loud. */}
       {isPast && <span className="sr-only">{t("a11y.departed")}, </span>}
       <div className="flex items-center gap-3">
         <TimeColumn
@@ -62,7 +62,9 @@ export const RouteCard = memo(function RouteCard({
         />
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-1 text-center">
-          <span className="text-[15px] font-semibold text-text-2">{formatDuration(route.durationMs, locale)}</span>
+          <span className="text-[15px] font-semibold text-text-2 group-data-past:text-muted">
+            {formatDuration(route.durationMs, locale)}
+          </span>
           <div className="flex h-1 w-full items-center gap-1" aria-hidden="true">
             <span className="h-[3px] flex-1 rounded-full bg-[repeating-linear-gradient(90deg,var(--color-line-strong)_0_6px,transparent_6px_11px)]" />
             {changes > 0 && <span className="size-2 rounded-full border-2 border-line-strong bg-surface" />}
@@ -91,7 +93,13 @@ function TimeColumn({
   return (
     <div className={cn("flex w-[64px] shrink-0 flex-col leading-none", align === "end" ? "items-end" : "items-start")}>
       <span className="mb-1 text-[12px] font-medium text-muted">{label}</span>
-      <span className={cn("tabular text-[24px] font-bold tracking-tight", cancelled && "line-through opacity-60")} dir="ltr">
+      <span
+        className={cn(
+          "tabular text-[24px] font-bold tracking-tight",
+          cancelled ? "line-through opacity-60" : "group-data-past:text-muted",
+        )}
+        dir="ltr"
+      >
         {time}
       </span>
     </div>

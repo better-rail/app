@@ -405,7 +405,7 @@ const StationOption = memo(function StationOption({
       onClick={() => !disabled && onSelect(station)}
       className={cn(
         "flex cursor-pointer items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors lg:py-2",
-        active && "bg-brand-soft",
+        active && "bg-brand-soft ring-2 ring-brand ring-inset",
         !active && "hover:bg-surface-3 active:bg-surface-3",
         disabled && "cursor-not-allowed opacity-40",
       )}

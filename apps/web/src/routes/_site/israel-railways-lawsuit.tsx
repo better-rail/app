@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router"
 import type { ReactNode } from "react"
-import { ContentPage } from "@/components/content-page"
+import { ContentPage, NewTabHint } from "@/components/content-page"
 import { pageHead, cacheHeaders, jsonLd, SITE_URL, SUPPORT_URL, TWITTER_URL, GITHUB_URL } from "@/lib/seo"
 
 const TITLE = "רכבת ישראל מאיימת לתבוע אותנו"
@@ -44,10 +44,11 @@ const P = ({ children }: { children: ReactNode }) => <p className="site-page-con
 
 const Subtitle = ({ children }: { children: ReactNode }) => <h2 className="site-page-content-subtitle">{children}</h2>
 
-function ExternalLink({ href, children, label }: { href: string; children: ReactNode; label?: string }) {
+function ExternalLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a className="link-underline" href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
+    <a className="link-underline" href={href} target="_blank" rel="noopener noreferrer">
       {children}
+      <NewTabHint />
     </a>
   )
 }
@@ -78,6 +79,7 @@ function LawsuitPage() {
             rel="noopener noreferrer"
           >
             לפרטים המלאים
+            <NewTabHint />
           </a>
         </p>
       </aside>
@@ -103,6 +105,7 @@ function LawsuitPage() {
               fetchPriority="high"
             />
           </picture>
+          <NewTabHint />
         </a>
         <figcaption className="post-hero-caption">לחצו על התמונה לקריאת המכתב המלא</figcaption>
       </figure>
@@ -116,14 +119,7 @@ function LawsuitPage() {
       </ul>
       <P>
         אנחנו כופרים בטענות ומאמינים שהן חסרות כל שחר. עו״ד גיא זומר מייצג אותנו מול רכבת ישראל, ואת תגובתו המלאה והמפורטת תוכלו
-        לקרוא{" "}
-        <ExternalLink
-          href="/assets/documents/better-rail-response-letter-2026-08-31.pdf"
-          label="תגובתו המלאה של עו״ד גיא זומר לרכבת ישראל (PDF)"
-        >
-          כאן
-        </ExternalLink>
-        .
+        לקרוא <ExternalLink href="/assets/documents/better-rail-response-letter-2026-08-31.pdf">במכתב התגובה (PDF)</ExternalLink>.
       </P>
       <P>בעמוד זה רצינו להציג בקצרה את עיקרי התגובה שלנו.</P>
 

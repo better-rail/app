@@ -1,6 +1,6 @@
 import { createFileRoute, notFound, useElementScrollRestoration, useRouter, useRouterState } from "@tanstack/react-router"
 import { useQueries, useQuery, type QueryClient, type UseQueryResult } from "@tanstack/react-query"
-import { useDeferredValue, useEffect, useRef, useState, ViewTransition } from "react"
+import { useDeferredValue, useEffect, useId, useRef, useState, ViewTransition } from "react"
 import { ArrowLeft, ArrowRight, CalendarDays, ChevronDown, CloudOff, Eye, EyeOff, Loader2, TrainFront } from "lucide-react"
 import { Planner } from "@/components/planner/planner"
 import { RouteList } from "@/components/routes/route-list"
@@ -39,8 +39,10 @@ const CARD_GAP = 12
 /** Where the pinned bars end. */
 function barsBottom(): number {
   const header = document.querySelector("[data-site-header]")?.getBoundingClientRect().height ?? 0
-  const planner = document.querySelector("[data-results-planner]")?.getBoundingClientRect().height ?? 0
-  return header + planner
+  const planner = document.querySelector<HTMLElement>("[data-results-planner]")
+  // On short screens the planner scrolls away with the page (see its class), so it covers nothing.
+  const pinned = planner && getComputedStyle(planner).position === "sticky"
+  return header + (pinned ? planner.getBoundingClientRect().height : 0)
 }
 
 /** Scroll targets stay below both pinned bars. */
@@ -384,6 +386,8 @@ function RoutesPage() {
   // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
   // past the end of the list, in which case it is backed up just far enough for the pane to sit where it belongs.
   useEffect(() => {
+    // Closed without `closeDetails` (the browser's back button): picking the same trip again must scroll and focus anew.
+    if (!search.trip) scrolledToTrip.current = undefined
     const trip = search.trip ?? returnToTrip.current
     const list = listRef.current
     if (!trip || !list) return
@@ -415,6 +419,8 @@ function RoutesPage() {
     const card = list.querySelector(`${dayList} [data-route-id="${CSS.escape(trip)}"]`)
     if (!card) return
     const returning = !search.trip
+    // On desktop the details pane comes after the whole list, so focus follows the picked trip into it.
+    const picked = !returning && document.activeElement === card
     scrolledToTrip.current = search.trip
     returnToTrip.current = undefined
     const { top, bottom } = card.getBoundingClientRect()
@@ -422,6 +428,7 @@ function RoutesPage() {
     if (jump) card.scrollIntoView({ block: "center", behavior: "instant" })
     // Back from the details on a phone: focus lands on the card it came from rather than at the top of the page.
     if (returning && card instanceof HTMLElement) card.focus({ preventScroll: true })
+    if (picked) requestAnimationFrame(() => detailsRef.current?.querySelector("h2")?.focus({ preventScroll: true }))
     // The last trains of the day sit at the end of the list: centering one of them scrolls the list's end above the
     // fold and takes the details pane along, so the page is backed up to where the pane is pinned again. The card
     // is still on screen, as the whole list end is. A jump when we just jumped; otherwise the page's own smooth
@@ -500,7 +507,8 @@ function RoutesPage() {
         ref={plannerRef}
         data-results-planner
         aria-label={t("plan.title")}
-        className="results-planner sticky top-[var(--results-header-h,60px)] z-30 border-b border-line/70 py-2 shadow-[0_2px_12px_rgb(0_0_0/0.04)]"
+        // Unpinned on short screens (landscape phones, 400% zoom) so the results keep room (WCAG 1.4.10).
+        className="results-planner sticky top-[var(--results-header-h,60px)] z-30 [@media(max-height:500px)]:static border-b border-line/70 py-2 shadow-[0_2px_12px_rgb(0_0_0/0.04)]"
       >
         <div className="container-page">
           <Planner
@@ -516,7 +524,7 @@ function RoutesPage() {
         <section
           id="results-list"
           ref={listRef}
-          aria-label={t("routes.title", { from, to })}
+          aria-label={t("routes.summaryTitle", { from, to })}
           className={cn("flex flex-col gap-4", selected ? "hidden lg:flex" : "flex")}
         >
           <div className="flex flex-col gap-1">
@@ -656,12 +664,8 @@ function RoutesPage() {
             "flex-col outline-none lg:sticky lg:top-[calc(var(--results-header-h,60px)+var(--results-planner-h,72px)+16px)] lg:self-start",
           )}
         >
-          {/* Focusable, so the keyboard can scroll a long journey's stops as the wheel does. The labelled region (and its
-              heading) is `RouteDetails`' own section; labelling these wrappers too would announce it three times. */}
-          <div
-            tabIndex={selected ? 0 : -1}
-            className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,60px)_-_var(--results-planner-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2"
-          >
+          {/* No tab stop: picking a trip focuses the details heading, and the arrow keys scroll the pane from there. */}
+          <div className="rounded-card lg:-m-2 lg:max-h-[calc(100dvh_-_var(--results-header-h,60px)_-_var(--results-planner-h,72px)_-_2rem)] lg:overflow-y-auto lg:overscroll-contain lg:p-2">
             <div className="card overflow-hidden">
               {selected ? (
                 <>
@@ -699,6 +703,7 @@ function RoutesPage() {
 function SlowTrainsSummary({ count, hidden, onToggle }: { count: number; hidden: boolean; onToggle: () => void }) {
   const t = useT()
   const Icon = hidden ? EyeOff : Eye
+  const descriptionId = useId()
   const text = hidden
     ? count === 1
       ? t("routes.slowHiddenOne")
@@ -711,8 +716,16 @@ function SlowTrainsSummary({ count, hidden, onToggle }: { count: number; hidden:
     <p role="status" className="flex items-center gap-2 text-[13.5px] text-muted">
       <Icon className="size-4 shrink-0" aria-hidden="true" />
       <span title={t("routes.hideSlowTrainsDescription")}>{text}</span>
+      <span id={descriptionId} className="sr-only">
+        {t("routes.hideSlowTrainsDescription")}
+      </span>
       <span aria-hidden="true">·</span>
-      <button type="button" onClick={onToggle} className="link-underline font-semibold text-brand">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-describedby={descriptionId}
+        className="link-underline font-semibold text-brand-text"
+      >
         {hidden ? t("routes.show") : t("routes.hide")}
       </button>
     </p>
@@ -762,7 +775,11 @@ function ExtraDay({
         {query.isFetching && <Loader2 className="size-3.5 animate-spin text-dim" aria-hidden="true" />}
       </h2>
       {query.isPending && <div className="h-[82px] animate-pulse rounded-card bg-surface-3" />}
-      {query.isError && routes.length === 0 && <p className="text-[14px] text-danger">{t("routes.error")}</p>}
+      {query.isError && routes.length === 0 && (
+        <p role="alert" className="text-[14px] text-danger-text">
+          {t("routes.error")}
+        </p>
+      )}
       {query.isSuccess && routes.length === 0 && <p className="text-[14px] text-muted">{t("routes.noTrainsFound")}</p>}
       {allSlowHidden && <p className="text-[14px] text-muted">{t("routes.allSlowHidden")}</p>}
       {query.isSuccess && query.data.resultDate !== dateKey(day) && routes.length > 0 && (
