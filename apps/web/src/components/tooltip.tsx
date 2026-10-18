@@ -17,8 +17,9 @@ export function Tooltip({
   children: ReactNode
   className?: string
 }) {
-  // Escape hides the bubble until the pointer and focus leave (WCAG 1.4.13), even when only the pointer is over it.
+  // Escape hides the bubble until both the pointer and focus have left (WCAG 1.4.13).
   const [hovered, setHovered] = useState(false)
+  const [focused, setFocused] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
@@ -35,9 +36,14 @@ export function Tooltip({
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => {
         setHovered(false)
-        setDismissed(false)
+        if (!focused) setDismissed(false)
       }}
-      onBlur={() => setDismissed(false)}
+      onFocus={() => setFocused(true)}
+      onBlur={(event) => {
+        if (event.currentTarget.contains(event.relatedTarget)) return
+        setFocused(false)
+        if (!hovered) setDismissed(false)
+      }}
     >
       {children}
       {!disabled && !dismissed && (

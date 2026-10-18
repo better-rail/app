@@ -386,6 +386,8 @@ function RoutesPage() {
   // the page around — unless the page is scrolled past the end of the list, where the details pane is pushed up
   // past the end of the list, in which case it is backed up just far enough for the pane to sit where it belongs.
   useEffect(() => {
+    // Closed without `closeDetails` (the browser's back button): picking the same trip again must scroll and focus anew.
+    if (!search.trip) scrolledToTrip.current = undefined
     const trip = search.trip ?? returnToTrip.current
     const list = listRef.current
     if (!trip || !list) return
