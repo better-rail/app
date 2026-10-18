@@ -49,8 +49,8 @@ export interface RouteSeoInput {
   trip?: TripFacts | null
   /** The day's timetable, for the typical journey time */
   summary?: RouteSummary | null
-  /** The day and time the link asks for, when it names them */
-  requested?: { date?: string; time?: string }
+  /** The day and time the link asks for, when it names them — `arrive` for an arrival time */
+  requested?: { date?: string; time?: string; arrive?: string }
 }
 
 /** "Direct" / "1 change" / "2 changes" — as the route cards put it */
@@ -89,12 +89,14 @@ export function routeSeoText({ locale, origin, destination, trip, summary, reque
   }
 
   const parts: string[] = []
-  if (requested?.date || requested?.time) {
+  if (requested?.date || requested?.time || requested?.arrive) {
     const date = formatDayDate(parseNaive(requested.date ?? new Date().toISOString().slice(0, 10)), locale)
     parts.push(
-      requested.time
-        ? translate(locale, "seo.routesOnFrom", { date, time: requested.time })
-        : translate(locale, "seo.routesOn", { date }),
+      requested.arrive
+        ? translate(locale, "seo.routesOnBy", { date, time: requested.arrive })
+        : requested.time
+          ? translate(locale, "seo.routesOnFrom", { date, time: requested.time })
+          : translate(locale, "seo.routesOn", { date }),
     )
   }
   if (summary) {

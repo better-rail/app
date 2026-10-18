@@ -130,6 +130,33 @@ export function isDifferentHour(routes: RouteItem[], time: NaiveTime): boolean {
   return closest !== undefined && Math.abs(minutesBetween(time, closest.departureTime)) >= 90
 }
 
+/** When the trip actually gets in: its timetabled arrival plus the live delay. */
+const expectedArrival = (route: RouteItem) => route.arrivalTime + route.arrivalDelay * MINUTE_MS
+
+/**
+ * The trip to take to arrive by `time`: of those that get in by then, the one leaving last — not the one arriving
+ * closest to it, as a slow train can leave earlier and still arrive later. Undefined when none makes it.
+ */
+export function arriveByRoute(routes: RouteItem[], time: NaiveTime): RouteItem | undefined {
+  let best: RouteItem | undefined
+  for (const route of routes) {
+    if (route.isCancelled || expectedArrival(route) > time) continue
+    if (
+      !best ||
+      route.departureTime > best.departureTime ||
+      (route.departureTime === best.departureTime && route.arrivalTime < best.arrivalTime)
+    )
+      best = route
+  }
+  return best
+}
+
+/** The first trip to get in, for when none does by the time asked for. */
+export function firstArrival(routes: RouteItem[]): NaiveTime | undefined {
+  const arrivals = routes.filter((route) => !route.isCancelled).map(expectedArrival)
+  return arrivals.length > 0 ? Math.min(...arrivals) : undefined
+}
+
 export function isRouteInThePast(route: RouteItem, now: NaiveTime): boolean {
   return route.arrivalTime + route.arrivalDelay * MINUTE_MS < now
 }

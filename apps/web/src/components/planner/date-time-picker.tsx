@@ -19,12 +19,15 @@ import { useIsDesktop } from "@/hooks/use-media-query"
 import { Calendar } from "./calendar"
 import { PickerPopover, type PickerCloseReason } from "./picker-popover"
 import { TimeWheel, snapClock } from "./time-wheel"
+import { TimeModeToggle } from "./time-mode-toggle"
 
 export interface DateTimeValue {
   /** `YYYY-MM-DD`, or undefined for "now" */
   date?: string
   /** `HH:mm`, or undefined for "now" */
   time?: string
+  /** `time` is when to arrive by rather than when to leave */
+  arrive?: boolean
 }
 
 /**
@@ -50,7 +53,7 @@ export function DateTimePicker({
   /** Slightly shorter desktop controls in the results planner. */
   dense?: boolean
 }) {
-  const isNow = !value.date && !value.time
+  const isNow = !value.date && !value.time && !value.arrive
   const fieldClass = cn(
     "flex h-14 w-full items-center gap-1.5 rounded-xl border border-line bg-surface px-2.5 text-start text-[15px] font-medium transition-colors hover:border-line-strong sm:gap-2 sm:px-3",
     dense && "h-11 sm:h-14 lg:h-12",
@@ -68,9 +71,10 @@ export function DateTimePicker({
       <DateField value={value.date} today={today} onChange={(date) => onChange({ ...value, date })} fieldClass={fieldClass} />
       <TimeField
         value={value.time}
+        arrive={Boolean(value.arrive)}
         now={now}
-        onChange={(time) => onChange({ ...value, time })}
-        onReset={() => onChange({ date: undefined, time: undefined })}
+        onChange={({ time, arrive }) => onChange({ ...value, time, arrive: arrive || undefined })}
+        onReset={() => onChange({ date: undefined, time: undefined, arrive: undefined })}
         canReset={!isNow}
         fieldClass={fieldClass}
       />
@@ -251,23 +255,31 @@ function DateField({ value, today, onChange, fieldClass, className }: FieldProps
 }
 
 /**
- * The wheel and the keyboard both edit a draft that is applied when the picker closes (unless cancelled), so the
- * results toolbar refetches once per visit rather than on every tick.
+ * The wheel, the keyboard and the leave/arrive toggle all edit a draft that is applied when the picker closes (unless
+ * cancelled), so the results toolbar refetches once per visit rather than on every tick.
  */
 function TimeField({
   value,
+  arrive,
   now,
   onChange,
   onReset,
   canReset,
   fieldClass,
   className,
-}: FieldProps<string> & { now: string; onReset: () => void; canReset: boolean }) {
+}: Omit<FieldProps<string>, "onChange"> & {
+  arrive: boolean
+  now: string
+  onChange: (value: { time: string | undefined; arrive: boolean }) => void
+  onReset: () => void
+  canReset: boolean
+}) {
   const t = useT()
   const isDesktop = useIsDesktop()
   const popoverId = useId()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState(() => value ?? now)
+  const [draftArrive, setDraftArrive] = useState(arrive)
   /** What's being typed, or null while the field shows the draft */
   const [text, setText] = useState<string | null>(null)
   const touched = useRef(false)
@@ -279,6 +291,7 @@ function TimeField({
 
   const openPicker = () => {
     setDraft(value ?? now)
+    setDraftArrive(arrive)
     touched.current = false
     setText(null)
     setNotice({ text: "", error: false })
@@ -287,6 +300,8 @@ function TimeField({
   const { input, button, focusTrigger, onInputFocus } = useTrigger(open, openPicker)
 
   const display = open ? draft : (value ?? now)
+  // Only an arrival time is marked: leaving at the time shown is what the field has always meant.
+  const caption = (open ? draftArrive : arrive) ? t("plan.arriveBy") : undefined
 
   // Rolling the wheel rewrites the input while it keeps focus, which parks the caret at the end: the next keystroke
   // would append to "13:25". Re-selecting keeps typing replacing the value, as it does on focus.
@@ -315,7 +330,8 @@ function TimeField({
     if (reason !== "cancel" && invalid) setNotice({ text: t("a11y.invalidTime"), error: true })
     else if (reason !== "cancel" && touched.current && applied !== draft)
       setNotice({ text: t("a11y.timeRounded", { time: applied }), error: false })
-    if (reason !== "cancel" && touched.current && applied !== value) onChange(applied)
+    const time = touched.current ? applied : value
+    if (reason !== "cancel" && (time !== value || draftArrive !== arrive)) onChange({ time, arrive: draftArrive })
     if (reason !== "dismiss") focusTrigger()
   }
 
@@ -377,6 +393,7 @@ function TimeField({
           ref={input}
           icon={Clock}
           label={t("plan.time")}
+          caption={caption}
           value={text ?? display}
           open={open}
           invalid={invalid}
@@ -395,6 +412,7 @@ function TimeField({
           ref={button}
           icon={Clock}
           label={t("plan.time")}
+          caption={caption}
           display={display}
           open={open}
           onClick={openPicker}
@@ -413,6 +431,11 @@ function TimeField({
         panelRef={panel}
         panelClassName="p-3"
       >
+        <TimeModeToggle
+          value={draftArrive ? "arrival" : "departure"}
+          onChange={(mode) => setDraftArrive(mode === "arrival")}
+          className={cn("mb-3", isDesktop ? "w-[188px]" : "mx-auto w-[220px]")}
+        />
         <TimeWheel
           value={snapClock(draft)}
           rows={isDesktop ? 5 : 7}
@@ -445,6 +468,7 @@ function FieldInput({
   ref,
   icon: Icon,
   label,
+  caption,
   value,
   open,
   invalid,
@@ -461,6 +485,8 @@ function FieldInput({
   ref: RefObject<HTMLInputElement | null>
   icon: LucideIcon
   label: string
+  /** A small line over the value, naming what it is ("Arrive by") — it then names the field too */
+  caption?: string
   value: string
   open: boolean
   /** Typed text that won't be applied as it stands */
@@ -502,43 +528,46 @@ function FieldInput({
       }}
     >
       <Icon className="size-[18px] shrink-0 text-dim" />
-      <input
-        ref={ref}
-        type="text"
-        role="combobox"
-        aria-label={label}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={open ? popoverId : undefined}
-        aria-autocomplete="none"
-        aria-invalid={invalid || undefined}
-        autoComplete="off"
-        spellCheck={false}
-        dir="ltr"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        onMouseDown={(event) => {
-          const input = event.currentTarget
-          if (document.activeElement !== input) {
-            keepSelection.current = true // the focus handler is about to select
-          } else if (!open) {
-            event.preventDefault() // no caret: the text is about to be selected instead
-            reopen(input)
-          }
-        }}
-        onMouseUp={(event) => {
-          if (!keepSelection.current) return
-          keepSelection.current = false
-          event.preventDefault()
-        }}
-        onFocus={(event) => {
-          event.currentTarget.select()
-          onFocus?.(event)
-        }}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-        className={cn("min-w-0 flex-1 bg-transparent tabular outline-none", locale === "he" ? "text-right" : "text-left")}
-      />
+      <span className="flex min-w-0 flex-1 flex-col">
+        {caption && <FieldCaption text={caption} />}
+        <input
+          ref={ref}
+          type="text"
+          role="combobox"
+          aria-label={caption ?? label}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-controls={open ? popoverId : undefined}
+          aria-autocomplete="none"
+          aria-invalid={invalid || undefined}
+          autoComplete="off"
+          spellCheck={false}
+          dir="ltr"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onMouseDown={(event) => {
+            const input = event.currentTarget
+            if (document.activeElement !== input) {
+              keepSelection.current = true // the focus handler is about to select
+            } else if (!open) {
+              event.preventDefault() // no caret: the text is about to be selected instead
+              reopen(input)
+            }
+          }}
+          onMouseUp={(event) => {
+            if (!keepSelection.current) return
+            keepSelection.current = false
+            event.preventDefault()
+          }}
+          onFocus={(event) => {
+            event.currentTarget.select()
+            onFocus?.(event)
+          }}
+          onBlur={onBlur}
+          onKeyDown={onKeyDown}
+          className={cn("min-w-0 bg-transparent tabular outline-none", locale === "he" ? "text-right" : "text-left")}
+        />
+      </span>
       {trailingAction}
       <span
         data-toggle
@@ -567,16 +596,33 @@ function FieldNotice({ text, error = false }: { text: string; error?: boolean })
   )
 }
 
+/** Read out as the field's name instead, so it's hidden here. */
+function FieldCaption({ text }: { text: string }) {
+  return (
+    <span aria-hidden="true" className="truncate text-[11.5px] font-semibold leading-tight text-brand-text">
+      {text}
+    </span>
+  )
+}
+
 /** The phone field: a button that opens the picker as a sheet. */
 function FieldButton({
   icon: Icon,
   label,
+  caption,
   display,
   open,
   className,
   displayClassName,
   ...button
-}: ComponentProps<"button"> & { icon: LucideIcon; label: string; display: string; open: boolean; displayClassName?: string }) {
+}: ComponentProps<"button"> & {
+  icon: LucideIcon
+  label: string
+  caption?: string
+  display: string
+  open: boolean
+  displayClassName?: string
+}) {
   return (
     <button
       type="button"
@@ -590,8 +636,11 @@ function FieldButton({
       {...button}
     >
       <Icon className="size-[18px] shrink-0 text-dim" />
-      <span className="sr-only">{label}</span>
-      <span className={cn("min-w-0 flex-1 truncate tabular", displayClassName)}>{display}</span>
+      <span className="sr-only">{caption ?? label}</span>
+      <span className={cn("flex min-w-0 flex-1 flex-col items-start", displayClassName)}>
+        {caption && <FieldCaption text={caption} />}
+        <span className="max-w-full truncate tabular">{display}</span>
+      </span>
       {/* No chevron on phones: the icon and the value say enough, and a 360px screen has no room for it. */}
       <ChevronDown
         className={cn(
