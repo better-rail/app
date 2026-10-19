@@ -312,7 +312,8 @@
     "button": "تحديث الآن"
   },
   "voucher": {
-    "title": "قسيمة سفر إلى القدس",
+    "titleTo": "قسيمة سفر إلى القدس",
+    "titleFrom": "قسيمة سفر من القدس",
     "orderTitle": "طلب قسيمة",
     "book": "لطلب قسيمة سفر",
     "seatsAvailable": "%{count} مقاعد متاحة",

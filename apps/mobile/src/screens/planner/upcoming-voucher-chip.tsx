@@ -8,6 +8,7 @@ import { Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { useUpcomingVoucher } from "@/hooks/use-upcoming-voucher"
 import { formatTime } from "@/utils/helpers/date-helpers"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { trackEvent } from "@/services/analytics"
 
@@ -43,7 +44,7 @@ export function UpcomingVoucherChip() {
       testID="upcoming-voucher-chip"
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${translate("voucher.title")}, ${departure}`}
+      accessibilityLabel={`${getVoucherTitle(voucher.fromStationId)}, ${departure}`}
       accessibilityHint={translate("voucher.show") ?? undefined}
       style={({ pressed }) => !isLiquidGlassSupported && pressed && styles.pressed}
     >
