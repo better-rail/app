@@ -14,4 +14,24 @@ const getRideId = () => Preferences.get("rideId")
 
 const clearBackgroundStorage = () => Preferences.clearMultiple(["rideRoute", "rideId"])
 
-export { getUserLocale, setRideRoute, getRideRoute, setRideId, getRideId, clearBackgroundStorage }
+const setApiBaseUrl = (url: string) => Preferences.set("apiBaseUrl", url)
+
+const NATIVE_STOPPED_RIDE_KEY = "nativelyStoppedRideId"
+
+const consumeNativeStopHandled = async (rideId: string): Promise<boolean> => {
+  const stoppedRideId = await Preferences.get(NATIVE_STOPPED_RIDE_KEY)
+  if (stoppedRideId !== rideId) return false
+  await Preferences.clearMultiple([NATIVE_STOPPED_RIDE_KEY])
+  return true
+}
+
+export {
+  getUserLocale,
+  setRideRoute,
+  getRideRoute,
+  setRideId,
+  getRideId,
+  clearBackgroundStorage,
+  setApiBaseUrl,
+  consumeNativeStopHandled,
+}

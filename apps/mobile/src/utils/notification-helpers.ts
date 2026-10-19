@@ -7,8 +7,9 @@ import { getArrivalAlarm, isArrivalAlarmSupported, moveArrivalAlarm } from "./ar
 import { RideStartError } from "./helpers/ride-errors"
 import { getDevicePushTokenWithAuthRetry } from "./helpers/push-token-auth-retry"
 import { trackEvent } from "@/services/analytics"
+import { serverBaseURL } from "@/config/api-config"
 import { extractFcmData, isLiveRideSupported, liveRideNotifications, postAndroidAlert } from "@/modules/live-ride"
-import { setRideId } from "./storage/background-storage"
+import { consumeNativeStopHandled, setApiBaseUrl, setRideId } from "./storage/background-storage"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -149,6 +150,8 @@ export const startRideNotifications = async (route: RouteItem): Promise<string> 
     throw new RideStartError("push_token", "Couldn't get a device push token", { cause: error })
   }
 
+  await setApiBaseUrl(serverBaseURL)
+
   const rideId = await rideApi.startRide(route, token)
 
   tokenSubscription?.remove()
@@ -178,7 +181,7 @@ export const cancelNotifications = async () => {
 
 export const endRideNotifications = async (rideId: string) => {
   await cancelNotifications()
-  return rideApi.endRide(rideId)
+  return (await consumeNativeStopHandled(rideId)) || rideApi.endRide(rideId)
 }
 
 export default {
