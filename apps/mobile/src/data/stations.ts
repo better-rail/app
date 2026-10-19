@@ -27,6 +27,7 @@ type StationsObjectType = {
     english: string
     russian: string
     arabic: string
+    shortName?: SharedStation["shortName"]
     lat: number
     lon: number
     image?: any
