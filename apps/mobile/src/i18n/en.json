@@ -108,7 +108,7 @@
     "acrossPlatform": "Across the platform",
     "platformStay": "Stay at Platform",
     "platformChange": "Switch to Platform",
-    "waitingTime": "Wait around",
+    "waitingTime": "Wait around %{duration}",
     "minutes": "min",
     "unsafeChange": "This change isn't guaranteed",
     "lastStop": "Last Stop",

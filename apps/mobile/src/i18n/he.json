@@ -108,7 +108,7 @@
     "acrossPlatform": "בצד השני של הרציף",
     "platformStay": "יש להשאר ברציף",
     "platformChange": "יש לעבור לרציף",
-    "waitingTime": "זמן המתנה כ-",
+    "waitingTime": "זמן המתנה כ%{duration}",
     "minutes": "דק'",
     "unsafeChange": "החלפה זו אינה בטוחה",
     "lastStop": "יעד סופי",

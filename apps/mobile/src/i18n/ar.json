@@ -102,7 +102,7 @@
     "acrossPlatform": "على الجهة الأخرى من الرصيف",
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
-    "waitingTime": "مدة الانتظار",
+    "waitingTime": "مدة الانتظار %{duration}",
     "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
     "trainCancelled": "تم إلغاء القطار",
