@@ -6,6 +6,7 @@ import { useRoutePlanStore, useRecentSearchesStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "@/components"
+import { isRTL } from "@/i18n"
 import { spacing } from "@/theme"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
@@ -27,6 +28,9 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
   const { entries, save, remove } = useRecentSearchesStore(
     useShallow((s) => ({ entries: s.entries, save: s.save, remove: s.remove })),
   )
+
+  const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
+  const didScrollToStartRef = useRef(false)
 
   // Rank by recency once per mount — the new order only shows the next time the picker opens.
   // Picking an entry bumps its `updatedAt` and pops the screen in the same commit, and Fabric on
@@ -59,11 +63,18 @@ export function RecentSearchesBox(props: RecentSearchesBoxProps) {
 
     return (
       <ScrollView
+        ref={scrollViewRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.scrollView}
         snapToInterval={175 + spacing[3]}
+        onContentSizeChange={() => {
+          // Fabric on iOS can reuse a recycled RTL scroll view parked at its far end; in RTL, "end" is the start.
+          if (Platform.OS !== "ios" || !isRTL || didScrollToStartRef.current) return
+          didScrollToStartRef.current = true
+          scrollViewRef.current?.scrollToEnd({ animated: false })
+        }}
       >
         {sortedSearches.map((entry) => {
           // if a station is removed from stations list, it might still be in recent searches

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor, Platform, View } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, Platform, View, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -8,20 +8,22 @@ import { useRideStore } from "@/models"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
 import { formatTime } from "@/utils/helpers/date-helpers"
+import { getNextArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
 import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
-export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
+// TODO: add typings to progress
+export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide"; style?: ViewStyle }) {
   const { id, stopRide, arrivalAlarm } = useRideStore(
     useShallow((s) => ({ id: s.id, stopRide: s.stopRide, arrivalAlarm: s.arrivalAlarm })),
   )
-  const { progress, screenName } = props
+  const { progress, screenName, style } = props
 
   const router = useRouter()
 
-  const { status, minutesLeft } = progress
+  const { status, minutesLeft, now } = progress
 
   const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
@@ -40,20 +42,22 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
   })()
 
   return (
-    <BottomScreenSheet>
+    <BottomScreenSheet style={style}>
       <View style={styles.progress}>
         <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
           {progressText}
         </Text>
         {arrivalAlarm && (
           <Text style={styles.alarmText} maxFontSizeMultiplier={1.2}>
-            {translate("ride.alarmSetFor", { time: formatTime(arrivalAlarm.fireDate) })}
+            {translate("ride.alarmSetFor", { time: formatTime(getNextArrivalAlarmStop(arrivalAlarm.stops, now).fireDate) })}
           </Text>
         )}
       </View>
 
       <View style={styles.buttons}>
-        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && <ArrivalAlarmButton />}
+        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && (
+          <ArrivalAlarmButton now={now} />
+        )}
         <StopButton
           loading={!id}
           onPress={() => {
@@ -73,6 +77,7 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
 }
 
 const StopButton = (props: { loading: boolean } & PressableProps) => {
+  const glassTint = useGlassTint("stop")
   const { loading } = props
   const [isDisabled, setIsDisabled] = useState(loading)
 
@@ -97,7 +102,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <GlassView isInteractive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
+        <GlassView isInteractive style={styles.stopButton} tintColor={glassTint}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (

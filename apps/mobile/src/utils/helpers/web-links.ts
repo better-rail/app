@@ -61,6 +61,10 @@ export function parseWebsiteRouteURL(url: string): WebsiteRoute | null {
   }
 }
 
+export function websiteHomeURL(locale: LanguageCode) {
+  return locale === "he" ? `${WEBSITE_ORIGIN}/` : `${WEBSITE_ORIGIN}/en`
+}
+
 export function websiteRouteURL({
   originId,
   destinationId,

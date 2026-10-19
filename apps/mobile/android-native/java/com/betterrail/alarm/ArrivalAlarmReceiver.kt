@@ -9,11 +9,13 @@ class ArrivalAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ACTION_FIRE -> {
+                val train = intent.getIntExtra(EXTRA_TRAIN, -1)
                 val fireDate = intent.getLongExtra(EXTRA_FIRE_DATE, -1)
-                if (ArrivalAlarmScheduler.markRang(context, fireDate) != null) {
+                val stop = ArrivalAlarmScheduler.markRang(context, train, fireDate)
+                if (stop != null) {
                     // Start the service right away: the exact alarm only exempts this moment from the
                     // background foreground-service start restrictions.
-                    ArrivalAlarmService.start(context)
+                    ArrivalAlarmService.start(context, stop.title)
                 }
             }
 
@@ -25,6 +27,7 @@ class ArrivalAlarmReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_FIRE = "com.betterrail.alarm.ACTION_FIRE"
+        const val EXTRA_TRAIN = "train"
         const val EXTRA_FIRE_DATE = "fireDate"
     }
 }

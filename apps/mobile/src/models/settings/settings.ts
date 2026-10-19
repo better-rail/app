@@ -18,7 +18,6 @@ export interface SettingsState {
   maxChanges: MaxChanges;
   trainSearchCount: number;
   seenTrainInfoPrompt: boolean;
-  seenLawsuitAnnouncement: boolean;
 }
 
 export interface SettingsActions {
@@ -32,7 +31,6 @@ export interface SettingsActions {
   recordTrainSearch: () => void;
   setSeenUrgentMessagesIds: (messagesIds: number[]) => void;
   setSeenTrainInfoPrompt: (seen: boolean) => void;
-  setSeenLawsuitAnnouncement: (seen: boolean) => void;
 }
 
 export type SettingsStore = SettingsState & SettingsActions;
@@ -55,7 +53,6 @@ const initialSettingsState: SettingsState = {
   maxChanges: null,
   trainSearchCount: 0,
   seenTrainInfoPrompt: false,
-  seenLawsuitAnnouncement: false,
 };
 
 export const resetSettingsStore = () =>
@@ -112,9 +109,6 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     set({ seenTrainInfoPrompt: seen });
   },
 
-  setSeenLawsuitAnnouncement(seen) {
-    set({ seenLawsuitAnnouncement: seen });
-  },
 }));
 
 /** How many route filters the user has turned on — the toolbar shows the number, not just that one is on. */
@@ -164,7 +158,6 @@ export function getSettingsSnapshot(state: SettingsState) {
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
-    seenLawsuitAnnouncement: state.seenLawsuitAnnouncement,
   };
 }
 
@@ -201,6 +194,5 @@ export function hydrateSettingsStore(data: any) {
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
-    seenLawsuitAnnouncement: processedData.seenLawsuitAnnouncement ?? false,
   });
 }

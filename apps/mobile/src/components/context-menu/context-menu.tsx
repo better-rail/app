@@ -35,7 +35,7 @@ function NativeMenu({ children, actions, style, onPressAction }: ContextMenuProp
     id: String(index),
     title: action.title,
     state: action.selected ? "on" : undefined,
-    attributes: action.destructive ? { destructive: true } : undefined,
+    attributes: { destructive: action.destructive, disabled: action.disabled },
   }))
 
   return (

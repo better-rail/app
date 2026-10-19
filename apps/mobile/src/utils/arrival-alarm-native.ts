@@ -22,19 +22,23 @@ export async function requestArrivalAlarmAuthorization(): Promise<ArrivalAlarmAu
   return native.requestArrivalAlarmAuthorization()
 }
 
-/** Schedules the alarm, replacing one with the same id. Resolves with when it will ring, in ms. */
+/** Schedules an alarm for each stop, replacing the current alarm. Resolves with when each will ring, in ms. */
 export async function scheduleArrivalAlarm(alarm: {
   rideId: string
   alarmId: string
-  fireDate: number
-  title: string
   stopText: string
-}): Promise<number> {
+  stops: { train: number; title: string; fireDate: number }[]
+}): Promise<{ train: number; fireDate: number }[]> {
   return native.scheduleArrivalAlarm(alarm)
 }
 
-/** Applies an arrival-alarm push (`fireDate` in seconds, as the server sends it). False when it couldn't move the alarm. */
-export async function moveArrivalAlarm(push: { rideId: string; alarmId: string; fireDate: number }): Promise<boolean> {
+export type ArrivalAlarmPush = { rideId: string; alarmId: string; stops: { train: number; fireDate: number }[] }
+
+/**
+ * Applies an arrival-alarm push (fire dates in seconds, as the server sends them) to the stops that didn't ring yet.
+ * False when it couldn't move them.
+ */
+export async function moveArrivalAlarm(push: ArrivalAlarmPush): Promise<boolean> {
   return native.moveArrivalAlarm(push)
 }
 
@@ -46,8 +50,8 @@ export function cancelArrivalAlarm() {
 export async function getArrivalAlarm(): Promise<{
   rideId: string
   alarmId: string
-  fireDate: number
-  isScheduled: boolean
+  /** `isScheduled` is false once a stop's alarm rang */
+  stops: { train: number; fireDate: number; isScheduled: boolean }[]
 } | null> {
   return native.getArrivalAlarm()
 }

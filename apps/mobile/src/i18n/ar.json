@@ -102,7 +102,7 @@
     "acrossPlatform": "على الجهة الأخرى من الرصيف",
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
-    "waitingTime": "مدة الانتظار",
+    "waitingTime": "مدة الانتظار %{duration}",
     "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
     "trainCancelled": "تم إلغاء القطار",
@@ -239,13 +239,6 @@
     "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
     "foundTrainsAtHour": "توجد قطارات في أوقات مختلفة في التاريخ المحدد"
   },
-  "lawsuit": {
-    "title": "شركة قطار إسرائيل تهدد برفع دعوى قضائية ضدنا",
-    "intro": "تلقّينا إنذارًا قبل رفع دعوى قضائية لاستخدامنا جدول مواعيد قطار إسرائيل",
-    "whatNow": "بعد تلقّي الرسالة، انتقل التطبيق إلى الاعتماد على بيانات وزارة المواصلات.\n\nقد لا تكون هذه البيانات محدّثة بقدر بيانات قطار إسرائيل، إذ تحتفظ الشركة بأحدث المعلومات لنفسها وتمنعنا من إتاحتها لكم، أيها الركاب.\n\nنحن بحاجة إلى مساعدتكم: أخبروا أصدقاءكم عن Better Rail. فكلما زاد عدد المستخدمين، ازدادت قوتنا!",
-    "readPost": "اقرؤوا المنشور كاملًا",
-    "followTwitter": "تابعونا على تويتر للاطّلاع على آخر المستجدات"
-  },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
@@ -325,6 +318,8 @@
     "alarmTurnOff": "إيقاف المنبّه",
     "alarmSetFor": "المنبّه في %{time}",
     "alarmTitle": "اقتربت من %{station}",
+    "alarmTitleTransfer": "اقتربت من %{station}، بدّل القطار",
+    "alarmStopsTitle": "المنبّه قبل",
     "alarmStop": "إيقاف",
     "alarmTooLateTitle": "الوصول قريب جدًا",
     "alarmTooLateMessage": "يصل القطار خلال أقل من %{minutes} دقائق. اختر وقتًا أقصر.",
@@ -343,8 +338,8 @@
     "button": "تحديث الآن"
   },
   "voucher": {
-    "title": "قسيمة سفر إلى القدس",
-    "short": "قسيمة",
+    "titleTo": "قسيمة سفر إلى القدس",
+    "titleFrom": "قسيمة سفر من القدس",
     "orderTitle": "طلب قسيمة",
     "book": "لطلب قسيمة سفر",
     "seatsAvailable": "%{count} مقاعد متاحة",

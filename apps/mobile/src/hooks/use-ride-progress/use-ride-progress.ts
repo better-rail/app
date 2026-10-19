@@ -27,5 +27,5 @@ export function useRideProgress({ route, enabled }: { route: RouteItem; enabled:
   // rather than rendering NaN
   const minutesLeft = currentMinutesLeft ?? lastMinutesLeft
 
-  return { status, minutesLeft, stations, nextStationId }
+  return { status, minutesLeft, stations, nextStationId, now }
 }

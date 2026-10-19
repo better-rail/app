@@ -108,7 +108,7 @@
     "acrossPlatform": "Across the platform",
     "platformStay": "Stay at Platform",
     "platformChange": "Switch to Platform",
-    "waitingTime": "Wait around",
+    "waitingTime": "Wait around %{duration}",
     "minutes": "min",
     "unsafeChange": "This change isn't guaranteed",
     "lastStop": "Last Stop",
@@ -257,13 +257,6 @@
     "noTrainsFoundForHour": "No trains found at the requested time",
     "foundTrainsAtHour": "Trains available at different times on the selected date"
   },
-  "lawsuit": {
-    "title": "Israel Railways threatens to sue us",
-    "intro": "We received a pre-lawsuit warning for using the Israel Railways timetable",
-    "whatNow": "In response to the letter, the app has switched to using data from the Ministry of Transport.\n\nThis data may at times be less up to date than Israel Railways - the railway keeps the fresh information to itself and prevents us from making it accessible to you, the passengers.\n\nWe need your help: please tell your friends about Better Rail. The more users we have, the stronger we become!",
-    "readPost": "Read the full post",
-    "followTwitter": "Follow us on Twitter for updates"
-  },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
     "widgetDescription": "Beautiful widgets for checking the upcoming train schedule.",
@@ -376,6 +369,8 @@
     "alarmTurnOff": "Turn Off Alarm",
     "alarmSetFor": "Alarm at %{time}",
     "alarmTitle": "Approaching %{station}",
+    "alarmTitleTransfer": "Approaching %{station}, change trains",
+    "alarmStopsTitle": "Ring before",
     "alarmStop": "Stop",
     "alarmTooLateTitle": "Arriving too soon",
     "alarmTooLateMessage": "The train arrives in less than %{minutes} minutes. Pick a shorter time.",
@@ -419,8 +414,8 @@
     "button": "Update Now"
   },
   "voucher": {
-    "title": "Jerusalem travel voucher",
-    "short": "Voucher",
+    "titleTo": "Jerusalem travel voucher",
+    "titleFrom": "Jerusalem travel voucher",
     "orderTitle": "Voucher order",
     "book": "Order a voucher",
     "seatsAvailable": "%{count} seats available",

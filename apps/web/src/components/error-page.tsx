@@ -1,0 +1,42 @@
+import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router"
+import { useEffect } from "react"
+import { useLocale, translate } from "@/i18n"
+import { SITE_NAME } from "@/lib/seo"
+import { EnsureSiteLayout } from "./site-layout"
+
+export function ErrorPage({ error, reset }: ErrorComponentProps) {
+  const locale = useLocale()
+  const router = useRouter()
+  useEffect(() => {
+    document.title = `${SITE_NAME} - ${translate(locale, "error.generic")}`
+  }, [locale])
+  // `reset` only clears the boundary; the match still holds the error, so the route has to load again as well.
+  const tryAgain = () => {
+    reset()
+    router.invalidate()
+  }
+  return (
+    <EnsureSiteLayout>
+      <div className="container-page flex flex-1 flex-col items-center justify-center py-24 text-center">
+        <p className="text-6xl" aria-hidden="true">
+          🚧
+        </p>
+        <h1 className="mt-4 text-3xl font-bold">{translate(locale, "error.generic")}</h1>
+        <p className="mt-2 max-w-md text-muted">{translate(locale, "error.genericText")}</p>
+        {import.meta.env.DEV && (
+          <pre className="mt-4 max-w-full overflow-auto text-start text-xs text-danger">
+            {error instanceof Error ? error.message : String(error)}
+          </pre>
+        )}
+        <div className="mt-8 flex gap-3">
+          <button type="button" className="btn-secondary" onClick={tryAgain}>
+            {translate(locale, "routes.tryAgain")}
+          </button>
+          <Link to="/{-$locale}" params={{ locale: locale === "he" ? undefined : "en" }} className="btn-primary">
+            {translate(locale, "error.home")}
+          </Link>
+        </div>
+      </div>
+    </EnsureSiteLayout>
+  )
+}

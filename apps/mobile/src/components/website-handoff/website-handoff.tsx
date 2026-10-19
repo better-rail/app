@@ -2,7 +2,7 @@ import { useCallback, useId } from "react"
 import { useFocusEffect } from "expo-router"
 import { isRTL, userLocale } from "@/i18n"
 import { stationLocale, stationsObject } from "@/data/stations"
-import { websiteRouteURL } from "@/utils/helpers/web-links"
+import { websiteHomeURL, websiteRouteURL } from "@/utils/helpers/web-links"
 import { websiteHandoff } from "@/utils/website-handoff"
 
 interface WebsiteHandoffProps {
@@ -14,7 +14,6 @@ interface WebsiteHandoffProps {
 }
 
 export function WebsiteHandoff({ originId, destinationId, time, trainNumbers, viaStationId }: WebsiteHandoffProps) {
-  const id = useId()
   const url = websiteRouteURL({ originId, destinationId, time, trainNumbers, viaStationId, locale: userLocale })
   const arrow = isRTL ? "←" : "→"
   const title = `${stationsObject[originId]?.[stationLocale] ?? ""} ${arrow} ${stationsObject[destinationId]?.[stationLocale] ?? ""}`
@@ -22,10 +21,22 @@ export function WebsiteHandoff({ originId, destinationId, time, trainNumbers, vi
   const validRoute =
     !!stationsObject[originId] && !!stationsObject[destinationId] && originId !== destinationId && Number.isFinite(time)
 
+  useWebsiteActivity(url, title, validRoute)
+  return null
+}
+
+export function WebsiteHomeHandoff() {
+  useWebsiteActivity(websiteHomeURL(userLocale), "Better Rail")
+  return null
+}
+
+function useWebsiteActivity(url: string, title: string, enabled = true) {
+  const id = useId()
+
   useFocusEffect(
     useCallback(() => {
       const activityModule = websiteHandoff
-      if (!activityModule || !validRoute) return
+      if (!activityModule || !enabled) return
       // Head's internal screen href cannot restore a journey on another device.
       activityModule.createActivity({
         id,
@@ -37,8 +48,6 @@ export function WebsiteHandoff({ originId, destinationId, time, trainNumbers, vi
         isEligibleForSearch: false,
       })
       return () => activityModule.revokeActivity(id)
-    }, [id, title, url, validRoute]),
+    }, [id, title, url, enabled]),
   )
-
-  return null
 }

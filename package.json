@@ -21,8 +21,11 @@
     "server:siri": "bun run --filter @better-rail/server siri",
     "server:ingest": "bun run --filter @better-rail/server ingest",
     "server:rail:pull": "bun run --filter @better-rail/server rail:pull",
-    "website:dev": "bun run --filter @better-rail/website dev",
-    "test": "bun run mobile:test && bun run server:test",
+    "web:dev": "bun run --filter @better-rail/web dev",
+    "web:build": "bun run --filter @better-rail/web build",
+    "web:compile": "bun run --filter @better-rail/web compile",
+    "web:test": "bun run --filter @better-rail/web test",
+    "test": "bun run mobile:test && bun run server:test && bun run web:test",
     "lint": "oxlint && oxfmt --check",
     "lint:fix": "oxlint --fix && oxfmt"
   },
@@ -45,6 +48,7 @@
     "react-native-screens@4.30.0": "patches/react-native-screens@4.30.0.patch",
     "react-native-date-picker@5.0.12": "patches/react-native-date-picker@5.0.12.patch",
     "expo-iap@5.5.0": "patches/expo-iap@5.5.0.patch",
-    "expo-localization@58.0.4": "patches/expo-localization@58.0.4.patch"
+    "expo-localization@58.0.4": "patches/expo-localization@58.0.4.patch",
+    "react-native-nitro-modules@0.37.1": "patches/react-native-nitro-modules@0.37.1.patch"
   }
 }

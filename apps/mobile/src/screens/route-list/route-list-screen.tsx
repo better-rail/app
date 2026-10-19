@@ -39,6 +39,7 @@ import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { findRouteVoucher } from "@/utils/helpers/voucher-helpers"
+import { isOnRideTrains } from "@/utils/helpers/ride-helpers"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
@@ -107,7 +108,6 @@ function RouteListResults({
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
-  const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hourIndexEnabled = useSettingsStore((s) => s.showHourIndex)
   const showRouteCardHeader = useSettingsStore((s) => s.showRouteCardHeader)
@@ -429,7 +429,7 @@ function RouteListResults({
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
-        isActiveRide={isRouteActive(item)}
+        isActiveRide={isOnRideTrains(rideRoute, item)}
         hasVoucher={!!findRouteVoucher(vouchers, item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {

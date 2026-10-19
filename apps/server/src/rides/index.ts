@@ -63,7 +63,7 @@ export const updateRideToken = async (rideId: string, token: string) => {
   }
 }
 
-/** Returns when the alarm should ring, or undefined when the ride isn't tracked */
+/** Returns when each stop's alarm should ring, or undefined when the ride isn't tracked */
 export const setRideAlarm = async (rideId: string, alarm: RideAlarmRequest) => {
   const scheduler = schedulers[rideId]
 
@@ -72,13 +72,13 @@ export const setRideAlarm = async (rideId: string, alarm: RideAlarmRequest) => {
       throw new Error("Scheduler not found")
     }
 
-    const fireDate = await scheduler.setAlarm(alarm)
-    if (fireDate === undefined) {
+    const stops = await scheduler.setAlarm(alarm)
+    if (!stops) {
       throw new Error("Couldn't save the alarm")
     }
 
-    scheduler.logger.info(logNames.scheduler.setAlarm.success, { fireDate, leadMinutes: alarm.leadMinutes })
-    return fireDate
+    scheduler.logger.info(logNames.scheduler.setAlarm.success, { stops, leadMinutes: alarm.leadMinutes })
+    return stops
   } catch (error) {
     logger.error(logNames.scheduler.setAlarm.failed, { error, rideId })
     return undefined
