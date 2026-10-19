@@ -1,13 +1,14 @@
 import { useEffect } from "react"
 import { Alert, ScrollView, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router"
+import { Stack, useLocalSearchParams, useNavigation, useRouter } from "expo-router"
 import { QRCode } from "@ttsalpha/qrcode/native"
 import * as Sentry from "@sentry/react-native"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { trackEvent } from "@/services/analytics"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 import { VoucherHero } from "./components/voucher-hero"
 import { closeVoucherFlow } from "./close-voucher-flow"
 
@@ -39,6 +40,7 @@ export function VoucherScreen() {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.content}>
+      <Stack.Screen options={{ title: getVoucherTitle(voucher.fromStationId) }} />
       {/* A boarding pass: the trip on top, the scannable part below the tear line */}
       <View style={styles.passShadow}>
         <View style={styles.pass}>

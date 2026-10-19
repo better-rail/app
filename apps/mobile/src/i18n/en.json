@@ -398,7 +398,8 @@
     "button": "Update Now"
   },
   "voucher": {
-    "title": "Jerusalem travel voucher",
+    "titleTo": "Jerusalem travel voucher",
+    "titleFrom": "Jerusalem travel voucher",
     "orderTitle": "Voucher order",
     "book": "Order a voucher",
     "seatsAvailable": "%{count} seats available",

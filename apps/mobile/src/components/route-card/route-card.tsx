@@ -15,6 +15,7 @@ import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { IS_E2E } from "@/config/e2e"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
@@ -202,7 +203,7 @@ export function RouteCard(props: RouteCardProps) {
               <Image
                 source={require("../../../assets/station-ticket.png")}
                 style={styles.voucherIcon}
-                accessibilityLabel={translate("voucher.title") ?? undefined}
+                accessibilityLabel={getVoucherTitle(originId)}
               />
             )}
           </View>

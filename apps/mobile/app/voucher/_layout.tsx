@@ -49,7 +49,8 @@ export default function VoucherLayout() {
       <Stack.Screen
         name="ticket"
         options={{
-          title: translate("voucher.title") ?? "",
+          // Set by the screen, which knows the voucher's direction
+          title: "",
           headerBackVisible: false,
           gestureEnabled: false,
           ...closeButtonOptions,
