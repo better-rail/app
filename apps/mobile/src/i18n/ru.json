@@ -105,7 +105,7 @@
     "acrossPlatform": "По другую сторону платформы",
     "platformStay": "Остаться на платформе",
     "platformChange": "Перейти на платформу",
-    "waitingTime": "Время ожидания",
+    "waitingTime": "Время ожидания %{duration}",
     "minutes": "минут",
     "unsafeChange": "Это изменение не гарантировано",
     "lastStop": "Последняя остановка",
