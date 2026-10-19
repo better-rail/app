@@ -187,9 +187,10 @@
     "protobufjs",
   ],
   "patchedDependencies": {
+    "react-native-nitro-modules@0.37.1": "patches/react-native-nitro-modules@0.37.1.patch",
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
-    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-screens@4.30.0": "patches/react-native-screens@4.30.0.patch",
+    "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
     "react-native-date-picker@5.0.12": "patches/react-native-date-picker@5.0.12.patch",
