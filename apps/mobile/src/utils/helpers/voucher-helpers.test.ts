@@ -15,7 +15,7 @@ test("vouchers are bookable from 72 hours before departure until an hour after a
   expect(isVoucherBookable({ departureTime: now - 2.5 * HOUR, arrivalTime: now - 1.5 * HOUR }, config, now)).toBe(false)
 })
 
-test("a voucher matches only the Yitzhak Navon leg it was ordered for", () => {
+test("a voucher matches the same train's Yitzhak Navon leg from any station", () => {
   const voucher = {
     trainNumber: 2,
     departureDate: "2026-10-15",
@@ -26,5 +26,10 @@ test("a voucher matches only the Yitzhak Navon leg it was ordered for", () => {
 
   expect(findRouteVoucher([voucher], { trains: [{ ...leg, originStationId: 4600 } as Train] })).toBe(voucher)
   // Same train, boarding at a different station
-  expect(findRouteVoucher([voucher], { trains: [{ ...leg, originStationId: 3700 } as Train] })).toBeUndefined()
+  expect(findRouteVoucher([voucher], { trains: [{ ...leg, originStationId: 3700 } as Train] })).toBe(voucher)
+  // Another train, or the same train number on another day
+  expect(findRouteVoucher([voucher], { trains: [{ ...leg, originStationId: 4600, trainNumber: 3 } as Train] })).toBeUndefined()
+  expect(
+    findRouteVoucher([voucher], { trains: [{ ...leg, originStationId: 4600, departureTime: now + 24 * HOUR } as Train] }),
+  ).toBeUndefined()
 })
