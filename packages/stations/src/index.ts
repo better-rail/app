@@ -9,6 +9,8 @@ export interface Station {
   english: string
   russian: string
   arabic: string
+  /** Compact display names for space-constrained UI; omitted locales keep the full name. */
+  shortName?: Partial<Pick<Station, "hebrew" | "english" | "russian" | "arabic">>
   lat: number
   lon: number
   /** Photo key — the file name under `images/` without its extension */
@@ -174,6 +176,12 @@ export const stations: Station[] = [
     english: "Kfar Sava - Nordau",
     russian: "Кфар-Саба – Нордау",
     arabic: "كفار سابا - نورداو",
+    shortName: {
+      hebrew: "כפר סבא",
+      english: "Kfar Sava",
+      russian: "Кфар-Саба",
+      arabic: "كفار سابا",
+    },
     lat: 32.167369,
     lon: 34.917428,
     image: "kfar-saba",
@@ -323,6 +331,12 @@ export const stations: Station[] = [
     english: "Ashdod - Ad Halom",
     russian: "Ашдод - ад-Халом",
     arabic: "أشدود - عاد هلوم",
+    shortName: {
+      hebrew: "אשדוד",
+      english: "Ashdod",
+      russian: "Ашдод",
+      arabic: "أشدود",
+    },
     lat: 31.774061,
     lon: 34.666059,
     image: "ashdod",
@@ -376,6 +390,7 @@ export const stations: Station[] = [
     english: "HaMifrats Central Station",
     russian: "Центральная станция Ха-Мифрац",
     arabic: "همفراتس المركزية",
+    shortName: { hebrew: "מרכזית המפרץ" },
     lat: 32.792942,
     lon: 35.032964,
     image: "hamifrats",
@@ -435,6 +450,12 @@ export const stations: Station[] = [
     english: "Hod HaSharon - Sokolov",
     russian: "Ход Хашарон - Соколов",
     arabic: "هود هشارون - سوكولوڤ",
+    shortName: {
+      hebrew: "הוד השרון",
+      english: "Hod HaSharon",
+      russian: "Ход Хашарон",
+      arabic: "هود هشارون",
+    },
     lat: 32.170213,
     lon: 34.901609,
     image: "hod-hasharon-sokolov",
@@ -616,6 +637,12 @@ export const stations: Station[] = [
     english: "Afula R.Eitan",
     russian: "Афула Р. Эйтан",
     arabic: "العفولة  ر. ايتان",
+    shortName: {
+      hebrew: "עפולה",
+      english: "Afula",
+      russian: "Афула",
+      arabic: "العفولة",
+    },
     lat: 32.622003,
     lon: 35.294721,
     image: "afula",
@@ -688,6 +715,12 @@ export const stations: Station[] = [
     english: "Jerusalem - Yitzhak Navon",
     russian: "Иерусалим - Ицхак Навон",
     arabic: "أورشليم – يتسحاق ناڤون",
+    shortName: {
+      hebrew: "ירושלים",
+      english: "Jerusalem",
+      russian: "Иерусалим",
+      arabic: "أورشليم",
+    },
     lat: 31.788062,
     lon: 35.202545,
     image: "jerusalem-itzhak-navon",

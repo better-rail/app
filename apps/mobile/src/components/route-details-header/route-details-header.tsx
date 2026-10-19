@@ -365,6 +365,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             buttonScale={stationCardScale}
             style={styles.routeDetailsStation}
             name={originName}
+            shortName={originStation?.shortName?.[stationLocale]}
             accessibilityLabel={`${translate("plan.origin")}: ${originName}`}
             accessibilityHint={translate("plan.selectStation")}
           />
@@ -393,6 +394,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             buttonScale={stationCardScale}
             style={styles.routeDetailsStation}
             name={destinationName}
+            shortName={destinationStation?.shortName?.[stationLocale]}
             accessibilityLabel={`${translate("plan.destination")}: ${destinationName}`}
             accessibilityHint={translate("plan.selectStation")}
           />
