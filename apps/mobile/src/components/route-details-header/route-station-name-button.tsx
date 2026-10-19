@@ -30,7 +30,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
         accessibilityHint={props.accessibilityHint}
       >
         <GlassView isInteractive={!disabled} tintColor={glassTint} style={styles.liquidGlass}>
-          <StationName name={name} shortName={shortName} />
+          <StationName key={name} name={name} shortName={shortName} />
         </GlassView>
       </Pressable>
     )
@@ -45,32 +45,40 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       style={[style, { transform: [{ scale: buttonScale }] }]}
       {...rest}
     >
-      <StationName name={name} shortName={shortName} />
+      <StationName key={name} name={name} shortName={shortName} />
     </AnimatedTouchable>
   )
 }
 
 function StationName({ name, shortName }: { name: string; shortName?: string }) {
-  const [fullNameFits, setFullNameFits] = useState(true)
+  // Unknown until the hidden copy is measured; keyed by `name` so each station measures afresh.
+  const [fullNameFits, setFullNameFits] = useState<boolean>()
+
+  if (!shortName) {
+    return (
+      <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
+        {name}
+      </Text>
+    )
+  }
 
   return (
     <View>
-      <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
-        {shortName && !fullNameFits ? shortName : name}
+      {/* Holds the one-line short name invisibly until measured, so the full name never flashes wrapped. */}
+      <Text style={[styles.routeDetailsStationText, fullNameFits === undefined && styles.hiddenText]} maxFontSizeMultiplier={1.1}>
+        {fullNameFits ? name : shortName}
       </Text>
 
       {/* A hidden copy of the full name, measured at the button's width to decide which name to show. */}
-      {shortName && (
-        <Text
-          style={[styles.routeDetailsStationText, styles.measureText]}
-          maxFontSizeMultiplier={1.1}
-          onTextLayout={(event) => setFullNameFits(event.nativeEvent.lines.length <= 1)}
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-        >
-          {name}
-        </Text>
-      )}
+      <Text
+        style={[styles.routeDetailsStationText, styles.hiddenText, styles.measureText]}
+        maxFontSizeMultiplier={1.1}
+        onTextLayout={(event) => setFullNameFits(event.nativeEvent.lines.length <= 1)}
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        {name}
+      </Text>
     </View>
   )
 }
@@ -83,11 +91,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontWeight: "600",
     fontSize: 14,
   },
+  hiddenText: {
+    opacity: 0,
+  },
   measureText: {
     position: "absolute",
     left: 0,
     right: 0,
-    opacity: 0,
   },
   liquidGlass: {
     width: rt.screen.width / 2 - theme.spacing[2] * 2,
