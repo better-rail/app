@@ -1,4 +1,5 @@
 import { test, expect } from "bun:test"
+import type { RouteItem } from "@/services/api"
 import { buildRoute, MINUTE } from "../../../test/fixtures/ride-route"
 import {
   findClosestStationInRoute,
@@ -6,6 +7,7 @@ import {
   getPreviousTrainFromStationId,
   getRideStatus,
   getTrainFromStationId,
+  isOnRideTrains,
   isSameRoute,
 } from "./ride-helpers"
 
@@ -121,4 +123,19 @@ test("matches the active ride only against the same trip", () => {
   expect(isSameRoute(undefined, route)).toBe(false)
   expect(isSameRoute(route, { ...route })).toBe(true)
   expect(isSameRoute(route, { ...route, departureTime: 2000 })).toBe(false)
+})
+
+test("matches routes riding the ride's trains from another station", () => {
+  const ride = buildRoute(10 * MINUTE)
+  const [first, second] = ride.trains
+  // Boards the same train one stop later
+  const laterBoarding = {
+    trains: [{ ...first, originStationId: 10, departureTime: first.departureTime + 10 * MINUTE }, second],
+  } as RouteItem
+  const nextDay = buildRoute(10 * MINUTE + 24 * 60 * MINUTE)
+
+  expect(isOnRideTrains(undefined, ride)).toBe(false)
+  expect(isOnRideTrains(ride, laterBoarding)).toBe(true)
+  expect(isOnRideTrains(ride, { trains: [first] } as RouteItem)).toBe(false)
+  expect(isOnRideTrains(ride, nextDay)).toBe(false)
 })
