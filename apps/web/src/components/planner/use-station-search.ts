@@ -1,11 +1,11 @@
-import Fuse from "fuse.js"
+import { createStationSearch, type StationSearch } from "@better-rail/stations/search"
 import { useMemo } from "react"
 import { sortedStations, type Station } from "@/data/stations"
 import { useLocale, type Locale } from "@/i18n"
 
 interface StationIndex {
   all: Station[]
-  fuse: Fuse<Station>
+  fuse: StationSearch
 }
 
 /**
@@ -18,12 +18,7 @@ function stationIndex(locale: Locale): StationIndex {
   let index = indexes.get(locale)
   if (!index) {
     const all = sortedStations(locale)
-    const fuse = new Fuse(all, {
-      keys: [{ name: "hebrew", weight: 2 }, { name: "english", weight: 2 }, "alias", "russian", "arabic"],
-      threshold: 0.32,
-      ignoreLocation: true,
-    })
-    index = { all, fuse }
+    index = { all, fuse: createStationSearch(all) }
     indexes.set(locale, index)
   }
   return index
