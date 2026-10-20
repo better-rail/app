@@ -10,8 +10,15 @@ import { searchViaOnRailApi } from "../requests/rail-via"
  * — see routes/rail-api.ts, which picks between this and the GTFS handlers.
  */
 
-const failed = (res: Response, error: any) => {
-  logger?.error(logNames.railApi.proxy.failed, { error })
+const failed = (res: Response, error: any, path: string) => {
+  // A timed-out upstream is expected now and then, so keep it out of Sentry.
+  if (error?.name === "TimeoutError") {
+    logger?.warn(logNames.railApi.proxy.timedOut, { error, path })
+    res.status(504).json({ error: "Failed to fetch rail data", message: error.message })
+    return
+  }
+
+  logger?.error(logNames.railApi.proxy.failed, { error, path })
   res.status(500).json({ error: "Failed to fetch rail data", message: error.message })
 }
 
@@ -57,7 +64,7 @@ const proxySearchTrainRequest = async (req: Request, res: Response) => {
     const data = await response.json()
     res.status(response.status).json(data)
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, req.path)
   }
 }
 
@@ -85,7 +92,7 @@ const railProxy = async (req: Request, res: Response) => {
     const data = await response.json()
     res.status(response.status).json(data)
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, req.path)
   }
 }
 
@@ -113,7 +120,7 @@ const proxyViaSearch = async (res: Response, { search, viaStation }: ViaSearch) 
   try {
     res.status(200).json(await searchViaOnRailApi(search, viaStation))
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, "via search")
   }
 }
 
