@@ -26,6 +26,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       <Pressable
         onPress={onPress}
         disabled={disabled}
+        style={styles.liquidGlassPressable}
         accessibilityLabel={props.accessibilityLabel}
         accessibilityHint={props.accessibilityHint}
       >
@@ -83,7 +84,7 @@ function StationName({ name, shortName }: { name: string; shortName?: string }) 
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   routeDetailsStationText: {
     color: theme.colors.text,
     opacity: 0.8,
@@ -99,8 +100,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     left: 0,
     right: 0,
   },
+  // Sized by the header, not the screen, which is wider than the header in the split layout
+  liquidGlassPressable: {
+    flex: 1,
+  },
   liquidGlass: {
-    width: rt.screen.width / 2 - theme.spacing[2] * 2,
     padding: theme.spacing[2],
     borderRadius: 25,
   },

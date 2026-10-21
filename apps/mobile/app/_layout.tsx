@@ -3,7 +3,8 @@ import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
 import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
-import { Stack } from "expo-router/stack"
+import { Slot } from "expo-router"
+import { SplitView } from "expo-router/unstable-split-view"
 import { enableLegacyHeaderAppearance } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
@@ -35,6 +36,8 @@ import { trackInstalledWidgets } from "@/utils/widget-helpers"
 import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
+import { useSplitLayout } from "@/hooks/use-split-layout"
+import { PlannerScreen } from "@/screens/planner/planner-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
 import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
@@ -129,24 +132,25 @@ focusManager.setEventListener((handleFocus) => {
   return () => subscription.remove()
 })
 
-function AppStack() {
+function AppNavigator() {
   const colorScheme = useColorScheme()
   const { isUpdateRequired } = useForceUpdate()
+  const isSplitLayout = useSplitLayout()
 
   if (isUpdateRequired) return <ForceUpdateScreen />
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(main)" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ presentation: "modal" }} />
-        <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
-        <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
-        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
-        <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
-        <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
-        <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal" }} />
-      </Stack>
+      {isSplitLayout ? (
+        // Collapsed, a split view adds a back button to the sidebar, so narrow windows keep the plain stack
+        <SplitView preferredDisplayMode="oneBesideSecondary" preferredSplitBehavior="tile" displayModeButtonVisibility="never">
+          <SplitView.Column>
+            <PlannerScreen variant="sidebar" />
+          </SplitView.Column>
+        </SplitView>
+      ) : (
+        <Slot />
+      )}
     </ThemeProvider>
   )
 }
@@ -247,7 +251,7 @@ function RootLayout() {
           <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
               <TipIAPProvider>
-                <AppStack />
+                <AppNavigator />
               </TipIAPProvider>
             </PostHogProvider>
           </SafeAreaProvider>

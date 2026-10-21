@@ -31,7 +31,12 @@ import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
-export function PlannerScreen() {
+interface PlannerScreenProps {
+  /** In the split layout's sidebar, the route list beside it follows the selection, so there's no find button */
+  variant?: "screen" | "sidebar"
+}
+
+export function PlannerScreen({ variant = "screen" }: PlannerScreenProps) {
   const router = useRouter()
   const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
@@ -172,7 +177,7 @@ export function PlannerScreen() {
 
   return (
     <Screen testID="planner-screen" style={styles.root}>
-      <WebsiteHomeHandoff />
+      {variant === "screen" && <WebsiteHomeHandoff />}
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
           <PlannerScreenHeader />
@@ -225,17 +230,19 @@ export function PlannerScreen() {
             minimumDate={now}
           />
 
-          <Button
-            testID="find-routes-button"
-            title={translate("plan.find")}
-            onPress={onGetRoutePress}
-            disabled={!origin || !destination || origin.id === destination.id}
-            onDisabledPress={() => {
-              if (origin?.id === destination?.id) {
-                Alert.alert(translate("routes.sameStationsMessage"))
-              }
-            }}
-          />
+          {variant === "screen" && (
+            <Button
+              testID="find-routes-button"
+              title={translate("plan.find")}
+              onPress={onGetRoutePress}
+              disabled={!origin || !destination || origin.id === destination.id}
+              onDisabledPress={() => {
+                if (origin?.id === destination?.id) {
+                  Alert.alert(translate("routes.sameStationsMessage"))
+                }
+              }}
+            />
+          )}
         </View>
       </FlingGestureWrapper>
     </Screen>

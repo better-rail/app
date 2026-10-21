@@ -49,6 +49,7 @@
     "tbd": "TBD"
   },
   "routes": {
+    "chooseStationsMessage": "Choose origin and destination stations to see trains",
     "departure": "Departure",
     "arrival": "Arrival",
     "noChange": "Direct",

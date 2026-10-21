@@ -17,7 +17,15 @@ import { filterRouteData, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/se
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
-import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, RouteCardHeightWithHeader, WebsiteHandoff } from "@/components"
+import {
+  Screen,
+  HorizontalSafeArea,
+  RouteDetailsHeader,
+  RouteCard,
+  RouteCardHeight,
+  RouteCardHeightWithHeader,
+  WebsiteHandoff,
+} from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -84,7 +92,7 @@ export function RouteListScreen() {
   )
 }
 
-function RouteListResults({
+export function RouteListResults({
   originId,
   destinationId,
   time,
@@ -466,7 +474,7 @@ function RouteListResults({
       )}
 
       {displayData.length > 0 && (
-        <View style={styles.listContainer}>
+        <HorizontalSafeArea style={styles.listContainer}>
           <LegendList
             // The list caches row sizes, so it starts over when the train info prompt changes the card height
             key={`route-list-${showRouteCardHeader}`}
@@ -535,7 +543,7 @@ function RouteListResults({
             }}
           />
           {showHourIndex && <HourIndexBar entries={hourIndexEntries} topHour={topHour} onSelect={scrollToHour} />}
-        </View>
+        </HorizontalSafeArea>
       )}
 
       {noTrainsFound && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
