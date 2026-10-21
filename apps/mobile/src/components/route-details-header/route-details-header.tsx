@@ -9,9 +9,6 @@ import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
 import { IS_E2E } from "@/config/e2e"
-import { FilterIcon } from "@/components/filter-icon/filter-icon"
-import { FaresIcon } from "@/components/fares-icon/fares-icon"
-import { MenuIcon } from "@/components/menu-icon/menu-icon"
 import HapticFeedback from "react-native-haptic-feedback"
 import { stationsObject, stationLocale } from "@/data/stations"
 import { translate } from "@/i18n"
@@ -87,7 +84,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const destinationName = destinationStation?.[stationLocale]
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
-  const useNativeRouteListToolbar = screenName === "routeList" && Platform.OS === "ios" && isLiquidGlassSupported
+  // A native header lets UIKit place the buttons, e.g. in the iPhone Duo's sidebar when unfolded.
+  const useNativeToolbar = (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios"
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -181,59 +179,40 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [routePlanOrigin?.id, routePlanDestination?.id, originId, destinationId, routeEditDisabled])
 
+  // Literal icon names so the native header menu accepts them as SF Symbols.
+  const routeDetailsActions = [
+    {
+      title: translate("routes.share"),
+      systemIcon: "square.and.arrow.up" as const,
+      onPress: handleShare,
+    },
+    {
+      title: translate("routeDetails.addToCalendar"),
+      systemIcon: "calendar" as const,
+      onPress: addToCalendar,
+    },
+    {
+      title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
+      systemIcon: showEntireRoute ? ("rectangle.compress.vertical" as const) : ("rectangle.expand.vertical" as const),
+      onPress: () => setShowEntireRoute((prev) => !prev),
+    },
+    {
+      title: translate("fares.title"),
+      systemIcon: "shekelsign.circle" as const,
+      onPress: openFaresSheet,
+    },
+  ]
+
   const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
-      const actions = [
-        {
-          title: translate("routes.share"),
-          systemIcon: "square.and.arrow.up",
-          onPress: handleShare,
-        },
-        {
-          title: translate("routeDetails.addToCalendar"),
-          systemIcon: "calendar",
-          onPress: addToCalendar,
-        },
-        {
-          title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
-          systemIcon: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical",
-          onPress: () => setShowEntireRoute((prev) => !prev),
-        },
-        {
-          title: translate("fares.title"),
-          systemIcon: "shekelsign.circle",
-          onPress: openFaresSheet,
-        },
-      ]
-
-      if (isLiquidGlassSupported) {
-        return (
-          <ContextMenu mode="tap" actions={actions}>
-            <GlassView isInteractive colorScheme="dark" style={{ padding: 12, borderRadius: 50 }}>
-              <MenuIcon />
-            </GlassView>
-          </ContextMenu>
-        )
-      }
-
       return (
-        <ContextMenu mode="tap" actions={actions}>
+        <ContextMenu mode="tap" actions={routeDetailsActions}>
           <HeaderMenuIcon />
         </ContextMenu>
       )
     }
 
-    if (isLiquidGlassSupported) {
-      return (
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing[4] }}>
-          <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-          <FaresIcon onPress={openFaresSheet} />
-          <FilterIcon active={isFilterActive} count={filterCount} onPress={openFilterSheet} />
-        </View>
-      )
-    }
-
-    // Mirrors the iOS 26 toolbar: fares and filter sit behind one ellipsis menu.
+    // Mirrors the native iOS toolbar: fares and filter sit behind one ellipsis menu.
     const routeListActions = [
       {
         title: translate("fares.title"),
@@ -260,61 +239,85 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
   return (
     <>
-      {useNativeRouteListToolbar && (
+      {useNativeToolbar && (
         <Stack.Screen
           options={{
             headerShown: true,
             headerTransparent: true,
             headerTitle: "",
-            unstable_headerRightItems: () => [
-              {
-                type: "button",
-                label: "",
-                sharesBackground: false,
-                tintColor: isFavorite ? color.palette.orangeMuted : undefined,
-                icon: { type: "sfSymbol", name: "star" },
-                accessibilityLabel: translate("favorites.title") ?? undefined,
-                onPress: handleFavoritePress,
-              },
-              {
-                type: "menu",
-                label: "",
-                sharesBackground: false,
-                // The default red reads as an alert, so use the filter icon's orange instead.
-                badge: isFilterActive
-                  ? {
-                      value: String(filterCount),
-                      style: {
-                        backgroundColor: color.palette.orange,
-                        color: color.palette.black,
-                        fontSize: 12,
-                        fontWeight: "600",
-                      },
-                    }
-                  : undefined,
-                icon: { type: "sfSymbol", name: "ellipsis" },
-                accessibilityLabel: translate("routes.routeActions") ?? undefined,
-                menu: {
-                  items: [
+            // Without glass behind them, the stack's blue tint is hard to read over the photo.
+            ...(!isLiquidGlassSupported && { headerTintColor: "rgba(211, 211, 211, 0.9)" }),
+            unstable_headerRightItems: () =>
+              screenName === "routeDetails"
+                ? [
                     {
-                      type: "action",
-                      label: translate("fares.title") ?? "",
-                      icon: { type: "sfSymbol", name: "shekelsign" },
-                      onPress: openFaresSheet,
+                      type: "menu",
+                      label: "",
+                      sharesBackground: false,
+                      icon: { type: "sfSymbol", name: "ellipsis" },
+                      accessibilityLabel: translate("routes.routeActions") ?? undefined,
+                      menu: {
+                        items: routeDetailsActions.map((action) => ({
+                          type: "action" as const,
+                          label: action.title ?? "",
+                          icon: { type: "sfSymbol" as const, name: action.systemIcon },
+                          onPress: action.onPress,
+                        })),
+                      },
+                    },
+                  ]
+                : [
+                    {
+                      type: "button",
+                      label: "",
+                      sharesBackground: false,
+                      tintColor: isFavorite ? color.palette.orangeMuted : undefined,
+                      icon: { type: "sfSymbol", name: "star" },
+                      accessibilityLabel: translate("favorites.title") ?? undefined,
+                      onPress: handleFavoritePress,
                     },
                     {
-                      type: "action",
-                      label: isFilterActive
-                        ? `${translate("routes.filter")} (${filterCount})`
-                        : (translate("routes.filter") ?? ""),
-                      icon: { type: "sfSymbol", name: "line.3.horizontal.decrease" },
-                      state: isFilterActive ? "on" : "off",
-                      onPress: openFilterSheet,
+                      type: "menu",
+                      label: "",
+                      sharesBackground: false,
+                      // Badges need iOS 26, so older versions tint the glyph instead.
+                      tintColor: isFilterActive && !isLiquidGlassSupported ? color.palette.orange : undefined,
+                      // The default red reads as an alert, so use the filter icon's orange instead.
+                      badge:
+                        isFilterActive && isLiquidGlassSupported
+                          ? {
+                              value: String(filterCount),
+                              style: {
+                                backgroundColor: color.palette.orange,
+                                color: color.palette.black,
+                                fontSize: 12,
+                                fontWeight: "600",
+                              },
+                            }
+                          : undefined,
+                      icon: { type: "sfSymbol", name: "ellipsis" },
+                      accessibilityLabel: translate("routes.routeActions") ?? undefined,
+                      menu: {
+                        items: [
+                          {
+                            type: "action",
+                            label: translate("fares.title") ?? "",
+                            icon: { type: "sfSymbol", name: "shekelsign" },
+                            onPress: openFaresSheet,
+                          },
+                          {
+                            type: "action",
+                            label: isFilterActive
+                              ? `${translate("routes.filter")} (${filterCount})`
+                              : (translate("routes.filter") ?? ""),
+                            icon: { type: "sfSymbol", name: "line.3.horizontal.decrease" },
+                            state: isFilterActive ? "on" : "off",
+                            onPress: openFilterSheet,
+                          },
+                        ],
+                      },
                     },
                   ],
-                },
-              },
-            ],
           }}
         />
       )}
@@ -329,7 +332,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeRouteListToolbar && (
+        {screenName !== "activeRide" && !useNativeToolbar && (
           <View
             style={{
               position: "absolute",
