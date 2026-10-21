@@ -181,6 +181,7 @@ export function getE2ERoutes(
         }),
       ],
       "32 min",
+      { isMuchLonger: false, isMuchShorter: true },
     ),
     route(
       [
