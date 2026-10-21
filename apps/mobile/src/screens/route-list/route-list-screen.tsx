@@ -110,6 +110,7 @@ function RouteListResults({
   const maxChanges = useSettingsStore((s) => s.maxChanges)
   const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
+  const setHideSlowTrains = useSettingsStore((s) => s.setHideSlowTrains)
   const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
     useShallow((s) => ({
       trainSearchCount: s.trainSearchCount,
@@ -236,6 +237,8 @@ function RouteListResults({
   )
   const todayDate = new Date().toDateString()
   const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
+  const onlySlowTrainsHidden =
+    allRoutesHiddenByFilter && filterRouteData(routeData, { hideSlowTrains: false, maxChanges }).length > 0
 
   // The hour index covers the day currently at the top of the list, and highlights its hour.
   // The hour lives in a shared value so scrolling doesn't re-render the screen.
@@ -541,7 +544,13 @@ function RouteListResults({
         </View>
       )}
 
-      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
+      {allRoutesHiddenByFilter && (
+        <FilteredTrainsMessage
+          maxChanges={maxChanges}
+          onlySlowTrains={onlySlowTrainsHidden}
+          onShowAll={() => (onlySlowTrainsHidden ? setHideSlowTrains(false) : setMaxChanges(null))}
+        />
+      )}
 
       {warning && <RouteListWarning key={`${warning.requestedTime}-${warning.routesDate}-${warning.warningType}`} {...warning} />}
     </Screen>
