@@ -2,6 +2,7 @@ import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { CloseButton } from "@/components"
 import { translate } from "@/i18n"
+import { formSheetOptions } from "@/utils/form-sheet-options"
 
 export default function ActiveRideLayout() {
   const router = useRouter()
@@ -25,6 +26,8 @@ export default function ActiveRideLayout() {
           ],
         }}
       />
+      {/* The ride is a modal, so its train info sheet has to open on top of it */}
+      <Stack.Screen name="train-info" options={formSheetOptions} />
     </Stack>
   )
 }
