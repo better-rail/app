@@ -27,6 +27,7 @@ import { useRouter, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
+import { ServiceDisruptionBanner } from "./service-disruption-banner"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
@@ -178,6 +179,7 @@ export function PlannerScreen() {
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
           <PlannerScreenHeader />
+          <ServiceDisruptionBanner />
 
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 

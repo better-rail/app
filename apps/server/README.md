@@ -63,7 +63,7 @@ Change-station searches (`viaStation`) aren't proxied: they're joined from two r
 
 ### Service status (`GET /api/v1/service-status`)
 
-The app's Service Status screens (line list, network map, per-line details)
+The app's Service Status screens (line list, per-line details with each disruption pictured on the map, station cards)
 read one endpoint, `GET /api/v1/service-status`, which is derived on demand
 from data the server already has and **never writes anything**: the day's
 trips come through the planner's cached `loadDayTrips` (Postgres `SELECT`

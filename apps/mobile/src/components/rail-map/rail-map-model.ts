@@ -1160,6 +1160,17 @@ export const linePathBetween = (line: LinePath, fromStationId: string, toStation
   return roundedPathD(line.vertices.slice(start, end), line.offsets.slice(start, end))
 }
 
+/**
+ * The vertices of `line` along the stretch between two of its stations, in either order; empty when
+ * either station is not on the line. The stretch a disruption map frames.
+ */
+export const lineVerticesBetween = (line: LinePath, fromStationId: string, toStationId: string): Point[] => {
+  const a = line.stationIndex.get(fromStationId)
+  const b = line.stationIndex.get(toStationId)
+  if (a === undefined || b === undefined) return []
+  return line.vertices.slice(Math.min(a, b), Math.max(a, b) + 1)
+}
+
 /** Where the given stations sit on `line` (stations not on the line are skipped). */
 export const lineStationPoints = (line: LinePath, stationIds: string[]): Point[] =>
   stationIds.flatMap((id) => {

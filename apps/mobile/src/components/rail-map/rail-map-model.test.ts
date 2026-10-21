@@ -8,6 +8,7 @@ import {
   currentDayType,
   linePathBetween,
   lineStationPoints,
+  lineVerticesBetween,
   mapStationName,
   nearestLine,
   nearestStation,
@@ -199,6 +200,17 @@ describe("rail map model", () => {
     expect(forward?.startsWith(`M${a.x} ${a.y}`) || forward?.startsWith(`M${Math.round(a.x * 1000) / 1000}`)).toBe(true)
     expect(forward?.endsWith(`${Math.round(b.x * 1000) / 1000} ${Math.round(b.y * 1000) / 1000}`)).toBe(true)
     expect(lineStationPoints(line, ["9999"])).toEqual([])
+  })
+
+  test("the vertices of a stretch run from the one station's point to the other's, in either order", () => {
+    const line = model.lines.find((l) => l.lineId === "3") as (typeof model.lines)[number]
+    const [a, b] = lineStationPoints(line, ["3700", "5000"])
+    const forward = lineVerticesBetween(line, "3700", "5000")
+    expect(forward[0]).toEqual(a)
+    expect(forward[forward.length - 1]).toEqual(b)
+    expect(forward.length).toBeGreaterThan(2)
+    expect(lineVerticesBetween(line, "5000", "3700")).toEqual(forward)
+    expect(lineVerticesBetween(line, "3700", "9999")).toEqual([])
   })
 
   test("finds the station and the line under a tap", () => {

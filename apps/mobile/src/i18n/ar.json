@@ -315,23 +315,10 @@
   "serviceStatus": {
     "title": "حالة الخدمة",
     "subtitle": "حالة الخطوط",
-    "networkMap": "خريطة الشبكة",
-    "networkMapHint": "اضغط على خط لعرض حالته",
     "dayType": {
       "weekday": "الأحد–الخميس",
       "weekend": "الجمعة–السبت",
       "night": "ليلاً"
-    },
-    "legend": {
-      "title": "مفتاح الخريطة",
-      "open": "المفتاح",
-      "lines": "كل لون هو خط",
-      "stop": "محطة على خط",
-      "interchange": "محطة مشتركة بين عدة خطوط",
-      "irregularStop": "توقفات غير منتظمة – قد تمر القطارات دون التوقف",
-      "terminal": "محطة تنتهي فيها رحلات قطارات الخط",
-      "suspended": "مقطع بلا خدمة حاليًا",
-      "disruption": "محطة متأثرة بخلل"
     },
     "live": "مباشر",
     "liveUnavailable": "البيانات المباشرة غير متوفرة حاليًا",
@@ -339,6 +326,9 @@
     "allLines": "كل الخطوط",
     "lineDetails": "تفاصيل الخط",
     "allLinesGood": "خدمة منتظمة على جميع الخطوط",
+    "disruptedLine": "اضطراب على خط واحد",
+    "disruptedLines": "اضطرابات على %{count} خطوط",
+    "moreDisruptions": "و%{count} أخرى على خطوطك",
     "lineStations": "المحطات",
     "someTrainsSkip": "بعض القطارات لا تتوقف هنا",
     "noServiceNow": "لا توجد قطارات مجدولة الآن",
@@ -402,6 +392,7 @@
     "errorDescription": "تحقق من الاتصال وحاول مجددًا.",
     "station": {
       "status": "الحالة",
+      "details": "تفاصيل المحطة",
       "openNow": "مفتوحة الآن",
       "open": "مفتوحة",
       "closedNow": "مغلقة",

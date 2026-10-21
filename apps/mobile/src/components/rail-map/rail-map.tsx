@@ -26,7 +26,7 @@ import { stationName } from "@/data/stations"
 import type { RailLineId } from "@/data/rail-lines"
 import type { LabelSide } from "@/data/rail-map-layout"
 import { LANE_RANK, MAP_NAME_OVERRIDES } from "@/data/rail-map-layout"
-import type { LineStatus, ServiceStatusSnapshot } from "@/services/api"
+import type { LineStatus } from "@/services/api"
 import {
   BADGE_RADIUS,
   CAPSULE_RING,
@@ -52,6 +52,7 @@ import {
   currentDayType,
   linePathBetween,
   isRtlScript,
+  lineVerticesBetween,
   mapStationName,
   nameFontSize,
   nearestLine,
@@ -76,6 +77,10 @@ const TAP_TOLERANCE = 2.5
 const STATION_TAP_TOLERANCE = 1.8
 /** How far in the map zooms on a station, relative to the whole width fitting the view. */
 const STATION_ZOOM = 3
+/** The most a disruption's stretch is zoomed in on, relative to the whole width fitting the view: names stay legible, not huge. */
+const SECTION_ZOOM = 2.6
+/** Room around a disruption's stretch, in map units: the names on either side and a station or so beyond its ends. */
+const SECTION_MARGIN = { x: 20, y: 6 }
 /** The halo around a selected station: a soft disc over its marker, with a crisp rim; `pad` is the room past the marker. */
 const SELECTED_STATION_HALO = { pad: 1.1, rim: 0.24, glow: 1.4 }
 
@@ -83,21 +88,31 @@ const SELECTED_STATION_HALO = { pad: 1.1, rim: 0.24, glow: 1.4 }
 const PLANE_D =
   "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
 
+/** A stretch of a line between two of its stations, for the map to frame. */
+export type RailMapSection = { fromStationId: string; toStationId: string }
+
 export type RailMapProps = {
   /** Live status: flags the stations of every disrupted stretch on the map. */
-  status?: ServiceStatusSnapshot | null
+  status?: { lines: Pick<LineStatus, "lineId" | "disruptions">[] } | null
   /** Whose timetable to draw (which lines run, where they call and end); defaults to today's. */
   dayType?: DayType
   /** Draw this line in colour and everything else in grey, and scroll and zoom the view to it. */
   selectedLineId?: RailLineId | null
   /** Called with the tapped line, or null when tapping empty ground. */
   onSelectLine?: (lineId: RailLineId | null) => void
+  /**
+   * With `selectedLineId`: frame this stretch of the line instead of the whole line, as a picture of
+   * a disruption. A stretch not on the line falls back to the line.
+   */
+  focusSection?: RailMapSection | null
   /** Ring this station's marker, and scroll and zoom the view to it. */
   selectedStationId?: string | null
   /** Called with the tapped station: its marker, or its name. Stations win over the lines their markers sit on. */
   onSelectStation?: (stationId: string) => void
   /** Edges of the view covered by other UI (a translucent header, a sheet): the initial and focused views keep clear of them. */
   insets?: RailMapInsets
+  /** False for a still picture: no panning, zooming or tapping. */
+  interactive?: boolean
   style?: ViewStyle
 }
 
@@ -144,6 +159,34 @@ const initialViewport = (model: RailMapModel, size: Size, focus?: LinePath, inse
   return { scale, translateX: size.width / 2 - centerX * scale, translateY: top + visibleHeight / 2 - centerY * scale }
 }
 
+/**
+ * The view framing a stretch of a line, as a picture of a disruption: the stretch and the names
+ * beside it fill the view, zoomed in only so far that the names stay a readable size.
+ */
+const sectionViewport = (model: RailMapModel, size: Size, stretch: Point[], insets?: RailMapInsets): Viewport => {
+  const top = insets?.top ?? 0
+  const bottom = insets?.bottom ?? 0
+  const fitWidth = size.width / (model.bounds.width + PAD.left + PAD.right)
+  let minX = Number.POSITIVE_INFINITY
+  let minY = Number.POSITIVE_INFINITY
+  let maxX = Number.NEGATIVE_INFINITY
+  let maxY = Number.NEGATIVE_INFINITY
+  for (const v of stretch) {
+    minX = Math.min(minX, v.x)
+    minY = Math.min(minY, v.y)
+    maxX = Math.max(maxX, v.x)
+    maxY = Math.max(maxY, v.y)
+  }
+  const width = maxX - minX + SECTION_MARGIN.x * 2
+  const height = maxY - minY + SECTION_MARGIN.y * 2
+  const visibleHeight = Math.max(size.height - top - bottom, size.height / 4)
+  const fit = Math.min(size.width / width, visibleHeight / height)
+  const scale = Math.min(Math.max(fit, fitWidth * MIN_ZOOM), fitWidth * SECTION_ZOOM)
+  const centerX = (minX + maxX) / 2
+  const centerY = (minY + maxY) / 2
+  return { scale, translateX: size.width / 2 - centerX * scale, translateY: top + visibleHeight / 2 - centerY * scale }
+}
+
 /** The view zoomed in on a point, centred in the part of the view the insets leave uncovered. */
 const pointViewport = (model: RailMapModel, size: Size, point: Point, insets?: RailMapInsets): Viewport => {
   const top = insets?.top ?? 0
@@ -164,9 +207,11 @@ export function RailMap({
   dayType,
   selectedLineId,
   onSelectLine,
+  focusSection,
   selectedStationId,
   onSelectStation,
   insets,
+  interactive = true,
   style,
 }: RailMapProps) {
   const scheme = useColorScheme()
@@ -211,6 +256,12 @@ export function RailMap({
     () => (selectedStationId ? stationPoint(model, selectedStationId) : undefined),
     [model, selectedStationId],
   )
+  // The stretch to frame, when there is one on the focused line; an empty stretch means the whole line.
+  const focusStretch = useMemo(() => {
+    if (!focusLine || !focusSection) return undefined
+    const stretch = lineVerticesBetween(focusLine, focusSection.fromStationId, focusSection.toStationId)
+    return stretch.length > 0 ? stretch : undefined
+  }, [focusLine, focusSection])
   const laidOut = size.width > 0
   // The insets in force when a view is next chosen: a change of insets on its own does not move the map.
   const insetsRef = useRef(insets)
@@ -231,7 +282,9 @@ export function RailMap({
     viewportHeight.value = height
     const view = focusPoint
       ? pointViewport(model, { width, height }, focusPoint, insetsRef.current)
-      : initialViewport(model, { width, height }, focusLine, insetsRef.current)
+      : focusStretch
+        ? sectionViewport(model, { width, height }, focusStretch, insetsRef.current)
+        : initialViewport(model, { width, height }, focusLine, insetsRef.current)
     showViewport(view, false)
   }
 
@@ -242,6 +295,9 @@ export function RailMap({
     if (focusPoint) {
       wasFocused.current = true
       showViewport(pointViewport(model, size, focusPoint, insetsRef.current), true)
+    } else if (focusStretch) {
+      wasFocused.current = true
+      showViewport(sectionViewport(model, size, focusStretch, insetsRef.current), true)
     } else if (focusLine) {
       wasFocused.current = true
       showViewport(initialViewport(model, size, focusLine, insetsRef.current), true)
@@ -251,7 +307,7 @@ export function RailMap({
     }
     // `size` is deliberately not a dependency: layout changes are handled by onLayout.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusLine, focusPoint, laidOut, model, showViewport])
+  }, [focusLine, focusPoint, focusStretch, laidOut, model, showViewport])
 
   // The names as laid out, for taps on them; filled in once the fonts are loaded (below).
   const labelsRef = useRef<BuiltLabel[]>([])
@@ -487,201 +543,201 @@ export function RailMap({
     return { centre: mark.centre, radius: radius + SELECTED_STATION_HALO.pad }
   }, [model, selectedStationId])
 
-  return (
-    <GestureDetector gesture={gesture}>
-      <View style={[styles.container, { backgroundColor: palette.background }, style]} onLayout={onLayout} testID="rail-map">
-        {laidOut && (
-          <Canvas style={StyleSheet.absoluteFill}>
-            <Fill color={palette.background} />
-            <Group transform={transform}>
-              {/* The frames around the big cities. */}
-              {placement.frames.map((frame) => (
-                <RoundedRect
-                  key={frame.id}
-                  x={frame.box.left}
-                  y={frame.box.top}
-                  width={frame.box.right - frame.box.left}
-                  height={frame.box.bottom - frame.box.top}
-                  r={FRAME_RADIUS}
-                  color={palette.frame}
-                  style="stroke"
-                  strokeWidth={FRAME_STROKE}
-                />
-              ))}
+  const canvas = (
+    <View
+      style={[styles.container, { backgroundColor: palette.background }, style]}
+      onLayout={onLayout}
+      pointerEvents={interactive ? "auto" : "none"}
+      testID="rail-map"
+    >
+      {laidOut && (
+        <Canvas style={StyleSheet.absoluteFill}>
+          <Fill color={palette.background} />
+          <Group transform={transform}>
+            {/* The frames around the big cities. */}
+            {placement.frames.map((frame) => (
+              <RoundedRect
+                key={frame.id}
+                x={frame.box.left}
+                y={frame.box.top}
+                width={frame.box.right - frame.box.left}
+                height={frame.box.bottom - frame.box.top}
+                r={FRAME_RADIUS}
+                color={palette.frame}
+                style="stroke"
+                strokeWidth={FRAME_STROKE}
+              />
+            ))}
 
-              {/* Lines on their casings: the casing outlines a line where it crosses another. */}
-              {orderedLines.map((line) => {
-                const path = paths.get(line.lineId) as SkPath
-                const color = isDimmed(line.lineId) ? palette.dimLine : line.line.color
-                return (
-                  <Group key={line.lineId}>
-                    <Path
-                      path={path}
-                      color={palette.background}
-                      style="stroke"
-                      strokeWidth={LINE_CASING}
-                      strokeCap="round"
-                      strokeJoin="round"
-                    />
-                    <Path
-                      path={path}
-                      color={color}
-                      style="stroke"
-                      strokeWidth={LINE_STROKE}
-                      strokeCap="round"
-                      strokeJoin="round"
-                    />
-                  </Group>
-                )
-              })}
-
-              {/* Disrupted stretches: the line fades out where trains do not run. */}
-              {disrupted.map((section) =>
-                isDimmed(section.lineId) || !section.fade ? null : (
-                  <Group key={section.key}>
-                    <Path
-                      path={section.path}
-                      color={palette.background}
-                      style="stroke"
-                      strokeWidth={LINE_STROKE + 0.2}
-                      strokeCap="butt"
-                    />
-                    <Path
-                      path={section.path}
-                      color={paleColor(section.color, palette.background)}
-                      style="stroke"
-                      strokeWidth={LINE_STROKE}
-                      strokeCap="butt"
-                    />
-                  </Group>
-                ),
-              )}
-
-              {/* Station markers: a tick beside a lone line, a capsule across the lanes that call, dashed where trains may pass. */}
-              {model.marks.map((mark) => {
-                const ink = onSelectedLine(mark) ? palette.marker : palette.dimInk
-                return (
-                  <Group key={mark.stationId}>
-                    {mark.lone &&
-                      (() => {
-                        const tick = tickFor(mark, labelSides.get(mark.stationId) ?? "left")
-                        return (
-                          <Line
-                            p1={vec(tick.from.x, tick.from.y)}
-                            p2={vec(tick.to.x, tick.to.y)}
-                            color={ink}
-                            strokeWidth={TICK_WIDTH}
-                          />
-                        )
-                      })()}
-                    {mark.capsules.map((c, i) => (
-                      <Group key={i}>
-                        <Line
-                          p1={vec(c.from.x, c.from.y)}
-                          p2={vec(c.to.x, c.to.y)}
-                          color={ink}
-                          strokeWidth={CAPSULE_WIDTH}
-                          strokeCap="round"
-                        />
-                        <Line
-                          p1={vec(c.from.x, c.from.y)}
-                          p2={vec(c.to.x, c.to.y)}
-                          color={palette.markerFill}
-                          strokeWidth={CAPSULE_WIDTH - CAPSULE_RING * 2}
-                          strokeCap="round"
-                        />
-                      </Group>
-                    ))}
-                    {mark.irregular.map((p, i) => (
-                      <Group key={`irregular-${i}`}>
-                        <Circle c={p} r={(CAPSULE_WIDTH - CAPSULE_RING) / 2} color={palette.markerFill} />
-                        <Circle
-                          c={p}
-                          r={(CAPSULE_WIDTH - CAPSULE_RING) / 2}
-                          color={onSelectedLine(mark) ? palette.dimInk : palette.dimLine}
-                          style="stroke"
-                          strokeWidth={CAPSULE_RING}
-                        />
-                      </Group>
-                    ))}
-                    {mark.terminals.map((p, i) => (
-                      <Circle key={`terminal-${i}`} c={p} r={TERMINAL_DOT_RADIUS} color={ink} />
-                    ))}
-                  </Group>
-                )
-              })}
-
-              {/* The selected station: a soft glow under a translucent disc over its marker, with a crisp rim. */}
-              {selectedStation && (
-                <Group>
-                  <Circle
-                    c={selectedStation.centre}
-                    r={selectedStation.radius + SELECTED_STATION_HALO.glow}
-                    color={palette.selection}
-                    opacity={0.22}
-                  >
-                    <BlurMask blur={SELECTED_STATION_HALO.glow} style="normal" />
-                  </Circle>
-                  <Circle c={selectedStation.centre} r={selectedStation.radius} color={palette.selection} opacity={0.18} />
-                  <Circle
-                    c={selectedStation.centre}
-                    r={selectedStation.radius}
-                    color={palette.selection}
-                    style="stroke"
-                    strokeWidth={SELECTED_STATION_HALO.rim}
-                  />
-                </Group>
-              )}
-
-              {/* Disruption badges, in place of the markers on the affected lanes. */}
-              {badges.map(({ key, from, to, glyph }) => (
-                <Group key={key}>
-                  <Line
-                    p1={vec(from.x, from.y)}
-                    p2={vec(to.x, to.y)}
+            {/* Lines on their casings: the casing outlines a line where it crosses another. */}
+            {orderedLines.map((line) => {
+              const path = paths.get(line.lineId) as SkPath
+              const color = isDimmed(line.lineId) ? palette.dimLine : line.line.color
+              return (
+                <Group key={line.lineId}>
+                  <Path
+                    path={path}
                     color={palette.background}
-                    strokeWidth={BADGE_RADIUS * 2 + 0.44}
+                    style="stroke"
+                    strokeWidth={LINE_CASING}
                     strokeCap="round"
+                    strokeJoin="round"
                   />
-                  <Line
-                    p1={vec(from.x, from.y)}
-                    p2={vec(to.x, to.y)}
-                    color={palette.badge}
-                    strokeWidth={BADGE_RADIUS * 2}
-                    strokeCap="round"
-                  />
-                  <Path path={glyph} color={palette.badgeInk} />
+                  <Path path={path} color={color} style="stroke" strokeWidth={LINE_STROKE} strokeCap="round" strokeJoin="round" />
                 </Group>
-              ))}
+              )
+            })}
 
-              {/* Station names. */}
-              {labels.flatMap((label) => {
-                const mark = model.marks.find((m) => m.stationId === label.stationId)
-                const dim = mark ? !onSelectedLine(mark) : false
-                return label.lines.map((line, i) => (
-                  <Paragraph
-                    key={`${label.stationId}-${i}`}
-                    paragraph={dim ? line.dimParagraph : line.paragraph}
-                    x={label.x}
-                    y={line.y}
-                    width={label.width}
+            {/* Disrupted stretches: the line fades out where trains do not run. */}
+            {disrupted.map((section) =>
+              isDimmed(section.lineId) || !section.fade ? null : (
+                <Group key={section.key}>
+                  <Path
+                    path={section.path}
+                    color={palette.background}
+                    style="stroke"
+                    strokeWidth={LINE_STROKE + 0.2}
+                    strokeCap="butt"
                   />
-                ))
-              })}
+                  <Path
+                    path={section.path}
+                    color={paleColor(section.color, palette.background)}
+                    style="stroke"
+                    strokeWidth={LINE_STROKE}
+                    strokeCap="butt"
+                  />
+                </Group>
+              ),
+            )}
 
-              {/* The aeroplane beside Ben Gurion Airport. */}
-              {plane && <Path path={plane} color={palette.cityInk} />}
+            {/* Station markers: a tick beside a lone line, a capsule across the lanes that call, dashed where trains may pass. */}
+            {model.marks.map((mark) => {
+              const ink = onSelectedLine(mark) ? palette.marker : palette.dimInk
+              return (
+                <Group key={mark.stationId}>
+                  {mark.lone &&
+                    (() => {
+                      const tick = tickFor(mark, labelSides.get(mark.stationId) ?? "left")
+                      return (
+                        <Line
+                          p1={vec(tick.from.x, tick.from.y)}
+                          p2={vec(tick.to.x, tick.to.y)}
+                          color={ink}
+                          strokeWidth={TICK_WIDTH}
+                        />
+                      )
+                    })()}
+                  {mark.capsules.map((c, i) => (
+                    <Group key={i}>
+                      <Line
+                        p1={vec(c.from.x, c.from.y)}
+                        p2={vec(c.to.x, c.to.y)}
+                        color={ink}
+                        strokeWidth={CAPSULE_WIDTH}
+                        strokeCap="round"
+                      />
+                      <Line
+                        p1={vec(c.from.x, c.from.y)}
+                        p2={vec(c.to.x, c.to.y)}
+                        color={palette.markerFill}
+                        strokeWidth={CAPSULE_WIDTH - CAPSULE_RING * 2}
+                        strokeCap="round"
+                      />
+                    </Group>
+                  ))}
+                  {mark.irregular.map((p, i) => (
+                    <Group key={`irregular-${i}`}>
+                      <Circle c={p} r={(CAPSULE_WIDTH - CAPSULE_RING) / 2} color={palette.markerFill} />
+                      <Circle
+                        c={p}
+                        r={(CAPSULE_WIDTH - CAPSULE_RING) / 2}
+                        color={onSelectedLine(mark) ? palette.dimInk : palette.dimLine}
+                        style="stroke"
+                        strokeWidth={CAPSULE_RING}
+                      />
+                    </Group>
+                  ))}
+                  {mark.terminals.map((p, i) => (
+                    <Circle key={`terminal-${i}`} c={p} r={TERMINAL_DOT_RADIUS} color={ink} />
+                  ))}
+                </Group>
+              )
+            })}
 
-              {/* City names in the corner of their frames. */}
-              {cityLabels.map((label) => (
-                <Paragraph key={label.id} paragraph={label.paragraph} x={label.x} y={label.y} width={label.width} />
-              ))}
-            </Group>
-          </Canvas>
-        )}
-      </View>
-    </GestureDetector>
+            {/* The selected station: a soft glow under a translucent disc over its marker, with a crisp rim. */}
+            {selectedStation && (
+              <Group>
+                <Circle
+                  c={selectedStation.centre}
+                  r={selectedStation.radius + SELECTED_STATION_HALO.glow}
+                  color={palette.selection}
+                  opacity={0.22}
+                >
+                  <BlurMask blur={SELECTED_STATION_HALO.glow} style="normal" />
+                </Circle>
+                <Circle c={selectedStation.centre} r={selectedStation.radius} color={palette.selection} opacity={0.18} />
+                <Circle
+                  c={selectedStation.centre}
+                  r={selectedStation.radius}
+                  color={palette.selection}
+                  style="stroke"
+                  strokeWidth={SELECTED_STATION_HALO.rim}
+                />
+              </Group>
+            )}
+
+            {/* Disruption badges, in place of the markers on the affected lanes. */}
+            {badges.map(({ key, from, to, glyph }) => (
+              <Group key={key}>
+                <Line
+                  p1={vec(from.x, from.y)}
+                  p2={vec(to.x, to.y)}
+                  color={palette.background}
+                  strokeWidth={BADGE_RADIUS * 2 + 0.44}
+                  strokeCap="round"
+                />
+                <Line
+                  p1={vec(from.x, from.y)}
+                  p2={vec(to.x, to.y)}
+                  color={palette.badge}
+                  strokeWidth={BADGE_RADIUS * 2}
+                  strokeCap="round"
+                />
+                <Path path={glyph} color={palette.badgeInk} />
+              </Group>
+            ))}
+
+            {/* Station names. */}
+            {labels.flatMap((label) => {
+              const mark = model.marks.find((m) => m.stationId === label.stationId)
+              const dim = mark ? !onSelectedLine(mark) : false
+              return label.lines.map((line, i) => (
+                <Paragraph
+                  key={`${label.stationId}-${i}`}
+                  paragraph={dim ? line.dimParagraph : line.paragraph}
+                  x={label.x}
+                  y={line.y}
+                  width={label.width}
+                />
+              ))
+            })}
+
+            {/* The aeroplane beside Ben Gurion Airport. */}
+            {plane && <Path path={plane} color={palette.cityInk} />}
+
+            {/* City names in the corner of their frames. */}
+            {cityLabels.map((label) => (
+              <Paragraph key={label.id} paragraph={label.paragraph} x={label.x} y={label.y} width={label.width} />
+            ))}
+          </Group>
+        </Canvas>
+      )}
+    </View>
   )
+
+  // A still picture needs no gestures: the canvas alone, which also lets a list around it scroll.
+  if (!interactive) return canvas
+  return <GestureDetector gesture={gesture}>{canvas}</GestureDetector>
 }
 
 // --- helpers ----------------------------------------------------------------------------
@@ -699,7 +755,10 @@ type DisruptedSection = {
   stationIds: string[]
 }
 
-const collectDisruptedSections = (model: RailMapModel, lines?: LineStatus[]): DisruptedSection[] => {
+const collectDisruptedSections = (
+  model: RailMapModel,
+  lines?: Pick<LineStatus, "lineId" | "disruptions">[],
+): DisruptedSection[] => {
   if (!lines) return []
   const sections: DisruptedSection[] = []
   for (const lineStatus of lines) {

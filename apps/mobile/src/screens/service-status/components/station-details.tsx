@@ -6,7 +6,7 @@ import { Button, Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { stationName, stationsObject } from "@/data/stations"
 import type { DayType } from "@/data/rail-service-patterns"
-import type { StationInfo, StationNotice } from "@/services/api"
+import type { Disruption, StationInfo, StationNotice } from "@/services/api"
 import { openLink } from "@/utils/helpers/open-link"
 import { openInMaps } from "@/utils/helpers/open-in-maps"
 import { DisruptionCard } from "./disruption-card"
@@ -34,7 +34,12 @@ type StationDetailsProps = {
  * station's page.
  */
 export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSectionLayout }: StationDetailsProps) {
-  const { info, infoLoading, infoError, departures, now, status, clock, dayName } = useStationCardStatus(stationId, dayType)
+  const { snapshot, info, infoLoading, infoError, departures, now, status, clock, dayName } = useStationCardStatus(
+    stationId,
+    dayType,
+  )
+  /** The line a disruption of the station's is on, for the picture of where it is. */
+  const lineOf = (disruption: Disruption) => snapshot?.lines.find((l) => l.disruptions.includes(disruption))?.lineId
   const station = stationsObject[stationId]
   const name = stationName(stationId)
 
@@ -67,7 +72,7 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSe
       {status.disruptions.length > 0 && (
         <Section title={translate("serviceStatus.station.disruptions") ?? ""} onLayout={sectionLayout("disruptions")}>
           {status.disruptions.map((d) => (
-            <DisruptionCard key={d.id} disruption={d} />
+            <DisruptionCard key={d.id} disruption={d} lineId={lineOf(d)} />
           ))}
         </Section>
       )}

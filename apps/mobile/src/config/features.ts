@@ -2,8 +2,6 @@
 
 export const HIDE_RAIL_SERVICE_UPDATES = true
 
-export const HIDE_STATION_HOURS = true
-
 /**
  * Development only: the status screens show a made-up snapshot with every kind of disruption, for
  * working on them while no trains run. Set EXPO_PUBLIC_SIMULATE_SERVICE_STATUS=true in `.env.local`

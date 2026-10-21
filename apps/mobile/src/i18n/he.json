@@ -403,23 +403,10 @@
   "serviceStatus": {
     "title": "מצב השירות",
     "subtitle": "מצב הקווים",
-    "networkMap": "מפת הרשת",
-    "networkMapHint": "הקישו על קו כדי לראות את מצבו",
     "dayType": {
       "weekday": "א׳–ה׳",
       "weekend": "ו׳–ש׳",
       "night": "לילה"
-    },
-    "legend": {
-      "title": "מקרא המפה",
-      "open": "מקרא",
-      "lines": "כל צבע הוא קו",
-      "stop": "תחנה על קו",
-      "interchange": "תחנה משותפת לכמה קווים",
-      "irregularStop": "עצירות לא סדירות – רכבות יכולות לעבור בלי לעצור",
-      "terminal": "תחנה שבה רכבות הקו מסיימות את נסיעתן",
-      "suspended": "קטע ללא שירות כרגע",
-      "disruption": "תחנה מושפעת משיבוש"
     },
     "live": "בזמן אמת",
     "liveUnavailable": "נתוני זמן אמת אינם זמינים כרגע",
@@ -427,6 +414,9 @@
     "allLines": "כל הקווים",
     "lineDetails": "פרטי הקו",
     "allLinesGood": "שירות תקין בכל הקווים",
+    "disruptedLine": "שיבוש בקו אחד",
+    "disruptedLines": "שיבושים ב־%{count} קווים",
+    "moreDisruptions": "ועוד %{count} בקווים שלך",
     "lineStations": "תחנות",
     "someTrainsSkip": "חלק מהרכבות אינן עוצרות כאן",
     "noServiceNow": "אין רכבות מתוכננות כרגע",
@@ -490,6 +480,7 @@
     "errorDescription": "בדקו את החיבור לאינטרנט ונסו שוב.",
     "station": {
       "status": "מצב",
+      "details": "פרטי התחנה",
       "openNow": "פתוח עכשיו",
       "open": "פתוח",
       "closedNow": "סגור",

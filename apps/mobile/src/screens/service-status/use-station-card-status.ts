@@ -43,5 +43,5 @@ export function useStationCardStatus(stationId: string, dayType: DayType) {
   )
   const dayName = (day: number) => dayNames[day - 1]
 
-  return { info, infoLoading, infoError, departures, now, status, kind, clock, openState, dayName }
+  return { snapshot: data, info, infoLoading, infoError, departures, now, status, kind, clock, openState, dayName }
 }

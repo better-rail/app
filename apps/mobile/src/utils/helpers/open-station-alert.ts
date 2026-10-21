@@ -10,10 +10,10 @@ export const isStationAlertPayload = (data: unknown): data is StationAlertPayloa
   return d?.type === "station-alert" && typeof d.stationId === "string"
 }
 
-/** A tapped station alert opens the station's card on the Service Status screen. */
+/** A tapped station alert opens the station's card, over the Service Status screen. */
 export const openStationAlert = (stationId: string) => {
   if (!getStationById(stationId)) return
   trackEvent("station_alert_opened", { stationId })
-  // `navigate`, not `push`: a status screen already open is reused rather than stacked.
-  router.navigate({ pathname: "/service-status", params: { stationId } })
+  // `navigate`, not `push`: a station card already open is reused rather than stacked.
+  router.navigate({ pathname: "/service-status/station", params: { stationId } })
 }

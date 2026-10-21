@@ -6,6 +6,7 @@ import { translate } from "@/i18n"
 import { useIsDarkMode } from "@/hooks"
 import type { AffectedTrain, Disruption, TravelAlternative } from "@/services/api"
 import { openLink } from "@/utils/helpers/open-link"
+import { DisruptionMap } from "./disruption-map"
 import {
   disruptionReason,
   disruptionSummary,
@@ -22,14 +23,16 @@ const MAX_TRAINS_SHOWN = 12
 
 type DisruptionCardProps = {
   disruption: Disruption
+  /** The line it is on: with it, a picture of where on the map, when the disruption names a stretch. */
+  lineId?: string
 }
 
 /**
  * One thing wrong on a line, laid out to be scanned: what and where, why and until when on one
- * quiet line, then the ways around it and the trains it concerns as two inset blocks of their own,
- * each alternative with an icon for its kind. Nothing is folded away.
+ * quiet line, a picture of where on the map, then the ways around it and the trains it concerns as
+ * two inset blocks of their own, each alternative with an icon for its kind. Nothing is folded away.
  */
-export function DisruptionCard({ disruption }: DisruptionCardProps) {
+export function DisruptionCard({ disruption, lineId }: DisruptionCardProps) {
   const levelColor = useStatusLevelColor(disruption.level)
   const summary = disruptionSummary(disruption)
   const reason = disruptionReason(disruption)
@@ -69,6 +72,8 @@ export function DisruptionCard({ disruption }: DisruptionCardProps) {
           {meta}
         </Text>
       )}
+
+      {lineId && <DisruptionMap lineId={lineId} disruption={disruption} />}
 
       {alternatives.length > 0 && (
         <View style={styles.block}>

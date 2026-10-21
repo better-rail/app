@@ -15,6 +15,10 @@ import { HIDE_RAIL_SERVICE_UPDATES } from "@/config/features"
 import { useQuery } from "react-query"
 import { head, isEmpty } from "lodash"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { levelLabel } from "@/screens/service-status/service-status-text"
+import { useStatusLevelColor } from "@/screens/service-status/service-status-theme"
+import { useServiceStatus } from "@/screens/service-status/use-service-status"
+import { trafficLight } from "@/screens/service-status/user-lines"
 import { UpcomingVoucherChip } from "./upcoming-voucher-chip"
 
 const TRAIN_ICON = require("../../../assets/train.ios.png")
@@ -44,6 +48,15 @@ export function PlannerScreenHeader() {
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
   const router = useRouter()
   const [displayNewBadge, setDisplayNewBadge] = useState(false)
+
+  // The status icon as a traffic light: green while all is well, orange for minor delays, red for worse.
+  const { data: serviceStatus } = useServiceStatus({ background: true })
+  const networkLevel = serviceStatus?.network.level
+  const light = trafficLight(networkLevel)
+  const lightColor = useStatusLevelColor(light ?? "unknown")
+  const serviceStatusLabel = [translate("serviceStatus.title"), networkLevel && levelLabel(networkLevel)]
+    .filter(Boolean)
+    .join(", ")
 
   const { data: popupMessages, isFetched: didFetchPopupMessages } = useQuery(
     ["announcements", "urgent"],
@@ -142,9 +155,9 @@ export function PlannerScreenHeader() {
           testID="open-service-status-button"
           onPress={openServiceStatus}
           activeOpacity={0.8}
-          accessibilityLabel={translate("serviceStatus.title") ?? undefined}
+          accessibilityLabel={serviceStatusLabel}
         >
-          <Image source={SERVICE_STATUS_ICON} style={styles.headerIconImage} />
+          <Image source={SERVICE_STATUS_ICON} style={[styles.headerIconImage, light && { tintColor: lightColor, opacity: 1 }]} />
         </TouchableOpacity>
         <TouchableOpacity
           testID="open-settings-button"

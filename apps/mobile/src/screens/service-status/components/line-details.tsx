@@ -21,7 +21,7 @@ type LineDetailsProps = {
   onSelectStation: (stationId: string) => void
 }
 
-/** What is wrong on a line, or that nothing is, and then its stations. */
+/** What is wrong on a line (and where, on the map), or that nothing is, and then its stations. */
 export function LineDetails({ lineId, dayType, onSelectStation }: LineDetailsProps) {
   const { data, isLoading, isError, refetch } = useServiceStatus()
   const status = data?.lines.find((l) => l.lineId === lineId)
@@ -31,7 +31,9 @@ export function LineDetails({ lineId, dayType, onSelectStation }: LineDetailsPro
     <View style={styles.details} testID="line-status-details">
       {isLoading && !data && <ActivityIndicator size="large" color="grey" style={styles.loader} />}
       {isError && !data && <StatusError onRetry={() => refetch()} />}
-      {status && status.disruptions.length > 0 && status.disruptions.map((d) => <DisruptionCard key={d.id} disruption={d} />)}
+      {status &&
+        status.disruptions.length > 0 &&
+        status.disruptions.map((d) => <DisruptionCard key={d.id} disruption={d} lineId={lineId} />)}
       {status && status.disruptions.length === 0 && <StatusSummary status={status} />}
 
       {line && (
