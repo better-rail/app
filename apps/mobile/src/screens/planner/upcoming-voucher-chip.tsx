@@ -14,21 +14,34 @@ import { trackEvent } from "@/services/analytics"
 
 const TICKET_ICON = require("../../../assets/station-ticket.png")
 
-/** A gold pill in the planner header that opens the voucher for the rider's next Jerusalem train. */
-export function UpcomingVoucherChip() {
+/** The rider's next Jerusalem train voucher, for the planner header's voucher button. */
+export function useUpcomingVoucherAction() {
   const router = useRouter()
-  const { theme } = useUnistyles()
   const voucher = useUpcomingVoucher()
 
   if (!voucher) return null
 
   const departure = formatVoucherDeparture(voucher.departureTime)
 
-  const onPress = () => {
-    HapticFeedback.trigger("impactLight")
-    router.push({ pathname: "/voucher/ticket", params: { code: voucher.confirmationCode } })
-    trackEvent("voucher_chip_pressed")
+  return {
+    departure,
+    accessibilityLabel: `${getVoucherTitle(voucher.fromStationId)}, ${departure}`,
+    onPress: () => {
+      HapticFeedback.trigger("impactLight")
+      router.push({ pathname: "/voucher/ticket", params: { code: voucher.confirmationCode } })
+      trackEvent("voucher_chip_pressed")
+    },
   }
+}
+
+/** A gold pill in the planner header that opens the voucher for the rider's next Jerusalem train. */
+export function UpcomingVoucherChip() {
+  const { theme } = useUnistyles()
+  const voucher = useUpcomingVoucherAction()
+
+  if (!voucher) return null
+
+  const { departure, accessibilityLabel, onPress } = voucher
 
   const content = (
     <>
@@ -44,7 +57,7 @@ export function UpcomingVoucherChip() {
       testID="upcoming-voucher-chip"
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${getVoucherTitle(voucher.fromStationId)}, ${departure}`}
+      accessibilityLabel={accessibilityLabel}
       accessibilityHint={translate("voucher.show") ?? undefined}
       style={({ pressed }) => !isLiquidGlassSupported && pressed && styles.pressed}
     >

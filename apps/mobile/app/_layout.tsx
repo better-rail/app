@@ -5,6 +5,8 @@ import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Slot } from "expo-router"
 import { SplitView } from "expo-router/unstable-split-view"
+import { SafeAreaView } from "react-native-screens/experimental"
+import { StyleSheet } from "react-native-unistyles"
 import { enableLegacyHeaderAppearance } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
@@ -132,6 +134,8 @@ focusManager.setEventListener((handleFocus) => {
   return () => subscription.remove()
 })
 
+const SIDEBAR_EDGES = { top: true }
+
 function AppNavigator() {
   const colorScheme = useColorScheme()
   const { isUpdateRequired } = useForceUpdate()
@@ -143,9 +147,12 @@ function AppNavigator() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       {isSplitLayout ? (
         // Collapsed, a split view adds a back button to the sidebar, so narrow windows keep the plain stack
-        <SplitView preferredDisplayMode="oneBesideSecondary" preferredSplitBehavior="tile" displayModeButtonVisibility="never">
+        <SplitView preferredDisplayMode="oneBesideSecondary" preferredSplitBehavior="tile">
           <SplitView.Column>
-            <PlannerScreen variant="sidebar" />
+            {/* Below the sidebar's navigation bar, which holds the button that hides it */}
+            <SafeAreaView edges={SIDEBAR_EDGES} style={styles.sidebar}>
+              <PlannerScreen variant="sidebar" />
+            </SafeAreaView>
           </SplitView.Column>
         </SplitView>
       ) : (
@@ -262,3 +269,9 @@ function RootLayout() {
 }
 
 export default Sentry.wrap(ObserveRoot.wrap(RootLayout))
+
+const styles = StyleSheet.create((theme) => ({
+  sidebar: {
+    backgroundColor: theme.colors.background,
+  },
+}))

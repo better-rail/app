@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { use, useRef, useState, useEffect } from "react"
 import { View, Animated, AppState, Platform, Alert } from "react-native"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
@@ -25,6 +25,7 @@ import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
 import { useRouter, useIsFocused } from "expo-router"
+import { HeaderHeightContext } from "expo-router/react-navigation"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
@@ -50,6 +51,8 @@ export function PlannerScreen({ variant = "screen" }: PlannerScreenProps) {
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const isFocused = useIsFocused()
+  // iOS shows the header buttons in a native header, which already sits above the status bar inset
+  const hasNativeHeader = !!use(HeaderHeightContext)
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
@@ -176,11 +179,11 @@ export function PlannerScreen({ variant = "screen" }: PlannerScreenProps) {
   })
 
   return (
-    <Screen testID="planner-screen" style={styles.root}>
+    <Screen testID="planner-screen" style={styles.root} unsafe={hasNativeHeader}>
       {variant === "screen" && <WebsiteHomeHandoff />}
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
-          <PlannerScreenHeader />
+          <PlannerScreenHeader variant={variant} />
 
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 

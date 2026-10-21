@@ -356,7 +356,8 @@ export function RouteDetailsScreen() {
             style={{
               position: "absolute",
               left: 0,
-              right: insets.right + 18,
+              // Ignores the iPhone Duo's side strip inset (the app is portrait-only), as it's empty down here
+              right: 18,
               bottom: Math.max(insets.bottom + 12, 32),
               zIndex: 10,
               flexDirection: "row",
@@ -437,7 +438,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   liveVoucherButton: {
     alignItems: "flex-end",
-    paddingEnd: rt.insets.right + 18,
+    paddingEnd: 18,
     marginBottom: theme.spacing[3],
   },
   liveRideSheet: {
