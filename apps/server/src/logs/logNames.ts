@@ -101,6 +101,7 @@ export const logNames = {
     notConfigured: "RAIL_DATA_SOURCE is 'rail' but RAIL_URL / RAIL_API_KEY are unset",
     proxy: {
       failed: "Failed to proxy a request to the Israel Railways API",
+      timedOut: "Israel Railways API request timed out",
     },
   },
   db: {
