@@ -155,7 +155,7 @@ export function getE2ERoutes(
   destinationId: string,
   date: string,
   hour: string,
-  options: { hideSlowTrains?: boolean; viaStation?: string } = {},
+  options: { viaStation?: string } = {},
 ): RouteItem[] {
   const origin = Number(originId)
   const destination = Number(destinationId)
@@ -181,6 +181,7 @@ export function getE2ERoutes(
         }),
       ],
       "32 min",
+      { isMuchLonger: false, isMuchShorter: true },
     ),
     route(
       [
@@ -209,9 +210,6 @@ export function getE2ERoutes(
   ].sort((a, b) => a.departureTime - b.departureTime)
 
   const viaStation = options.viaStation ? Number(options.viaStation) : undefined
-  return routes.filter((route) => {
-    if (options.hideSlowTrains && route.isMuchLonger) return false
-    if (viaStation === undefined) return true
-    return route.trains.slice(0, -1).some((t) => t.destinationStationId === viaStation)
-  })
+  if (viaStation === undefined) return routes
+  return routes.filter((route) => route.trains.slice(0, -1).some((t) => t.destinationStationId === viaStation))
 }

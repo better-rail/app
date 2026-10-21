@@ -117,19 +117,23 @@ export const activeFilterCount = (
 ): number =>
   (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0);
 
-// Drops routes over the limit and date headers left empty
-export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(
+// Drops routes the filters hide and date headers left empty
+export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boolean }>(
   data: (T | string)[],
-  maxChanges: MaxChanges,
+  filters: Pick<SettingsState, "hideSlowTrains" | "maxChanges">,
 ) {
-  if (maxChanges === null) return data;
+  const { hideSlowTrains, maxChanges } = filters;
+  if (!hideSlowTrains && maxChanges === null) return data;
 
   const result: (T | string)[] = [];
   let pendingHeader: string | null = null;
   for (const item of data) {
     if (typeof item === "string") {
       pendingHeader = item;
-    } else if (item.trains.length - 1 <= maxChanges) {
+    } else if (
+      !(hideSlowTrains && item.isMuchLonger) &&
+      (maxChanges === null || item.trains.length - 1 <= maxChanges)
+    ) {
       if (pendingHeader !== null) result.push(pendingHeader);
       pendingHeader = null;
       result.push(item);

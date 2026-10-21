@@ -27,13 +27,12 @@ export async function searchRoutes(
   originId: string,
   destinationId: string,
   requestedTime: number,
-  hideSlowTrains: boolean,
 ): Promise<RouteSearchResult> {
   // Recheck the requested day on every refresh in case its timetable has recovered.
   for (let dayOffset = 0; dayOffset < 4; dayOffset++) {
     const resolvedTime = addDays(requestedTime, dayOffset).getTime()
     const [date, hour] = formatDateForAPI(resolvedTime)
-    const routes = await api.getRoutes(originId, destinationId, date, hour, { hideSlowTrains })
+    const routes = await api.getRoutes(originId, destinationId, date, hour)
     if (routes.length === 0) continue
 
     let resultType: ResultType = "normal"

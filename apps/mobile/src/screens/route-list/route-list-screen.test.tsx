@@ -9,7 +9,7 @@ import { routeListDayQueryKey, type RouteData } from "./route-list-query"
 const friday = new Date(2026, 9, 9, 9, 11)
 const fridayRoutes = getE2ERoutes("1600", "3100", "2026-10-09", "09:11")
 const sundayRoutes = getE2ERoutes("1600", "3100", "2026-10-11", "04:40")
-const queryKey = routeListDayQueryKey("1600", "3100", friday.getTime(), false)
+const queryKey = routeListDayQueryKey("1600", "3100", friday.getTime())
 const post = mock()
 const alert = mock()
 // Bun resolves the web batching host; the app uses React Native's equivalent.
