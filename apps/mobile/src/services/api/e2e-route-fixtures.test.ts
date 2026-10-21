@@ -35,12 +35,4 @@ describe("Maestro route fixtures", () => {
       expect(refreshedRoute?.arrivalTime).toBe(route.arrivalTime)
     }
   })
-
-  test("honors the hide-slow-trains option", () => {
-    const routes = getE2ERoutes("680", "4600", "2026-09-08", "08:00", { hideSlowTrains: true })
-
-    expect(routes).toHaveLength(1)
-    expect(routes[0].isExchange).toBe(false)
-    expect(routes[0].isMuchLonger).toBe(false)
-  })
 })

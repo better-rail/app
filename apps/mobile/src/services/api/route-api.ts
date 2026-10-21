@@ -16,7 +16,7 @@ export class RouteApi {
     destinationId: string,
     date: string,
     hour: string,
-    options: { hideSlowTrains?: boolean; viaStation?: string } = {},
+    options: { viaStation?: string } = {},
   ): Promise<RouteItem[]> {
     if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
@@ -34,7 +34,6 @@ export class RouteApi {
         systemType: "1",
         scheduleType: "ByDeparture",
         languageId: "Hebrew",
-        hideSlowTrains: options.hideSlowTrains ?? false,
         ...(options.viaStation ? { viaStation: parseInt(options.viaStation) } : {}),
       }
 

@@ -16,11 +16,9 @@ const failed = (res: Response, error: any) => {
 }
 
 /**
- * `hideSlowTrains` is the GTFS planner's own vocabulary — the app started sending
- * it (#710) once the timetable was already served in-house, so the rail API has
- * never seen the field and has no equivalent of it. Drop it rather than post an
- * undefined member upstream; the toggle is simply inert while this source is
- * selected, since the rail API returns its own curated shortlist of itineraries.
+ * `hideSlowTrains` is the GTFS planner's own vocabulary, which older app versions
+ * send (#710); the rail API has no equivalent, so drop it rather than post it
+ * upstream. Newer apps hide slow trains on the device instead.
  */
 const withoutServerOnlyParams = (body: unknown) => {
   if (!body || typeof body !== "object") return body

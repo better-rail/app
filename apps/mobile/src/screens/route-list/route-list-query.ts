@@ -6,12 +6,12 @@ import { closestIndexTo } from "date-fns"
 export type RouteData = RouteItem | string
 
 // Shared by the planner's prefetch and the route list, so they hit the same cache entry
-export const routeListDayQueryKey = (
-  originId: string | undefined,
-  destinationId: string | undefined,
-  time: number,
-  hideSlowTrains: boolean,
-) => ["route-search", originId, destinationId, time, hideSlowTrains]
+export const routeListDayQueryKey = (originId: string | undefined, destinationId: string | undefined, time: number) => [
+  "route-search",
+  originId,
+  destinationId,
+  time,
+]
 
 // Train numbers repeat daily, so the departure time tells days apart
 const routeId = (route: RouteItem) => `${route.departureTime}-${route.trains.map((train) => train.trainNumber).join()}`
