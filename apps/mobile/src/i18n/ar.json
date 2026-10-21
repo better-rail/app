@@ -81,6 +81,8 @@
     "noDirectTrainsFound": "لم يتم العثور على قطارات مباشرة، لكن توجد قطارات مع تبديلات.",
     "noOneChangeTrainsFound": "لم يتم العثور على قطارات بتبديل واحد كحد أقصى، لكن توجد قطارات مع تبديلات أكثر.",
     "showAllTrains": "عرض جميع القطارات",
+    "onlySlowTrainsFound": "فقط القطارات البطيئة تطابق عوامل التصفية.",
+    "showSlowTrains": "عرض القطارات البطيئة",
     "trainInfoPromptTitle": "معلومات الرحلة",
     "trainInfoPromptDescription": "أضف رقم الرصيف ورقم القطار إلى بطاقة المسار.",
     "trainInfoPromptShow": "متقدم",

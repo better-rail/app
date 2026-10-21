@@ -1,15 +1,17 @@
-import Fuse from "fuse.js"
-import { useMemo } from "react"
-import { useStations } from "@/data/stations"
+import { createStationSearch, type StationSearch } from "@better-rail/stations/search"
+import { getStationById, type NormalizedStation } from "@/data/stations"
+
+// Built on the first search, not at app launch.
+let stationSearch: StationSearch | undefined
 
 export function useFilteredStations(searchTerm: string) {
-  const stations = useStations()
-
-  const fuse = useMemo(() => new Fuse(stations, { keys: ["name", "hebrew", "alias"], threshold: 0.3 }), [stations])
-
   const filteredStations = (() => {
     if (searchTerm === "") return []
-    return fuse.search(searchTerm).map((result) => result.item)
+    stationSearch ??= createStationSearch()
+    return stationSearch
+      .search(searchTerm)
+      .map((result) => getStationById(result.item.id))
+      .filter((station): station is NormalizedStation => station !== undefined)
   })()
 
   return { filteredStations }

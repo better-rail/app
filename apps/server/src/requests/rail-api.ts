@@ -14,12 +14,17 @@ import { proxyUrl, railApiKey, railTlsInsecure, railUrl } from "../data/config"
 
 export const isRailApiConfigured = () => Boolean(railUrl && railApiKey)
 
+// Fail fast when the API hangs, before the client gives up.
+const RAIL_API_TIMEOUT_MS = 10_000
+
 type RailFetchOptions = {
   method?: string
   headers?: Record<string, string>
   body?: string
   /** Extra attempts after a network error or a 5xx, with exponential backoff. */
   retries?: number
+  /** Deadline for the whole call, retries and body read included. */
+  timeoutMs?: number
 }
 
 /** `path` is appended to RAIL_URL as-is, query string included. */
@@ -28,10 +33,12 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
     throw new Error("RAIL_DATA_SOURCE is 'rail' but RAIL_URL / RAIL_API_KEY are unset")
   }
 
-  const { method = "GET", headers, body, retries = 0 } = options
+  const { method = "GET", headers, body, retries = 0, timeoutMs = RAIL_API_TIMEOUT_MS } = options
+  const signal = AbortSignal.timeout(timeoutMs)
   const init = {
     method,
     body,
+    signal,
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -53,6 +60,7 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
       return response
     } catch (error) {
       lastError = error
+      if (signal.aborted) break
     }
   }
 

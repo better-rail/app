@@ -14,7 +14,7 @@ import {
   WebsiteHomeHandoff,
 } from "@/components"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useTrainRoutesStore, useSettingsStore, useDateTypeDisplayName } from "@/models"
+import { useRoutePlanStore, useTrainRoutesStore, useDateTypeDisplayName } from "@/models"
 import HapticFeedback from "react-native-haptic-feedback"
 import { spacing } from "@/theme"
 import { useStations } from "@/data/stations"
@@ -44,7 +44,6 @@ export function PlannerScreen() {
     })),
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
-  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const isFocused = useIsFocused()
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
@@ -164,15 +163,12 @@ export function PlannerScreen() {
   })
 
   // Prefetch the complete search result, including any automatic date change.
-  const queryKey = routeListDayQueryKey(origin?.id, destination?.id, date.getTime(), hideSlowTrains)
-  useQuery(
-    queryKey,
-    () =>
-      getRoutes(origin?.id, destination?.id, date.getTime(), {
-        hideSlowTrains,
-      }),
-    { cacheTime: 7200000, retry: false, enabled: !!origin && !!destination && isFocused },
-  )
+  const queryKey = routeListDayQueryKey(origin?.id, destination?.id, date.getTime())
+  useQuery(queryKey, () => getRoutes(origin?.id, destination?.id, date.getTime()), {
+    cacheTime: 7200000,
+    retry: false,
+    enabled: !!origin && !!destination && isFocused,
+  })
 
   return (
     <Screen testID="planner-screen" style={styles.root}>

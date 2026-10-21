@@ -58,7 +58,6 @@
     "expo-store-review": "~58.0.2",
     "expo-task-manager": "~58.0.12",
     "expo-updates": "~58.0.17",
-    "fuse.js": "6.4.6",
     "i18n-js": "3.8.0",
     "lodash": "4.18.1",
     "posthog-react-native": "^4.66.2",

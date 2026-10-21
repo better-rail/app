@@ -10,17 +10,22 @@ import { searchViaOnRailApi } from "../requests/rail-via"
  * — see routes/rail-api.ts, which picks between this and the GTFS handlers.
  */
 
-const failed = (res: Response, error: any) => {
-  logger?.error(logNames.railApi.proxy.failed, { error })
+const failed = (res: Response, error: any, path: string) => {
+  // A timed-out upstream is expected now and then, so keep it out of Sentry.
+  if (error?.name === "TimeoutError") {
+    logger?.warn(logNames.railApi.proxy.timedOut, { error, path })
+    res.status(504).json({ error: "Failed to fetch rail data", message: error.message })
+    return
+  }
+
+  logger?.error(logNames.railApi.proxy.failed, { error, path })
   res.status(500).json({ error: "Failed to fetch rail data", message: error.message })
 }
 
 /**
- * `hideSlowTrains` is the GTFS planner's own vocabulary — the app started sending
- * it (#710) once the timetable was already served in-house, so the rail API has
- * never seen the field and has no equivalent of it. Drop it rather than post an
- * undefined member upstream; the toggle is simply inert while this source is
- * selected, since the rail API returns its own curated shortlist of itineraries.
+ * `hideSlowTrains` is the GTFS planner's own vocabulary, which older app versions
+ * send (#710); the rail API has no equivalent, so drop it rather than post it
+ * upstream. Newer apps hide slow trains on the device instead.
  */
 const withoutServerOnlyParams = (body: unknown) => {
   if (!body || typeof body !== "object") return body
@@ -57,7 +62,7 @@ const proxySearchTrainRequest = async (req: Request, res: Response) => {
     const data = await response.json()
     res.status(response.status).json(data)
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, req.path)
   }
 }
 
@@ -85,7 +90,7 @@ const railProxy = async (req: Request, res: Response) => {
     const data = await response.json()
     res.status(response.status).json(data)
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, req.path)
   }
 }
 
@@ -113,7 +118,7 @@ const proxyViaSearch = async (res: Response, { search, viaStation }: ViaSearch) 
   try {
     res.status(200).json(await searchViaOnRailApi(search, viaStation))
   } catch (error: any) {
-    failed(res, error)
+    failed(res, error, "via search")
   }
 }
 

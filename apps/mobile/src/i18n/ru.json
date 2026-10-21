@@ -84,6 +84,8 @@
     "noDirectTrainsFound": "Прямых поездов не найдено, но есть поезда с пересадками.",
     "noOneChangeTrainsFound": "Поездов с не более чем 1 пересадкой не найдено, но есть поезда с большим числом пересадок.",
     "showAllTrains": "Показать все поезда",
+    "onlySlowTrainsFound": "Под ваши фильтры подходят только медленные поезда.",
+    "showSlowTrains": "Показать медленные поезда",
     "trainInfoPromptTitle": "Информация о поездке",
     "trainInfoPromptDescription": "Добавьте номер платформы и номер поезда в карточку маршрута.",
     "trainInfoPromptShow": "Расширенные",

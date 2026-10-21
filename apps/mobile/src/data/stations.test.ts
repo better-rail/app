@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import Fuse from "fuse.js"
+import { createStationSearch } from "@better-rail/stations/search"
 import { setStationLocale, useStations } from "./stations"
 
 const appendedStationNames = [
@@ -57,10 +57,7 @@ describe("station aliases", () => {
   })
 
   test("finds each station by every localized co-name", () => {
-    setStationLocale("he")
-
-    const stations = useStations()
-    const stationSearch = new Fuse(stations, { keys: ["name", "hebrew", "alias"], threshold: 0.3 })
+    const stationSearch = createStationSearch()
 
     for (const { id, keywords } of appendedStationNames) {
       for (const keyword of keywords) {

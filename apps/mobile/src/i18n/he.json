@@ -87,6 +87,8 @@
     "noDirectTrainsFound": "לא נמצאו רכבות ישירות, אבל יש רכבות עם החלפות.",
     "noOneChangeTrainsFound": "לא נמצאו רכבות עם עד החלפה אחת, אבל יש רכבות עם יותר החלפות.",
     "showAllTrains": "הצגת כל הרכבות",
+    "onlySlowTrainsFound": "רק רכבות מאספות מתאימות לסינון שבחרת.",
+    "showSlowTrains": "הצגת רכבות מאספות",
     "trainInfoPromptTitle": "מידע על הנסיעה",
     "trainInfoPromptDescription": "הוספת מספר הרציף ומספר הרכבת לכרטיס הנסיעה.",
     "trainInfoPromptShow": "מתקדם",
