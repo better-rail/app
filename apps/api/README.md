@@ -96,8 +96,9 @@ secret put APPLE_KEY_CONTENT`, same for the service-account JSON), `SIRI_URL`, `
 4. Deploy the egress proxy (its README) and set `EGRESS_PROXY_URL`/`EGRESS_PROXY_TOKEN` accordingly.
 5. `bunx wrangler deploy` — needs Docker for the ingest container image (Workers Builds has it), or
    `--containers-rollout=none` to deploy the Worker alone first. Containers and Durable Objects need the Workers Paid plan.
-6. Route `api.better-rail.co.il` to the Worker (Workers → Settings → Domains & Routes), or add
-   `"routes": [{ "pattern": "api.better-rail.co.il", "custom_domain": true }]` to `wrangler.jsonc`.
+6. `wrangler.jsonc` routes `api.better-rail.co.il` to the Worker as a custom domain. The hostname must not have a DNS
+   record of its own when the domain is first attached (delete the old CNAME, then deploy or add the domain under
+   Workers → Settings → Domains & Routes); from then on Cloudflare owns the record and every deploy re-asserts it.
 7. Load data: `POST /api/v1/internal/ingest/run` with the token (or wait for the 02:30 UTC cron), and
    `bun run rail:pull --target https://api.better-rail.co.il` (or `POST /api/v1/internal/fares/pull`).
 
@@ -148,10 +149,12 @@ generated for Workers with Durable Objects or containers.
 
 ### Cutover
 
-The Worker can run next to the Railway deployment: give it its own D1/KV/secrets, load a feed, and smoke-test it on its
-`workers.dev` URL with the app in a non-production `env`. Then move the DNS record for `api.better-rail.co.il` to the
-Worker. Rides in flight on Railway finish there (their redis state is not migrated; a ride started after the switch is a
-Durable Object), so switch at a quiet hour. Keep the egress proxy on the host whose IP MOT registered.
+The Worker ran next to the Railway deployment first, with its own D1/KV/secrets, smoke-tested on its `workers.dev` URL.
+The switch was the custom domain above: deleting the Railway CNAME for `api.better-rail.co.il` and attaching the
+hostname to the Worker (the app needs no release; it has always called this hostname). Rides in flight on Railway finish
+there (their redis state is not migrated; a ride started after the switch is a Durable Object), so Railway stays up for
+a few hours after the switch. Rollback is the reverse: detach the custom domain and re-create the CNAME. Keep the egress
+proxy on the host whose IP MOT registered if GTFS mode is ever enabled.
 
 ### Operating
 
