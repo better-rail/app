@@ -82,7 +82,8 @@ One-time, from `apps/api` with `wrangler login` done:
 1. `bunx wrangler d1 create better-rail` → put the id in `wrangler.jsonc`, then
    `bunx wrangler d1 execute better-rail --remote --file=./src/db/schema.sql`.
 2. `bunx wrangler kv namespace create KV` → put the id in `wrangler.jsonc`.
-3. Variables: set `API_BASE_URL` in the dashboard (Settings → Variables) to the Worker's own public URL — its
+3. Variables: set `API_BASE_URL` to the Worker's own public URL (`bunx wrangler deploy --var API_BASE_URL:<url>` once,
+   or Settings → Variables in the dashboard; `keep_vars` keeps it across later deploys) — its
    `workers.dev` URL while staging, `https://api.better-rail.co.il` after cutover; the ingest container posts the feed
    back to it. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
    `APN_ENV`, `FIREBASE_ADMIN_AUTH`, `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
