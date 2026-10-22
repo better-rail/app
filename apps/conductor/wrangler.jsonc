@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "conductor",
+  "main": "src/index.ts",
+  // Must not be newer than the workerd bundled with the installed wrangler.
+  "compatibility_date": "2026-08-31",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  // Keep variables set in the dashboard across deploys; secrets survive regardless.
+  "keep_vars": true,
+  // Everything the Worker reads is a secret (`wrangler secret put <NAME>`; `wrangler dev` takes them from .dev.vars or .env):
+  // DISCORD_APPLICATION_ID, DISCORD_PUBLIC_KEY, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, DISCORD_PLATFORM_ROLES,
+  // RESEND_API_KEY, RESEND_WEBHOOK_SECRET, DISCORD_EMAIL_FEEDBACK_CHANNEL_ID and SENTRY_DSN (see src/index.ts `Env`).
+}

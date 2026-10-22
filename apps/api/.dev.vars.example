@@ -1,0 +1,27 @@
+# `wrangler dev` reads this file as .dev.vars (copy it). Everything here is a secret in production
+# (`wrangler secret put <NAME>`); the plain variables live in wrangler.jsonc `vars`.
+#
+# Push
+APPLE_BUNDLE_ID=
+APPLE_TEAM_ID=
+APPLE_KEY_ID=
+APPLE_KEY_CONTENT=
+APN_ENV=test
+FIREBASE_ADMIN_AUTH=
+# MOT SIRI-SM realtime (only answers the allow-listed egress IP: set the egress proxy below)
+SIRI_URL=
+SIRI_KEY=
+SIRI_DEBUG_TOKEN=
+# Israel Railways API (geo-fenced; also via the egress proxy): RAIL_DATA_SOURCE=rail and the fares pull
+RAIL_URL=
+RAIL_API_KEY=
+# apps/egress-proxy — leave unset to call the upstreams directly
+EGRESS_PROXY_URL=
+EGRESS_PROXY_TOKEN=
+# The operator token for /api/v1/internal/* (the ingest container, bun run rail:pull)
+INGEST_TOKEN=
+# Sentry project better-rail/server; unset locally, so errors stay local.
+SENTRY_DSN=
+# Off locally unless you mean to test rides against your own device (pushes go out!)
+RIDES_ENABLED=false
+NODE_ENV=test

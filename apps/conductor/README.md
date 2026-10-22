@@ -1,6 +1,7 @@
 # The Conductor
 
 Discord bot that handles:
+
 1. Community onboarding: assigns `ios` or `android` roles from welcome buttons.
 2. Email feedback bridge: routes incoming customer emails to `#email-feedback` Discord threads and sends outbound replies via `/reply` through Resend.
 
@@ -8,18 +9,31 @@ Discord bot that handles:
 
 1. Fill `.env` from `.env.example` and run `bun run setup` (provisions flair roles, posts welcome picker, and registers `/reply` command).
 2. Copy `platformRoles` from `.conductor-setup.json` to `DISCORD_PLATFORM_ROLES`.
-3. Set the Interactions Endpoint URL in the Discord Developer Portal to `https://<conductor-host>/discord/interactions` so `/reply` reaches the bot.
-4. Set Resend inbound webhook in the Resend dashboard to `https://<conductor-host>/resend/webhook` listening for `email.received`.
+3. Set the Interactions Endpoint URL in the Discord Developer Portal to `https://<worker-url>/discord/interactions` so `/reply` reaches the bot.
+4. Set Resend inbound webhook in the Resend dashboard to `https://<worker-url>/resend/webhook` listening for `email.received`.
+
+`<worker-url>` is the deployed Worker's host, `conductor.<account>.workers.dev` unless a custom domain is attached.
+`bun run dev` (`wrangler dev`) serves the same routes locally and reads the secrets from `.env` (or `.dev.vars` if present).
 
 ## Testing
 
 Run tests and type checks:
+
 ```bash
 bun test && bun run check
 ```
+
 Keep Sentry tracing off; URLs hold tokens.
 
 ## Deployment
 
-Railway deploys the `Conductor` service from `main` whenever a merge touches `apps/conductor/**`.
-Build and health check settings live in the Railway service settings (root directory `/apps/conductor`, Dockerfile, `/health`).
+The Conductor is a Cloudflare Worker (`wrangler.jsonc`). Workers Builds deploys it from this repository whenever a push
+to `main` touches `apps/conductor/*`: root directory `apps/conductor`, build command `bun install`, deploy command
+`bunx wrangler deploy`, build watch path `apps/conductor/*`.
+
+Secrets are set once and survive deploys (`wrangler secret put <NAME>` from `apps/conductor`, or in the dashboard):
+`DISCORD_APPLICATION_ID`, `DISCORD_PUBLIC_KEY`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `DISCORD_PLATFORM_ROLES`,
+`RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `DISCORD_EMAIL_FEEDBACK_CHANNEL_ID` and `SENTRY_DSN` (the Sentry `conductor` project).
+
+After the first deploy, point the Discord Interactions Endpoint URL and the Resend webhook at the Worker's URL (Setup steps 3
+and 4). `GET /health` answers `{ "ok": true }` for uptime checks. Request bodies are capped at 64 KB (413 above that), as before.
