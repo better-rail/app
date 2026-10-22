@@ -7,7 +7,7 @@ const envPath = env === "production" ? "" : "-" + env
 // the web dev server holds port 3000 on IPv6 loopback. Use your LAN IP for a physical device.
 const localHost = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1"
 
-// Any other env is a Workers preview of the API (`wrangler versions upload` on a branch).
+// Any other env is a Workers Preview of the API (`wrangler preview` on a branch, or a non-production branch build).
 export const serverBaseURL =
   env === "production"
     ? "https://api.better-rail.co.il/api/v1"
