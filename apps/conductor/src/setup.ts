@@ -4,7 +4,8 @@ import { platforms, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
 import { isFlairRole } from "./roles"
 
-const config = loadConfig()
+// A Bun CLI run locally: Bun loads .env into process.env, and .conductor-setup.json is written beside it.
+const config = loadConfig(process.env)
 const channelId = process.env.DISCORD_CHANNEL_ID
 if (!isSnowflake(channelId)) throw new Error("Set DISCORD_CHANNEL_ID to the public welcome channel")
 const api = new DiscordApi(config.botToken)
@@ -79,4 +80,3 @@ try {
 } catch (cmdErr) {
   console.warn("Could not register /reply command:", (cmdErr as Error).message)
 }
-

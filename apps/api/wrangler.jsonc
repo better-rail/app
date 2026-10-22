@@ -1,0 +1,97 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "api",
+  "main": "./src/index.ts",
+  // Must not be newer than the workerd bundled with the installed wrangler (same as apps/web).
+  "compatibility_date": "2026-08-31",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "upload_source_maps": true,
+  // Keep variables and secrets set in the dashboard across deploys.
+  "keep_vars": true,
+  // The GTFS loader streams ~150k rows into D1 in one request; the default 30 s of CPU is tight for it.
+  "limits": { "cpu_ms": 300000 },
+  // schema.sql is imported as a string (src/db/index.ts).
+  "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
+  "triggers": {
+    "crons": [
+      // Watchdog for the SIRI poller Durable Object (re-arms its alarm loop if it ever stopped).
+      "* * * * *",
+      // Nightly GTFS ingest (the MOT feed regenerates overnight; 02:30 UTC = 04:30/05:30 Israel).
+      "30 2 * * *",
+      // Weekly Israel Railways fares pull (the tariff moves about once a year).
+      "0 3 * * 1",
+    ],
+  },
+  "vars": {
+    "NODE_ENV": "production",
+    "RIDES_ENABLED": "true",
+    // RAIL_DATA_SOURCE is a per-deployment variable too (`--var RAIL_DATA_SOURCE:rail|gtfs`): production
+    // has served from the Israel Railways API ("rail") since the GTFS migration was parked, and the
+    // default when unset is "gtfs".,
+    // API_BASE_URL (the Worker's own public URL, which the ingest container posts the feed back to) is set
+    // per deployment as a secret/variable in the dashboard: the workers.dev URL while staging,
+    // https://api.better-rail.co.il once the domain points here. `keep_vars` keeps it across deploys.
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "better-rail",
+      // Created in the Better Rail account (WEUR); local dev and tests use a local SQLite file.
+      "database_id": "a8650196-eb16-4d64-8c6f-a78fe8599695",
+    },
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      // Namespace "api-KV" in the Better Rail account.
+      "id": "f83137af34aa41d295d394b431cdeb27",
+    },
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "RIDES", "class_name": "RideDO" },
+      { "name": "SIRI", "class_name": "SiriPollerDO" },
+      { "name": "INGEST", "class_name": "IngestContainer" },
+    ],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RideDO", "SiriPollerDO", "IngestContainer"] }],
+  "containers": [
+    {
+      "class_name": "IngestContainer",
+      "image": "./ingest/Dockerfile",
+      "image_build_context": ".",
+      "max_instances": 1,
+      // The feed is a few hundred MB unzipped; 4 GiB leaves room for the parse.
+      "instance_type": "standard-1",
+    },
+  ],
+  // Worker Previews (`wrangler preview`, what Workers Builds runs for non-production branches). A Preview gets its own
+  // Durable Object namespace and container app automatically, so rides and the SIRI poller never touch production
+  // state; D1 and KV are only isolated by binding them to separate resources, which is what this block does. Crons and
+  // routes always target production. Previews do not inherit variables or secrets: the variables live here, and the
+  // secrets a Preview needs (RAIL_API_KEY, SENTRY_DSN) are set once on the Previews base config
+  // (`bunx wrangler preview base-config secret put <NAME>`).
+  "previews": {
+    "vars": {
+      "NODE_ENV": "preview",
+      // No push credentials on Previews, so ride tracking answers 503 rides_disabled instead of failing mid-ride.
+      "RIDES_ENABLED": "false",
+      "RAIL_DATA_SOURCE": "rail",
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "better-rail-preview",
+        "database_id": "cfc092b8-4585-470b-9053-81399aeef65a",
+      },
+    ],
+    "kv_namespaces": [
+      {
+        "binding": "KV",
+        // Namespace "api-KV-preview" in the Better Rail account.
+        "id": "63cd6bf30f6e42438e06e0d60c43285f",
+      },
+    ],
+  },
+}
