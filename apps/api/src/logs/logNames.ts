@@ -80,6 +80,7 @@ export const logNames = {
   notifications: {
     log: "Got notification",
     notConfigured: "Push credentials are missing, notifications are disabled",
+    apnTokenMinted: "Signed a new APNs provider token",
     apple: {
       success: "Sent notification to APN successully!",
       failed: "Failed to send notificaiton to APN",

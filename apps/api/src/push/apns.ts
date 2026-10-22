@@ -8,26 +8,33 @@
  * Failures reject with apns2's plain `{ reason, statusCode }` object, which
  * sentry.ts knows how to describe.
  */
+import type { DurableObjectNamespace } from "@cloudflare/workers-types"
+
 import { config } from "../config"
 import { logNames, logger } from "../logs"
-import { importPrivateKey, signJwt } from "./jwt"
+import { isRuntimeBound, runtime } from "../runtime"
+import { APNS_TOKEN_NAME, mintProviderToken, TOKEN_LIFETIME_MS } from "./apns-token"
+import type { ApnsTokenDO } from "./apns-token-do"
 
 export type ApnPriority = "immediate" | "throttled"
 
 export type ApnError = { reason: string; statusCode: number }
 
-// Apple accepts a provider token for up to an hour, and asks that it isn't refreshed more than every 20 minutes.
-const TOKEN_LIFETIME_MS = 50 * 60 * 1000
 const API_VERSION = 3
+
+// How long an isolate reuses the token it got from the authority before asking again (the authority rotates at 50 min).
+const ISOLATE_CACHE_MS = 5 * 60 * 1000
 
 const PRIORITY_HEADER: Record<ApnPriority, string> = { immediate: "10", throttled: "5" }
 
 // Apple rejects the provider token when its signing key was revoked or it aged out; either way a fresh one is due.
 const PROVIDER_TOKEN_REASONS = new Set(["ExpiredProviderToken", "InvalidProviderToken"])
 
-type CachedToken = { credentials: string; value: Promise<string>; issuedAt: number }
+type CachedToken = { credentials: string; value: Promise<string>; issuedAt: number; lifetimeMs: number }
 
 let cached: CachedToken | undefined
+// The token Apple last rejected; the next send asks the authority to rotate it rather than mint on its own.
+let rejected: string | undefined
 
 export const isApnConfigured = () => Boolean(config.appleKeyId && config.appleTeamId && config.appleKeyContent)
 
@@ -39,23 +46,38 @@ export const connectToApn = () => {
 /** Tests: forget the cached provider token. */
 export const resetApnTokenCache = () => {
   cached = undefined
+  rejected = undefined
 }
 
-const mintToken = async (teamId: string, keyId: string, keyContent: string) => {
-  const key = await importPrivateKey(keyContent, "ES256")
-  return signJwt({ alg: "ES256", kid: keyId }, { iss: teamId, iat: Math.floor(Date.now() / 1000) }, key, "ES256")
+/** The deployment-wide token authority (`ApnsTokenDO`); absent outside a Worker (unit tests, scripts). */
+const tokenAuthority = () => {
+  if (!isRuntimeBound()) return undefined
+  const namespace = runtime().APNS_TOKEN as DurableObjectNamespace<ApnsTokenDO> | undefined
+  return namespace?.get(namespace.idFromName(APNS_TOKEN_NAME))
 }
 
-/** The provider token, minted once per isolate and reused for 50 minutes (concurrent sends share one mint). */
+/**
+ * The provider token. In a Worker it comes from the authority, which signs one token per 50 minutes for every isolate
+ * (Apple allows one new token per 20 minutes per key, and each ride's Durable Object may be its own isolate); the
+ * isolate keeps it for 5 minutes between asks. Without the authority the isolate signs its own, as the Bun server did.
+ */
 const getProviderToken = () => {
   const { appleTeamId, appleKeyId, appleKeyContent } = config
   const credentials = `${appleTeamId}|${appleKeyId}|${appleKeyContent}`
-  if (cached && cached.credentials === credentials && Date.now() - cached.issuedAt < TOKEN_LIFETIME_MS) return cached.value
+  if (cached && cached.credentials === credentials && Date.now() - cached.issuedAt < cached.lifetimeMs) return cached.value
 
+  const authority = tokenAuthority()
+  const stale = rejected
+  rejected = undefined
   const entry: CachedToken = {
     credentials,
     issuedAt: Date.now(),
-    value: mintToken(appleTeamId, appleKeyId, appleKeyContent),
+    lifetimeMs: authority ? ISOLATE_CACHE_MS : TOKEN_LIFETIME_MS,
+    value: authority
+      ? stale
+        ? authority.rotate(stale)
+        : authority.token()
+      : mintProviderToken(appleTeamId, appleKeyId, appleKeyContent),
   }
   // A failed mint (bad PEM) shouldn't be cached as the token for the next 50 minutes.
   entry.value.catch(() => {
@@ -75,8 +97,9 @@ type ApnRequest = {
 }
 
 const post = async (request: ApnRequest) => {
+  const token = await getProviderToken()
   const headers: Record<string, string> = {
-    authorization: `bearer ${await getProviderToken()}`,
+    authorization: `bearer ${token}`,
     "content-type": "application/json",
     "apns-push-type": request.pushType,
     "apns-priority": PRIORITY_HEADER[request.priority],
@@ -96,7 +119,10 @@ const post = async (request: ApnRequest) => {
     // A non-JSON body (a proxy error page, say): the status line is all there is.
   }
   const error: ApnError = { reason: reason || response.statusText || "UnknownError", statusCode: response.status }
-  if (error.statusCode === 403 && PROVIDER_TOKEN_REASONS.has(error.reason)) cached = undefined
+  if (error.statusCode === 403 && PROVIDER_TOKEN_REASONS.has(error.reason)) {
+    cached = undefined
+    rejected = token
+  }
   throw error
 }
 
