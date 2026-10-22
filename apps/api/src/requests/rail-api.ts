@@ -8,10 +8,16 @@ import { egressFetch } from "../utils/egress"
  * migration, reachable again behind `RAIL_DATA_SOURCE=rail`, and the source of
  * the fares snapshot.
  *
- * The API is geo-fenced, so the calls go through the egress proxy (see
- * utils/egress.ts), which applies PROXY_URL and the TLS override on its side; a
- * Worker's fetch can express neither.
+ * Reachable from a Worker directly — but only with a User-Agent: rail.co.il sits
+ * behind Cloudflare's WAF, which answers a request without one with an HTML
+ * challenge page, and a Worker's fetch sends none by default. (Verified from a
+ * deployed Worker, October 2026: the same request with any User-Agent gets JSON.)
+ * The egress proxy (utils/egress.ts) is therefore not involved unless it is
+ * configured to relay this host too.
  */
+
+/** Sent on every rail API request; the WAF in front of rail.co.il rejects a request without one. */
+export const RAIL_API_USER_AGENT = "better-rail-api/2.0 (+https://better-rail.co.il)"
 
 export const isRailApiConfigured = () => Boolean(config.railUrl && config.railApiKey)
 
@@ -43,6 +49,7 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      "User-Agent": RAIL_API_USER_AGENT,
       ...headers,
       "Ocp-Apim-Subscription-Key": config.railApiKey,
     },

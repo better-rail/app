@@ -12,10 +12,10 @@ FIREBASE_ADMIN_AUTH=
 SIRI_URL=
 SIRI_KEY=
 SIRI_DEBUG_TOKEN=
-# Israel Railways API (geo-fenced; also via the egress proxy): RAIL_DATA_SOURCE=rail and the fares pull
+# Israel Railways API (reachable directly): RAIL_DATA_SOURCE=rail and the fares pull
 RAIL_URL=
 RAIL_API_KEY=
-# apps/egress-proxy — leave unset to call the upstreams directly
+# apps/egress-proxy, for SIRI — leave unset to call MOT directly. EGRESS_PROXY_RELAY_RAIL=true also relays the rail API.
 EGRESS_PROXY_URL=
 EGRESS_PROXY_TOKEN=
 # The operator token for /api/v1/internal/* (the ingest container, bun run rail:pull)

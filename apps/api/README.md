@@ -11,24 +11,26 @@ Wrangler. TypeScript runs directly; there is no build step.
 
 ## What runs where
 
-| Before (Railway)                                       | Now (Cloudflare)                                                                                |
-| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| Express web service                                    | The Worker (`src/app.ts`, Elysia)                                                               |
-| Postgres (GTFS timetable, learned platforms)           | D1 (`src/db/schema.sql`, same tables)                                                           |
-| redis `rides:*` + in-process node-schedule jobs        | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm               |
-| `bun run siri` poller service                          | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s             |
-| redis `siri:*` snapshot                                | The poller object's storage, read over RPC with the same 5 s per-isolate cache                  |
-| redis `fares:snapshot`                                 | KV                                                                                              |
-| Railway cron `bun run ingest`                          | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest`     |
-| Railway cron `bun run rail:pull`                       | Cron trigger → `src/fares/sync.ts`                                                              |
-| `apns2` / `firebase-admin`                             | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                               |
-| `@sentry/bun` + winston                                | `@sentry/cloudflare` + console (Workers Logs)                                                   |
-| The poller's registered egress IP, `PROXY_URL`, TLS CA | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the two fenced upstreams |
+| Before (Railway)                                | Now (Cloudflare)                                                                            |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Express web service                             | The Worker (`src/app.ts`, Elysia)                                                           |
+| Postgres (GTFS timetable, learned platforms)    | D1 (`src/db/schema.sql`, same tables)                                                       |
+| redis `rides:*` + in-process node-schedule jobs | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm           |
+| `bun run siri` poller service                   | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s         |
+| redis `siri:*` snapshot                         | The poller object's storage, read over RPC with the same 5 s per-isolate cache              |
+| redis `fares:snapshot`                          | KV                                                                                          |
+| Railway cron `bun run ingest`                   | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest` |
+| Railway cron `bun run rail:pull`                | Cron trigger → `src/fares/sync.ts`                                                          |
+| `apns2` / `firebase-admin`                      | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                           |
+| `@sentry/bun` + winston                         | `@sentry/cloudflare` + console (Workers Logs)                                               |
+| The poller's registered egress IP, TLS CA       | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the MOT SIRI API     |
 
-The one thing that cannot live on Cloudflare is the egress IP: MOT allow-lists a single address for SIRI and the
-Israel Railways API answers a Worker with an HTML block page (verified from the deployed Worker, October 2026). The egress proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old
-Railway service's IP is already registered); the Worker sends only the requests for those two hosts through it. Leave
-`EGRESS_PROXY_URL` unset and the Worker calls them directly.
+The one thing that cannot live on Cloudflare is the egress IP: MOT allow-lists a single address for SIRI. The egress
+proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old Railway service's IP is already registered); the
+Worker sends only the SIRI requests through it. Leave `EGRESS_PROXY_URL` unset and the Worker calls MOT directly. The
+Israel Railways API needs no relay: it is reachable from a Worker as long as the request carries a User-Agent (its WAF
+answers a request without one with an HTML challenge page, verified from the deployed Worker in October 2026);
+`EGRESS_PROXY_RELAY_RAIL=true` routes it through the proxy anyway should that ever change.
 
 ### Routes
 
@@ -36,7 +38,7 @@ Railway service's IP is already registered); the Worker sends only the requests 
 - `POST /api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile` and the legacy `GET …/searchTrainLuzForDateTime`
   — the GTFS journey planner (`src/requests/gtfs-route-api.ts`, ported unchanged), `{ result: { travels } }`.
   Every other `/rail-api/*` path answers the empty legacy envelope (`RAIL_DATA_SOURCE=rail` proxies them upstream instead — which is what production has run since the GTFS
-  migration was parked, so the deployed variable is `rail` and needs the egress proxy).
+  migration was parked, so the deployed variable is `rail`).
 - `POST|DELETE /api/v1/ride`, `PATCH /api/v1/ride/updateToken`, `PUT|DELETE /api/v1/ride/alarm` — ride tracking.
 - `GET /api/v1/fares?from=&to=`, `GET /api/v1/fares/profiles`.
 - `GET /api/v1/siri/{status,raw,unmatched}` — `x-debug-token: $SIRI_DEBUG_TOKEN` (404 otherwise).
@@ -89,7 +91,7 @@ One-time, from `apps/api` with `wrangler login` done:
    back to it. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
    `APN_ENV`, `FIREBASE_ADMIN_AUTH`, `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
    `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`. The values are the
-   Railway variables of the same names; `PROXY_URL`, `SIRI_CA_PEM` and the `*_TLS_INSECURE` flags move to the egress proxy.
+   Railway variables of the same names; `SIRI_CA_PEM` / `SIRI_TLS_INSECURE` (and `PROXY_URL`, if the rail API is ever relayed) move to the egress proxy.
 4. Deploy the egress proxy (its README) and set `EGRESS_PROXY_URL`/`EGRESS_PROXY_TOKEN` accordingly.
 5. `bunx wrangler deploy` — needs Docker for the ingest container image (Workers Builds has it), or
    `--containers-rollout=none` to deploy the Worker alone first. Containers and Durable Objects need the Workers Paid plan.

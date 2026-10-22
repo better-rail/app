@@ -62,7 +62,7 @@ export const config = {
   get railApiKey() {
     return variable("RAIL_API_KEY") ?? ""
   },
-  /** Kept for the egress proxy: the rail API is geo-fenced, and the proxy tunnels through PROXY_URL. */
+  /** Only read by the egress proxy (an HTTP proxy with an Israeli egress for the rail API, should it ever need one). */
   get proxyUrl() {
     return variable("PROXY_URL") ?? ""
   },

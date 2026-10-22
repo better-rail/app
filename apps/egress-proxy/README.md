@@ -1,14 +1,15 @@
 # Egress proxy
 
-A tiny Bun service that relays requests from the API Worker to exactly two upstreams: the MOT SIRI realtime API and the
-Israel Railways API. It runs on a host with a fixed public IP and nothing else.
+A tiny Bun service that relays requests from the API Worker to at most two upstreams: the MOT SIRI realtime API (the one
+that needs it) and, optionally, the Israel Railways API. It runs on a host with a fixed public IP and nothing else.
 
 ## Why it exists
 
 Cloudflare Workers egress from shared Cloudflare addresses, and two of the API's upstreams cannot be called from there:
 the MOT SIRI API only answers the one egress IP registered with MOT (and `moran.mot.gov.il` serves an incomplete TLS
-chain that needs a per-request CA override), and the Israel Railways API is geo-fenced to Israel, which the old server
-reached through an HTTP proxy (`PROXY_URL`). A Worker's `fetch` can express none of that, so the Worker sends those
+chain that needs a per-request CA override). The Israel Railways API turned out to be reachable from a Worker directly
+(its WAF only wants a User-Agent), so relaying it is optional (`EGRESS_PROXY_RELAY_RAIL=true` on the Worker), kept for
+the day it is geo-fenced and needs an Israeli HTTP proxy (`PROXY_URL`). A Worker's `fetch` can express none of that, so the Worker sends those
 requests here as `METHOD /fetch?url=<encoded absolute target url>` with the original headers and body, and this process
 makes the real call with Bun's per-request `tls` and `proxy` options.
 
