@@ -37,13 +37,13 @@ export class DiscordApi {
           ...(!isFormData && body !== undefined && { "Content-Type": "application/json" }),
           ...(authenticate && { Authorization: `Bot ${this.botToken}` }),
         },
-        body: isFormData ? body : (body !== undefined ? JSON.stringify(body) : undefined),
+        body: isFormData ? body : body !== undefined ? JSON.stringify(body) : undefined,
         signal: AbortSignal.timeout(10_000),
       })
       if (response.status === 429 && attempt < 5) {
         const seconds = Number(((await response.json()) as { retry_after?: number }).retry_after)
         if (!(seconds <= 10)) throw new Error("Discord is busy; try again shortly")
-        await Bun.sleep(Math.max(100, seconds * 1000))
+        await new Promise((resolve) => setTimeout(resolve, Math.max(100, seconds * 1000)))
         continue
       }
       if (!response.ok) {
