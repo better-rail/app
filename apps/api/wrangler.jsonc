@@ -13,6 +13,9 @@
   "limits": { "cpu_ms": 300000 },
   // schema.sql is imported as a string (src/db/index.ts).
   "rules": [{ "type": "Text", "globs": ["**/*.sql"], "fallthrough": true }],
+  // The production hostname (the app's api-config). Attached as a Workers custom domain: Cloudflare owns the DNS
+  // record and the certificate, and wrangler re-asserts it on every deploy.
+  "routes": [{ "pattern": "api.better-rail.co.il", "custom_domain": true }],
   "triggers": {
     "crons": [
       // Watchdog for the SIRI poller Durable Object (re-arms its alarm loop if it ever stopped).
