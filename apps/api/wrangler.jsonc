@@ -27,8 +27,9 @@
     "NODE_ENV": "production",
     "RAIL_DATA_SOURCE": "gtfs",
     "RIDES_ENABLED": "true",
-    // The Worker's own public base URL, handed to the ingest container so it can post the feed back.
-    "API_BASE_URL": "https://api.better-rail.co.il",
+    // API_BASE_URL (the Worker's own public URL, which the ingest container posts the feed back to) is set
+    // per deployment as a secret/variable in the dashboard: the workers.dev URL while staging,
+    // https://api.better-rail.co.il once the domain points here. `keep_vars` keeps it across deploys.
   },
   "d1_databases": [
     {
