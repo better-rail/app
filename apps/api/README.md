@@ -26,7 +26,7 @@ Wrangler. TypeScript runs directly; there is no build step.
 | The poller's registered egress IP, `PROXY_URL`, TLS CA | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the two fenced upstreams |
 
 The one thing that cannot live on Cloudflare is the egress IP: MOT allow-lists a single address for SIRI and the
-Israel Railways API is geo-fenced. The egress proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old
+Israel Railways API answers a Worker with an HTML block page (verified from the deployed Worker, October 2026). The egress proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old
 Railway service's IP is already registered); the Worker sends only the requests for those two hosts through it. Leave
 `EGRESS_PROXY_URL` unset and the Worker calls them directly.
 
@@ -35,7 +35,8 @@ Railway service's IP is already registered); the Worker sends only the requests 
 - `GET /isAlive`
 - `POST /api/v1/rail-api/rjpa/api/v1/timetable/searchTrainForMobile` and the legacy `GET …/searchTrainLuzForDateTime`
   — the GTFS journey planner (`src/requests/gtfs-route-api.ts`, ported unchanged), `{ result: { travels } }`.
-  Every other `/rail-api/*` path answers the empty legacy envelope (`RAIL_DATA_SOURCE=rail` proxies them upstream instead).
+  Every other `/rail-api/*` path answers the empty legacy envelope (`RAIL_DATA_SOURCE=rail` proxies them upstream instead — which is what production has run since the GTFS
+  migration was parked, so the deployed variable is `rail` and needs the egress proxy).
 - `POST|DELETE /api/v1/ride`, `PATCH /api/v1/ride/updateToken`, `PUT|DELETE /api/v1/ride/alarm` — ride tracking.
 - `GET /api/v1/fares?from=&to=`, `GET /api/v1/fares/profiles`.
 - `GET /api/v1/siri/{status,raw,unmatched}` — `x-debug-token: $SIRI_DEBUG_TOKEN` (404 otherwise).
