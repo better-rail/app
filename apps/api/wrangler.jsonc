@@ -56,9 +56,14 @@
       { "name": "RIDES", "class_name": "RideDO" },
       { "name": "SIRI", "class_name": "SiriPollerDO" },
       { "name": "INGEST", "class_name": "IngestContainer" },
+      // The one APNs provider token for every isolate (Apple allows one new token per 20 minutes per key).
+      { "name": "APNS_TOKEN", "class_name": "ApnsTokenDO" },
     ],
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["RideDO", "SiriPollerDO", "IngestContainer"] }],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RideDO", "SiriPollerDO", "IngestContainer"] },
+    { "tag": "v2", "new_sqlite_classes": ["ApnsTokenDO"] },
+  ],
   "containers": [
     {
       "class_name": "IngestContainer",

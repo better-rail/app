@@ -11,6 +11,7 @@
  * under `bun test` without any Cloudflare shim.
  */
 import type { D1Database, DurableObjectNamespace, KVNamespace } from "@cloudflare/workers-types"
+import type { ApnsTokenDO } from "./push/apns-token-do"
 import type { RideDO } from "./rides/ride-do"
 import type { SiriPollerDO } from "./siri/poller-do"
 
@@ -19,6 +20,8 @@ export interface Env {
   KV: KVNamespace
   RIDES: DurableObjectNamespace<RideDO>
   SIRI: DurableObjectNamespace<SiriPollerDO>
+  /** The one APNs provider token, shared by every isolate (`src/push/apns-token-do.ts`). */
+  APNS_TOKEN: DurableObjectNamespace<ApnsTokenDO>
   /** The GTFS ingest container (a Durable Object that owns one container instance). */
   INGEST: DurableObjectNamespace
   [variable: string]: unknown
