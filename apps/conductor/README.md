@@ -30,15 +30,15 @@ Keep Sentry tracing off; URLs hold tokens.
 The Conductor is a Cloudflare Worker (`wrangler.jsonc`). Workers Builds deploys it from this repository, like the web
 app, whenever a push to `main` touches it:
 
-| Setting                              | Value                                      |
-| ------------------------------------ | ------------------------------------------ |
-| Production branch                    | `main`                                     |
-| Root directory                       | `apps/conductor`                           |
-| Build command                        | `bun install && bun test && bun run check` |
-| Deploy command                       | `bunx wrangler deploy`                     |
-| Non-production branch deploy command | `bunx wrangler versions upload`            |
-| Build watch paths (include)          | `apps/conductor/*`, `bun.lock`             |
-| Build variable                       | `BUN_VERSION` = `1.3.9`                    |
+| Setting                              | Value                                                                      |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| Production branch                    | `main`                                                                     |
+| Root directory                       | `apps/conductor`                                                           |
+| Build command                        | `bun install --filter @better-rail/conductor && bun test && bun run check` |
+| Deploy command                       | `bunx wrangler deploy`                                                     |
+| Non-production branch deploy command | `bunx wrangler versions upload`                                            |
+| Build watch paths (include)          | `apps/conductor/*`, `bun.lock`                                             |
+| Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
 
 To deploy by hand: `bunx wrangler deploy` from `apps/conductor` with a logged-in wrangler.
 

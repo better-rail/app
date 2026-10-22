@@ -104,15 +104,15 @@ secret put APPLE_KEY_CONTENT`, same for the service-account JSON), `SIRI_URL`, `
 Continuous deployment is Workers Builds, like the web app (Workers & Pages → the Worker → Settings → Builds, connect
 `better-rail/app`):
 
-| Setting                              | Value                                            |
-| ------------------------------------ | ------------------------------------------------ |
-| Production branch                    | `main`                                           |
-| Root directory                       | `apps/api`                                       |
-| Build command                        | `bun install && bun run test && bun run compile` |
-| Deploy command                       | `bunx wrangler deploy`                           |
-| Non-production branch deploy command | `bunx wrangler versions upload`                  |
-| Build watch paths (include)          | `apps/api/*`, `bun.lock`                         |
-| Build variable                       | `BUN_VERSION` = `1.3.9`                          |
+| Setting                              | Value                                                                      |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| Production branch                    | `main`                                                                     |
+| Root directory                       | `apps/api`                                                                 |
+| Build command                        | `bun install --filter @better-rail/api && bun run test && bun run compile` |
+| Deploy command                       | `bunx wrangler deploy`                                                     |
+| Non-production branch deploy command | `bunx wrangler versions upload`                                            |
+| Build watch paths (include)          | `apps/api/*`, `bun.lock`                                                   |
+| Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
 
 Workers Builds has Docker, so the ingest container image is built and rolled out with each deploy. Worker secrets and
 the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`). A
