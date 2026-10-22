@@ -27,9 +27,10 @@ Keep Sentry tracing off; URLs hold tokens.
 
 ## Deployment
 
-The Conductor is a Cloudflare Worker (`wrangler.jsonc`). Workers Builds deploys it from this repository whenever a push
-to `main` touches `apps/conductor/*`: root directory `apps/conductor`, build command `bun install`, deploy command
-`bunx wrangler deploy`, build watch path `apps/conductor/*`.
+The Conductor is a Cloudflare Worker (`wrangler.jsonc`). GitHub Actions deploys it (`.github/workflows/deploy.yml`)
+whenever a push to `main` touches `apps/conductor/**` or the lockfile: the tests and type checks run first, then
+`bunx wrangler deploy` with the repository's `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` secrets. To deploy by
+hand: `bunx wrangler deploy` from `apps/conductor` with a logged-in wrangler.
 
 Secrets are set once and survive deploys (`wrangler secret put <NAME>` from `apps/conductor`, or in the dashboard):
 `DISCORD_APPLICATION_ID`, `DISCORD_PUBLIC_KEY`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `DISCORD_PLATFORM_ROLES`,
