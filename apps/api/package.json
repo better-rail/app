@@ -9,8 +9,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "compile": "tsc --noEmit -p . --pretty && tsc --noEmit -p tsconfig.node.json --pretty",
-    "test": "bun test src && vitest run",
-    "test:unit": "bun test src",
+    "test": "bun test test/unit && vitest run",
+    "test:unit": "bun test test/unit",
     "test:workers": "vitest run",
     "ingest": "bun ./ingest/main.ts",
     "rail:pull": "bun ./scripts/rail-pull.ts",
@@ -40,6 +40,6 @@
     "@types/unzipper": "^0.10.10",
     "typescript": "^5.9.3",
     "vitest": "4.1.12",
-    "wrangler": "4.128.0"
+    "wrangler": "4.151.3"
   }
 }

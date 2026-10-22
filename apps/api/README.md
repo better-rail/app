@@ -110,13 +110,41 @@ Continuous deployment is Workers Builds, like the web app (Workers & Pages → t
 | Root directory                       | `apps/api`                                                                 |
 | Build command                        | `bun install --filter @better-rail/api && bun run test && bun run compile` |
 | Deploy command                       | `bunx wrangler deploy`                                                     |
-| Non-production branch deploy command | `bunx wrangler versions upload`                                            |
+| Non-production branch deploy command | `bunx wrangler preview`                                                    |
 | Build watch paths (include)          | `apps/api/*`, `bun.lock`                                                   |
 | Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
 
 Workers Builds has Docker, so the ingest container image is built and rolled out with each deploy. Worker secrets and
-the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`). A
-push to any other branch produces a preview version instead of a deploy.
+the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`).
+
+### Previews
+
+A push to any other branch (and every pull request) deploys a [Worker Preview](https://developers.cloudflare.com/workers/previews/)
+instead: the same Worker, under its own `<branch>-api.<account>.workers.dev` URL, built from the `previews` block of
+`wrangler.jsonc` rather than the production settings. What a Preview shares with production and what it does not:
+
+| Resource                              | In a Preview                                                                             |
+| ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Durable Objects (rides, SIRI, ingest) | Own namespace per Preview, provisioned by Cloudflare; empty on first deploy              |
+| Container (ingest)                    | Own container app per Preview                                                            |
+| D1                                    | `better-rail-preview` (empty schema), not the production database                        |
+| KV                                    | `api-KV-preview`, not the production namespace                                           |
+| Variables                             | Only `previews.vars`: `NODE_ENV=preview`, `RIDES_ENABLED=false`, `RAIL_DATA_SOURCE=rail` |
+| Secrets                               | Only those on the Previews base config (see below); none are inherited                   |
+| Cron triggers, custom domain          | Production only; a Preview never runs the ingest/fares crons or serves the app           |
+
+So a Preview can search, serve timetables and fares (from the rail API) and exercise the HTTP surface, but it cannot
+push notifications or load a GTFS feed, and nothing it does can reach production data. Secrets a Preview needs are set
+once on the base config and copied into each new Preview:
+
+```sh
+bunx wrangler preview base-config secret put RAIL_API_KEY
+bunx wrangler preview base-config secret put SENTRY_DSN     # optional
+```
+
+`bunx wrangler preview` from `apps/api` deploys a Preview by hand (named after the current branch);
+`bunx wrangler preview delete` removes one. `wrangler versions upload` is not used: version preview URLs are not
+generated for Workers with Durable Objects or containers.
 
 ### Cutover
 

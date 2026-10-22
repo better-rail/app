@@ -12,4 +12,8 @@
   // Everything the Worker reads is a secret (`wrangler secret put <NAME>`; `wrangler dev` takes them from .dev.vars or .env):
   // DISCORD_APPLICATION_ID, DISCORD_PUBLIC_KEY, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID, DISCORD_PLATFORM_ROLES,
   // RESEND_API_KEY, RESEND_WEBHOOK_SECRET, DISCORD_EMAIL_FEEDBACK_CHANNEL_ID and SENTRY_DSN (see src/index.ts `Env`).
+  // Worker Previews (what Workers Builds deploys for non-production branches) start from this block. It is empty on
+  // purpose: a Preview has no secrets unless they are set on the Previews base config, so it cannot reach Discord or
+  // Resend, and nothing points those services at a Preview URL.
+  "previews": {},
 }

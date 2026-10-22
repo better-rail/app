@@ -66,4 +66,32 @@
       "instance_type": "standard-1",
     },
   ],
+  // Worker Previews (`wrangler preview`, what Workers Builds runs for non-production branches). A Preview gets its own
+  // Durable Object namespace and container app automatically, so rides and the SIRI poller never touch production
+  // state; D1 and KV are only isolated by binding them to separate resources, which is what this block does. Crons and
+  // routes always target production. Previews do not inherit variables or secrets: the variables live here, and the
+  // secrets a Preview needs (RAIL_API_KEY, SENTRY_DSN) are set once on the Previews base config
+  // (`bunx wrangler preview base-config secret put <NAME>`).
+  "previews": {
+    "vars": {
+      "NODE_ENV": "preview",
+      // No push credentials on Previews, so ride tracking answers 503 rides_disabled instead of failing mid-ride.
+      "RIDES_ENABLED": "false",
+      "RAIL_DATA_SOURCE": "rail",
+    },
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "better-rail-preview",
+        "database_id": "cfc092b8-4585-470b-9053-81399aeef65a",
+      },
+    ],
+    "kv_namespaces": [
+      {
+        "binding": "KV",
+        // Namespace "api-KV-preview" in the Better Rail account.
+        "id": "63cd6bf30f6e42438e06e0d60c43285f",
+      },
+    ],
+  },
 }

@@ -36,9 +36,14 @@ app, whenever a push to `main` touches it:
 | Root directory                       | `apps/conductor`                                                           |
 | Build command                        | `bun install --filter @better-rail/conductor && bun test && bun run check` |
 | Deploy command                       | `bunx wrangler deploy`                                                     |
-| Non-production branch deploy command | `bunx wrangler versions upload`                                            |
+| Non-production branch deploy command | `bunx wrangler preview`                                                    |
 | Build watch paths (include)          | `apps/conductor/*`, `bun.lock`                                             |
 | Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
+
+Other branches deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) under its own URL. The
+`previews` block in `wrangler.jsonc` is empty: a Preview has no secrets (none are inherited from production), so it
+cannot reach Discord or Resend, and neither service is pointed at a Preview URL. It only proves the Worker builds and
+boots.
 
 To deploy by hand: `bunx wrangler deploy` from `apps/conductor` with a logged-in wrangler.
 

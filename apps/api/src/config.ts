@@ -7,7 +7,7 @@
  */
 import { variable } from "./runtime"
 
-type Environment = "production" | "test"
+type Environment = "production" | "preview" | "test"
 
 const flag = (name: string) => variable(name) === "true"
 const num = (name: string, fallback: number) => Number(variable(name)) || fallback
