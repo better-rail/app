@@ -82,7 +82,9 @@ One-time, from `apps/api` with `wrangler login` done:
 1. `bunx wrangler d1 create better-rail` → put the id in `wrangler.jsonc`, then
    `bunx wrangler d1 execute better-rail --remote --file=./src/db/schema.sql`.
 2. `bunx wrangler kv namespace create KV` → put the id in `wrangler.jsonc`.
-3. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
+3. Variables: set `API_BASE_URL` in the dashboard (Settings → Variables) to the Worker's own public URL — its
+   `workers.dev` URL while staging, `https://api.better-rail.co.il` after cutover; the ingest container posts the feed
+   back to it. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
    `APN_ENV`, `FIREBASE_ADMIN_AUTH`, `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
    `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`. The values are the
    Railway variables of the same names; `PROXY_URL`, `SIRI_CA_PEM` and the `*_TLS_INSECURE` flags move to the egress proxy.

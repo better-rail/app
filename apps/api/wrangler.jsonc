@@ -34,15 +34,15 @@
     {
       "binding": "DB",
       "database_name": "better-rail",
-      // `wrangler d1 create better-rail` prints the id; local dev and tests use a local SQLite file.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Created in the Better Rail account (WEUR); local dev and tests use a local SQLite file.
+      "database_id": "a8650196-eb16-4d64-8c6f-a78fe8599695",
     },
   ],
   "kv_namespaces": [
     {
       "binding": "KV",
-      // `wrangler kv namespace create KV` prints the id.
-      "id": "0000000000000000000000000000000a",
+      // Namespace "api-KV" in the Better Rail account.
+      "id": "f83137af34aa41d295d394b431cdeb27",
     },
   ],
   "durable_objects": {

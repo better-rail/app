@@ -53,7 +53,7 @@ export const internalRoutes = new Elysia({ prefix: "/internal" })
   // Kick the ingest container now instead of waiting for the nightly cron.
   .post("/ingest/run", async (ctx) => {
     try {
-      return await startIngest()
+      return await startIngest(new URL(ctx.request.url).origin)
     } catch (error) {
       logger.error(logNames.gtfs.ingest.failed, { error })
       return json(ctx, 500, { error: (error as Error).message })
