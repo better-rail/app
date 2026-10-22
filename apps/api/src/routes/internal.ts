@@ -16,7 +16,19 @@ import { logNames, logger } from "../logs"
 import { UnchangedFeedError, activeFeedSummary, decodePayload, loadFeed } from "../ingest/load"
 import { parseFarePayloads, syncFares } from "../fares/sync"
 import { startIngest } from "../ingest/container"
-import { json, notFound, safeEqual } from "./helpers"
+import { isApnConfigured, sendApnNotification } from "../push/apns"
+import { isFcmConfigured, sendFcmNotification } from "../push/fcm"
+import { json, jsonBody, notFound, safeEqual } from "./helpers"
+
+const describe = (error: unknown) =>
+  error instanceof Error
+    ? {
+        name: error.name,
+        message: error.message,
+        code: (error as { code?: string }).code,
+        status: (error as { status?: number }).status,
+      }
+    : error
 
 const bearer = (request: Request) => request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ?? ""
 
@@ -69,6 +81,39 @@ export const internalRoutes = new Elysia({ prefix: "/internal" })
       return json(ctx, 500, { error: (error as Error).message })
     }
   })
+  // Push probe: sends a minimal payload to `token` and reports the provider's verdict. With a dummy token the
+  // expected answers are APNs `BadDeviceToken` (which proves the HTTP/2 + JWT path) and FCM
+  // `messaging/invalid-argument` or `…-not-registered` (which proves the OAuth exchange); a real token gets a push.
+  .post(
+    "/push/probe",
+    async (ctx) => {
+      const { provider, token } = jsonBody(ctx.body) as { provider?: string; token?: string }
+      if (!token || (provider !== "ios" && provider !== "android")) {
+        return json(ctx, 400, { error: "Expected { provider: 'ios' | 'android', token }" })
+      }
+      try {
+        if (provider === "ios") {
+          if (!isApnConfigured()) return json(ctx, 503, { error: "APNs is not configured" })
+          await sendApnNotification(
+            token,
+            { timestamp: Math.floor(Date.now() / 1000), event: "update", "content-state": {} },
+            "throttled",
+          )
+          return { provider, delivered: true }
+        }
+        if (!isFcmConfigured()) return json(ctx, 503, { error: "FCM is not configured" })
+        const messageId = await sendFcmNotification({
+          token,
+          data: { type: "probe" },
+          android: { priority: "normal", ttl: 60_000 },
+        })
+        return { provider, delivered: true, messageId }
+      } catch (error) {
+        return json(ctx, 502, { provider, delivered: false, error: describe(error) })
+      }
+    },
+    { parse: "json" },
+  )
   // Seed the fares snapshot from saved GetProfiles / GetAllPriceWithNotes payloads.
   .post(
     "/fares/snapshot",
