@@ -25,8 +25,9 @@ export const internalRoutes = new Elysia({ prefix: "/internal" })
     const token = config.ingestToken
     if (!token || !safeEqual(bearer(ctx.request), token)) return notFound(ctx)
   })
-  // The active feed, for the ingest's checksum idempotency check.
-  .get("/ingest/active", async () => (await activeFeedSummary(db())) ?? null)
+  // The active feed, for the ingest's checksum idempotency check. A bare `null` would leave the body
+  // empty, so the JSON is written out explicitly.
+  .get("/ingest/active", async () => Response.json((await activeFeedSummary(db())) ?? null))
   // Load a parsed rail feed (gzip JSON) into D1 under a new feed id and activate it.
   .post(
     "/ingest",

@@ -308,6 +308,17 @@ describe("guarded routes", () => {
     expect((await SELF.fetch(`${api}/internal/ingest/active`, { headers: { authorization: "Bearer wrong" } })).status).toBe(404)
   })
 
+  it("answers the active-feed check with JSON null when nothing is loaded", async () => {
+    await applySchema(env.DB)
+    for (const table of ["stop_times", "calendar_dates", "trips", "routes", "station_map", "stops", "feeds"]) {
+      await env.DB.prepare(`DELETE FROM ${table}`).run()
+    }
+    const res = await SELF.fetch(`${api}/internal/ingest/active`, { headers: AUTH })
+    expect(res.status).toBe(200)
+    expect(res.headers.get("content-type")).toContain("application/json")
+    expect(await res.text()).toBe("null")
+  })
+
   it("hides the SIRI debug routes without the token and answers with the poller state with it", async () => {
     expect((await SELF.fetch(`${api}/siri/status`)).status).toBe(404)
     const status = await SELF.fetch(`${api}/siri/status`, { headers: { "x-debug-token": "test-debug-token" } })

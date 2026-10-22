@@ -47,7 +47,8 @@ const fetchActiveFeed = async (target: Target): Promise<ActiveFeed | null> => {
     signal: AbortSignal.timeout(30_000),
   })
   if (!res.ok) throw new Error(`GET /internal/ingest/active failed: HTTP ${res.status} ${await res.text()}`)
-  const body = (await res.json()) as ActiveFeed | null
+  const text = await res.text()
+  const body = (text ? JSON.parse(text) : null) as ActiveFeed | null
   return body && body.feedId ? body : null
 }
 
