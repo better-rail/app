@@ -94,18 +94,29 @@ secret put APPLE_KEY_CONTENT`, same for the service-account JSON), `SIRI_URL`, `
    `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`. The values are the
    Railway variables of the same names; `SIRI_CA_PEM` / `SIRI_TLS_INSECURE` (and `PROXY_URL`, if the rail API is ever relayed) move to the egress proxy.
 4. Deploy the egress proxy (its README) and set `EGRESS_PROXY_URL`/`EGRESS_PROXY_TOKEN` accordingly.
-5. `bunx wrangler deploy` — needs Docker for the ingest container image (the GitHub Actions runner has it), or
+5. `bunx wrangler deploy` — needs Docker for the ingest container image (Workers Builds has it), or
    `--containers-rollout=none` to deploy the Worker alone first. Containers and Durable Objects need the Workers Paid plan.
 6. Route `api.better-rail.co.il` to the Worker (Workers → Settings → Domains & Routes), or add
    `"routes": [{ "pattern": "api.better-rail.co.il", "custom_domain": true }]` to `wrangler.jsonc`.
 7. Load data: `POST /api/v1/internal/ingest/run` with the token (or wait for the 02:30 UTC cron), and
    `bun run rail:pull --target https://api.better-rail.co.il` (or `POST /api/v1/internal/fares/pull`).
 
-Continuous deployment: `.github/workflows/deploy.yml` deploys this Worker (and the Conductor) on every push to `main`
-that touches it, after `bun run test && bun run compile` pass on the runner. It needs two repository secrets,
-`CLOUDFLARE_API_TOKEN` (account token with Workers Scripts, D1, KV, Durable Objects and Containers edit) and
-`CLOUDFLARE_ACCOUNT_ID`. Worker secrets and the per-deployment variables are not in the repository; `keep_vars` keeps
-them across deploys. Until the branch is merged, deploys are manual (`bunx wrangler deploy`).
+Continuous deployment is Workers Builds, like the web app (Workers & Pages → the Worker → Settings → Builds, connect
+`better-rail/app`):
+
+| Setting                              | Value                                            |
+| ------------------------------------ | ------------------------------------------------ |
+| Production branch                    | `main`                                           |
+| Root directory                       | `apps/api`                                       |
+| Build command                        | `bun install && bun run test && bun run compile` |
+| Deploy command                       | `bunx wrangler deploy`                           |
+| Non-production branch deploy command | `bunx wrangler versions upload`                  |
+| Build watch paths (include)          | `apps/api/*`, `bun.lock`                         |
+| Build variable                       | `BUN_VERSION` = `1.3.9`                          |
+
+Workers Builds has Docker, so the ingest container image is built and rolled out with each deploy. Worker secrets and
+the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`). A
+push to any other branch produces a preview version instead of a deploy.
 
 ### Cutover
 
