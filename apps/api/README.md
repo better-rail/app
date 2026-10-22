@@ -89,7 +89,8 @@ One-time, from `apps/api` with `wrangler login` done:
    or Settings → Variables in the dashboard; `keep_vars` keeps it across later deploys) — its
    `workers.dev` URL while staging, `https://api.better-rail.co.il` after cutover; the ingest container posts the feed
    back to it. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
-   `APN_ENV`, `FIREBASE_ADMIN_AUTH`, `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
+   `APN_ENV`, `FIREBASE_ADMIN_AUTH` (both key files may be given base64-encoded: `base64 -w0 AuthKey.p8 | bunx wrangler
+secret put APPLE_KEY_CONTENT`, same for the service-account JSON), `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
    `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`. The values are the
    Railway variables of the same names; `SIRI_CA_PEM` / `SIRI_TLS_INSECURE` (and `PROXY_URL`, if the rail API is ever relayed) move to the egress proxy.
 4. Deploy the egress proxy (its README) and set `EGRESS_PROXY_URL`/`EGRESS_PROXY_TOKEN` accordingly.

@@ -12,6 +12,26 @@ type Environment = "production" | "test"
 const flag = (name: string) => variable(name) === "true"
 const num = (name: string, fallback: number) => Number(variable(name)) || fallback
 
+/**
+ * A secret that may be stored base64-encoded (`base64 -w0 file | wrangler secret put NAME`),
+ * which sidesteps every newline-escaping trap a PEM or a JSON key file can fall into. A
+ * plain value is returned as is; a base64 value is decoded when it decodes to text that
+ * starts the way the secret must (`expectedStart`).
+ */
+export const decodeSecret = (value: string | undefined, expectedStart: string): string => {
+  if (!value) return ""
+  const trimmed = value.trim()
+  if (trimmed.startsWith(expectedStart)) return trimmed
+  if (!/^[A-Za-z0-9+/=\s]+$/.test(trimmed)) return trimmed
+  try {
+    const bytes = atob(trimmed.replace(/\s+/g, ""))
+    const decoded = new TextDecoder().decode(Uint8Array.from(bytes, (c) => c.charCodeAt(0))).trim()
+    return decoded.startsWith(expectedStart) ? decoded : trimmed
+  } catch {
+    return trimmed
+  }
+}
+
 export const config = {
   get env(): Environment {
     return (variable("NODE_ENV") as Environment) || "test"
@@ -27,16 +47,18 @@ export const config = {
   get appleKeyId() {
     return variable("APPLE_KEY_ID") ?? ""
   },
+  /** The APNs .p8 key: PEM text (with real or `\n`-escaped newlines) or its base64 encoding. */
   get appleKeyContent() {
-    return variable("APPLE_KEY_CONTENT")?.replace(/\\n/g, "\n") ?? ""
+    return decodeSecret(variable("APPLE_KEY_CONTENT"), "-----BEGIN").replace(/\\n/g, "\n")
   },
   /** APNs host: production or the sandbox (`APN_ENV`). */
   get appleApnHost() {
     return variable("APN_ENV") === "production" ? "https://api.push.apple.com" : "https://api.sandbox.push.apple.com"
   },
+  /** The Firebase service-account JSON, as text or base64 (`base64 -w0 service-account.json`). */
   get firebaseAdminAuth(): { project_id?: string; client_email?: string; private_key?: string } {
     try {
-      return JSON.parse(variable("FIREBASE_ADMIN_AUTH") || "{}")
+      return JSON.parse(decodeSecret(variable("FIREBASE_ADMIN_AUTH"), "{") || "{}")
     } catch {
       return {}
     }

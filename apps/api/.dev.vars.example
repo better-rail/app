@@ -5,8 +5,10 @@
 APPLE_BUNDLE_ID=
 APPLE_TEAM_ID=
 APPLE_KEY_ID=
+# PEM text (\n-escaped newlines are fine) or base64: `base64 -w0 AuthKey.p8`
 APPLE_KEY_CONTENT=
 APN_ENV=test
+# The service-account JSON as text or base64: `base64 -w0 service-account.json`
 FIREBASE_ADMIN_AUTH=
 # MOT SIRI-SM realtime (only answers the allow-listed egress IP: set the egress proxy below)
 SIRI_URL=
