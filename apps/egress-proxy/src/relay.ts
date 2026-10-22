@@ -94,6 +94,9 @@ export const loadConfig = (env: RelayEnv): RelayConfig => {
   return { token, upstreams, timeoutMs, log: (line) => console.info(line) }
 }
 
+const isCompressible = (contentType: string | null): boolean => /json|text\/|xml/i.test(contentType ?? "")
+const acceptsGzip = (headers: Headers): boolean => /(^|,)\s*gzip/i.test(headers.get("accept-encoding") ?? "")
+
 const json = (status: number, body: Record<string, unknown>): Response =>
   Response.json(body, { status, headers: { "cache-control": "no-store" } })
 
@@ -186,7 +189,14 @@ export const createRelay = (config: RelayConfig): ((request: Request) => Promise
     const location = response.headers.get("location")
     if (location) headers.set("location", location)
 
-    const body = NULL_BODY_STATUSES.has(response.status) || request.method === "HEAD" ? null : response.body
+    let body = NULL_BODY_STATUSES.has(response.status) || request.method === "HEAD" ? null : response.body
+    // Bun inflates whatever the upstream compressed, so re-compress text on the way out: the
+    // relayed bytes are this host's metered egress, and a SIRI stop-monitoring body shrinks
+    // about tenfold. Workers' fetch asks for gzip and inflates it transparently.
+    if (body && isCompressible(contentType) && acceptsGzip(request.headers)) {
+      body = body.pipeThrough(new CompressionStream("gzip"))
+      headers.set("content-encoding", "gzip")
+    }
     return new Response(body, { status: response.status, headers })
   }
 }

@@ -130,20 +130,22 @@ Durable Object), so switch at a quiet hour. Keep the egress proxy on the host wh
 ## Pricing
 
 Everything runs inside the Workers Paid plan ($5/month, already needed for the web Worker, and required for Durable
-Objects and Containers). For a month of roughly 10M API requests, 2,000 tracked rides a day and the nightly ingest:
+Objects and Containers). Measured against the Railway project this replaces (about $20/month estimated: $11 of it
+network egress from the API's responses, $5 memory for the always-on services, the rest CPU and volumes):
 
-| Component                                    | Usage                                          | Included in the plan     | Over the plan |
-| -------------------------------------------- | ---------------------------------------------- | ------------------------ | ------------- |
-| Worker requests                              | ~10M                                           | 10M                      | ~$0           |
-| Worker CPU                                   | ~30M ms (planner plans are cached per isolate) | 30M ms                   | ~$0           |
-| Durable Objects, ride ticks + snapshot reads | ~6M requests, ~25k GB-s                        | 1M req, 400k GB-s        | ~$0.75        |
-| Durable Object storage (rides, SIRI state)   | ~10M rows written                              | 50M rows written         | $0            |
-| D1 (timetable)                               | ~50M rows read, ~10M written, <1 GB            | 25B read, 50M written    | $0            |
-| KV (fares)                                   | thousands of reads                             | 10M reads                | $0            |
-| Container (ingest, ~5 min/day on standard-1) | ~10 GiB-h, ~75 vCPU-min, ~20 GB-h              | 25 GiB-h, 375 min, 200 h | $0            |
-| Per-minute watchdog cron                     | 43k invocations                                | counted as requests      | $0            |
+| Railway line today                         | On Cloudflare                                                                                        |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Network egress, ~$11 (API responses)       | $0 — Workers do not meter response bandwidth                                                         |
+| Memory, ~$5 (web, SIRI, Conductor, redis…) | $0 — no always-on process; Durable Objects bill active time only, well inside the included 400k GB-s |
+| CPU, <$1                                   | Included (30M CPU-ms/month; the planner caches its plans per isolate)                                |
+| Volumes (Postgres, redis), <$1             | D1 and Durable Object storage, inside the 5 GB included                                              |
+| Daily ingest job                           | Container, ~5 min/day on `standard-1`: inside the included 25 GiB-h / 375 vCPU-min                   |
+| —                                          | Durable Object requests over the included 1M (ride ticks, SIRI cycles, snapshot reads): ~$0.75       |
+| —                                          | Egress proxy host: a Railway hobby service (~$5) or a small VPS                                      |
 
-So about **$5–7/month on Cloudflare** at that scale, plus the egress proxy's host (a Railway hobby service or any small
-VPS, ~$5/month), against the Railway bill for two services, Postgres and redis today. Doubling traffic adds roughly
-$0.30 per extra million requests, $0.02 per extra million CPU-ms and $0.15 per extra million Durable Object requests
-(prices from Cloudflare's published rate card, October 2026). Sentry is unchanged.
+So roughly **$5–7/month on Cloudflare** (or $1–2 incremental if the account is already on Workers Paid for the web
+app) plus the proxy host, against about $20 today. The proxy relays the SIRI stop-monitoring bodies to the Worker
+every 30 s, which would be metered egress on Railway; it gzips them (about tenfold smaller), so expect a few GB a
+month there, or put it on a VPS with bandwidth included. Growth costs about $0.30 per extra million requests, $0.02
+per extra million CPU-ms and $0.15 per extra million Durable Object requests (Cloudflare's published rates, October
+2026). Sentry is unchanged.

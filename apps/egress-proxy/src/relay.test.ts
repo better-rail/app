@@ -188,6 +188,21 @@ describe("passthrough", () => {
     expect(request.headers.authorization).toBeUndefined()
   })
 
+  test("gzips a JSON body when the caller accepts it (the relayed bytes are this host's egress)", async () => {
+    const response = await call(relay(), `${upstreamUrl}/rjpa/api/v1/timetable?x=1`, {
+      headers: { "accept-encoding": "gzip, br" },
+    })
+    expect(response.status).toBe(200)
+    expect(response.headers.get("content-encoding")).toBe("gzip")
+    const inflated = await new Response(response.body!.pipeThrough(new DecompressionStream("gzip"))).json()
+    expect(inflated).toEqual({ echo: "?x=1", method: "GET" })
+
+    // Without accept-encoding the body goes out as the upstream sent it.
+    const plain = await call(relay(), `${upstreamUrl}/rjpa/api/v1/timetable?x=1`)
+    expect(plain.headers.get("content-encoding")).toBeNull()
+    expect(await plain.json()).toEqual({ echo: "?x=1", method: "GET" })
+  })
+
   test("upstream 500 passes through with its body", async () => {
     const response = await call(relay(), `${upstreamUrl}/boom`)
     expect(response.status).toBe(500)
