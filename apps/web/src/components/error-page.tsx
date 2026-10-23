@@ -2,11 +2,15 @@ import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-route
 import { useEffect } from "react"
 import { useLocale, translate } from "@/i18n"
 import { SITE_NAME } from "@/lib/seo"
+import { reportError } from "@/lib/sentry"
 import { EnsureSiteLayout } from "./site-layout"
 
 export function ErrorPage({ error, reset }: ErrorComponentProps) {
   const locale = useLocale()
   const router = useRouter()
+  useEffect(() => {
+    reportError(error)
+  }, [error])
   useEffect(() => {
     document.title = `${SITE_NAME} - ${translate(locale, "error.generic")}`
   }, [locale])
