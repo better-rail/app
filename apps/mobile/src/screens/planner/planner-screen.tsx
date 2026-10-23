@@ -51,8 +51,9 @@ export function PlannerScreen({ variant = "screen" }: PlannerScreenProps) {
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const isFocused = useIsFocused()
-  // iOS shows the header buttons in a native header, which already sits above the status bar inset
-  const hasNativeHeader = !!use(HeaderHeightContext)
+  // iOS shows the header buttons in a native header, which already sits above the status bar inset.
+  // The sidebar has no stack header, but its SafeAreaView already insets it below the navigation bar.
+  const hasNativeHeader = !!use(HeaderHeightContext) || variant === "sidebar"
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
