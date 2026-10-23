@@ -72,10 +72,7 @@ function TrainWagons({ train }: { train: Train }) {
     }
   }
 
-  const heading = (() => {
-    const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
-    return getTrainHeading(train.originStationId.toString(), routeStationIds)
-  })()
+  const heading = getTrainHeading(train.routeStations.map((s) => s.stationId.toString()))
 
   // Car #1 is the front. The south end is always drawn on the left, so riders can tell which
   // platform end the accessible car (usually in the southern half) stops at.
