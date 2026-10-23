@@ -2,7 +2,7 @@ import { type AccessibilityProps, Pressable, TouchableOpacity, type ViewStyle } 
 import { StyleSheet } from "react-native-unistyles"
 import { color } from "@/theme"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 
 const VARIANTS = {
   success: color.success,
@@ -28,13 +28,14 @@ interface ChipProps extends Pick<
  * radio or checkbox reads its role and state to a screen reader rather than only its text.
  */
 export function Chip({ children, variant, onPress, style, testID, ...accessibility }: ChipProps) {
+  const glassTint = useGlassTint(variant === "default" ? "secondaryBackground" : variant)
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} testID={testID} {...accessibility}>
         <GlassView
           isInteractive
           style={[variant === "transparent" ? styles.transparentChipWrapper : styles.chipWrapper, style]}
-          tintColor={VARIANTS[variant]}
+          tintColor={glassTint}
         >
           {children}
         </GlassView>

@@ -1,6 +1,6 @@
 /**
  * Mirror of the server's station-departures contract
- * (apps/server/src/types/station-departures.ts) — keep the two in sync.
+ * (apps/api/src/types/station-departures.ts) — keep the two in sync.
  *
  * The next trains calling at a station, per line and per direction, the way a
  * platform board lists them: scheduled time, live delay, platform, and where the

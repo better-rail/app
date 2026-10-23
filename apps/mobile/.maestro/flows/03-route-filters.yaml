@@ -22,8 +22,7 @@ tags:
 - assertVisible:
     id: "route-filter-screen"
 
-# The max-changes filter is local, so this specifically exercises
-# filterRouteDataByMaxChanges without triggering a refetch.
+# Both filters are local, so this exercises filterRouteData without a refetch.
 - tapOn:
     id: "filter-changes-0"
 - assertVisible:
@@ -78,8 +77,7 @@ tags:
       id: "route-card-exchange"
     timeout: 10000
 
-# hideSlowTrains is server-side in production; the E2E API fixture must honor
-# the forwarded option for this assertion to pass.
+# The fixture flags the exchange route as slow, so hiding slow trains drops it.
 - tapOn:
     id: "route-filter-button-inactive"
 - assertVisible:

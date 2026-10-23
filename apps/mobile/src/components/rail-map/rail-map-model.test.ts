@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { RAIL_LINES } from "@/data/rail-lines"
 import { CELL, NODES, ROUTES } from "@/data/rail-map-layout"
-import { THROUGH_STATIONS } from "../../../../server/src/status/through-stations"
+import { THROUGH_STATIONS } from "../../../../api/src/status/through-stations"
 import {
   LANE_GAP,
   buildRailMapModel,

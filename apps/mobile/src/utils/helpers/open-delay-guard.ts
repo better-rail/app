@@ -3,7 +3,7 @@ import { getStationById } from "@/data/stations"
 import { useRoutePlanStore } from "@/models/route-plan/route-plan"
 import { trackEvent } from "@/services/analytics"
 
-/** The data a Delay Notifications push carries (see apps/server/src/delay-guards/watcher.ts). */
+/** The data a Delay Notifications push carries (see apps/api/src/delay-guards/watcher.ts). */
 export type DelayGuardPayload = {
   type: "delay-guard"
   trainNumber: string

@@ -1,7 +1,7 @@
 /**
  * The stations each line runs through without calling, read off the Service
  * Status map's layout, where every line's route lists the nodes it passes.
- * Writes apps/server/src/status/through-stations.ts, which the service-status
+ * Writes apps/api/src/status/through-stations.ts, which the service-status
  * extraction uses to charge a suspended stretch to every line on that track.
  *
  *     cd apps/mobile && bun run scripts/rail-service-patterns/through-stations.ts
@@ -12,10 +12,10 @@ import { writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { NODES, ROUTES } from "../../src/data/rail-map-layout"
-import { RAIL_LINES } from "../../../server/src/status/lines"
+import { RAIL_LINES } from "../../../api/src/status/lines"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
-const OUT = join(HERE, "../../../server/src/status/through-stations.ts")
+const OUT = join(HERE, "../../../api/src/status/through-stations.ts")
 
 const rows = RAIL_LINES.map((line) => {
   const route = ROUTES[line.id].filter((step): step is string => typeof step === "string" && Boolean(NODES[step]?.label))

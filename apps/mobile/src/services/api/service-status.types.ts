@@ -1,6 +1,6 @@
 /**
  * Mirror of the server's service-status contract
- * (apps/server/src/types/service-status.ts) — keep the two in sync.
+ * (apps/api/src/types/service-status.ts) — keep the two in sync.
  *
  * This is the data both the Service Status list, the network map and the
  * per-line details sheet consume. Station ids are the app's "3700"-style ids.

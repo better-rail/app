@@ -5,7 +5,11 @@
  * Writes station-patterns.json and the SERVICE_PATTERNS
  * block of src/data/rail-service-patterns.ts.
  *
- *     cd apps/server && bun run ../mobile/scripts/rail-service-patterns/service-patterns.ts
+ *     cd apps/api && bun run ingest --gtfs <extracted feed dir> --out feed.json
+ *     bun run ../mobile/scripts/rail-service-patterns/service-patterns.ts feed.json
+ *
+ * The feed is the ingest's payload (what the Worker loads into D1), written to
+ * a file instead of posted; the script needs no database.
  *
  * The trains of the next two weeks are sorted into the day types: `night` is
  * the trains leaving between 00:15 and 04:30 after a Sunday–Thursday, `weekend`
@@ -32,9 +36,9 @@
 import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
-import { getPool } from "../../../server/src/db"
-import { RAIL_LINES } from "../../../server/src/status/lines"
-import { assignLine } from "../../../server/src/status/service-status"
+import { parsePayload } from "../../../api/src/ingest/payload"
+import { RAIL_LINES } from "../../../api/src/status/lines"
+import { assignLine } from "../../../api/src/status/service-status"
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const PATTERNS = join(HERE, "station-patterns.json")
@@ -55,27 +59,38 @@ type Trip = { date: string; weekday: number; trainNumber: number; stops: number[
 type Pattern = { irregular: Record<string, number>; skipped: Record<string, number>; terminals: Record<string, number> }
 type Variant = { lines: string[]; patterns: Record<string, Pattern> }
 
-const pool = getPool()
-const feed = (await pool.query(`SELECT feed_id FROM feeds WHERE is_active LIMIT 1`)).rows[0]
-if (!feed) throw new Error("no active GTFS feed")
-const dates: string[] = []
-for (let i = 1; i <= DAYS_AHEAD; i++) dates.push(new Date(Date.now() + i * 86_400_000).toISOString().slice(0, 10))
-const { rows } = await pool.query<{
-  service_date: string
-  trip_id: string
-  train_number: number
-  rail_id: number
-  dep_offset_sec: number
-}>(
-  `SELECT cd.service_date::text AS service_date, st.trip_id, t.train_number, st.rail_id, st.dep_offset_sec
-     FROM calendar_dates cd
-     JOIN trips t ON t.feed_id = cd.feed_id AND t.service_id = cd.service_id
-     JOIN stop_times st ON st.feed_id = t.feed_id AND st.trip_id = t.trip_id
-    WHERE cd.feed_id = $1 AND cd.service_date = ANY($2::date[]) AND st.rail_id IS NOT NULL
-    ORDER BY cd.service_date, st.trip_id, st.stop_sequence`,
-  [feed.feed_id, dates],
-)
-await pool.end()
+const feedFile = process.argv[2]
+if (!feedFile) throw new Error("usage: service-patterns.ts <feed.json> (from `bun run ingest --out feed.json` in apps/api)")
+const payload = parsePayload(JSON.parse(readFileSync(feedFile, "utf8")))
+const dates = new Set<string>()
+for (let i = 1; i <= DAYS_AHEAD; i++) dates.add(new Date(Date.now() + i * 86_400_000).toISOString().slice(0, 10))
+
+// The join the SQL did: every (service date, stop) of the trips running on the dates in view, in trip order.
+const datesByService = new Map<string, string[]>()
+for (const { serviceId, serviceDate } of payload.calendarDates) {
+  if (dates.has(serviceDate)) datesByService.set(serviceId, [...(datesByService.get(serviceId) ?? []), serviceDate])
+}
+const stopTimesByTrip = new Map<string, typeof payload.stopTimes>()
+for (const stopTime of payload.stopTimes) {
+  if (stopTime.railId === null) continue
+  stopTimesByTrip.set(stopTime.tripId, [...(stopTimesByTrip.get(stopTime.tripId) ?? []), stopTime])
+}
+const rows: { service_date: string; trip_id: string; train_number: number; rail_id: number; dep_offset_sec: number }[] = []
+for (const trip of payload.trips) {
+  const stopTimes = (stopTimesByTrip.get(trip.tripId) ?? []).sort((a, b) => a.stopSequence - b.stopSequence)
+  for (const service_date of datesByService.get(trip.serviceId) ?? []) {
+    for (const st of stopTimes) {
+      rows.push({
+        service_date,
+        trip_id: trip.tripId,
+        train_number: trip.trainNumber,
+        rail_id: st.railId as number,
+        dep_offset_sec: st.depOffsetSec,
+      })
+    }
+  }
+}
+rows.sort((a, b) => a.service_date.localeCompare(b.service_date) || a.trip_id.localeCompare(b.trip_id))
 
 const trips = new Map<string, Trip>()
 for (const row of rows) {

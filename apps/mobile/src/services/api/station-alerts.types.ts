@@ -1,6 +1,6 @@
 /**
  * The station alerts contract — what PUT /api/v1/station-alerts takes. Mirrors
- * apps/server/src/types/station-alerts.ts; keep the two in sync.
+ * apps/api/src/types/station-alerts.ts; keep the two in sync.
  */
 import type { LanguageCode } from "@/i18n"
 import type { DayType } from "@/data/rail-service-patterns"

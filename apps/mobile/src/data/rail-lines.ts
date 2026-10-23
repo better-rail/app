@@ -7,7 +7,7 @@ import type { LanguageCode } from "@/i18n"
  * community "Line Explorer" map built from the MOT GTFS feed: fourteen marketing
  * lines, each with a badge number, a colour and its ordered station corridor.
  * The server groups live trains with the same catalogue
- * (apps/server/src/status/lines.ts) — ids, badges and colours must stay in sync.
+ * (apps/api/src/status/lines.ts) — ids, badges and colours must stay in sync.
  *
  * Generated from the Line Explorer export — regenerate rather than hand-edit.
  */

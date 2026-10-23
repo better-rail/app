@@ -1,0 +1,43 @@
+# `wrangler dev` reads this file as .dev.vars (copy it). Everything here is a secret in production
+# (`wrangler secret put <NAME>`); the plain variables live in wrangler.jsonc `vars`.
+#
+# Push
+APPLE_BUNDLE_ID=
+APPLE_TEAM_ID=
+APPLE_KEY_ID=
+# PEM text (\n-escaped newlines are fine) or base64: `base64 -w0 AuthKey.p8`
+APPLE_KEY_CONTENT=
+APN_ENV=test
+# The service-account JSON as text or base64: `base64 -w0 service-account.json`
+FIREBASE_ADMIN_AUTH=
+# MOT SIRI-SM realtime (only answers the allow-listed egress IP: set the egress proxy below)
+SIRI_URL=
+SIRI_KEY=
+SIRI_DEBUG_TOKEN=
+# Israel Railways API (reachable directly): RAIL_DATA_SOURCE=rail and the fares pull
+RAIL_URL=
+RAIL_API_KEY=
+# apps/egress-proxy, for SIRI — leave unset to call MOT directly. EGRESS_PROXY_RELAY_RAIL=true also relays the rail API.
+EGRESS_PROXY_URL=
+EGRESS_PROXY_TOKEN=
+# The operator token for /api/v1/internal/* (the ingest container, bun run rail:pull)
+INGEST_TOKEN=
+# Sentry project better-rail/server; unset locally, so errors stay local.
+SENTRY_DSN=
+# Off locally unless you mean to test rides against your own device (pushes go out!)
+RIDES_ENABLED=false
+# Station alerts and Delay Notifications: same opt-in as the rides (subscriptions are taken and
+# watched, and pushes go out to the subscribed devices)
+STATION_ALERTS_ENABLED=false
+STATION_ALERTS_CHECK_SECONDS=
+# The service-status gatherer: Israel Railways' service updates read into announced disruptions
+# by Claude (idle without ANTHROPIC_API_KEY), and their timetable compared with the GTFS schedule.
+# Both need RAIL_URL + RAIL_API_KEY.
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=
+ANTHROPIC_EFFORT=
+ANNOUNCEMENTS_POLL_SECONDS=
+TIMETABLE_CHECK_SECONDS=
+TIMETABLE_WINDOW_MINUTES=
+TIMETABLE_STALE_SECONDS=
+NODE_ENV=test

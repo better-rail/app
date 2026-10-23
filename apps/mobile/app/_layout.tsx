@@ -93,8 +93,8 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
-// Usually just a connectivity blip, so group them into one warning issue. A spike there can
-// still mean the API is unreachable (DNS, TLS, outage), since those fail the same way.
+// Usually a connectivity blip or a slow connection timing out, so group them into one warning
+// issue. A spike there can still mean the API is unreachable or hanging (DNS, TLS, outage).
 const networkErrorContext = (error: unknown) =>
   isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
 

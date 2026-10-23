@@ -1,6 +1,6 @@
 /**
  * Mirror of the server's station-info contract
- * (apps/server/src/types/station-info.ts) — keep the two in sync.
+ * (apps/api/src/types/station-info.ts) — keep the two in sync.
  *
  * A station's page from Israel Railways, cleaned up: the entrances with their
  * opening hours and those of the ticket office and the customer-service desk,

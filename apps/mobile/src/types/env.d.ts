@@ -4,7 +4,7 @@ declare namespace NodeJS {
     EXPO_PUBLIC_POSTHOG_API_KEY: string
     EXPO_PUBLIC_E2E?: string
     EXPO_PUBLIC_ANALYTICS_IN_DEV?: string
-    /** "local" points the app at `bun run dev` in apps/server. Anything else is production. */
+    /** "local" points the app at `bun run api:dev` in apps/api; a branch name at that Workers Preview; unset is production. */
     EXPO_PUBLIC_API_ENV?: string
     /** A full base URL (".../api/v1") that wins over EXPO_PUBLIC_API_ENV. */
     EXPO_PUBLIC_API_URL?: string

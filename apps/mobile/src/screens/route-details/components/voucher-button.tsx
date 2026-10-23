@@ -9,7 +9,7 @@ import { findVouchers, useVouchersStore } from "@/models/vouchers/vouchers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useVoucherAvailability } from "@/hooks/use-voucher-availability"
 import { useVouchersEnabled } from "@/hooks/use-vouchers-enabled"
-import { getVoucherTrip } from "@/utils/helpers/voucher-helpers"
+import { getVoucherTitle, getVoucherTrip } from "@/utils/helpers/voucher-helpers"
 import { trackEvent } from "@/services/analytics"
 import type { Train } from "@/services/api"
 
@@ -38,7 +38,7 @@ export function VoucherButton({ train, style }: { train: Train; style: ViewStyle
 
   const onPress = () => {
     if (!voucher && isSoldOut) {
-      Alert.alert(translate("voucher.title") ?? "", translate("voucher.soldOut") ?? "")
+      Alert.alert(getVoucherTitle(train.originStationId), translate("voucher.soldOut") ?? "")
       return
     }
     HapticFeedback.trigger("impactLight")
@@ -57,7 +57,7 @@ export function VoucherButton({ train, style }: { train: Train; style: ViewStyle
       onLongPress={preventLongPressNavigation}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={[translate("voucher.title"), availability].filter(Boolean).join(", ")}
+      accessibilityLabel={[getVoucherTitle(train.originStationId), availability].filter(Boolean).join(", ")}
       accessibilityHint={(voucher ? translate("voucher.show") : translate("voucher.book")) ?? undefined}
     >
       <GlassView

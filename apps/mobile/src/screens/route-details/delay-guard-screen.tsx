@@ -18,7 +18,7 @@ import { DELAY_GUARD_CHANNEL } from "@/utils/push-channels"
 /**
  * Delay Notifications, as a sheet over a route: the train the rider boards, from how many minutes late
  * they want to hear, and the reminder that a delay can shrink again. Saving keeps the guard in the
- * settings store; the server watches the train from then on (apps/server/src/delay-guards).
+ * settings store; the server watches the train from then on (apps/api/src/delay-guards).
  */
 type DelayGuardScreenProps = {
   /** A sheet over a route (the default), or a page pushed in the settings, whose header already names it. */

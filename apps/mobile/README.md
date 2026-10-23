@@ -38,13 +38,13 @@ The first run generates the native projects and may take a while.
 
 #### Running against a local server
 
-The app talks to the production API by default. To point it at `bun run dev` in `apps/server`, create a gitignored `.env.local` in `apps/mobile`:
+The app talks to the production API by default. To point it at `bun run api:dev` (wrangler dev in `apps/api`, port 8787), create a gitignored `.env.local` in `apps/mobile`:
 
 ```
 EXPO_PUBLIC_API_ENV=local
 ```
 
-On a physical device, set the full URL with your machine's LAN IP instead: `EXPO_PUBLIC_API_URL=http://192.168.1.20:3000/api/v1`.  
+A Workers Preview of the API is `EXPO_PUBLIC_API_ENV=<branch>`. On a physical device, set the full URL with your machine's LAN IP instead: `EXPO_PUBLIC_API_URL=http://192.168.1.20:8787/api/v1`.  
 These values are inlined into the JavaScript bundle, so restart Metro with `bun start -c` after changing them. See `.env.example` for the other switches.
 
 If you want to contribute and face issues during installation, please reach out to us at feedback@better-rail.co.il and we'll try to help!

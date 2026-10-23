@@ -19,14 +19,33 @@ jobs:
       - run: bun test
         working-directory: apps/mobile
 
-  test-server:
+  test-stations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun test
-        working-directory: apps/server
+        working-directory: packages/stations
+
+  test-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # Unit tests under Bun, then the Workers tests inside workerd (local D1, KV, Durable Objects), then both type checks.
+      - run: bun run test && bun run compile
+        working-directory: apps/api
+
+  test-egress-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test && bun run check
+        working-directory: apps/egress-proxy
 
   test-conductor:
     runs-on: ubuntu-latest

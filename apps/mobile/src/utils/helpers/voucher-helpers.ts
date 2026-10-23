@@ -1,9 +1,15 @@
 import type { RouteItem, Train, VoucherConfig } from "@/services/api"
 import { findVouchers, type Voucher } from "@/models/vouchers/vouchers"
+import { translate } from "@/i18n"
 import { formatDateForAPI, israelNow } from "./date-helpers"
 
 /** Jerusalem – Yitzhak Navon, the only station that requires an entry voucher */
 export const VOUCHER_STATION_ID = 680
+
+/** "Voucher to Jerusalem" or "from Jerusalem", by where the voucher's leg departs. */
+export function getVoucherTitle(fromStationId: number | string | undefined) {
+  return translate(Number(fromStationId) === VOUCHER_STATION_ID ? "voucher.titleFrom" : "voucher.titleTo") ?? ""
+}
 
 /** The leg of a route that boards or alights at Yitzhak Navon. */
 export function getVoucherTrain(route: Pick<RouteItem, "trains">): Train | undefined {

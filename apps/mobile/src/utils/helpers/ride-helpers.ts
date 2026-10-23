@@ -13,6 +13,18 @@ export function isSameRoute(a: RouteItem | undefined, b: RouteItem) {
   )
 }
 
+// Whether a route rides the same physical trains as the ride, even if it boards or leaves them at other stations.
+// Train numbers repeat daily, so the first trains' times must also overlap.
+export function isOnRideTrains(ride: RouteItem | undefined, route: RouteItem) {
+  if (!ride) return false
+  const [a, b] = [ride.trains[0], route.trains[0]]
+  return (
+    ride.trains.map((train) => train.trainNumber).join() === route.trains.map((train) => train.trainNumber).join() &&
+    a.departureTime <= b.arrivalTime &&
+    b.departureTime <= a.arrivalTime
+  )
+}
+
 /**
  * Find the closest station to the current time.
  */

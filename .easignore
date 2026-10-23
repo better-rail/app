@@ -92,4 +92,3 @@ web-build/
 
 # Server database artifacts are unrelated to mobile builds and may contain
 # developer-local data.
-/apps/server/db

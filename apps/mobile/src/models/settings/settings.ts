@@ -201,16 +201,20 @@ const someOrNull = <T>(ids: T[] | null | undefined): T[] | null => (ids && ids.l
 export const stationAlertFor = (alerts: StationAlert[], stationId: string): StationAlert | undefined =>
   alerts.find((a) => a.stationId === stationId)
 
-// Drops routes over the limit and date headers left empty
-export function filterRouteDataByMaxChanges<T extends { trains: unknown[] }>(data: (T | string)[], maxChanges: MaxChanges) {
-  if (maxChanges === null) return data
+// Drops routes the filters hide and date headers left empty
+export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boolean }>(
+  data: (T | string)[],
+  filters: Pick<SettingsState, "hideSlowTrains" | "maxChanges">,
+) {
+  const { hideSlowTrains, maxChanges } = filters
+  if (!hideSlowTrains && maxChanges === null) return data
 
   const result: (T | string)[] = []
   let pendingHeader: string | null = null
   for (const item of data) {
     if (typeof item === "string") {
       pendingHeader = item
-    } else if (item.trains.length - 1 <= maxChanges) {
+    } else if (!(hideSlowTrains && item.isMuchLonger) && (maxChanges === null || item.trains.length - 1 <= maxChanges)) {
       if (pendingHeader !== null) result.push(pendingHeader)
       pendingHeader = null
       result.push(item)

@@ -37,12 +37,14 @@ export function PlannerScreenHeader() {
     canRunLiveActivities,
     originId: rideOriginId,
     destinationId: rideDestinationId,
+    rideCount,
   } = useRideStore(
     useShallow((s) => ({
       route: s.route,
       canRunLiveActivities: s.canRunLiveActivities,
       originId: s.originId,
       destinationId: s.destinationId,
+      rideCount: s.rideCount,
     })),
   )
   const seenUrgentMessagesIds = useSettingsStore((s) => s.seenUrgentMessagesIds)
@@ -72,7 +74,10 @@ export function PlannerScreenHeader() {
   // Unseen urgent messages suppress the "new" badge. That answer only arrives with the popup
   // messages response, so hold the badge back until the query settles — rendering it beforehand
   // shows it on every launch and then yanks it away the moment the response lands.
-  const showNewBadge = displayNewBadge && (HIDE_RAIL_SERVICE_UPDATES || (didFetchPopupMessages && !hasUnseenUrgentMessages))
+  // Once the user has started a live ride they already know the feature, so never show it again.
+  const hasStartedRide = rideCount > 0 || !!rideRoute
+  const showNewBadge =
+    displayNewBadge && !hasStartedRide && (HIDE_RAIL_SERVICE_UPDATES || (didFetchPopupMessages && !hasUnseenUrgentMessages))
 
   useEffect(() => {
     // display the "new" badge if the user has stations selected (not the initial launch),

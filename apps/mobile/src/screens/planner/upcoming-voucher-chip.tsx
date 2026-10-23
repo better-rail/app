@@ -8,6 +8,7 @@ import { Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { useUpcomingVoucher } from "@/hooks/use-upcoming-voucher"
 import { formatTime } from "@/utils/helpers/date-helpers"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { trackEvent } from "@/services/analytics"
 
@@ -32,10 +33,6 @@ export function UpcomingVoucherChip() {
   const content = (
     <>
       <Image source={TICKET_ICON} style={styles.icon} />
-      <Text style={styles.label} maxFontSizeMultiplier={1.3}>
-        {translate("voucher.short")}
-      </Text>
-      <View style={styles.dot} />
       <Text style={styles.time} maxFontSizeMultiplier={1.3}>
         {departure}
       </Text>
@@ -47,7 +44,7 @@ export function UpcomingVoucherChip() {
       testID="upcoming-voucher-chip"
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${translate("voucher.title")}, ${departure}`}
+      accessibilityLabel={`${getVoucherTitle(voucher.fromStationId)}, ${departure}`}
       accessibilityHint={translate("voucher.show") ?? undefined}
       style={({ pressed }) => !isLiquidGlassSupported && pressed && styles.pressed}
     >
@@ -90,17 +87,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: 18,
     height: 18,
     tintColor: theme.colors.voucherText,
-  },
-  label: {
-    color: theme.colors.voucherText,
-    fontWeight: "600",
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: theme.colors.voucherText,
-    opacity: 0.6,
   },
   time: {
     color: theme.colors.voucherText,

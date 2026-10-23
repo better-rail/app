@@ -87,6 +87,8 @@
     "noDirectTrainsFound": "לא נמצאו רכבות ישירות, אבל יש רכבות עם החלפות.",
     "noOneChangeTrainsFound": "לא נמצאו רכבות עם עד החלפה אחת, אבל יש רכבות עם יותר החלפות.",
     "showAllTrains": "הצגת כל הרכבות",
+    "onlySlowTrainsFound": "רק רכבות מאספות מתאימות לסינון שבחרת.",
+    "showSlowTrains": "הצגת רכבות מאספות",
     "trainInfoPromptTitle": "מידע על הנסיעה",
     "trainInfoPromptDescription": "הוספת מספר הרציף ומספר הרכבת לכרטיס הנסיעה.",
     "trainInfoPromptShow": "מתקדם",
@@ -108,7 +110,7 @@
     "acrossPlatform": "בצד השני של הרציף",
     "platformStay": "יש להשאר ברציף",
     "platformChange": "יש לעבור לרציף",
-    "waitingTime": "זמן המתנה כ-",
+    "waitingTime": "זמן המתנה כ%{duration}",
     "minutes": "דק'",
     "unsafeChange": "החלפה זו אינה בטוחה",
     "lastStop": "יעד סופי",
@@ -582,8 +584,8 @@
     "onButOff": "נשמר עבור הרכבת הזו, אבל ההתראות כבויות ולכן לא תקבלו עדכון."
   },
   "voucher": {
-    "title": "שובר נסיעה לירושלים",
-    "short": "שובר",
+    "titleTo": "שובר נסיעה לירושלים",
+    "titleFrom": "שובר נסיעה מירושלים",
     "orderTitle": "הזמנת שובר",
     "book": "להזמנת שובר נסיעה",
     "seatsAvailable": "%{count} מקומות פנויים",

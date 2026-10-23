@@ -17,7 +17,7 @@ type StationAlertsCardProps = {
 /**
  * The card on a station's page for being told about it: a switch, and once on, whether every line
  * calling there counts or only some, and whether always or only on some of the timetable's days.
- * The server watches the station from then on (apps/server/src/station-alerts) and pushes when its
+ * The server watches the station from then on (apps/api/src/station-alerts) and pushes when its
  * status changes.
  */
 export function StationAlertsCard({ stationId, source = "station_card" }: StationAlertsCardProps) {

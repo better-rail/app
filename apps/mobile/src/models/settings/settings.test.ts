@@ -1,11 +1,5 @@
 import { test, expect, beforeEach } from "bun:test"
-import {
-  useSettingsStore,
-  hydrateSettingsStore,
-  getSettingsSnapshot,
-  resetSettingsStore,
-  filterRouteDataByMaxChanges,
-} from "./settings"
+import { useSettingsStore, hydrateSettingsStore, getSettingsSnapshot, resetSettingsStore, filterRouteData } from "./settings"
 
 beforeEach(resetSettingsStore)
 
@@ -94,15 +88,25 @@ test("transaction IDs survive persistence and prevent recounting after relaunch"
   expect(useSettingsStore.getState().recordedTipTransactionIds).toEqual(["tip-1", "tip-2"])
 })
 
-test("filterRouteDataByMaxChanges drops routes over the limit and orphaned date headers", () => {
-  const direct = { trains: [1] }
-  const oneChange = { trains: [1, 2] }
-  const twoChanges = { trains: [1, 2, 3] }
+test("filterRouteData drops routes over the change limit and orphaned date headers", () => {
+  const direct = { trains: [1], isMuchLonger: false }
+  const oneChange = { trains: [1, 2], isMuchLonger: false }
+  const twoChanges = { trains: [1, 2, 3], isMuchLonger: false }
   const data = ["Mon", direct, oneChange, "Tue", twoChanges, "Wed", oneChange]
 
-  expect(filterRouteDataByMaxChanges(data, null)).toBe(data)
-  expect(filterRouteDataByMaxChanges(data, 0)).toEqual(["Mon", direct])
-  expect(filterRouteDataByMaxChanges(data, 1)).toEqual(["Mon", direct, oneChange, "Wed", oneChange])
+  expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: null })).toBe(data)
+  expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: 0 })).toEqual(["Mon", direct])
+  expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: 1 })).toEqual(["Mon", direct, oneChange, "Wed", oneChange])
+})
+
+test("filterRouteData hides slow trains", () => {
+  const fast = { trains: [1], isMuchLonger: false }
+  const slow = { trains: [1], isMuchLonger: true }
+  const slowChange = { trains: [1, 2], isMuchLonger: true }
+  const data = ["Mon", fast, slow, "Tue", slowChange]
+
+  expect(filterRouteData(data, { hideSlowTrains: true, maxChanges: null })).toEqual(["Mon", fast])
+  expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: 0 })).toEqual(["Mon", fast, slow])
 })
 
 test("station alerts: adding, narrowing to lines and days, removing", () => {

@@ -2,7 +2,7 @@
 name: israel-railways-lines
 description: "How Israel Railways numbers its trains and how Better Rail groups them
   into lines. Use it whenever a task touches train numbers, the line catalogue
-  (apps/server/src/status/lines.ts, apps/mobile/src/data/rail-lines.ts), the
+  (apps/api/src/status/lines.ts, apps/mobile/src/data/rail-lines.ts), the
   service-status screens or service, the SIRI/timetable correlation of trips, or
   anything that names a line to a user — even if the user only says 'line 3',
   'the Karmiel line', 'train 7002' or 'which line is this train on'. It encodes
@@ -23,7 +23,7 @@ working summary and the house rules.
 ## House rule: line ids are ours, and nobody sees them
 
 Israel Railways publishes **no line numbering**. The fourteen lines in
-`apps/server/src/status/lines.ts` (mirrored in `apps/mobile/src/data/rail-lines.ts`)
+`apps/api/src/status/lines.ts` (mirrored in `apps/mobile/src/data/rail-lines.ts`)
 are Better Rail's own grouping, after the community "Line Explorer" map.
 
 - The catalogue `id` (`"1"`, `"3X"`, `"12"`, …) is an **internal key**. It is fine

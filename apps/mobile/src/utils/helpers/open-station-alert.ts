@@ -2,7 +2,7 @@ import { router } from "expo-router"
 import { getStationById } from "@/data/stations"
 import { trackEvent } from "@/services/analytics"
 
-/** The data a station alert push carries (see apps/server/src/station-alerts/notify.ts). */
+/** The data a station alert push carries (see apps/api/src/station-alerts/notify.ts). */
 export type StationAlertPayload = { type: "station-alert"; stationId: string }
 
 export const isStationAlertPayload = (data: unknown): data is StationAlertPayload => {
