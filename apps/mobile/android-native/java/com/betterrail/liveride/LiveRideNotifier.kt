@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.betterrail.R
 import com.betterrail.alarm.ArrivalAlarmScheduler
@@ -27,6 +28,7 @@ data class LiveRideContent(
 )
 
 object LiveRideNotifier {
+    private const val TAG = "LiveRideNotifier"
     const val CHANNEL_ID = "better-rail-live-v2"
     private const val NOTIFICATION_ID = 42001
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
@@ -48,7 +50,9 @@ object LiveRideNotifier {
         ensureChannel(context)
         val remainingMs = staleUntil?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) }
         val notification = if (Build.VERSION.SDK_INT >= 36) {
-            runCatching { buildLiveUpdate(context, content, remainingMs) }.getOrNull()
+            runCatching { buildLiveUpdate(context, content, remainingMs) }
+                .onFailure { Log.e(TAG, "Live update build failed, using compat progress", it) }
+                .getOrNull()
         } else {
             null
         } ?: buildCompatProgress(context, content, remainingMs)
@@ -199,7 +203,10 @@ object LiveRideNotifier {
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
 
-        builder.setRequestPromotedOngoing(true)
+        // setRequestPromotedOngoing is 36.1+; 36.0 devices still get the ProgressStyle, just unpromoted
+        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            builder.setRequestPromotedOngoing(true)
+        }
         SemanticColorCompat.applySemanticStyle(builder, semanticStyle)
 
         content.shortCriticalText?.takeIf { it.isNotBlank() }?.let { chipText ->
