@@ -5,6 +5,7 @@ import { routeTree } from "./routeTree.gen"
 import { NotFound } from "./components/not-found"
 import { ErrorPage } from "./components/error-page"
 import { parseSearchValue } from "./lib/search"
+import { initBrowserSentry } from "./lib/sentry"
 
 const isHome = (path: string) => path === "/" || path === "/en" || path === "/en/"
 const isResults = (path: string) => /^\/(?:en\/)?routes\/[^/]+\/[^/]+\/?$/.test(path)
@@ -47,6 +48,8 @@ export function getRouter() {
     const page = Boolean(from && ((isHome(from) && isResults(to)) || (isResults(from) && isHome(to))))
     router.shouldViewTransition = page ? { types: ["page"] } : false
   })
+
+  if (!router.isServer) initBrowserSentry()
 
   setupRouterSsrQueryIntegration({ router, queryClient })
 
