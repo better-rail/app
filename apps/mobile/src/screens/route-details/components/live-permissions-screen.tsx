@@ -100,7 +100,7 @@ export function LivePermissionsScreen() {
       <Button
         onPress={onStartRide}
         title={translate("liveAnnounce.startRide.title")}
-        containerStyle={{ width: "100%", height: 60, flex: 0 }}
+        containerStyle={styles.startButton}
         disabled={
           notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
           notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
@@ -130,11 +130,12 @@ const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
     minHeight: 420,
     paddingHorizontal: theme.spacing[4],
     paddingTop: theme.spacing[5],
+    paddingBottom: rt.insets.bottom + theme.spacing[4],
     alignItems: "center",
     gap: 16,
     flex: 1,
@@ -144,6 +145,12 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 18,
     textAlign: "center",
     color: theme.colors.text,
+  },
+  startButton: {
+    width: "100%",
+    height: 60,
+    flex: 0,
+    marginTop: theme.spacing[3],
   },
   permissionRow: {
     flexDirection: "row",
