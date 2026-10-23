@@ -1,3 +1,4 @@
+import { concatBytes } from "./bytes"
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
@@ -122,12 +123,7 @@ export function formatReplySubject(originalSubject?: string): string {
   return `Re: ${clean}`
 }
 
-export {
-  detectTextDirection,
-  enforceRfcLineLength,
-  formatEmailHtml,
-  type TextDirectionInfo,
-} from "./templates/reply"
+export { detectTextDirection, enforceRfcLineLength, formatEmailHtml, type TextDirectionInfo } from "./templates/reply"
 
 export function htmlToText(html: string): string {
   return html
@@ -251,12 +247,7 @@ function formatSender(from: string, max = 300): string {
   return `${truncateField(from, max - address.length - 3)} <${address}>`
 }
 
-export function formatEmailHeader(
-  from: string,
-  subject?: string,
-  isFollowUp = false,
-  messageId?: string,
-): string {
+export function formatEmailHeader(from: string, subject?: string, isFollowUp = false, messageId?: string): string {
   return [
     `**${isFollowUp ? "Follow-up" : "New"} Email from:** \`${formatSender(from)}\``,
     ...(!isFollowUp ? [`**Subject:** ${truncateField(subject || "(No Subject)", 1000)}`] : []),
@@ -291,7 +282,7 @@ async function downloadAttachment(url: string, contentType?: string): Promise<Bl
     reader.releaseLock()
   }
 
-  return new Blob([Buffer.concat(chunks)], {
+  return new Blob([concatBytes(...chunks)], {
     type: contentType || resp.headers.get("content-type") || "application/octet-stream",
   })
 }
@@ -345,15 +336,11 @@ export class EmailBridge {
       const subjectClean = (email.subject || "Email Feedback").trim().replace(/[\r\n]+/g, " ")
       const threadTitle = subjectClean.slice(0, 100) || "Email Feedback"
 
-      const newThread = await this.discordApi.call<DiscordChannel>(
-        "POST",
-        `/channels/${feedbackChannelId}/threads`,
-        {
-          name: threadTitle,
-          type: 11, // PUBLIC_THREAD
-          auto_archive_duration: 10080, // 7 days
-        },
-      )
+      const newThread = await this.discordApi.call<DiscordChannel>("POST", `/channels/${feedbackChannelId}/threads`, {
+        name: threadTitle,
+        type: 11, // PUBLIC_THREAD
+        auto_archive_duration: 10080, // 7 days
+      })
       targetThreadId = newThread.id
     }
 
@@ -501,9 +488,7 @@ export class EmailBridge {
     }
   }
 
-  private async findStarterEmail(
-    threadId: string,
-  ): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {
+  private async findStarterEmail(threadId: string): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {
     const starterMessages = await this.discordApi
       .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
       .catch(() => [] as DiscordMessage[])

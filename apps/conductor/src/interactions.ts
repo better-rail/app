@@ -1,6 +1,6 @@
-import * as Sentry from "@sentry/bun"
-import { createPublicKey, type KeyObject, verify } from "node:crypto"
+import * as Sentry from "@sentry/cloudflare"
 
+import { concatBytes, decodeUtf8, encodeUtf8, fromHex } from "./bytes"
 import { type ConductorConfig, isSnowflake } from "./config"
 import { DiscordApi } from "./discord"
 import { EmailBridge, type SlashCommandInteraction } from "./email-bridge"
@@ -18,11 +18,15 @@ type Interaction = SlashCommandInteraction & {
   message?: { flags?: number }
 }
 
-function verifySignature(request: Request, body: Buffer, key: KeyObject) {
+/** What the Worker's `ExecutionContext` offers: work that must outlive the response. */
+export type HandlerContext = { waitUntil(promise: Promise<unknown>): void }
+
+async function verifySignature(request: Request, body: Uint8Array, key: Promise<CryptoKey>) {
   const timestamp = request.headers.get("x-signature-timestamp") ?? ""
-  const signature = Buffer.from(request.headers.get("x-signature-ed25519") ?? "", "hex")
+  const signature = fromHex(request.headers.get("x-signature-ed25519") ?? "")
   if (!(Math.abs(Date.now() / 1000 - Number(timestamp)) <= 300)) return false
-  return verify(null, Buffer.concat([Buffer.from(timestamp), body]), key, signature)
+  if (signature?.length !== 64) return false
+  return crypto.subtle.verify("Ed25519", await key, signature, concatBytes(encodeUtf8(timestamp), body))
 }
 
 export function createHandler(
@@ -32,10 +36,12 @@ export function createHandler(
   resend = new ResendApi(config.resendApiKey || ""),
   emailBridge = new EmailBridge(config, api, resend),
 ) {
-  const key = createPublicKey({
-    key: { kty: "OKP", crv: "Ed25519", x: Buffer.from(config.publicKey, "hex").toString("base64url") },
-    format: "jwk",
-  })
+  let key: Promise<CryptoKey> | undefined
+  const publicKey = () =>
+    (key ??= crypto.subtle.importKey("raw", fromHex(config.publicKey) ?? new Uint8Array(), { name: "Ed25519" }, false, [
+      "verify",
+    ]))
+  // Replay caches live for the handler, i.e. per Worker isolate: a retry that lands elsewhere is verified again, not deduplicated.
   const handled = new Map<string, { at: number; result: unknown }>()
 
   const handledWebhooks = new Map<string, number>()
@@ -47,7 +53,7 @@ export function createHandler(
       message = journeyComplete()
     } catch (error) {
       console.error("Conductor: onboarding role update failed:", (error as Error).message)
-      // Bun drops async callers from stacks, so group by failure instead of by the shared throw site.
+      // Stacks vary across isolates and async hops, so group by failure instead of by the shared throw site.
       Sentry.captureException(error, {
         tags: { selection: "platform" },
         fingerprint: ["role-update", (error as Error).message],
@@ -104,18 +110,20 @@ export function createHandler(
     }
   }
 
-  return async function handle(request: Request): Promise<Response> {
+  return async function handle(request: Request, context?: HandlerContext): Promise<Response> {
+    // Discord allows three seconds to acknowledge, so the work follows the response; Workers keep it running only via waitUntil.
+    const background = (work: Promise<void>) => (context ? context.waitUntil(work) : void work)
     const { pathname } = new URL(request.url)
     if (pathname === "/health" && request.method === "GET") return Response.json({ ok: true, name: "The Conductor" })
 
     if (pathname === "/resend/webhook") {
       if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { Allow: "POST" } })
-      const body = Buffer.from(await request.arrayBuffer())
+      const body = new Uint8Array(await request.arrayBuffer())
 
       if (!config.resendWebhookSecret || !config.resendApiKey) {
         return new Response("Webhook not configured", { status: 503 })
       }
-      if (!verifyResendSignature(request, body, config.resendWebhookSecret)) {
+      if (!(await verifyResendSignature(request, body, config.resendWebhookSecret))) {
         return new Response("Invalid signature", { status: 401 })
       }
 
@@ -124,7 +132,7 @@ export function createHandler(
       }
 
       try {
-        const event: ResendEmailReceivedEvent = JSON.parse(body.toString())
+        const event: ResendEmailReceivedEvent = JSON.parse(decodeUtf8(body))
         const dedupKey = request.headers.get("svix-id") || event.data?.email_id
         if (dedupKey && handledWebhooks.has(dedupKey)) {
           return Response.json({ ok: true })
@@ -134,7 +142,7 @@ export function createHandler(
         }
 
         if (event.type === "email.received" && event.data?.email_id) {
-          void processInboundEmail(event.data.email_id, event.data?.message_id)
+          background(processInboundEmail(event.data.email_id, event.data?.message_id))
         }
         return Response.json({ ok: true })
       } catch (err) {
@@ -146,9 +154,9 @@ export function createHandler(
 
     if (pathname !== "/discord/interactions") return new Response("Not found", { status: 404 })
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405, headers: { Allow: "POST" } })
-    const body = Buffer.from(await request.arrayBuffer())
-    if (!verifySignature(request, body, key)) return new Response("Invalid signature", { status: 401 })
-    const interaction: Interaction = JSON.parse(body.toString())
+    const body = new Uint8Array(await request.arrayBuffer())
+    if (!(await verifySignature(request, body, publicKey()))) return new Response("Invalid signature", { status: 401 })
+    const interaction: Interaction = JSON.parse(decodeUtf8(body))
     if (interaction.type === 1) return Response.json({ type: 1 })
 
     for (const [id, entry] of handled) if (entry.at < Date.now() - 300_000) handled.delete(id)
@@ -165,7 +173,7 @@ export function createHandler(
 
       const result = { type: 5 }
       handled.set(interaction.id, { at: Date.now(), result })
-      void finishReply(interaction)
+      background(finishReply(interaction))
       return Response.json(result)
     }
 
@@ -191,8 +199,7 @@ export function createHandler(
           ? { type: 7, data: platformPicker() }
           : { type: 4, data: { ...platformPicker(), flags: 64 } }
     handled.set(interaction.id, { at: Date.now(), result })
-    if (platformId !== undefined) void finish(interaction.token, userId, platformId)
+    if (platformId !== undefined) background(finish(interaction.token, userId, platformId))
     return Response.json(result)
   }
 }
-

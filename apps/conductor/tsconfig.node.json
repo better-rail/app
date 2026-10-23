@@ -1,0 +1,13 @@
+{
+  // The test suite and the setup CLI, which run under Bun; they pull the Worker modules in through their imports.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["bun"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src/conductor.test.ts", "src/setup.ts"]
+}
