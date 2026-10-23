@@ -1,4 +1,4 @@
-import { Alert, Image, PermissionsAndroid, View } from "react-native"
+import { Alert, Image, Linking, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Button, Text } from "@/components"
 import { color } from "@/theme"
@@ -6,7 +6,8 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
+import { liveRideNotifications } from "@/modules/live-ride"
+import { openArrivalAlarmSettings } from "@/utils/arrival-alarm-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
@@ -17,7 +18,7 @@ export function LivePermissionsScreen() {
   const router = useRouter()
   const routeItem = useNavigationParamsStore((s) => s.routeItem)
   const {
-    notifeeSettings,
+    notificationPermissionState,
     checkLiveRideAuthorization,
     startRide,
     stopRide,
@@ -25,7 +26,7 @@ export function LivePermissionsScreen() {
     rideCount,
   } = useRideStore(
     useShallow((s) => ({
-      notifeeSettings: s.notifeeSettings,
+      notificationPermissionState: s.notificationPermissionState,
       checkLiveRideAuthorization: s.checkLiveRideAuthorization,
       startRide: s.startRide,
       stopRide: s.stopRide,
@@ -35,12 +36,16 @@ export function LivePermissionsScreen() {
   )
 
   const grantNotifications = async () => {
-    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+    await liveRideNotifications.requestPermissions()
     return checkLiveRideAuthorization()
   }
 
   const grantAlarms = () => {
-    notifee.openAlarmPermissionSettings()
+    openArrivalAlarmSettings("permissions")
+  }
+
+  const grantPromoted = () => {
+    Linking.openSettings()
   }
 
   const beginRide = () => {
@@ -87,24 +92,24 @@ export function LivePermissionsScreen() {
       <View style={{ width: "100%", gap: 20 }}>
         <View style={styles.permissionRow}>
           <Text style={styles.permissionLabel} tx="ride.notificationPermission3" />
-          <PermissionButton
-            onPress={grantNotifications}
-            permitted={notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED}
-          />
+          <PermissionButton onPress={grantNotifications} permitted={Boolean(notificationPermissionState?.granted)} />
         </View>
         <View style={styles.permissionRow}>
           <Text style={styles.permissionLabel} tx="ride.notificationPermission4" />
-          <PermissionButton onPress={grantAlarms} permitted={notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED} />
+          <PermissionButton onPress={grantAlarms} permitted={Boolean(notificationPermissionState?.canScheduleExactAlarms)} />
         </View>
+        {notificationPermissionState?.canPromoteOngoing !== undefined && (
+          <View style={styles.permissionRow}>
+            <Text style={styles.permissionLabel} tx="ride.notificationPermissionLiveUpdates" />
+            <PermissionButton onPress={grantPromoted} permitted={Boolean(notificationPermissionState?.canPromoteOngoing)} />
+          </View>
+        )}
       </View>
       <Button
         onPress={onStartRide}
         title={translate("liveAnnounce.startRide.title")}
         containerStyle={styles.startButton}
-        disabled={
-          notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
-          notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED
-        }
+        disabled={!notificationPermissionState?.granted || !notificationPermissionState?.canScheduleExactAlarms}
       />
     </View>
   )

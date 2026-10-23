@@ -3,33 +3,35 @@ import { RouteItem } from "@/services/api"
 
 const getUserLocale = () => Preferences.get("userLocale")
 
-const getRideNotificationId = () => Preferences.get("rideNotificationId")
-const setRideNotificationId = (notificationId: string) => Preferences.set("rideNotificationId", notificationId)
-
 const setRideRoute = (route: RouteItem) => Preferences.set("rideRoute", JSON.stringify(route))
 const getRideRoute = async () => {
   const savedRoute = await Preferences.get("rideRoute")
   return savedRoute && (JSON.parse(savedRoute) as RouteItem)
 }
 
-const getRideDelay = async () => Number(await Preferences.get("rideDelay"))
-const setRideDelay = (delay: number) => Preferences.set("rideDelay", String(delay))
+const setRideId = (rideId: string) => Preferences.set("rideId", rideId)
+const getRideId = () => Preferences.get("rideId")
 
-const getStaleNotificationId = () => Preferences.get("staleNotificationId")
-const setStaleNotificationId = (notificationId: string) => Preferences.set("staleNotificationId", notificationId)
+const clearBackgroundStorage = () => Preferences.clearMultiple(["rideRoute", "rideId"])
 
-const clearBackgroundStorage = () =>
-  Preferences.clearMultiple(["rideRoute", "rideNotificationId", "rideDelay", "staleNotificationId"])
+const setApiBaseUrl = (url: string) => Preferences.set("apiBaseUrl", url)
+
+const NATIVE_STOPPED_RIDE_KEY = "nativelyStoppedRideId"
+
+const consumeNativeStopHandled = async (rideId: string): Promise<boolean> => {
+  const stoppedRideId = await Preferences.get(NATIVE_STOPPED_RIDE_KEY)
+  if (stoppedRideId !== rideId) return false
+  await Preferences.clearMultiple([NATIVE_STOPPED_RIDE_KEY])
+  return true
+}
 
 export {
   getUserLocale,
-  getRideNotificationId,
-  setRideNotificationId,
   setRideRoute,
   getRideRoute,
-  getRideDelay,
-  setRideDelay,
+  setRideId,
+  getRideId,
   clearBackgroundStorage,
-  getStaleNotificationId,
-  setStaleNotificationId,
+  setApiBaseUrl,
+  consumeNativeStopHandled,
 }

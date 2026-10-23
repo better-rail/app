@@ -349,7 +349,7 @@ export function RouteDetailsScreen() {
           </Animated.View>
         )}
 
-        {!isRideOnThisRoute && (Platform.OS === "android" || canRunLiveActivities || voucherTrain) && (
+        {!isRideOnThisRoute && (canRunLiveActivities || voucherTrain) && (
           <Animated.View
             entering={shouldFadeRideButton && FadeInDown.delay(100)}
             exiting={FadeOutDown}
@@ -367,7 +367,7 @@ export function RouteDetailsScreen() {
           >
             {voucherTrain && <VoucherButton train={voucherTrain} style={styles.infoButton} />}
 
-            {(Platform.OS === "android" || canRunLiveActivities) && (
+            {canRunLiveActivities && (
               <Pressable
                 testID="train-info-button"
                 // Without an onLongPress handler, Pressable treats a long hold as
@@ -400,7 +400,7 @@ export function RouteDetailsScreen() {
               </Pressable>
             )}
 
-            {(Platform.OS === "android" || canRunLiveActivities) && <StartRideButton route={routeItem} screenName={screenName} />}
+            {canRunLiveActivities && <StartRideButton route={routeItem} screenName={screenName} />}
           </Animated.View>
         )}
       </View>
