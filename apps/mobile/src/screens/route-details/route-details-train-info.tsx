@@ -7,7 +7,7 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import type { Train, Wagon } from "@/services/api/rail-api.types"
 import { translate } from "@/i18n"
 import { palette } from "@/theme/palette"
-import { getTrainDirection } from "@/utils/helpers/direction-helpers"
+import { getTrainHeading } from "@/utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 
@@ -62,15 +62,6 @@ function TrainWagons({ train }: { train: Train }) {
     return [...train.visaWagonData.wagons].sort((a, b) => a.shurA2 - b.shurA2)
   })()
 
-  const direction = (() => {
-    try {
-      const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
-      return getTrainDirection(train.originStationId.toString(), routeStationIds)
-    } catch {
-      return null
-    }
-  })()
-
   const scrollViewRef = useRef<ScrollViewInstance>(null)
   const wagonLayoutsRef = useRef<Record<number, number>>({})
 
@@ -81,19 +72,19 @@ function TrainWagons({ train }: { train: Train }) {
     }
   }
 
-  // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
-  // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
-  // S/W: ascending  (car #1 on left = southernmost/accessibility/front)              ← S
-  // In both cases the accessibility car lands at index 0 (leftmost).
-  const displayWagons = (() => {
-    if (direction === "N" || direction === "E") return [...sortedWagons].reverse()
-    return sortedWagons
+  const heading = (() => {
+    const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
+    return getTrainHeading(train.originStationId.toString(), routeStationIds)
   })()
 
-  // Accessibility = southernmost car = highest shurA2 = always index 0 in the descending display.
+  // Car #1 is the front. The south end is always drawn on the left, so riders can tell which
+  // platform end the accessible car (usually in the southern half) stops at.
+  const frontOnRight = heading !== "S"
+  const displayWagons = frontOnRight ? [...sortedWagons].reverse() : sortedWagons
+
   const accessibilityWagonIndex = (() => {
-    if (!direction || displayWagons.length === 0) return null
-    return 0
+    const index = displayWagons.findIndex((w) => w.handicapped)
+    return index === -1 ? null : index
   })()
 
   const hasWagons = displayWagons.length > 0
@@ -136,16 +127,15 @@ function TrainWagons({ train }: { train: Train }) {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.wagonsScrollContainer}
               onContentSizeChange={() => {
-                // Content is forced LTR, so scroll positions are always physical:
-                // scrollToEnd = rightmost (car #1 for N/E), scrollTo(0) = leftmost (car #1 for S/W).
-                if (direction === "N" || direction === "E") {
+                // Content is forced LTR, so scroll to whichever physical edge holds car #1
+                if (frontOnRight) {
                   scrollViewRef.current?.scrollToEnd({ animated: false })
-                } else if (direction === "S" || direction === "W") {
+                } else {
                   scrollViewRef.current?.scrollTo({ x: 0, animated: false })
                 }
               }}
             >
-              {(direction === "S" || direction === "W") && (
+              {!frontOnRight && (
                 <View style={[styles.directionIndicator, styles.directionIndicatorStart]}>
                   <Text style={styles.wagonNumberText}> </Text>
                   <View style={styles.directionArrowContainer}>
@@ -159,13 +149,13 @@ function TrainWagons({ train }: { train: Train }) {
                   wagon={wagon}
                   isFirst={index === 0}
                   isLast={index === displayWagons.length - 1}
-                  isAccessibilityWagon={index === accessibilityWagonIndex}
+                  isAccessibilityWagon={wagon.handicapped}
                   onLayout={(e) => {
                     wagonLayoutsRef.current[index] = e.nativeEvent.layout.x
                   }}
                 />
               ))}
-              {(direction === "N" || direction === "E" || direction === null) && (
+              {frontOnRight && (
                 <View style={styles.directionIndicator}>
                   <Text style={styles.wagonNumberText}> </Text>
                   <View style={styles.directionArrowContainer}>
