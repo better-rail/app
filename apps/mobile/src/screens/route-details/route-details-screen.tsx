@@ -41,6 +41,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
+import { getStationById } from "@/data/stations"
 
 // The text button renders 4pt taller than its minimum at the default font
 // scale because of its line box and padding. Match that visible surface.
@@ -123,6 +124,20 @@ export function RouteDetailsScreen() {
     }
   }, [progress.status, rideId])
 
+  // A station on the route opens its card: how it is doing, its next trains, its entrances and hours.
+  // Not from the live ride modal, where the card's sheet has no stack of its own to open on.
+  const openStation =
+    screenName === "routeDetails"
+      ? (stationId: string | number) => {
+          const id = String(stationId)
+          if (!getStationById(id)) return
+          HapticFeedback.trigger("impactLight")
+          trackEvent("route_station_pressed", { stationId: id })
+          router.push({ pathname: "/station", params: { stationId: id } })
+        }
+      : undefined
+  const stationPress = (stationId: string | number) => (openStation ? () => openStation(stationId) : undefined)
+
   return (
     <Screen
       testID="route-details-screen"
@@ -187,6 +202,7 @@ export function RouteDetailsScreen() {
                             bottomLineState="idle"
                             isOutsideUserJourney={true}
                             isCancelled={station.cancelled}
+                            onPress={stationPress(station.stationId)}
                           />
                         </View>
                       )
@@ -202,6 +218,7 @@ export function RouteDetailsScreen() {
                       lastStop={train.lastStop}
                       lastStopChanged={train.isLastStopChanged}
                       delay={train.delay}
+                      onPress={stationPress(train.originStationId)}
                     />
 
                     {/* Stations between origin and destination */}
@@ -216,6 +233,7 @@ export function RouteDetailsScreen() {
                             topLineState={isRideOnThisRoute ? stations[station.stationId]?.top || "idle" : "idle"}
                             bottomLineState={isRideOnThisRoute ? stations[station.stationId]?.bottom || "idle" : "idle"}
                             isCancelled={station.cancelled}
+                            onPress={stationPress(station.stationId)}
                           />
                         </View>
                       )) // if there are no stops, display a separating line between the route station cards
@@ -233,6 +251,7 @@ export function RouteDetailsScreen() {
                       delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                       platform={train.destinationPlatform}
                       platformChanged={train.destinationPlatformChanged}
+                      onPress={stationPress(train.destinationStationId)}
                     />
 
                     {/* Stations after destination */}
@@ -249,6 +268,7 @@ export function RouteDetailsScreen() {
                             bottomLineState={isLastStation ? "hidden" : "idle"}
                             isOutsideUserJourney={true}
                             isCancelled={station.cancelled}
+                            onPress={stationPress(station.stationId)}
                           />
                         </View>
                       )
@@ -282,6 +302,7 @@ export function RouteDetailsScreen() {
                     lastStop={train.lastStop}
                     lastStopChanged={train.isLastStopChanged}
                     delay={train.delay}
+                    onPress={stationPress(train.originStationId)}
                   />
 
                   {train.stopStations.length > 0
@@ -295,6 +316,7 @@ export function RouteDetailsScreen() {
                             topLineState={isRideOnThisRoute ? stations[stop.stationId]?.top || "idle" : "idle"}
                             bottomLineState={isRideOnThisRoute ? stations[stop.stationId]?.bottom || "idle" : "idle"}
                             isCancelled={stop.cancelled}
+                            onPress={stationPress(stop.stationId)}
                           />
                         </View>
                       ))
@@ -313,6 +335,7 @@ export function RouteDetailsScreen() {
                     delayedTime={calculateDelayedTime(train.arrivalTime, train.delay)}
                     platform={train.destinationPlatform}
                     platformChanged={train.destinationPlatformChanged}
+                    onPress={stationPress(train.destinationStationId)}
                   />
 
                   {routeItem.isExchange && routeItem.trains.length - 1 !== index && (

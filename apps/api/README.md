@@ -11,20 +11,24 @@ Wrangler. TypeScript runs directly; there is no build step.
 
 ## What runs where
 
-| Before (Railway)                                | Now (Cloudflare)                                                                                |
-| ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Express web service                             | The Worker (`src/app.ts`, Elysia)                                                               |
-| Postgres (GTFS timetable, learned platforms)    | D1 (`src/db/schema.sql`, same tables)                                                           |
-| redis `rides:*` + in-process node-schedule jobs | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm               |
-| `bun run siri` poller service                   | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s             |
-| redis `siri:*` snapshot                         | The poller object's storage, read over RPC with the same 5 s per-isolate cache                  |
-| redis `fares:snapshot`                          | KV                                                                                              |
-| Railway cron `bun run ingest`                   | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest`     |
-| Railway cron `bun run rail:pull`                | Cron trigger → `src/fares/sync.ts`                                                              |
-| `apns2` / `firebase-admin`                      | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                               |
-| apns2's one provider token per process          | A singleton Durable Object (`src/push/apns-token-do.ts`): one token per 50 min for all isolates |
-| `@sentry/bun` + winston                         | `@sentry/cloudflare` + console (Workers Logs)                                                   |
-| The poller's registered egress IP, TLS CA       | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the MOT SIRI API         |
+| Before (Railway)                                                  | Now (Cloudflare)                                                                                       |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Express web service                                               | The Worker (`src/app.ts`, Elysia)                                                                      |
+| Postgres (GTFS timetable, learned platforms)                      | D1 (`src/db/schema.sql`, same tables)                                                                  |
+| redis `rides:*` + in-process node-schedule jobs                   | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm                      |
+| `bun run siri` poller service                                     | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s                    |
+| redis `siri:*` snapshot                                           | The poller object's storage, read over RPC with the same 5 s per-isolate cache                         |
+| redis `fares:snapshot`                                            | KV                                                                                                     |
+| Railway cron `bun run ingest`                                     | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest`            |
+| Railway cron `bun run rail:pull`                                  | Cron trigger → `src/fares/sync.ts`                                                                     |
+| `apns2` / `firebase-admin`                                        | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                                      |
+| apns2's one provider token per process                            | A singleton Durable Object (`src/push/apns-token-do.ts`): one token per 50 min for all isolates        |
+| `bun run service-status` (announcements + timetable check)        | A singleton Durable Object (`src/service-status/status-do.ts`): both polls as tasks on one alarm       |
+| redis `status:*` (announced disruptions, timetable check)         | The gatherer object's storage, read over RPC with a 10 s per-isolate cache                             |
+| redis `station-alerts:*` / `delay-guards:*` + in-process watchers | A singleton Durable Object (`src/alerts/alerts-do.ts`): the subscriptions and both checks on one alarm |
+| redis `station-info:*` cache                                      | KV                                                                                                     |
+| `@sentry/bun` + winston                                           | `@sentry/cloudflare` + console (Workers Logs)                                                          |
+| The poller's registered egress IP, TLS CA                         | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the MOT SIRI API                |
 
 The one thing that cannot live on Cloudflare is the egress IP: MOT allow-lists a single address for SIRI. The egress
 proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old Railway service's IP is already registered); the
@@ -42,7 +46,17 @@ answers a request without one with an HTML challenge page, verified from the dep
   migration was parked, so the deployed variable is `rail`).
 - `POST|DELETE /api/v1/ride`, `PATCH /api/v1/ride/updateToken`, `PUT|DELETE /api/v1/ride/alarm` — ride tracking.
 - `GET /api/v1/fares?from=&to=`, `GET /api/v1/fares/profiles`.
-- `GET /api/v1/siri/{status,raw,unmatched}` — `x-debug-token: $SIRI_DEBUG_TOKEN` (404 otherwise).
+- `GET /api/v1/service-status` — the network's health per line for the app's Service Status screens: the GTFS
+  timetable laid over with the SIRI snapshot, Israel Railways' announced works and closures (read into the status
+  schema by Claude) and their timetable compared with the schedule (`src/status/service-status.ts`; the contract is
+  the zod schema in `src/types/service-status.ts`, mirrored in the app). 503 without an active feed.
+- `GET /api/v1/stations/:id/departures` — the station's next trains per line and direction (`src/status/departures.ts`).
+- `GET /api/v1/stations/:id/info?locale=he` — the station's page from the Israel Railways API (entrances and their hours,
+  facilities, notices), cached in KV for six hours and served stale for a day; 503 while the rail API is unset.
+- `PUT|DELETE /api/v1/station-alerts`, `PUT|DELETE /api/v1/delay-guards` — a device's push subscriptions (its
+  stations and lines; the trains it guards). 503 `station_alerts_disabled` while `STATION_ALERTS_ENABLED=false`.
+- `GET /api/v1/siri/{status,raw,unmatched,announcements,timetable,tasks}` — `x-debug-token: $SIRI_DEBUG_TOKEN`
+  (404 otherwise).
 - `/api/v1/internal/*` — `Authorization: Bearer $INGEST_TOKEN` (404 otherwise): `GET ingest/active`, `POST ingest`
   (the container's upload), `POST ingest/run` (start the container now), `POST fares/pull`, `POST fares/snapshot`.
 
@@ -59,7 +73,10 @@ bun run api:compile                  # tsc for the Worker and for the Bun entryp
 Point the app at it with `env = "local"` in `apps/mobile/src/config/api-config.ts`. A local D1 is empty: load a feed
 with `bun run ingest --gtfs <extracted feed dir> --target http://localhost:8787` (set `INGEST_TOKEN` in `.dev.vars` and
 the shell), or `bun run ingest --out feed.json` to only build the payload. Ride tracking is off in `.dev.vars.example`
-(`RIDES_ENABLED=false`); switch it on only to test against your own device, since pushes really go out.
+(`RIDES_ENABLED=false`); switch it on only to test against your own device, since pushes really go out. The station
+alert / Delay Notifications subscriptions are off the same way (`STATION_ALERTS_ENABLED=false`). The service-status
+gatherer needs `RAIL_URL` / `RAIL_API_KEY`, and `ANTHROPIC_API_KEY` for the announcements half; without them
+`/service-status` still answers from the timetable and SIRI.
 
 Layout:
 
@@ -70,6 +87,10 @@ src/
   requests/                        gtfs-route-api (the planner), route-api (ride routes), rail-api, rail-via
   rides/                           ride-do (Durable Object), tracker (the schedule logic), notify
   siri/                            poller-do (Durable Object), client, correlate, snapshot, platform-store
+  status/                          the Service Status derivation, station departures and the line catalogue
+  service-status/                  status-do (Durable Object): announcements (Claude extraction) + the timetable check
+  alerts/, station-alerts/, delay-guards/
+                                   alerts-do (Durable Object): push subscriptions and the two watchers
   ingest/                          Worker half of the ingest: payload contract, D1 loader, the container's Durable Object
   push/                            APNs + FCM clients
   db/                              D1 helpers + schema.sql
@@ -92,7 +113,8 @@ One-time, from `apps/api` with `wrangler login` done:
    back to it. Secrets (`bunx wrangler secret put <NAME>`): `APPLE_BUNDLE_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_KEY_CONTENT`,
    `APN_ENV`, `FIREBASE_ADMIN_AUTH` (both key files may be given base64-encoded: `base64 -w0 AuthKey.p8 | bunx wrangler
 secret put APPLE_KEY_CONTENT`, same for the service-account JSON), `SIRI_URL`, `SIRI_KEY`, `SIRI_DEBUG_TOKEN`, `RAIL_URL`, `RAIL_API_KEY`,
-   `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`. The values are the
+   `EGRESS_PROXY_URL`, `EGRESS_PROXY_TOKEN`, `INGEST_TOKEN` (`openssl rand -hex 32`), `SENTRY_DSN`,
+   `ANTHROPIC_API_KEY` (optionally `ANTHROPIC_MODEL`, `ANTHROPIC_EFFORT`). The values are the
    Railway variables of the same names; `SIRI_CA_PEM` / `SIRI_TLS_INSECURE` (and `PROXY_URL`, if the rail API is ever relayed) move to the egress proxy.
 4. Deploy the egress proxy (its README) and set `EGRESS_PROXY_URL`/`EGRESS_PROXY_TOKEN` accordingly.
 5. `bunx wrangler deploy` — needs Docker for the ingest container image (Workers Builds has it), or
@@ -125,15 +147,15 @@ A push to any other branch (and every pull request) deploys a [Worker Preview](h
 instead: the same Worker, under its own `<branch>-api.<account>.workers.dev` URL, built from the `previews` block of
 `wrangler.jsonc` rather than the production settings. What a Preview shares with production and what it does not:
 
-| Resource                              | In a Preview                                                                             |
-| ------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Durable Objects (rides, SIRI, ingest) | Own namespace per Preview, provisioned by Cloudflare; empty on first deploy              |
-| Container (ingest)                    | Own container app per Preview                                                            |
-| D1                                    | `better-rail-preview` (empty schema), not the production database                        |
-| KV                                    | `api-KV-preview`, not the production namespace                                           |
-| Variables                             | Only `previews.vars`: `NODE_ENV=preview`, `RIDES_ENABLED=false`, `RAIL_DATA_SOURCE=rail` |
-| Secrets                               | Only those on the Previews base config (see below); none are inherited                   |
-| Cron triggers, custom domain          | Production only; a Preview never runs the ingest/fares crons or serves the app           |
+| Resource                              | In a Preview                                                                                                             |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Durable Objects (rides, SIRI, ingest) | Own namespace per Preview, provisioned by Cloudflare; empty on first deploy                                              |
+| Container (ingest)                    | Own container app per Preview                                                                                            |
+| D1                                    | `better-rail-preview` (empty schema), not the production database                                                        |
+| KV                                    | `api-KV-preview`, not the production namespace                                                                           |
+| Variables                             | Only `previews.vars`: `NODE_ENV=preview`, `RIDES_ENABLED=false`, `STATION_ALERTS_ENABLED=false`, `RAIL_DATA_SOURCE=rail` |
+| Secrets                               | Only those on the Previews base config (see below); none are inherited                                                   |
+| Cron triggers, custom domain          | Production only; a Preview never runs the ingest/fares crons or serves the app                                           |
 
 So a Preview can search, serve timetables and fares (from the rail API) and exercise the HTTP surface, but it cannot
 push notifications or load a GTFS feed, and nothing it does can reach production data. Secrets a Preview needs are set
@@ -167,6 +189,20 @@ proxy on the host whose IP MOT registered if GTFS mode is ever enabled.
   cycle state and match rates. `SIRI_POLL_SECONDS` and friends are read at every cycle, so a variable change needs no
   redeploy.
 - **Fares**: weekly cron, Monday 03:00 UTC; `POST /internal/fares/pull` for an immediate refresh.
+- **Service status**: the gatherer arms itself from the same minute cron once `RAIL_URL` / `RAIL_API_KEY` are set.
+  Every `ANNOUNCEMENTS_POLL_SECONDS` (default 300) it fetches Israel Railways' `railupdates` feed in Hebrew and
+  English and, only when the feed changed, has `ANTHROPIC_MODEL` (default `claude-opus-5-5`, structured output)
+  read the whole list into disruptions, each checked against the line catalogue before it is kept
+  (`src/service-status/extraction.ts`). Every `TIMETABLE_CHECK_SECONDS` (default 300) the trains due within
+  `TIMETABLE_WINDOW_MINUTES` (default 120) are looked up in Israel Railways' own timetable with a greedy cover of
+  station-pair searches; a scheduled train missing from it is cancelled, one with fewer stops skips them, one the
+  schedule lacks is extra, and the result is trusted for `TIMETABLE_STALE_SECONDS` (default 900).
+  `GET /siri/announcements`, `GET /siri/timetable` and `GET /siri/tasks` show the stored states and the schedules.
+- **Station alerts and Delay Notifications**: the alerts object checks every subscription each
+  `STATION_ALERTS_CHECK_SECONDS` (default 60) against the service status and the SIRI snapshot and pushes (a plain
+  APNs alert, a data-only FCM message) when a station's state changes in a way the rider would want to know, or a
+  guarded train runs late enough; what each device was told is kept beside its subscription. A token the push
+  service rejects drops the subscription.
 - **Logs and errors**: Workers Logs (observability is on) and Sentry (`SENTRY_DSN`); push tokens are scrubbed as before.
 
 ## Behaviour notes

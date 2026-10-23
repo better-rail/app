@@ -18,7 +18,8 @@
   "routes": [{ "pattern": "api.better-rail.co.il", "custom_domain": true }],
   "triggers": {
     "crons": [
-      // Watchdog for the SIRI poller Durable Object (re-arms its alarm loop if it ever stopped).
+      // Watchdog for the poller Durable Objects: SIRI, the service-status gatherer and the alert
+      // watchers (re-arms their alarm loops if they ever stopped).
       "* * * * *",
       // Nightly GTFS ingest (the MOT feed regenerates overnight; 02:30 UTC = 04:30/05:30 Israel).
       "30 2 * * *",
@@ -58,11 +59,16 @@
       { "name": "INGEST", "class_name": "IngestContainer" },
       // The one APNs provider token for every isolate (Apple allows one new token per 20 minutes per key).
       { "name": "APNS_TOKEN", "class_name": "ApnsTokenDO" },
+      // Israel Railways' announcements (read by Claude) and their timetable vs the schedule, for the status screens.
+      { "name": "STATUS", "class_name": "ServiceStatusDO" },
+      // Station alert and Delay Notifications subscriptions, and the watchers that push about them.
+      { "name": "ALERTS", "class_name": "AlertsDO" },
     ],
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["RideDO", "SiriPollerDO", "IngestContainer"] },
     { "tag": "v2", "new_sqlite_classes": ["ApnsTokenDO"] },
+    { "tag": "v3", "new_sqlite_classes": ["ServiceStatusDO", "AlertsDO"] },
   ],
   "containers": [
     {
@@ -83,8 +89,10 @@
   "previews": {
     "vars": {
       "NODE_ENV": "preview",
-      // No push credentials on Previews, so ride tracking answers 503 rides_disabled instead of failing mid-ride.
+      // No push credentials on Previews, so ride tracking answers 503 rides_disabled instead of failing mid-ride,
+      // and the station alert / Delay Notifications subscriptions 503 station_alerts_disabled.
       "RIDES_ENABLED": "false",
+      "STATION_ALERTS_ENABLED": "false",
       "RAIL_DATA_SOURCE": "rail",
     },
     "d1_databases": [

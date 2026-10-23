@@ -7,6 +7,7 @@
   "sortPackageJson": false,
   "ignorePatterns": [
     "node_modules",
+    "scratch",
     "apps/mobile/ios-native",
     "apps/mobile/android-native",
     "apps/mobile/ios",

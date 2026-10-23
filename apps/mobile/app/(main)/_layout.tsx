@@ -2,15 +2,7 @@ import { useMemo } from "react"
 import { Stack } from "expo-router/stack"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-
-const formSheetOptions = {
-  presentation: "formSheet" as const,
-  headerShown: false,
-  sheetAllowedDetents: "fitToContents" as const,
-  contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-  sheetGrabberVisible: true,
-}
+import { formSheetOptions, stationSheetOptions } from "@/utils/sheet-options"
 
 export default function MainLayout() {
   const theme = useTheme()
@@ -42,12 +34,13 @@ export default function MainLayout() {
         />
         <Stack.Screen name="route-list" options={{ headerShown: false }} />
         <Stack.Screen name="route-details" options={{ headerShown: false }} />
-        <Stack.Screen name="station-hours" options={formSheetOptions} />
+        <Stack.Screen name="station" options={stationSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />
         <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
         <Stack.Screen name="live-permissions" options={formSheetOptions} />
+        <Stack.Screen name="delay-guard" options={formSheetOptions} />
       </Stack>
     </ThemeProvider>
   )

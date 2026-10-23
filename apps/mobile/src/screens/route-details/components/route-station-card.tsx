@@ -1,5 +1,5 @@
 import React from "react"
-import { View, ViewStyle, Image } from "react-native"
+import { View, ViewStyle, Image, Pressable } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
@@ -34,17 +34,40 @@ type RouteStopCardProps = {
   lastStopChanged?: boolean
 
   style?: ViewStyle
+
+  /**
+   * Opens the station's card (its status, next trains and entrances); without it the card is not pressable
+   */
+  onPress?: () => void
 }
 
 export const RouteStationCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
-    props
+  const {
+    stationName,
+    stopTime,
+    platform,
+    trainNumber,
+    delay,
+    delayedTime,
+    lastStop,
+    platformChanged,
+    lastStopChanged,
+    style,
+    onPress,
+  } = props
 
   const platformText =
     platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 
   return (
-    <View style={[styles.routeStationWrapper, style]}>
+    <Pressable
+      style={({ pressed }) => [styles.routeStationWrapper, style, pressed && onPress && styles.pressed]}
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityHint={onPress ? (translate("serviceStatus.station.details") ?? undefined) : undefined}
+      testID={onPress ? "route-station-card" : undefined}
+    >
       <View style={styles.routeStationTimeWrapper}>
         {delayedTime ? (
           <>
@@ -103,11 +126,14 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
           </Text>
         )}
       </View>
-    </View>
+    </Pressable>
   )
 }
 
 const styles = StyleSheet.create((theme, rt) => ({
+  pressed: {
+    opacity: 0.6,
+  },
   routeStationWrapper: {
     flexDirection: "row",
     alignItems: "center",

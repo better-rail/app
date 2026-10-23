@@ -1,7 +1,8 @@
 import React from "react"
-import { View, ViewStyle } from "react-native"
+import { Pressable, View, ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
+import { translate } from "@/i18n"
 import { RouteLine } from "./route-line"
 import { RouteStationCircle } from "./route-station-circle"
 import { RouteElementStateType } from "./use-route-colors"
@@ -26,13 +27,24 @@ type RouteStopCardProps = {
    * Realtime: the train will skip this stop
    */
   isCancelled?: boolean
+  /**
+   * Opens the station's card (its status, next trains and entrances); without it the row is not pressable
+   */
+  onPress?: () => void
 }
 
 export const RouteStopCard = (props: RouteStopCardProps) => {
-  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney, isCancelled } = props
+  const { stationName, stopTime, delayedTime, topLineState, bottomLineState, style, isOutsideUserJourney, isCancelled, onPress } =
+    props
 
   return (
-    <View style={[styles.routeStopWrapper, style]}>
+    <Pressable
+      style={({ pressed }) => [styles.routeStopWrapper, style, pressed && onPress && styles.pressed]}
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityHint={onPress ? (translate("serviceStatus.station.details") ?? undefined) : undefined}
+    >
       <View style={styles.routeStopDetails}>
         <View style={{ flex: 0.265, alignItems: "flex-end" }}>
           <Text
@@ -72,11 +84,14 @@ export const RouteStopCard = (props: RouteStopCardProps) => {
           </Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
+  pressed: {
+    opacity: 0.6,
+  },
   routeStopWrapper: {
     alignItems: "center",
     backgroundColor: theme.colors.background,

@@ -499,3 +499,17 @@ export const stations: Station[] = [
 ]
 
 export const stationsObject: Record<string, Station> = keyBy(stations, "id")
+
+const NAME_FIELDS: Record<string, "hebrew" | "english" | "russian" | "arabic"> = {
+  he: "hebrew",
+  en: "english",
+  ru: "russian",
+  ar: "arabic",
+}
+
+/** The station's name in the language (English for one not carried), or the id when the station is unknown. */
+export const stationNameIn = (stationId: string, locale: string): string => {
+  const station = stationsObject[stationId]
+  if (!station) return stationId
+  return station[NAME_FIELDS[locale] ?? "english"]
+}
