@@ -77,7 +77,6 @@ export function UISettingsScreen() {
       testID="appearance-settings-screen"
       style={styles.root}
       preset="scroll"
-      belowHeader
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
     >

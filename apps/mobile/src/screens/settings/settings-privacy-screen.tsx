@@ -55,7 +55,7 @@ export function PrivacyScreen() {
   }
 
   return (
-    <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
+    <Screen style={styles.root} preset="scroll" unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
       <View style={settingsStyles.group}>
         <SettingBox
           title={translate("settings.privacyPolicy")}

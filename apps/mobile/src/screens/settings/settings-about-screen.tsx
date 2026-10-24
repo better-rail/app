@@ -25,7 +25,7 @@ Device Locale: ${deviceLocale}
 export function AboutScreen() {
   const router = useRouter()
   return (
-    <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
+    <Screen style={styles.root} preset="scroll" unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
       <View style={[styles.settingGroup, styles.aboutGroup]}>
         <View style={styles.appIconWrapper}>
           <Image source={require("../../../assets/app-icon.png")} style={styles.appIconImage} />

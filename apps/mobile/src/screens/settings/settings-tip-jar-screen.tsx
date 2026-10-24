@@ -22,7 +22,7 @@ export function TipJarScreen() {
 
   return (
     <>
-      <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
+      <Screen style={styles.root} preset="scroll" unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
         <Text style={styles.heartIcon}>💖</Text>
         <Text tx="settings.tipJarTitle" style={styles.tipIntroTitle} />
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />

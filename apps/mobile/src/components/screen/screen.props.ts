@@ -36,12 +36,6 @@ export interface ScreenProps {
   unsafe?: boolean
 
   /**
-   * Pads the top by the native stack header's height, for a screen whose content starts below the header: on iOS 26+
-   * the header is transparent and the screen is laid out under it, with no inset of its own. Defaults to false.
-   */
-  belowHeader?: boolean
-
-  /**
    * Skip the left and right safe-area insets, so full-width backgrounds reach the screen edges.
    * The screen must then inset its own foreground content — iPhone Duo puts the status bar,
    * camera and navigation bar on a side edge, so the two insets are often different.
