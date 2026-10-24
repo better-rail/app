@@ -1,15 +1,6 @@
 import { Alert, PermissionsAndroid, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
-import {
-  Button,
-  Column,
-  FilledTonalButton,
-  Host,
-  Icon,
-  ListItem,
-  RNHostView,
-  Text as ComposeText,
-} from "@expo/ui/jetpack-compose"
+import { Button, Column, FilledTonalButton, Host, Icon, ListItem, Text as ComposeText } from "@expo/ui/jetpack-compose"
 import { clip, fillMaxWidth, height, Shapes } from "@expo/ui/jetpack-compose/modifiers"
 import { Text } from "@/components"
 import { primaryFont } from "@/theme"
@@ -126,13 +117,15 @@ export function LivePermissionsScreen() {
           <Button
             onClick={onStartRide}
             enabled={canStartRide}
-            colors={{ containerColor: theme.colors.primary, disabledContainerColor: theme.colors.disabled }}
+            colors={{
+              containerColor: theme.colors.primary,
+              contentColor: theme.colors.whiteText,
+              disabledContainerColor: theme.colors.disabled,
+              disabledContentColor: theme.colors.whiteText,
+            }}
             modifiers={[fillMaxWidth(), height(56)]}
           >
-            {/* RN Text, since Compose only loads Heebo's regular weight */}
-            <RNHostView matchContents>
-              <Text style={styles.startRideText} tx="liveAnnounce.startRide.title" />
-            </RNHostView>
+            <ComposeText style={{ ...TEXT_STYLE, fontSize: 18 }}>{translate("liveAnnounce.startRide.title")}</ComposeText>
           </Button>
         </Column>
       </Host>
@@ -194,11 +187,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 18,
     textAlign: "center",
     color: theme.colors.text,
-  },
-  startRideText: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: theme.colors.whiteText,
   },
   host: {
     alignSelf: "stretch",
