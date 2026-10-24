@@ -7,40 +7,40 @@ import type { AccentThemeId } from "@/theme/accent-themes"
 // Each theme's doodle is split into two white masks, tinted with the theme's primary and secondary colors
 const backgrounds: Record<AccentThemeId, { primary: ImageSourcePropType; secondary: ImageSourcePropType }> = {
   default: {
-    primary: require("../../../assets/backgrounds/classic-primary.png"),
-    secondary: require("../../../assets/backgrounds/classic-secondary.png"),
+    primary: require("../../../assets/backgrounds/classic-primary.webp"),
+    secondary: require("../../../assets/backgrounds/classic-secondary.webp"),
   },
   telAviv: {
-    primary: require("../../../assets/backgrounds/tel-aviv-primary.png"),
-    secondary: require("../../../assets/backgrounds/tel-aviv-secondary.png"),
+    primary: require("../../../assets/backgrounds/tel-aviv-primary.webp"),
+    secondary: require("../../../assets/backgrounds/tel-aviv-secondary.webp"),
   },
   jerusalem: {
-    primary: require("../../../assets/backgrounds/jerusalem-primary.png"),
-    secondary: require("../../../assets/backgrounds/jerusalem-secondary.png"),
+    primary: require("../../../assets/backgrounds/jerusalem-primary.webp"),
+    secondary: require("../../../assets/backgrounds/jerusalem-secondary.webp"),
   },
   haifa: {
-    primary: require("../../../assets/backgrounds/haifa-primary.png"),
-    secondary: require("../../../assets/backgrounds/haifa-secondary.png"),
+    primary: require("../../../assets/backgrounds/haifa-primary.webp"),
+    secondary: require("../../../assets/backgrounds/haifa-secondary.webp"),
   },
   beerSheva: {
-    primary: require("../../../assets/backgrounds/beer-sheva-primary.png"),
-    secondary: require("../../../assets/backgrounds/beer-sheva-secondary.png"),
+    primary: require("../../../assets/backgrounds/beer-sheva-primary.webp"),
+    secondary: require("../../../assets/backgrounds/beer-sheva-secondary.webp"),
   },
   neon: {
-    primary: require("../../../assets/backgrounds/neon-primary.png"),
-    secondary: require("../../../assets/backgrounds/neon-secondary.png"),
+    primary: require("../../../assets/backgrounds/neon-primary.webp"),
+    secondary: require("../../../assets/backgrounds/neon-secondary.webp"),
   },
   pixel: {
-    primary: require("../../../assets/backgrounds/pixel-primary.png"),
-    secondary: require("../../../assets/backgrounds/pixel-secondary.png"),
+    primary: require("../../../assets/backgrounds/pixel-primary.webp"),
+    secondary: require("../../../assets/backgrounds/pixel-secondary.webp"),
   },
   newspaper: {
-    primary: require("../../../assets/backgrounds/newspaper-primary.png"),
-    secondary: require("../../../assets/backgrounds/newspaper-secondary.png"),
+    primary: require("../../../assets/backgrounds/newspaper-primary.webp"),
+    secondary: require("../../../assets/backgrounds/newspaper-secondary.webp"),
   },
   retro: {
-    primary: require("../../../assets/backgrounds/retro-primary.png"),
-    secondary: require("../../../assets/backgrounds/retro-secondary.png"),
+    primary: require("../../../assets/backgrounds/retro-primary.webp"),
+    secondary: require("../../../assets/backgrounds/retro-secondary.webp"),
   },
 }
 
