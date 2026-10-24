@@ -1,10 +1,12 @@
 import { useMemo } from "react"
+import { useUnistyles } from "react-native-unistyles"
 import { Stack } from "expo-router/stack"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
 import { formSheetOptions } from "@/utils/form-sheet-options"
 
 export default function MainLayout() {
+  const { theme: appTheme } = useUnistyles()
   const theme = useTheme()
   // The route list header sits over a dark photo, so its glass buttons stay dark in light mode too.
   const darkHeaderTheme = useMemo(() => ({ ...theme, dark: true }), [theme])
@@ -20,7 +22,7 @@ export default function MainLayout() {
             fontFamily: typography.primary,
           },
           headerBackTitleStyle: { fontFamily: typography.primary },
-          headerTintColor: color.primary as unknown as string,
+          headerTintColor: appTheme.colors.primary as unknown as string,
           headerTitle: "",
         }}
       >

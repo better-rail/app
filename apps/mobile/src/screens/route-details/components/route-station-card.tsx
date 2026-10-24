@@ -3,6 +3,7 @@ import { View, ViewStyle, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
 
@@ -129,9 +130,19 @@ const styles = StyleSheet.create((theme, rt) => ({
   routeStationTime: {
     minWidth: 52 * rt.fontScale,
     marginEnd: theme.spacing[4],
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "System",
+    // Skinned themes carry their route card times here; every key is set so a theme switch resets it
+    color: theme.skin.stationTime?.color ?? theme.colors.text,
+    textShadowColor: theme.skin.stationTime?.glow ?? "transparent",
+    textShadowRadius: theme.skin.stationTime?.glow ? 6 : 0,
+    ...(theme.skin.timeFont
+      ? {
+          fontFamily: theme.skin.timeFont.family,
+          fontWeight: "normal",
+          // Route card times are 24 where these are 18
+          fontSize: theme.skin.timeFont.size * 0.75,
+          letterSpacing: theme.skin.timeFont.letterSpacing ?? 0,
+        }
+      : { fontFamily: "System", fontWeight: "700", fontSize: 18, letterSpacing: 0 }),
   },
   routeStationTimeDelayed: {
     textDecorationLine: "line-through",
@@ -145,20 +156,21 @@ const styles = StyleSheet.create((theme, rt) => ({
     color: theme.colors.destroy,
     fontWeight: "bold",
   },
+  // Wide theme fonts have short caps, so they get more size and room to head the details
   routeStationName: {
-    marginBottom: -1,
+    marginBottom: theme.skin.subheadingFont ? 3 : -1,
     marginEnd: theme.spacing[3],
-    fontSize: 17,
-    fontWeight: "700",
+    ...subheadingFontStyle(theme, theme.skin.subheadingFont ? 19 : 17),
   },
   routeStationDetailsText: {
-    fontSize: 14,
+    fontSize: theme.skin.subheadingFont ? 13 : 14,
     fontWeight: "400",
   },
+  // One tone for the whole line; nested Text resets to the default size, so it's repeated here
   lastDestinationText: {
-    fontSize: 14,
+    fontSize: theme.skin.subheadingFont ? 13 : 14,
     fontWeight: "400",
-    opacity: 0.8,
+    color: theme.colors.label,
   },
   realtimeChangeText: {
     color: theme.colors.destroy,
@@ -167,5 +179,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   railwayIcon: {
     width: 42.5,
     height: 42.5,
+    // The icon's own grey for the system look; themes with their own colors tint it
+    tintColor: typeof theme.colors.primary === "string" ? theme.colors.primary : "#555555",
   },
 }))

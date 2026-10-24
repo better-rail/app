@@ -5,6 +5,7 @@ import { color, fontScale, spacing } from "@/theme"
 import { Text } from "@/components/text/text"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { buttonFontStyle } from "@/theme/theme-fonts"
 
 /**
  * Plain (non-Unistyles) base style for the pressable surface.
@@ -134,16 +135,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     gap: 8,
   },
   text: {
-    fontFamily: theme.typography.primary,
-    fontWeight: "700",
-    fontSize: 18,
+    ...buttonFontStyle(theme, 18),
     textAlign: "center",
     color: theme.colors.whiteText,
   },
-  smallText: {
-    fontSize: 14,
-    fontWeight: "normal",
-  },
+  smallText: buttonFontStyle(theme, 14, "normal"),
   liquidGlass: {
     // Minimum height of 55, growing with the system font scale by no more than ~1.2x.
     minHeight: Math.max(55, 55 * Math.min(rt.fontScale, 1.2)),
