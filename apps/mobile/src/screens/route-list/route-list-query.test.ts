@@ -1,6 +1,13 @@
 import { describe, expect, mock, test } from "bun:test"
 import type { RouteItem, Train } from "@/services/api"
-import { getScrollTarget, patchRoutes, publishFreshRoutes, subscribeToFreshRoutes } from "./route-list-query"
+import type { RouteSearchResult } from "@/models/train-routes/search-routes"
+import {
+  getScrollTarget,
+  organizeRouteResults,
+  patchRoutes,
+  publishFreshRoutes,
+  subscribeToFreshRoutes,
+} from "./route-list-query"
 
 const route = (departureTime: number, trainNumbers: number[], delay = 0) =>
   ({
@@ -68,5 +75,32 @@ describe("getScrollTarget", () => {
   test("needs no room under today's header, which isn't pinned, or when targeting a header", () => {
     expect(getScrollTarget(list, 1, 40, today.toDateString())).toEqual({ index: 1, viewOffset: 0 })
     expect(getScrollTarget(list, 2, 40, today.toDateString())).toEqual({ index: 2 })
+  })
+})
+
+describe("organizeRouteResults", () => {
+  const MINUTE = 60_000
+  const trip = (departureTime: number, minutes: number, trainNumber: number) =>
+    ({
+      departureTime,
+      arrivalTime: departureTime + minutes * MINUTE,
+      isExchange: false,
+      isMuchLonger: false,
+      isMuchShorter: false,
+      trains: [{ trainNumber, departureTime } as unknown as Train],
+    }) as RouteItem
+  const result = (requestedTime: number, routes: RouteItem[]) =>
+    ({ routes, requestedTime, resolvedTime: requestedTime, resultType: "normal" }) as RouteSearchResult
+
+  test("judges after-midnight trains against the evening before, whichever day's copy is kept", () => {
+    const evening = new Date(2026, 9, 21, 23, 40).getTime()
+    const fast = trip(evening, 15, 1)
+    // The next day's search can't see the 23:40, so it doesn't flag its own copy of the 00:30
+    const slow = trip(evening + 50 * MINUTE, 52, 2)
+
+    const data = organizeRouteResults([result(evening, [fast, slow]), result(evening + 60 * MINUTE, [slow])])
+
+    const kept = data.find((item): item is RouteItem => typeof item !== "string" && item.trains[0].trainNumber === 2)
+    expect(kept?.isMuchLonger).toBe(true)
   })
 })

@@ -1,4 +1,5 @@
 import type { RouteItem } from "@/services/api"
+import { withDurationFlags } from "@/services/api/route-duration-flags"
 import type { RouteSearchResult } from "@/models/train-routes/search-routes"
 import type { DateType } from "@/models/route-plan/route-plan"
 import { closestIndexTo } from "date-fns"
@@ -6,12 +7,12 @@ import { closestIndexTo } from "date-fns"
 export type RouteData = RouteItem | string
 
 // Shared by the planner's prefetch and the route list, so they hit the same cache entry
-export const routeListDayQueryKey = (
-  originId: string | undefined,
-  destinationId: string | undefined,
-  time: number,
-  hideSlowTrains: boolean,
-) => ["route-search", originId, destinationId, time, hideSlowTrains]
+export const routeListDayQueryKey = (originId: string | undefined, destinationId: string | undefined, time: number) => [
+  "route-search",
+  originId,
+  destinationId,
+  time,
+]
 
 // Train numbers repeat daily, so the departure time tells days apart
 const routeId = (route: RouteItem) => `${route.departureTime}-${route.trains.map((train) => train.trainNumber).join()}`
@@ -25,7 +26,8 @@ export function upsertRouteResult(results: RouteSearchResult[], result: RouteSea
 export function organizeRouteResults(results: RouteSearchResult[]): RouteData[] {
   // Adjacent service days can both include the same after-midnight departure.
   const routesById = new Map(results.flatMap((result) => result.routes.map((route) => [routeId(route), route] as const)))
-  const routes = Array.from(routesById.values()).sort((a, b) => a.departureTime - b.departureTime)
+  // Each day's flags only saw that day's routes; after-midnight trains need the evening before too
+  const routes = withDurationFlags(Array.from(routesById.values())).sort((a, b) => a.departureTime - b.departureTime)
   const data: RouteData[] = []
   let previousDate: string | undefined
   for (const route of routes) {

@@ -57,15 +57,18 @@ export const useVouchersStore = create<VouchersStore>((set) => ({
 
 type VoucherTrip = Pick<Voucher, "trainNumber" | "departureDate" | "fromStationId" | "toStationId">
 
-/** Vouchers the rider holds for a trip, newest first. Israel Railways orders them per boarding and alighting station. */
+/**
+ * Vouchers the rider holds for a trip, newest first. Israel Railways orders them per station pair, but a voucher
+ * on the same train counts when only the non-Navon end differs, e.g. boarding a stop later.
+ */
 export function findVouchers(vouchers: Voucher[], trip: VoucherTrip) {
   return vouchers
     .filter(
       (voucher) =>
         voucher.trainNumber === trip.trainNumber &&
         voucher.departureDate === trip.departureDate &&
-        voucher.fromStationId === trip.fromStationId &&
-        voucher.toStationId === trip.toStationId,
+        // Every trip has Navon on one end, so sharing either end means sharing the Navon one
+        (voucher.fromStationId === trip.fromStationId || voucher.toStationId === trip.toStationId),
     )
     .sort((a, b) => b.createdAt - a.createdAt)
 }

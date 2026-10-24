@@ -1,3 +1,5 @@
+import { byteLength } from "../bytes"
+// Wrangler bundles .html files as text; the Bun test runner needs the attribute to do the same.
 import replyTemplate from "./reply.html" with { type: "text" }
 
 const template = String(replyTemplate)
@@ -21,11 +23,7 @@ export function detectTextDirection(text: string): TextDirectionInfo {
 }
 
 export function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
 }
 
 // Greedily packs words into lines of at most maxBytes; a longer word gets a line of its own
@@ -34,7 +32,7 @@ function packWords(words: string[], maxBytes: number): string[] {
   let current: string | undefined
   let currentBytes = 0
   for (const word of words) {
-    const wordBytes = Buffer.byteLength(word)
+    const wordBytes = byteLength(word)
     if (current !== undefined && currentBytes + 1 + wordBytes <= maxBytes) {
       current += ` ${word}`
       currentBytes += 1 + wordBytes
@@ -52,7 +50,7 @@ function packWords(words: string[], maxBytes: number): string[] {
 export function enforceRfcLineLength(content: string, maxBytes = 900): string {
   return content
     .split(/\r?\n/)
-    .flatMap((line) => (Buffer.byteLength(line) <= maxBytes ? [line] : packWords(line.split(" "), maxBytes)))
+    .flatMap((line) => (byteLength(line) <= maxBytes ? [line] : packWords(line.split(" "), maxBytes)))
     .join("\r\n")
 }
 
@@ -63,7 +61,7 @@ function escapeHtmlWord(word: string): string {
   let pieceBytes = 0
   for (const char of word) {
     const escaped = escapeHtml(char)
-    const bytes = Buffer.byteLength(escaped)
+    const bytes = byteLength(escaped)
     if (piece && pieceBytes + bytes > HTML_TEXT_LINE_BYTES) {
       pieces.push(piece)
       piece = ""

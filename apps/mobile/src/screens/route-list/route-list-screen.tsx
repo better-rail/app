@@ -13,7 +13,7 @@ import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
+import { filterRouteData, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
@@ -40,6 +40,7 @@ import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { findRouteVoucher } from "@/utils/helpers/voucher-helpers"
+import { isOnRideTrains } from "@/utils/helpers/ride-helpers"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
@@ -68,18 +69,16 @@ export function RouteListScreen() {
     trip?: string
     viaStationId?: string
   }>()
-  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const time = Number(params.time)
   if (!params.originId || !params.destinationId || !Number.isFinite(time)) return <Redirect href="/" />
 
   return (
     <RouteListResults
-      key={`${params.originId}-${params.destinationId}-${time}-${hideSlowTrains}`}
+      key={`${params.originId}-${params.destinationId}-${time}`}
       originId={params.originId}
       destinationId={params.destinationId}
       time={time}
       enableQuery={params.enableQuery === "true"}
-      hideSlowTrains={hideSlowTrains}
       trip={params.trip}
       viaStationId={params.viaStationId}
     />
@@ -91,7 +90,6 @@ function RouteListResults({
   destinationId,
   time,
   enableQuery,
-  hideSlowTrains,
   trip,
   viaStationId,
 }: {
@@ -99,7 +97,6 @@ function RouteListResults({
   destinationId: string
   time: number
   enableQuery: boolean
-  hideSlowTrains: boolean
   trip?: string
   viaStationId?: string
 }) {
@@ -108,12 +105,13 @@ function RouteListResults({
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
-  const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
   const hourIndexEnabled = useSettingsStore((s) => s.showHourIndex)
   const showRouteCardHeader = useSettingsStore((s) => s.showRouteCardHeader)
   const maxChanges = useSettingsStore((s) => s.maxChanges)
+  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
+  const setHideSlowTrains = useSettingsStore((s) => s.setHideSlowTrains)
   const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
     useShallow((s) => ({
       trainSearchCount: s.trainSearchCount,
@@ -171,31 +169,20 @@ function RouteListResults({
   }, [router, seenTrainInfoPrompt, setSeenTrainInfoPrompt, trainInfoPromptFlag, trainSearchCount])
 
   const { isInternetReachable } = useNetworkState()
-  const queryKey = routeListDayQueryKey(originId, destinationId, currentDate.getTime(), hideSlowTrains)
-  const trains = useQuery(
-    queryKey,
-    () =>
-      getRoutes(originId, destinationId, currentDate.getTime(), {
-        hideSlowTrains,
-      }),
-    {
-      enabled: enableQuery,
-      retry: false,
-      refetchInterval: 60_000,
-      keepPreviousData: false,
-    },
-  )
+  const queryKey = routeListDayQueryKey(originId, destinationId, currentDate.getTime())
+  const trains = useQuery(queryKey, () => getRoutes(originId, destinationId, currentDate.getTime()), {
+    enabled: enableQuery,
+    retry: false,
+    refetchInterval: 60_000,
+    keepPreviousData: false,
+  })
 
   // Keep trip restoration tied to the requested day while the list loads other days.
-  const requestedDayQueryKey = routeListDayQueryKey(originId, destinationId, time, hideSlowTrains)
+  const requestedDayQueryKey = routeListDayQueryKey(originId, destinationId, time)
   const websiteTripRoutes = useQuery(
     viaStationId ? ["websiteTrip", originId, destinationId, time, viaStationId] : requestedDayQueryKey,
     async () => {
-      if (!viaStationId) {
-        return getRoutes(originId, destinationId, time, {
-          hideSlowTrains,
-        })
-      }
+      if (!viaStationId) return getRoutes(originId, destinationId, time)
       const [date, hour] = formatDateForAPI(time)
       return new RouteApi().getRoutes(originId, destinationId, date, hour, { viaStation: viaStationId })
     },
@@ -245,9 +232,14 @@ function RouteListResults({
   }
 
   // Filtered on loaded data so switching never refetches
-  const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
+  const displayData = useMemo(
+    () => filterRouteData(routeData, { hideSlowTrains, maxChanges }),
+    [routeData, hideSlowTrains, maxChanges],
+  )
   const todayDate = new Date().toDateString()
   const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
+  const onlySlowTrainsHidden =
+    allRoutesHiddenByFilter && filterRouteData(routeData, { hideSlowTrains: false, maxChanges }).length > 0
 
   // The hour index covers the day currently at the top of the list, and highlights its hour.
   // The hour lives in a shared value so scrolling doesn't re-render the screen.
@@ -312,7 +304,7 @@ function RouteListResults({
       return
     }
     reanchorList()
-  }, [maxChanges])
+  }, [hideSlowTrains, maxChanges])
 
   const shouldShowDashedLine = (() => {
     const { width: deviceWidth } = Dimensions.get("screen")
@@ -430,7 +422,7 @@ function RouteListResults({
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
-        isActiveRide={isRouteActive(item)}
+        isActiveRide={isOnRideTrains(rideRoute, item)}
         hasVoucher={!!findRouteVoucher(vouchers, item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => {
@@ -554,7 +546,13 @@ function RouteListResults({
         </View>
       )}
 
-      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
+      {allRoutesHiddenByFilter && (
+        <FilteredTrainsMessage
+          maxChanges={maxChanges}
+          onlySlowTrains={onlySlowTrainsHidden}
+          onShowAll={() => (onlySlowTrainsHidden ? setHideSlowTrains(false) : setMaxChanges(null))}
+        />
+      )}
 
       {warning && <RouteListWarning key={`${warning.requestedTime}-${warning.routesDate}-${warning.warningType}`} {...warning} />}
     </Screen>

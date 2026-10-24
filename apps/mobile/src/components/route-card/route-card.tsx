@@ -16,6 +16,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { IS_E2E } from "@/config/e2e"
 import { labelFontStyle } from "@/theme/theme-fonts"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
@@ -206,7 +207,7 @@ export function RouteCard(props: RouteCardProps) {
               <Image
                 source={require("../../../assets/station-ticket.png")}
                 style={styles.voucherIcon}
-                accessibilityLabel={translate("voucher.title") ?? undefined}
+                accessibilityLabel={getVoucherTitle(originId)}
               />
             )}
           </View>
@@ -252,10 +253,13 @@ export function RouteCard(props: RouteCardProps) {
   )
 }
 
+// Gives up its room first when the row is too wide, e.g. Russian labels on a 390pt screen
 const DashedLine = ({ width }: { width: number }) => (
-  <Svg height={5} width={width}>
-    <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
-  </Svg>
+  <View style={[styles.dashedLine, { width }]}>
+    <Svg height={5} width="100%">
+      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
+    </Svg>
+  </View>
 )
 
 const styles = StyleSheet.create((theme, rt) => ({
@@ -307,6 +311,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "space-between",
     alignItems: "center",
     flex: 1,
+    // Without it the row grows to its content width and overflows the card
+    flexShrink: 1,
+  },
+  dashedLine: {
+    flexShrink: 1,
   },
   headerText: {
     fontFamily: theme.typography.primary,

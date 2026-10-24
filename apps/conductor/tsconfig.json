@@ -1,12 +1,15 @@
 {
+  // The Worker: web-standard globals from @cloudflare/workers-types only (no DOM, no Bun).
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": ["bun"],
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types"],
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/*.test.ts", "src/setup.ts"]
 }

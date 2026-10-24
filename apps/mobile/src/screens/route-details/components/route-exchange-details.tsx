@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
 import { color, spacing, fontScale } from "@/theme"
 import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds, Duration } from "date-fns"
-import { dateFnsLocalization, translate } from "@/i18n"
+import { dateFnsLocalization, translate, userLocale } from "@/i18n"
 import { Train } from "@/services/api"
 import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -87,9 +87,11 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     return intervalToDuration({ start: arrivalTime, end: departureTime })
   })()
 
-  const exchangeDurationText = formatDuration(exchangeDuration, {
+  const formattedDuration = formatDuration(exchangeDuration, {
     locale: dateFnsLocalization,
   })
+  // Hebrew attaches כ with a hyphen before digits ("כ-5 דקות") but directly before words ("כשתי דקות")
+  const exchangeDurationText = userLocale === "he" && /^\d/.test(formattedDuration) ? `-${formattedDuration}` : formattedDuration
 
   const isExchangeSafe = (() => {
     const exchangeMs = milliseconds(exchangeDuration)
@@ -146,7 +148,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           >
             <Image style={styles.infoIcon} source={clockIcon} />
             <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
-              {translate("routeDetails.waitingTime")} {exchangeDurationText}
+              {translate("routeDetails.waitingTime", { duration: exchangeDurationText })}
             </Text>
           </View>
           {!isExchangeSafe && (

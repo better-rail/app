@@ -1,7 +1,6 @@
 import { create } from "zustand"
 import { RouteApi } from "@/services/api/route-api"
 import type { RouteItem } from "@/services/api"
-import { useSettingsStore } from "@/models/settings/settings"
 import { searchRoutes, RoutesNotFoundError, type RouteSearchResult } from "./search-routes"
 
 export { RoutesNotFoundError } from "./search-routes"
@@ -17,12 +16,7 @@ export interface TrainRoutesState {
 export interface TrainRoutesActions {
   saveRoutes: (routes: RouteItem[]) => void
   setStatus: (value: StatusType) => void
-  getRoutes: (
-    originId: string,
-    destinationId: string,
-    time: number,
-    options?: { hideSlowTrains?: boolean },
-  ) => Promise<RouteSearchResult>
+  getRoutes: (originId: string, destinationId: string, time: number) => Promise<RouteSearchResult>
 }
 
 export type TrainRoutesStore = TrainRoutesState & TrainRoutesActions
@@ -45,16 +39,10 @@ export const useTrainRoutesStore = create<TrainRoutesStore>((set) => ({
     set({ status: value })
   },
 
-  async getRoutes(originId, destinationId, time, options = {}) {
+  async getRoutes(originId, destinationId, time) {
     set({ status: "pending" })
     try {
-      const result = await searchRoutes(
-        new RouteApi(),
-        originId,
-        destinationId,
-        time,
-        options.hideSlowTrains ?? useSettingsStore.getState().hideSlowTrains,
-      )
+      const result = await searchRoutes(new RouteApi(), originId, destinationId, time)
       set({ routes: result.routes, status: "done" })
       return result
     } catch (error) {

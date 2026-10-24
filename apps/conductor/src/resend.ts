@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
+import { concatBytes, encodeUtf8, fromBase64 } from "./bytes"
 
 export type ResendEmailReceivedEvent = {
   type: string
@@ -56,18 +56,18 @@ export type ResendSendEmailOptions = {
   headers?: Record<string, string>
   attachments?: Array<{
     filename: string
-    content: string | Buffer
+    content: string // base64, or plain text
   }>
 }
 
-export function parseSvixSecret(secret: string): Buffer {
+export function parseSvixSecret(secret: string): Uint8Array<ArrayBuffer> {
   if (secret.startsWith("whsec_")) {
-    return Buffer.from(secret.slice(6), "base64")
+    return fromBase64(secret.slice(6))
   }
-  return Buffer.from(secret, "utf-8")
+  return encodeUtf8(secret)
 }
 
-export function verifyResendSignature(request: Request, body: Buffer, secret: string): boolean {
+export async function verifyResendSignature(request: Request, body: Uint8Array, secret: string): Promise<boolean> {
   const svixId = request.headers.get("svix-id")
   const svixTimestamp = request.headers.get("svix-timestamp")
   const svixSignature = request.headers.get("svix-signature")
@@ -77,19 +77,19 @@ export function verifyResendSignature(request: Request, body: Buffer, secret: st
   if (Number.isNaN(timestampNum)) return false
   if (Math.abs(Date.now() / 1000 - timestampNum) > 300) return false
 
-  const secretKey = parseSvixSecret(secret)
-  const toSign = Buffer.concat([Buffer.from(`${svixId}.${svixTimestamp}.`), body])
-  const expectedSignature = createHmac("sha256", secretKey).update(toSign).digest("base64")
-
-  const passedSignatures = svixSignature.split(" ")
-  for (const item of passedSignatures) {
-    const [version, signature] = item.split(",")
-    if (version !== "v1" || !signature) continue
-    const expectedBuf = Buffer.from(expectedSignature, "base64")
-    const actualBuf = Buffer.from(signature, "base64")
-    if (expectedBuf.length === actualBuf.length && timingSafeEqual(expectedBuf, actualBuf)) {
-      return true
+  const toSign = concatBytes(encodeUtf8(`${svixId}.${svixTimestamp}.`), body)
+  try {
+    const key = await crypto.subtle.importKey("raw", parseSvixSecret(secret), { name: "HMAC", hash: "SHA-256" }, false, [
+      "verify",
+    ])
+    for (const item of svixSignature.split(" ")) {
+      const [version, signature] = item.split(",")
+      if (version !== "v1" || !signature) continue
+      // WebCrypto compares the HMAC in constant time
+      if (await crypto.subtle.verify("HMAC", key, fromBase64(signature), toSign)) return true
     }
+  } catch {
+    // A malformed secret or signature verifies as nothing
   }
 
   return false

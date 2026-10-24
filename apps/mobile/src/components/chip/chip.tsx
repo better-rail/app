@@ -2,7 +2,7 @@ import { Pressable, TouchableOpacity, type ViewStyle } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { color } from "@/theme"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 
 const VARIANTS = {
   success: color.success,
@@ -22,13 +22,14 @@ interface ChipProps {
 export function Chip({ children, variant, onPress, style }: ChipProps) {
   const { theme } = useUnistyles()
   const variantColor = variant === "primary" ? theme.colors.primary : VARIANTS[variant]
+  const glassTint = useGlassTint(variant === "default" ? "secondaryBackground" : variant)
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress}>
         <GlassView
           isInteractive
           style={[variant === "transparent" ? styles.transparentChipWrapper : styles.chipWrapper, style]}
-          tintColor={variantColor}
+          tintColor={glassTint}
         >
           {children}
         </GlassView>

@@ -1,6 +1,6 @@
 # Better Rail
 
-<img src="https://better-rail.co.il/assets/images/iphone-screenshot@2x.png" width="300" align="right">
+<img src=".github/assets/iphone-screenshot.avif" width="300" align="right">
 
 <a href="https://github.com/guytepper/better-rail/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-brightgreen" alt="" /></a>&nbsp;<a href="https://x.com/better_rail"><img src="https://img.shields.io/twitter/follow/better_rail" alt="" /></a>
 
@@ -14,11 +14,14 @@ Better Rail is built with React Native. We also use Swift and Kotlin to leverage
 
 The repository is a Bun workspaces monorepo:
 
-| Path           | What                                                              |
-| -------------- | ----------------------------------------------------------------- |
-| `apps/mobile`  | The React Native / Expo app ([README](apps/mobile/README.md))     |
-| `apps/server`  | Notification & timetable server ([README](apps/server/README.md)) |
-| `apps/website` | better-rail.co.il static site ([README](apps/website/README.md))  |
+| Path                | What                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| `apps/mobile`       | The React Native / Expo app ([README](apps/mobile/README.md))                                     |
+| `apps/api`          | The API on Cloudflare Workers: timetable, live rides, fares ([README](apps/api/README.md))        |
+| `apps/egress-proxy` | Fixed-IP relay for the two upstreams a Worker can't reach ([README](apps/egress-proxy/README.md)) |
+| `apps/conductor`    | Discord bot + email bridge, a Cloudflare Worker ([README](apps/conductor/README.md))              |
+| `apps/web`          | better-rail.co.il — TanStack Start site & web timetable ([README](apps/web/README.md))            |
+| `packages/stations` | Station list + photos shared by every app                                                         |
 
 ### Installation
 
@@ -54,10 +57,10 @@ Every app can also be driven from the repository root:
 bun run mobile:start   # Metro / Expo dev server
 bun run mobile:e2e:ios # Maestro on an installed iOS E2E build
 bun run mobile:e2e:android # Maestro on an installed Android E2E build
-bun run server:dev     # server in watch mode
-bun run website:dev    # static site on :8000
+bun run api:dev        # the API in a local workerd (wrangler dev)
+bun run web:dev        # website + web app on :3000
 bun run lint           # oxlint + oxfmt across the repo
-bun run test           # mobile + server tests
+bun run test           # mobile + api + egress-proxy + conductor + web tests
 ```
 
 EAS commands run from `apps/mobile`.
