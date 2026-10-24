@@ -34,13 +34,7 @@ object LiveRideNotifier {
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
     private const val SEGMENT_RESOLUTION = 100
 
-    const val SEMANTIC_STYLE_UNSPECIFIED = 0
-    const val SEMANTIC_STYLE_INFO = 1
-    const val SEMANTIC_STYLE_SAFE = 2
-    const val SEMANTIC_STYLE_CAUTION = 3
-    const val SEMANTIC_STYLE_DANGER = 4
-
-    private const val COLOR_TRACK_SEGMENT = 0xFF007AFF.toInt()
+    private const val BRAND_COLOR = 0xFF0C83FF.toInt()
     private const val COLOR_DELAY_RED = 0xFFFF3B30.toInt()
     private const val COLOR_EXCHANGE_ORANGE = 0xFFFF9500.toInt()
     private const val COLOR_ON_TIME_GREEN = 0xFF34C759.toInt()
@@ -66,6 +60,7 @@ object LiveRideNotifier {
         dismissAlerts(context)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
+            .setColor(BRAND_COLOR)
             .setContentTitle(title)
             .setContentText(body)
             .setOngoing(false)
@@ -134,6 +129,7 @@ object LiveRideNotifier {
     fun postAlert(context: Context, tag: String, channelId: String, title: String, body: String, timeoutMs: Long) {
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.notification_icon)
+            .setColor(BRAND_COLOR)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -153,10 +149,10 @@ object LiveRideNotifier {
     }
 
     private fun resolveTrackColor(semanticStyle: Int?): Int = when (semanticStyle) {
-        SEMANTIC_STYLE_DANGER -> COLOR_DELAY_RED
-        SEMANTIC_STYLE_CAUTION -> COLOR_EXCHANGE_ORANGE
-        SEMANTIC_STYLE_SAFE -> COLOR_ON_TIME_GREEN
-        else -> COLOR_TRACK_SEGMENT
+        SemanticColorCompat.SEMANTIC_STYLE_DANGER -> COLOR_DELAY_RED
+        SemanticColorCompat.SEMANTIC_STYLE_CAUTION -> COLOR_EXCHANGE_ORANGE
+        SemanticColorCompat.SEMANTIC_STYLE_SAFE -> COLOR_ON_TIME_GREEN
+        else -> BRAND_COLOR
     }
 
     private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
@@ -193,7 +189,7 @@ object LiveRideNotifier {
 
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(trackColor)
+            .setColor(BRAND_COLOR)
             .setCategory(Notification.CATEGORY_PROGRESS)
             .setContentTitle(titleText)
             .setContentText(bodyText)
@@ -232,11 +228,10 @@ object LiveRideNotifier {
 
     private fun buildCompatProgress(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val (_, max, clampedProgress) = computeProgressBounds(content)
-        val compatColor = resolveTrackColor(content.titleSemanticStyle)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(compatColor)
+            .setColor(BRAND_COLOR)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setContentTitle(content.title)
             .setContentText(content.body)
