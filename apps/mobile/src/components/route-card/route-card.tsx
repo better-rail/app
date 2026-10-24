@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { View, ViewStyle, Platform, TouchableOpacity, Pressable, Image } from "react-native"
-import { StyleSheet, useUnistyles } from "react-native-unistyles"
+import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, fontScale } from "@/theme"
@@ -76,7 +76,6 @@ export function RouteCard(props: RouteCardProps) {
     hasVoucher,
   } = props
 
-  const { theme } = useUnistyles()
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
     useShallow((s) => ({ hideSlowTrains: s.hideSlowTrains, showRouteCardHeader: s.showRouteCardHeader })),
   )
@@ -214,7 +213,7 @@ export function RouteCard(props: RouteCardProps) {
           <Text style={departureTimeStyle}>{formattedDepatureTime}</Text>
         </View>
 
-        {showDashedLine && <DashedLine width={theme.skin.timeFont?.compact ? 20 : 35} />}
+        {showDashedLine && <DashedLine />}
 
         <View style={{ marginHorizontal: spacing[1] }}>
           <View style={{ alignItems: "center", gap: spacing[0] }}>
@@ -235,7 +234,7 @@ export function RouteCard(props: RouteCardProps) {
           </View>
         </View>
 
-        {showDashedLine && <DashedLine width={theme.skin.timeFont?.compact ? 20 : 35} />}
+        {showDashedLine && <DashedLine />}
 
         <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
           <Text style={styles.timeTypeText} tx="routes.arrival" />
@@ -254,8 +253,8 @@ export function RouteCard(props: RouteCardProps) {
 }
 
 // Gives up its room first when the row is too wide, e.g. Russian labels on a 390pt screen
-const DashedLine = ({ width }: { width: number }) => (
-  <View style={[styles.dashedLine, { width }]}>
+const DashedLine = () => (
+  <View style={styles.dashedLine}>
     <Svg height={5} width="100%">
       <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
     </Svg>
@@ -314,7 +313,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     // Without it the row grows to its content width and overflows the card
     flexShrink: 1,
   },
+  // In the stylesheet so it switches with the theme fonts, not a render later
   dashedLine: {
+    width: theme.skin.timeFont?.compact ? 20 : 35,
     flexShrink: 1,
   },
   headerText: {

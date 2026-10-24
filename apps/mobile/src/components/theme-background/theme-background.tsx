@@ -1,6 +1,5 @@
 import { Image, View, type ImageSourcePropType } from "react-native"
-import { StyleSheet, useUnistyles } from "react-native-unistyles"
-import LinearGradient from "react-native-linear-gradient"
+import { StyleSheet } from "react-native-unistyles"
 import { useSettingsStore } from "@/models"
 import type { AccentThemeId } from "@/theme/accent-themes"
 
@@ -66,44 +65,56 @@ const hexToRgb = (value: unknown) => {
 
 export type ThemeBackgroundFade = keyof typeof fades | "none"
 
+// Tints and fades live in the stylesheet, so they switch with the rest of the theme instead of a render later
 export function ThemeBackground({ fade = "edges" }: { fade?: ThemeBackgroundFade }) {
-  const { theme, rt } = useUnistyles()
   const accentTheme = useSettingsStore((s) => s.accentTheme)
   const showBackground = useSettingsStore((s) => s.showThemeBackground)
 
   if (!showBackground) return null
 
   const source = backgrounds[accentTheme]
-  const rgb = hexToRgb(theme.colors.background) ?? backgroundRgb[rt.themeName === "dark" ? "dark" : "light"]
 
   return (
     <View style={styles.container} pointerEvents="none">
       <View style={styles.art}>
-        <Image source={source.primary} style={[styles.layer, { tintColor: theme.colors.primary }]} resizeMode="cover" />
-        <Image source={source.secondary} style={[styles.layer, { tintColor: theme.colors.secondary }]} resizeMode="cover" />
+        <Image source={source.primary} style={[styles.layer, styles.primaryArt]} resizeMode="cover" />
+        <Image source={source.secondary} style={[styles.layer, styles.secondaryArt]} resizeMode="cover" />
       </View>
-      {fade !== "none" && (
-        <LinearGradient
-          style={styles.layer}
-          colors={fades[fade].alphas.map((alpha) => `rgba(${rgb}, ${alpha})`)}
-          locations={fades[fade].locations}
-        />
-      )}
+      {fade !== "none" && <View style={[styles.layer, fade === "edges" ? styles.edgesFade : styles.uniformFade]} />}
     </View>
   )
 }
 
-const styles = StyleSheet.create((_theme, rt) => ({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  art: {
-    ...StyleSheet.absoluteFillObject,
-    opacity: rt.themeName === "dark" ? 0.16 : 0.12,
-  },
-  layer: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
-  },
-}))
+const gradient = (rgb: string, { locations, alphas }: (typeof fades)[keyof typeof fades]) =>
+  `linear-gradient(to bottom, ${alphas.map((alpha, i) => `rgba(${rgb}, ${alpha}) ${locations[i] * 100}%`).join(", ")})`
+
+const styles = StyleSheet.create((theme, rt) => {
+  const rgb = hexToRgb(theme.colors.background) ?? backgroundRgb[rt.themeName === "dark" ? "dark" : "light"]
+
+  return {
+    container: {
+      ...StyleSheet.absoluteFillObject,
+    },
+    art: {
+      ...StyleSheet.absoluteFillObject,
+      opacity: rt.themeName === "dark" ? 0.16 : 0.12,
+    },
+    layer: {
+      ...StyleSheet.absoluteFillObject,
+      width: "100%",
+      height: "100%",
+    },
+    primaryArt: {
+      tintColor: theme.colors.primary,
+    },
+    secondaryArt: {
+      tintColor: theme.colors.secondary,
+    },
+    edgesFade: {
+      experimental_backgroundImage: gradient(rgb, fades.edges),
+    },
+    uniformFade: {
+      experimental_backgroundImage: gradient(rgb, fades.uniform),
+    },
+  }
+})
