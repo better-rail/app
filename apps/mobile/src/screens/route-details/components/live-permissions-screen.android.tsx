@@ -125,7 +125,9 @@ export function LivePermissionsScreen() {
             }}
             modifiers={[fillMaxWidth(), height(56)]}
           >
-            <ComposeText style={{ ...TEXT_STYLE, fontSize: 18 }}>{translate("liveAnnounce.startRide.title")}</ComposeText>
+            <ComposeText style={{ ...TEXT_STYLE, fontSize: 18, fontWeight: "500" }}>
+              {translate("liveAnnounce.startRide.title")}
+            </ComposeText>
           </Button>
         </Column>
       </Host>
