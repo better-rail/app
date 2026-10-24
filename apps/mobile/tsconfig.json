@@ -20,6 +20,6 @@
     }
   },
   "exclude": ["node_modules", "server"],
-  "include": ["index.js", "app", "src", "test"],
+  "include": ["index.js", "app", "src", "test", "modules"],
   "extends": "expo/tsconfig.base"
 }

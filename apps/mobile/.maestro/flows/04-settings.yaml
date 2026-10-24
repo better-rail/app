@@ -5,8 +5,9 @@ tags:
   - settings
 ---
 - runFlow: ../subflows/launch-clean.yaml
+# A native toolbar item on iOS has no testID, so match the button's label
 - tapOn:
-    id: "open-settings-button"
+    text: "Settings|הגדרות|اعدادت|Настройки"
 - assertVisible:
     id: "settings-screen"
 - tapOn:
@@ -27,7 +28,7 @@ tags:
       id: "planner-screen"
     timeout: 30000
 - tapOn:
-    id: "open-settings-button"
+    text: "Settings|הגדרות|اعدادت|Настройки"
 - tapOn:
     id: "settings-appearance"
 - assertVisible:
@@ -41,7 +42,7 @@ tags:
       id: "planner-screen"
     timeout: 30000
 - tapOn:
-    id: "open-settings-button"
+    text: "Settings|הגדרות|اعدادت|Настройки"
 - tapOn:
     id: "settings-language"
 - assertVisible:
@@ -66,7 +67,7 @@ tags:
       id: "planner-screen"
     timeout: 30000
 - tapOn:
-    id: "open-settings-button"
+    text: "Settings|הגדרות|اعدادت|Настройки"
 - tapOn:
     id: "settings-language"
 - extendedWaitUntil:

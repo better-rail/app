@@ -33,6 +33,7 @@ mock.module("react-native-unistyles", () => ({ StyleSheet: { create: () => ({}) 
 mock.module("@/theme", () => ({ color: { primary: "blue" }, fontScale: 1, spacing: [2, 4, 8, 12, 16, 24, 32, 48, 64] }))
 mock.module("@/components", () => ({
   Screen: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  HorizontalSafeArea: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Text: ({ text, children, ...props }: { text?: string; children?: React.ReactNode }) =>
     React.createElement("Text", props, text ?? children),
   RouteDetailsHeader: () => null,

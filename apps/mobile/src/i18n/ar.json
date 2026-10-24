@@ -45,6 +45,7 @@
     "tbd": "مجهول"
   },
   "routes": {
+    "chooseStationsMessage": "اختر محطتي الانطلاق والوصول لعرض القطارات",
     "departure": "انطلاق",
     "arrival": "وصول",
     "noChange": "دون تبديل",

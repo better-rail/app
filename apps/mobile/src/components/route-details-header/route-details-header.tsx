@@ -22,6 +22,7 @@ import { createContextMenuActions } from "@/components/route-card/route-context-
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
+import { HorizontalSafeArea } from "@/components/horizontal-safe-area/horizontal-safe-area"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
@@ -360,7 +361,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         )}
       </ImageBackground>
 
-      <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
+      <HorizontalSafeArea style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
         <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
@@ -402,7 +403,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityHint={translate("plan.selectStation")}
           />
         </View>
-      </View>
+      </HorizontalSafeArea>
     </>
   )
 }

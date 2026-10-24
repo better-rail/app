@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { use, useRef, useState, useEffect } from "react"
 import { View, Animated, AppState, Platform, Alert } from "react-native"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
@@ -25,13 +25,19 @@ import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
 import { useRouter, useIsFocused } from "expo-router"
+import { HeaderHeightContext } from "expo-router/react-navigation"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
-export function PlannerScreen() {
+interface PlannerScreenProps {
+  /** In the split layout's sidebar, the route list beside it follows the selection, so there's no find button */
+  variant?: "screen" | "sidebar"
+}
+
+export function PlannerScreen({ variant = "screen" }: PlannerScreenProps) {
   const router = useRouter()
   const { markInteractive } = useObserve()
   const { date, origin, destination, setDate, switchDirection } = useRoutePlanStore(
@@ -45,6 +51,9 @@ export function PlannerScreen() {
   )
   const dateTypeDisplayName = useDateTypeDisplayName()
   const isFocused = useIsFocused()
+  // iOS shows the header buttons in a native header, which already sits above the status bar inset.
+  // The sidebar has no stack header, but its SafeAreaView already insets it below the navigation bar.
+  const hasNativeHeader = !!use(HeaderHeightContext) || variant === "sidebar"
   const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
@@ -171,11 +180,11 @@ export function PlannerScreen() {
   })
 
   return (
-    <Screen testID="planner-screen" style={styles.root}>
-      <WebsiteHomeHandoff />
+    <Screen testID="planner-screen" style={styles.root} unsafe={hasNativeHeader}>
+      {variant === "screen" && <WebsiteHomeHandoff />}
       <FlingGestureWrapper onFling={onSwitchPress}>
         <View style={styles.contentWrapper}>
-          <PlannerScreenHeader />
+          <PlannerScreenHeader variant={variant} />
 
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
@@ -225,17 +234,19 @@ export function PlannerScreen() {
             minimumDate={now}
           />
 
-          <Button
-            testID="find-routes-button"
-            title={translate("plan.find")}
-            onPress={onGetRoutePress}
-            disabled={!origin || !destination || origin.id === destination.id}
-            onDisabledPress={() => {
-              if (origin?.id === destination?.id) {
-                Alert.alert(translate("routes.sameStationsMessage"))
-              }
-            }}
-          />
+          {variant === "screen" && (
+            <Button
+              testID="find-routes-button"
+              title={translate("plan.find")}
+              onPress={onGetRoutePress}
+              disabled={!origin || !destination || origin.id === destination.id}
+              onDisabledPress={() => {
+                if (origin?.id === destination?.id) {
+                  Alert.alert(translate("routes.sameStationsMessage"))
+                }
+              }}
+            />
+          )}
         </View>
       </FlingGestureWrapper>
     </Screen>

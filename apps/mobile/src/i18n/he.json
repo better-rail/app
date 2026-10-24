@@ -49,6 +49,7 @@
     "tbd": "לא ידוע"
   },
   "routes": {
+    "chooseStationsMessage": "יש לבחור תחנות מוצא ויעד כדי לראות רכבות",
     "departure": "יציאה",
     "arrival": "הגעה",
     "noChange": "ללא החלפות",
