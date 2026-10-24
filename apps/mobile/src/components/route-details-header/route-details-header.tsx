@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -58,6 +58,7 @@ export interface RouteDetailsHeaderProps {
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
+  const { theme } = useUnistyles()
   const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const {
     routes: favoriteRoutesData,
@@ -381,7 +382,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={translate("plan.switchStations")}
             accessibilityHint={translate("plan.switchStationsHint")}
           >
-            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={color.secondary}>
+            <GlassView isInteractive={!routeEditDisabled} style={styles.routeInfoCircle} tintColor={theme.colors.secondary}>
               <Image source={arrowIcon} style={styles.arrowIcon} />
             </GlassView>
           </Pressable>

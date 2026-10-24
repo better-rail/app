@@ -1,10 +1,10 @@
 import { Pressable, Animated as RNAnimated } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
-import { color } from "@/theme"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
@@ -17,11 +17,12 @@ interface RouteStationNameButtonProps extends TouchableScaleProps {
 
 export function RouteStationNameButton(props: RouteStationNameButtonProps) {
   const { disabled, onPress, name, style, buttonScale, ...rest } = props
+  const { theme } = useUnistyles()
 
   if (isLiquidGlassSupported) {
     return (
       <Pressable onPress={onPress} disabled={disabled}>
-        <GlassView isInteractive={!disabled} tintColor={color.secondaryLighter} style={styles.liquidGlass}>
+        <GlassView isInteractive={!disabled} tintColor={theme.colors.secondaryLighter as string} style={styles.liquidGlass}>
           <Text style={styles.routeDetailsStationText} maxFontSizeMultiplier={1.1}>
             {name}
           </Text>
@@ -51,8 +52,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     color: theme.colors.text,
     opacity: 0.8,
     textAlign: "center",
-    fontWeight: "600",
-    fontSize: 14,
+    ...subheadingFontStyle(theme, 14, "600"),
   },
   liquidGlass: {
     width: rt.screen.width / 2 - theme.spacing[2] * 2,

@@ -1,8 +1,7 @@
 import React, { useCallback } from "react"
 import { View, Image, Pressable, ActivityIndicator } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 
-import { color } from "@/theme"
 import { Text } from "@/components"
 import { useTrainRoutesStore } from "@/models"
 import { localizedDate } from "@/i18n"
@@ -15,6 +14,7 @@ export const DateScroll = function DateScroll(props: {
   isLoadingDate?: boolean
   isDisabled?: boolean
 }) {
+  const { theme } = useUnistyles()
   const status = useTrainRoutesStore((s) => s.status)
   const isLoading = status === "pending" || props.isLoadingDate
   const isDisabled = isLoading || props.isDisabled
@@ -39,7 +39,7 @@ export const DateScroll = function DateScroll(props: {
           <Text text={getDateString()} style={styles.text} />
           {isLoading ? (
             <View style={styles.indicatorContainer}>
-              <ActivityIndicator size="small" color={color.primary} />
+              <ActivityIndicator size="small" color={theme.colors.primary} />
             </View>
           ) : (
             <Image source={require(ARROW_URL)} style={[styles.arrow, { transform: [{ rotate: "-90deg" }] }]} />

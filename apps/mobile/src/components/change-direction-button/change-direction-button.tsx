@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Image, ViewStyle, TouchableOpacity, TouchableOpacityProps, Platform, Pressable } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
-import { color } from "@/theme"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { translate } from "@/i18n"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
@@ -19,6 +18,7 @@ export interface ChangeDirectionButtonProps extends TouchableOpacityProps {
  * Describe your component here
  */
 export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
+  const { theme } = useUnistyles()
   const { onPress, buttonStyle } = props
 
   if (isLiquidGlassSupported) {
@@ -30,7 +30,7 @@ export function ChangeDirectionButton(props: ChangeDirectionButtonProps) {
         {...props}
         style={buttonStyle}
       >
-        <GlassView isInteractive style={styles.glassContainer} tintColor={color.secondary}>
+        <GlassView isInteractive style={styles.glassContainer} tintColor={theme.colors.secondary}>
           <Image source={upDownArrowIcon} style={styles.arrowIcon} />
         </GlassView>
       </Pressable>

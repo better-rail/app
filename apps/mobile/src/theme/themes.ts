@@ -106,7 +106,56 @@ const createColors = (appearance: Appearance) => {
   }
 }
 
-const sharedTokens = { spacing, typography, timing }
+/** A display font for route times, sized to take the same space as Heebo */
+export interface ThemeTimeFont {
+  family: string
+  /** Font size on route cards, where Heebo is 24 */
+  size: number
+  letterSpacing?: number
+  /** Wider than Heebo, so the route card shortens its dashed lines */
+  compact?: boolean
+}
+
+/** A single-weight theme font for headings or labels */
+export interface ThemeFont {
+  family: string
+  /** Shrinks wide fonts to take Heebo's space */
+  scale?: number
+}
+
+/** Theme-specific styling beyond colors. Unset fields keep the standard look. */
+export interface ThemeSkin {
+  /** Set when the rider opts into the theme's alternate time font */
+  timeFont?: ThemeTimeFont
+  /** Screen titles and the planner's station names */
+  headingFont?: ThemeFont
+  /** Station names in lists and section titles */
+  subheadingFont?: ThemeFont
+  /** Passing stops on route details */
+  stopNameFont?: ThemeFont
+  /** Field labels and values, and the departure/arrival labels */
+  labelFont?: ThemeFont
+  /** Button titles */
+  buttonFont?: ThemeFont
+  /** Departure times shown on the page surface (route details), with an optional glow */
+  stationTime?: { color: string; glow?: string }
+  /** The route card restyled as the theme's signature object */
+  routeCard?: {
+    background: string
+    border: string
+    borderWidth: number
+    radius: number
+    /** A CSS box-shadow, e.g. a glow or a hard offset */
+    shadow: string
+    text: string
+    label: string
+    departureTime: string
+    arrivalTime: string
+    timeGlow?: boolean
+  }
+}
+
+const sharedTokens = { spacing, typography, timing, skin: {} as ThemeSkin }
 
 export const lightTheme = { colors: createColors("light"), ...sharedTokens }
 export const darkTheme: typeof lightTheme = { colors: createColors("dark"), ...sharedTokens }

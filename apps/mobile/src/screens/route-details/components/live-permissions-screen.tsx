@@ -1,5 +1,5 @@
 import { Alert, Image, PermissionsAndroid, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Button, Text } from "@/components"
 import { color } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
@@ -113,7 +113,8 @@ export function LivePermissionsScreen() {
 const CHECKMARK_ICON = require("../../../../assets/checkmark.png")
 
 const PermissionButton = ({ permitted = false, onPress = () => {} }) => {
-  const backgroundColor = permitted ? color.success : color.primaryDarker
+  const { theme } = useUnistyles()
+  const backgroundColor = permitted ? color.success : theme.colors.primaryDarker
 
   return (
     <TouchableOpacity

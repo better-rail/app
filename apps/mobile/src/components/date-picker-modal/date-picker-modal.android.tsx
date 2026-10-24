@@ -18,7 +18,7 @@ export interface DatePickerModalProps {
 }
 
 export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }: DatePickerModalProps) {
-  const { rt } = useUnistyles()
+  const { rt, theme } = useUnistyles()
   const isDarkMode = rt.themeName === "dark"
   const rippleColor = isDarkMode ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)"
   const { setDateType, dateType } = useRoutePlanStore(useShallow((s) => ({ setDateType: s.setDateType, dateType: s.dateType })))
@@ -74,7 +74,7 @@ export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }:
                 onPress={onCancel}
                 style={styles.cancelButton}
                 containerStyle={styles.cancelButtonContainer}
-                textStyle={{ color: isDarkMode ? color.dim : color.primary }}
+                textStyle={{ color: isDarkMode ? color.dim : theme.colors.primary }}
                 size="small"
               />
               <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} size="small" />
