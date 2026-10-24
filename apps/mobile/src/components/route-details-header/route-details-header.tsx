@@ -60,9 +60,8 @@ export interface RouteDetailsHeaderProps {
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
   /**
-   * Rendered in the split view's details column rather than on a screen of the app's stack: there's no stack bar to
-   * put items in, so the actions sit on the photo, and the back button, when the column is pushed over the list, is
-   * the split view's own.
+   * Rendered in the split view's details column rather than on a screen of the app's stack: the column's own bar
+   * carries the back button and the trip's actions (see RouteDetailsPane), so none are drawn here.
    */
   inSplitColumn?: boolean
 }
@@ -424,7 +423,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeToolbar && (
+        {screenName !== "activeRide" && !useNativeToolbar && !inSplitColumn && (
           <View
             style={{
               position: "absolute",
@@ -441,7 +440,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            {inSplitColumn ? <View /> : <HeaderBackButton />}
+            <HeaderBackButton />
 
             {/* Right Icons */}
             {/* TODO: Check this on iOS 18 & Android */}

@@ -92,6 +92,38 @@ index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b24
          super.endViewTransition(view)
  
          disappearingTransitioningChildren.remove(view)
+diff --git a/ios/gamma/split/RNSSplitHostController.mm b/ios/gamma/split/RNSSplitHostController.mm
+index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b680fbc73 100644
+--- a/ios/gamma/split/RNSSplitHostController.mm
++++ b/ios/gamma/split/RNSSplitHostController.mm
+@@ -125,8 +125,14 @@ - (void)updateChildViewControllers
+   NSMutableArray<RNSSplitNavigationController *> *currentViewControllers =
+       [NSMutableArray arrayWithCapacity:currentColumns.count];
+   for (RNSSplitScreenComponentView *column in currentColumns) {
+-    [currentViewControllers addObject:[[RNSSplitNavigationController alloc] initWithRootViewController:column.controller
+-                                                                             frameOriginChangeDelegate:self]];
++    RNSSplitNavigationController *navigationController =
++        [[RNSSplitNavigationController alloc] initWithRootViewController:column.controller
++                                                 frameOriginChangeDelegate:self];
++    // The columns' own bars are never used: a column's content brings its own stack, whose bar would otherwise be
++    // laid out below the column's (58pt down on iOS 26, and after its pocket in iPhone Duo's vertical bar). The
++    // navigation controller keeps its pop gesture, so a column pushed in the collapsed split view still swipes back.
++    [navigationController setNavigationBarHidden:YES animated:NO];
++    [currentViewControllers addObject:navigationController];
+   }
+ 
+   self.viewControllers = currentViewControllers;
+@@ -158,8 +164,9 @@ - (void)refreshSecondaryNavBar
+   UINavigationController *navigationController = (UINavigationController *)secondaryViewController;
+ 
+   /** The assumption is that it should come in a single batch and it won't cause any delays in rendering the content. */
+-  [navigationController setNavigationBarHidden:YES animated:NO];
++  // The columns' bars stay hidden (see updateChildViewControllers); toggling the other way refreshes it all the same.
+   [navigationController setNavigationBarHidden:NO animated:NO];
++  [navigationController setNavigationBarHidden:YES animated:NO];
+ }
+ 
+ #pragma mark - Helpers
 diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
 index f97140a2ca7f97a50c5f6203106596b9f275080b..be0660d740c7a89d20d86bea780f81be25032a7a 100644
 --- a/ios/gamma/split/RNSSplitScreenController.mm

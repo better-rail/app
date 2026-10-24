@@ -16,30 +16,34 @@ interface AppSplitViewProps {
  * Hosts the app in the system split view (UISplitViewController). Expanded — iPhone Duo's open inner display, an
  * iPad — the pane sits beside the app, either side of the fold when the device is partially folded. Collapsed — a
  * phone, the closed Duo — the app alone is shown, and the details column is pushed over it as a screen of its own
- * when the route list picks a trip, with the system's own push, back button and pop gesture.
+ * when the route list picks a trip, with the system's own push and pop gesture.
  *
  * Opening and closing the device is the split view's own collapse and expand: with a trip picked it carries the
  * details column between the push and the side-by-side layout, with the selection, scroll position and state intact;
  * without one the list stays where it is.
+ *
+ * The columns' own navigation bars are hidden (see the react-native-screens patch): each column's content brings its
+ * own stack and bar, which the system lays out in iPhone Duo's vertical bar.
  *
  * Elsewhere than iOS the split view isn't available, so the app renders on its own and the route list opens the
  * route details screen.
  */
 export function AppSplitView({ children, pane }: AppSplitViewProps) {
   const host = useRef<SplitHostCommands>(null)
-  const { hasSelection, isRouteListMounted, showDetailsRequest } = useSplitViewStore(
+  const { hasSelection, isRouteListMounted, columnRequest, setCollapsed } = useSplitViewStore(
     useShallow((s) => ({
       hasSelection: s.selection !== null,
       isRouteListMounted: s.isRouteListMounted,
-      showDetailsRequest: s.showDetailsRequest,
+      columnRequest: s.columnRequest,
+      setCollapsed: s.setCollapsed,
     })),
   )
 
-  // After the commit that put the trip in the column, so the push never starts on an empty one. Expanded, the column
-  // is already on screen and this does nothing.
+  // After the commit that put the trip in the column, so a push never starts on an empty one. Expanded, both columns
+  // are on screen and this does nothing.
   useEffect(() => {
-    if (showDetailsRequest > 0) host.current?.show("secondary")
-  }, [showDetailsRequest])
+    if (columnRequest.n > 0) host.current?.show(columnRequest.column)
+  }, [columnRequest])
 
   // The secondary column leaving the screen while the split view stays collapsed is the user going back from the
   // details (the back button or the pop gesture), which ends the selection. As the device closes with the column
@@ -70,6 +74,8 @@ export function AppSplitView({ children, pane }: AppSplitViewProps) {
       ref={(commands) => {
         host.current = commands
       }}
+      onCollapse={() => setCollapsed(true)}
+      onExpand={() => setCollapsed(false)}
       preferredSplitBehavior="tile"
       preferredDisplayMode="oneBesideSecondary"
       displayModeButtonVisibility="never"
