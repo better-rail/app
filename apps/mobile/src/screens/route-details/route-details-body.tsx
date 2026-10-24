@@ -322,11 +322,9 @@ export function RouteDetailsBody({
         <Animated.View
           entering={shouldFadeRideButton && FadeInDown}
           exiting={FadeOutDown}
-          // zIndex is needed for Android in order to make the button pressable
-          style={[
-            { position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) },
-            { paddingStart: sideInsets.start, paddingEnd: sideInsets.end },
-          ]}
+          // The whole bottom, the side bar column included: it only holds controls at the top, as for the ride
+          // button below. zIndex is needed for Android in order to make the button pressable.
+          style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) }}
         >
           <LiveRideSheet progress={progress} screenName={screenName} />
         </Animated.View>

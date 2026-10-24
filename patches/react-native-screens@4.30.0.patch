@@ -161,10 +161,10 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b
  
  #pragma mark - Helpers
 diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
-index f97140a2ca7f97a50c5f6203106596b9f275080b..e0bb7134fdc3efa2f3b1f45a1c6138e8f8aedbbe 100644
+index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f519a4fa2a 100644
 --- a/ios/gamma/split/RNSSplitScreenController.mm
 +++ b/ios/gamma/split/RNSSplitScreenController.mm
-@@ -69,6 +69,17 @@ - (void)viewDidLayoutSubviews
+@@ -69,6 +69,48 @@ - (void)viewDidLayoutSubviews
  {
    [super viewDidLayoutSubviews];
  
@@ -172,17 +172,48 @@ index f97140a2ca7f97a50c5f6203106596b9f275080b..e0bb7134fdc3efa2f3b1f45a1c6138e8
 +  // reported. A size UIKit gave the column while it was off screen (a collapsed split view's secondary column keeps
 +  // the bounds of the display it was last expanded on) then comes back from React once the column is pushed into
 +  // the primary's navigation controller, and the stale size is reported again. The container UIKit put the column
-+  // in is the authority on its size.
++  // in is the authority on its size — less the part a primary column covers: beside one, UIKit (iOS 27) lays the
++  // secondary column out over the whole split view and draws the primary on top, with the covered part as a
++  // safe-area inset. The column takes only its visible part instead, so full-width content (bottom bars,
++  // right-to-left text) lands in it and its safe area starts at its own edge.
 +  UIView *container = self.view.superview;
-+  if (container != nil && [self isInSplitHostSubtree] &&
-+      !CGSizeEqualToSize(self.view.bounds.size, container.bounds.size)) {
-+    self.view.frame = container.bounds;
++  if (container != nil && [self isInSplitHostSubtree]) {
++    CGRect frame = container.bounds;
++    RNSSplitHostController *hostController = [self findSplitHostController];
++    if (!hostController.isCollapsed && hostController.displayMode == UISplitViewControllerDisplayModeOneBesideSecondary &&
++        [hostController viewControllerForColumn:UISplitViewControllerColumnSecondary] == self.navigationController) {
++      UIView *primaryView = [hostController viewControllerForColumn:UISplitViewControllerColumnPrimary].view;
++      if (primaryView.window != nil) {
++        CGRect primaryFrame = [primaryView convertRect:primaryView.bounds toView:container];
++        CGRect overlap = CGRectIntersection(frame, primaryFrame);
++        if (!CGRectIsNull(overlap) && overlap.size.width > 0 && overlap.size.width < frame.size.width) {
++          if (CGRectGetMinX(primaryFrame) > CGRectGetMinX(frame)) {
++            frame.size.width = CGRectGetMinX(primaryFrame) - CGRectGetMinX(frame);
++          } else {
++            CGFloat maxX = CGRectGetMaxX(frame);
++            frame.origin.x = CGRectGetMaxX(primaryFrame);
++            frame.size.width = maxX - frame.origin.x;
++          }
++        }
++      }
++    }
++    if (!CGRectEqualToRect(self.view.frame, frame)) {
++      self.view.frame = frame;
++    }
++    // The covered part reaches the column as a safe-area inset of its own, not through geometry, so it's taken back
++    // out for the view that no longer spans it.
++    UIEdgeInsets additional = UIEdgeInsetsZero;
++    additional.left = CGRectGetMinX(container.bounds) - CGRectGetMinX(frame);
++    additional.right = CGRectGetMaxX(frame) - CGRectGetMaxX(container.bounds);
++    if (!UIEdgeInsetsEqualToEdgeInsets(self.additionalSafeAreaInsets, additional)) {
++      self.additionalSafeAreaInsets = additional;
++    }
 +  }
 +
    [self updateShadowTreeState];
  }
  
-@@ -106,6 +117,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
+@@ -106,6 +148,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
  - (void)viewWillAppear:(BOOL)animated
  {
    [super viewWillAppear:animated];

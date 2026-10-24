@@ -1,5 +1,5 @@
 import { I18nManager, Image, Platform, StyleSheet as RNStyleSheet, View } from "react-native"
-import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -174,9 +174,9 @@ function SelectedRouteDetails({
           />
         </Animated.View>
       )}
-      <Animated.View style={styles.pane} layout={LinearTransition.duration(250)}>
-        <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
-      </Animated.View>
+      {/* No layout transition here: the live ride sheet below is positioned absolutely and entering animations on
+          it (and the Start Ride button) take their frame from the wrong layout pass under one. */}
+      <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
     </View>
   )
 }
