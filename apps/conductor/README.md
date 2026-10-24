@@ -37,8 +37,10 @@ app, whenever a push to `main` touches it:
 | Build command                        | `bun install --filter @better-rail/conductor && bun test && bun run check` |
 | Deploy command                       | `bunx wrangler deploy`                                                     |
 | Non-production branch deploy command | `bunx wrangler preview`                                                    |
-| Build watch paths (include)          | `apps/conductor/*`, `bun.lock`                                             |
+| Build watch paths (include)          | `apps/conductor/*`, `bun.lock`, `package.json`, `bunfig.toml`              |
 | Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
+
+Set these watch paths for both **Production** and **Previews Base** in Cloudflare → Settings → Builds.
 
 Other branches deploy a [Worker Preview](https://developers.cloudflare.com/workers/previews/) under its own URL. The
 `previews` block in `wrangler.jsonc` is empty: a Preview has no secrets (none are inherited from production), so it
