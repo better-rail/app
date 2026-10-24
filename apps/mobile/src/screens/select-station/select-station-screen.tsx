@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform, Alert, Image } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { View, Pressable, Platform, Alert, Image, I18nManager } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import type { StationCardBadge } from "@/components/station-card/station-card"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
-import { isDarkMode } from "@/theme"
+import { isDarkMode, spacing } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
@@ -20,8 +20,9 @@ import { translate } from "@/i18n"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-
-const CLOSE_ICON = require("../../../assets/close.png")
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Host, Image as SymbolImage } from "@expo/ui/swift-ui"
+import { font, frame } from "@expo/ui/swift-ui/modifiers"
 
 const STAR_ICON = require("../../../assets/star-fill.png")
 const CHECKMARK_ICON = require("../../../assets/checkmark.png")
@@ -141,6 +142,10 @@ export function SelectStationScreen() {
     />
   )
 
+  const insets = useSafeAreaInsets()
+  const { theme } = useUnistyles()
+  const closeColor = theme.colors.text
+
   return (
     <Screen
       testID="select-station-screen"
@@ -150,7 +155,8 @@ export function SelectStationScreen() {
       edgeToEdge
       statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
     >
-      <View style={styles.searchBarWrapper}>
+      {/* The bar's background spans the full width; its search field and close button stay clear of the side bars. */}
+      <View style={[styles.searchBarWrapper, sideInsetPadding(insets, I18nManager.isRTL, spacing[3])]}>
         {!allowedStations && (
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
         )}
@@ -163,7 +169,15 @@ export function SelectStationScreen() {
         >
           {isLiquidGlassSupported ? (
             <GlassView isInteractive style={styles.closeGlass}>
-              <Image source={CLOSE_ICON} style={styles.closeIcon} />
+              {/* The symbol is drawn by SwiftUI; the press is the Pressable's, so the host takes no touches. */}
+              <Host style={styles.closeSymbol} pointerEvents="none">
+                <SymbolImage
+                  systemName="xmark"
+                  size={17}
+                  color={closeColor}
+                  modifiers={[font({ weight: "semibold" }), frame({ maxWidth: Infinity, maxHeight: Infinity })]}
+                />
+              </Host>
             </GlassView>
           ) : (
             <Text style={styles.cancelLink} tx="common.cancel" />
@@ -189,7 +203,11 @@ export function SelectStationScreen() {
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.id}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          sideInsetPadding(insets, I18nManager.isRTL),
+          { paddingBottom: insets.bottom + spacing[0] },
+        ]}
         extraData={replacingStationId}
         // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
         maintainVisibleContentPosition={{ disabled: true }}
@@ -211,16 +229,15 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.secondaryBackground,
     flex: 1,
   },
+  // Side and bottom insets come from the screen's own safe area (see the render): a sheet doesn't reach the bars.
   listContent: {
-    ...sideInsetPadding(rt.insets, rt.rtl),
-    paddingBottom: rt.insets.bottom + theme.spacing[0],
+    paddingBottom: theme.spacing[0],
   },
   searchBarWrapper: {
     flexDirection: "row",
     alignItems: "center",
     paddingTop: rt.insets.top > 20 ? rt.insets.top : Platform.select({ ios: 27.5, android: 12.5 }),
-    // The bar's background spans the full width; its search field and Cancel stay clear of the side bars.
-    ...sideInsetPadding(rt.insets, rt.rtl, theme.spacing[3]),
+    paddingHorizontal: theme.spacing[3],
     paddingBottom: theme.spacing[3],
     marginBottom: theme.spacing[3],
     backgroundColor: theme.colors.background,
@@ -240,17 +257,17 @@ const styles = StyleSheet.create((theme, rt) => ({
   cancelLink: {
     color: theme.colors.link,
   },
+  // Sized like the header back button, with the system's own close symbol.
   closeGlass: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 45,
+    height: 45,
+    borderRadius: 50,
     alignItems: "center",
     justifyContent: "center",
   },
-  closeIcon: {
-    width: 16,
-    height: 16,
-    tintColor: theme.colors.text,
+  closeSymbol: {
+    width: 45,
+    height: 45,
   },
   infoButton: {
     marginStart: "auto",

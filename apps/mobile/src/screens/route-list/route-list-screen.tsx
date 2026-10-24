@@ -186,18 +186,25 @@ export function RouteListScreen() {
   )
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
 
-  // The pane beside the app follows this screen: it turns to the trip's details when the list arrives, and back to
-  // the favorites as the list starts to leave, in step with the pop rather than after it.
+  // The pane beside the app follows this screen: the trip's details while the list is up, the favorites otherwise.
+  // A native pop reaches the navigation state only once its animation is over, so the swap is taken from the
+  // screen's own transition events: `transitionStart` with `closing` as the list starts to leave (also when a
+  // full-screen modal covers it), and `focus` as it's back.
   const navigation = useNavigation()
   useEffect(() => {
     setRouteListMounted(true)
-    // Typed for the root navigator by expo-router; this is a native stack screen, which does have `beforeRemove`.
-    const unsubscribe = (navigation as unknown as { addListener: (e: "beforeRemove", cb: () => void) => () => void }).addListener(
-      "beforeRemove",
-      () => setRouteListMounted(false),
-    )
+    const nav = navigation as unknown as {
+      addListener: (event: string, cb: (e: { data?: { closing?: boolean } }) => void) => () => void
+    }
+    const unsubscribe = [
+      nav.addListener("transitionStart", (e) => {
+        if (e.data?.closing) setRouteListMounted(false)
+      }),
+      nav.addListener("focus", () => setRouteListMounted(true)),
+      nav.addListener("beforeRemove", () => setRouteListMounted(false)),
+    ]
     return () => {
-      unsubscribe()
+      unsubscribe.forEach((off) => off())
       setRouteListMounted(false)
     }
   }, [navigation, setRouteListMounted])

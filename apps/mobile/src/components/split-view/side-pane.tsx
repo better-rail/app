@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { I18nManager, ScrollView, StyleSheet as RNStyleSheet, View } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
@@ -8,6 +8,8 @@ import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
 import { RouteDetailsPane } from "@/screens/route-list/components/route-details-pane"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { useSplitViewStore } from "./split-view-store"
+
+const FADE_DURATION = 300
 
 /**
  * The split view's secondary column, following the screen the app is on: the selected trip's details beside the
@@ -20,8 +22,16 @@ export function SidePane() {
   const isRouteListMounted = useSplitViewStore((s) => s.isRouteListMounted)
 
   const details = useSharedValue(isRouteListMounted ? 1 : 0)
+  // The details column stays mounted only through its fade-out: its bar items are the rail's while it's mounted.
+  const [detailsMounted, setDetailsMounted] = useState(isRouteListMounted)
   useEffect(() => {
-    details.value = withTiming(isRouteListMounted ? 1 : 0, { duration: 300 })
+    details.value = withTiming(isRouteListMounted ? 1 : 0, { duration: FADE_DURATION })
+    if (isRouteListMounted) {
+      setDetailsMounted(true)
+      return
+    }
+    const timeout = setTimeout(() => setDetailsMounted(false), FADE_DURATION)
+    return () => clearTimeout(timeout)
   }, [isRouteListMounted, details])
   const detailsStyle = useAnimatedStyle(() => ({ opacity: details.value }))
   const favoritesStyle = useAnimatedStyle(() => ({ opacity: 1 - details.value }))
@@ -39,9 +49,11 @@ export function SidePane() {
           <FavoriteRoutes onSelect={() => HapticFeedback.trigger("impactLight")} />
         </ScrollView>
       </Animated.View>
-      <Animated.View style={[RNStyleSheet.absoluteFill, detailsStyle]} pointerEvents={isRouteListMounted ? "auto" : "none"}>
-        <RouteDetailsPane />
-      </Animated.View>
+      {detailsMounted && (
+        <Animated.View style={[RNStyleSheet.absoluteFill, detailsStyle]} pointerEvents={isRouteListMounted ? "auto" : "none"}>
+          <RouteDetailsPane />
+        </Animated.View>
+      )}
     </View>
   )
 }
