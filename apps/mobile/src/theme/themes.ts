@@ -125,7 +125,7 @@ export interface ThemeFont {
 
 /** Theme-specific styling beyond colors. Unset fields keep the standard look. */
 export interface ThemeSkin {
-  /** Set when the rider opts into the theme's alternate time font */
+  /** The theme's time font, or its alternate one when the rider opts in */
   timeFont?: ThemeTimeFont
   /** Screen titles and the planner's station names */
   headingFont?: ThemeFont

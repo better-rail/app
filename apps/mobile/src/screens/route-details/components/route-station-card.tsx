@@ -156,19 +156,21 @@ const styles = StyleSheet.create((theme, rt) => ({
     color: theme.colors.destroy,
     fontWeight: "bold",
   },
+  // Wide theme fonts have short caps, so they get more size and room to head the details
   routeStationName: {
-    marginBottom: -1,
+    marginBottom: theme.skin.subheadingFont ? 3 : -1,
     marginEnd: theme.spacing[3],
-    ...subheadingFontStyle(theme, 17),
+    ...subheadingFontStyle(theme, theme.skin.subheadingFont ? 19 : 17),
   },
   routeStationDetailsText: {
-    fontSize: 14,
+    fontSize: theme.skin.subheadingFont ? 13 : 14,
     fontWeight: "400",
   },
+  // One tone for the whole line; nested Text resets to the default size, so it's repeated here
   lastDestinationText: {
-    fontSize: 14,
+    fontSize: theme.skin.subheadingFont ? 13 : 14,
     fontWeight: "400",
-    opacity: 0.8,
+    color: theme.colors.label,
   },
   realtimeChangeText: {
     color: theme.colors.destroy,

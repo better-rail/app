@@ -18,7 +18,7 @@ export function applyAccentTheme(id: AccentThemeId, useAlternateTimeFont = false
       },
       skin: {
         ...themed?.skin,
-        timeFont: useAlternateTimeFont ? definition?.alternateTimeFont?.font : undefined,
+        timeFont: (useAlternateTimeFont ? definition?.alternateTimeFont?.font : undefined) ?? definition?.timeFont,
         headingFont: definition?.headingFont,
         subheadingFont: definition?.subheadingFont,
         stopNameFont: definition?.stopNameFont,

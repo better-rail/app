@@ -40,6 +40,8 @@ interface ThemeDefinition {
   dark: ThemeAppearance
   /** A font riders can switch the route times to */
   alternateTimeFont?: { font: ThemeTimeFont; label: TxKeyPath }
+  /** Route times always use this font, so they match the theme's station names */
+  timeFont?: ThemeTimeFont
   /** Always on, in both appearances */
   headingFont?: ThemeFont
   subheadingFont?: ThemeFont
@@ -135,10 +137,7 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
     stopNameFont: { family: "TelAvivBrutalistRegular", scale: 0.85 },
     labelFont: { family: "TelAvivModernistRegular" },
     buttonFont: { family: "TelAvivModernistRegular" },
-    alternateTimeFont: {
-      font: { family: "TelAvivBrutalistRegular", size: 24, compact: true },
-      label: "settings.timeFontBrutalist",
-    },
+    timeFont: { family: "TelAvivBrutalist", size: 24, compact: true },
     light: {
       accents: {
         primary: "#1F3FA6",
