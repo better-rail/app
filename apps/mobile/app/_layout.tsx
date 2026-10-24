@@ -40,6 +40,7 @@ import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
+import { formSheetOptions } from "@/utils/form-sheet-options"
 
 enableScreens()
 
@@ -141,6 +142,8 @@ function AppStack() {
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
+        {/* Root level, so the live ride modal presents it over itself instead of pushing a second (main) stack */}
+        <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
         <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
