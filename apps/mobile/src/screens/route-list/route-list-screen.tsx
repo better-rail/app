@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
+import { View, ActivityIndicator, Dimensions, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import { FlashList, type FlashListRef } from "@shopify/flash-list"
@@ -32,7 +32,7 @@ import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
-import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
+import { useIsWideLayout, WIDE_LAYOUT_MIN_WIDTH } from "@/hooks/use-is-wide-layout"
 import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
@@ -189,7 +189,8 @@ export function RouteListScreen() {
   // The pane beside the app follows this screen: the trip's details while the list is up, the favorites otherwise.
   // A native pop reaches the navigation state only once its animation is over, so the swap is taken from the
   // screen's own transition events: `transitionStart` with `closing` as the list starts to leave (also when a
-  // full-screen modal covers it), `gestureCancel` for a back swipe let go halfway, and `focus` as it's back.
+  // full-screen modal covers it), `gestureCancel` for a back swipe let go halfway, and `focus` as it's back. On a
+  // phone the pane is off screen, so the swap waits for the list's removal there.
   const navigation = useNavigation()
   useEffect(() => {
     setRouteListMounted(true)
@@ -197,7 +198,13 @@ export function RouteListScreen() {
       addListener: (event: string, cb: (e: { data?: { closing?: boolean } }) => void) => () => void
     }
     const unsubscribe = [
-      nav.addListener("transitionStart", (e) => setRouteListMounted(!e.data?.closing)),
+      nav.addListener("transitionStart", (e) => {
+        // Collapsing the split view (the device closing) pushes the details column over the list, which also starts
+        // a closing transition here; the window is narrow by then, and the list isn't leaving.
+        const isWindowWide = Dimensions.get("window").width >= WIDE_LAYOUT_MIN_WIDTH
+        if (!e.data?.closing) setRouteListMounted(true)
+        else if (isWindowWide) setRouteListMounted(false)
+      }),
       // A back swipe let go halfway brings the screen back with no transition of its own, only this.
       nav.addListener("gestureCancel", () => setRouteListMounted(true)),
       nav.addListener("focus", () => setRouteListMounted(true)),
