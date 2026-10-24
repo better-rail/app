@@ -30,7 +30,7 @@ import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
-import { PlannerScreenHeader } from "./planner-screen-header"
+import { PlannerScreenHeader, usePlannerNativeToolbar } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
@@ -64,6 +64,8 @@ export function PlannerScreen() {
   const isWide = Platform.OS !== "ios" && isWideWindow
   const { width: windowWidth } = useWindowDimensions()
   const insets = useSafeAreaInsets()
+  // The header pads the top itself when its actions are bar items (see PlannerScreenHeader).
+  const useNativeToolbar = usePlannerNativeToolbar()
   // The row starts after the start inset: the left one, or the right one in right-to-left layouts.
   const centreSplitWidth = windowWidth / 2 - (I18nManager.isRTL ? insets.right : insets.left)
 
@@ -272,7 +274,7 @@ export function PlannerScreen() {
   )
 
   return (
-    <Screen testID="planner-screen" style={styles.root}>
+    <Screen testID="planner-screen" style={styles.root} unsafe={useNativeToolbar}>
       <WebsiteHomeHandoff />
       {isWide ? (
         // Wide tablets: the planner keeps its phone layout in a column, and the favorite routes fill the other side —

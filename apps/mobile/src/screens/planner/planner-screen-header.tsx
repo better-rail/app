@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react"
-import { Image, Platform, TouchableOpacity, View } from "react-native"
+import { Image, Platform, TouchableOpacity, View, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter } from "expo-router"
+import { useRouter, Stack, type NativeStackHeaderItem } from "expo-router"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
-import { spacing } from "@/theme"
+import { color, spacing } from "@/theme"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Chip, Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRideStore, useSettingsStore, filterUnseenUrgentMessages } from "@/models"
@@ -21,6 +24,15 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+
+/**
+ * Where the planner fills the window (a phone, iPhone Duo closed or held upright), its actions are native bar items,
+ * which the system lays out where the bar goes: a row under the status bar, or the Duo's side bar.
+ */
+export function usePlannerNativeToolbar() {
+  const isSplitCollapsed = useSplitViewStore((s) => s.isCollapsed)
+  return Platform.OS === "ios" && isLiquidGlassSupported && isSplitCollapsed
+}
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
@@ -96,38 +108,100 @@ export function PlannerScreenHeader() {
     trackEvent("settings_icon_pressed")
   }
 
+  const openActiveRide = () => {
+    useNavigationParamsStore.getState().setRouteDetails({
+      routeItem: rideRoute as any,
+      originId: String(rideOriginId()),
+      destinationId: String(rideDestinationId()),
+    })
+    router.push("/active-ride")
+    trackEvent("open_live_ride_modal_pressed")
+  }
+
+  const showNewChip = DEBUG_FORCE_NEW_BADGE || showNewBadge
+
+  const useNativeToolbar = usePlannerNativeToolbar()
+  // With the bar's items, the screen's own safe area tells where the content starts: below the bar's row, or the top
+  // when the bar sits on the side. The planner screen leaves its top unpadded for this.
+  const insets = useSafeAreaInsets()
+  // The stack's theme is dark for the photo headers; the planner's bar follows the system instead.
+  const colorScheme = useColorScheme() === "dark" ? "dark" : "light"
+
+  // Same order and visibility as the custom row: ride status, the "new" badge, updates, settings.
+  const nativeHeaderItems = () => {
+    const items: NativeStackHeaderItem[] = []
+    if (rideRoute) {
+      items.push({
+        type: "button",
+        label: translate("ride.live") ?? "",
+        icon: { type: "sfSymbol", name: "tram.fill" },
+        variant: "prominent",
+        tintColor: color.success,
+        onPress: openActiveRide,
+      })
+    }
+    if (showNewChip) {
+      items.push({
+        type: "button",
+        label: translate("common.new") ?? "",
+        icon: { type: "sfSymbol", name: "sparkles" },
+        variant: "prominent",
+        tintColor: color.primary,
+        onPress: () => router.push("/live-announcement"),
+      })
+    }
+    if (!HIDE_RAIL_SERVICE_UPDATES) {
+      items.push({
+        type: "button",
+        label: translate("routes.updates") ?? "",
+        icon: { type: "sfSymbol", name: "newspaper" },
+        tintColor: color.primary,
+        onPress: openAnnouncements,
+      })
+    }
+    items.push({
+      type: "button",
+      label: translate("settings.title") ?? "",
+      icon: { type: "sfSymbol", name: "gearshape" },
+      tintColor: color.primary,
+      onPress: openSettings,
+    })
+    return items
+  }
+
   return (
     <>
-      <View style={styles.headerWrapper}>
+      <Stack.Screen
+        options={
+          useNativeToolbar
+            ? {
+                headerShown: true,
+                headerTransparent: true,
+                headerTitle: "",
+                headerUserInterfaceStyle: colorScheme,
+                unstable_headerRightItems: nativeHeaderItems,
+              }
+            : { headerShown: false }
+        }
+      />
+      <View style={useNativeToolbar ? [styles.barHeaderWrapper, { paddingTop: insets.top }] : styles.headerWrapper}>
         <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: spacing[2] }}>
           {showUrgentBar && !rideRoute && <ImportantAnnouncementBar title={head(unseenUrgentMessages)?.messageBody ?? ""} />}
         </View>
-        {rideRoute && (
-          <Chip
-            variant="success"
-            style={{ marginStart: spacing[2] }}
-            onPress={() => {
-              useNavigationParamsStore.getState().setRouteDetails({
-                routeItem: rideRoute as any,
-                originId: String(rideOriginId()),
-                destinationId: String(rideDestinationId()),
-              })
-              router.push("/active-ride")
-              trackEvent("open_live_ride_modal_pressed")
-            }}
-          >
+        {!useNativeToolbar && rideRoute && (
+          <Chip variant="success" style={{ marginStart: spacing[2] }} onPress={openActiveRide}>
             {Platform.OS === "ios" && <Image source={TRAIN_ICON} style={styles.liveButtonImage} />}
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="ride.live" />
           </Chip>
         )}
         <UpcomingVoucherChip />
-        {(DEBUG_FORCE_NEW_BADGE || showNewBadge) && (
+        {!useNativeToolbar && showNewChip && (
           <Chip variant="primary" style={{ marginStart: spacing[2] }} onPress={() => router.push("/live-announcement")}>
             <Image source={SPARKLES_ICON} style={{ height: 16, width: 16, marginEnd: spacing[2], tintColor: "white" }} />
             <Text style={{ color: "white", fontWeight: "500", marginVertical: spacing[1] }} tx="common.new" />
           </Chip>
         )}
-        {!HIDE_RAIL_SERVICE_UPDATES && (
+        {!useNativeToolbar && !HIDE_RAIL_SERVICE_UPDATES && (
           <TouchableOpacity
             testID="open-announcements-button"
             onPress={openAnnouncements}
@@ -137,14 +211,16 @@ export function PlannerScreenHeader() {
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
           </TouchableOpacity>
         )}
-        <TouchableOpacity
-          testID="open-settings-button"
-          onPress={openSettings}
-          activeOpacity={0.8}
-          accessibilityLabel={translate("settings.title")}
-        >
-          <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
-        </TouchableOpacity>
+        {!useNativeToolbar && (
+          <TouchableOpacity
+            testID="open-settings-button"
+            onPress={openSettings}
+            activeOpacity={0.8}
+            accessibilityLabel={translate("settings.title")}
+          >
+            <Image source={SETTINGS_ICON} style={styles.headerIconImage} />
+          </TouchableOpacity>
+        )}
       </View>
     </>
   )
@@ -161,6 +237,13 @@ const styles = StyleSheet.create((theme, rt) => {
       minHeight: 40,
       // iPhone Duo keeps its status bar on the side, so nothing else holds the row off the top edge.
       marginTop: rt.insets.top > 0 ? 0 : theme.spacing[2],
+      marginBottom: theme.spacing[2],
+    },
+    // Only what's left in the row (an urgent notice, the voucher chip) takes room once the actions are bar items.
+    barHeaderWrapper: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
       marginBottom: theme.spacing[2],
     },
     headerIconImage: {
