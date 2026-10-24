@@ -129,10 +129,53 @@ index 049fd22427b2bde17fd7ca59b8de65d0ee07b4b5..cdac952b372e419af13a95c921705655
  
  - (void)dispatchSafeAreaDidChangeNotification
 diff --git a/ios/gamma/split/RNSSplitHostController.mm b/ios/gamma/split/RNSSplitHostController.mm
-index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b680fbc73 100644
+index c7d2db75965d2cd661d9a56922d4d201a89564c1..ad9fecc2798f1875c7a14d56eab401933c416c20 100644
 --- a/ios/gamma/split/RNSSplitHostController.mm
 +++ b/ios/gamma/split/RNSSplitHostController.mm
-@@ -125,8 +125,14 @@ - (void)updateChildViewControllers
+@@ -60,6 +60,42 @@ - (instancetype)initWithSplitHostComponentView:(RNSSplitHostComponentView *)spli
+   return self;
+ }
+ 
++#pragma mark - Size class
++
++// Below this width the columns don't fit side by side (iPhone Duo's open display held upright is 669pt wide), so the
++// split view is told its width is compact and collapses to a single, full-screen column as it does on a phone.
++static const CGFloat RNSSplitHostMinimumExpandedWidth = 700;
++
++- (void)updateHorizontalSizeClassForWidth:(CGFloat)width
++{
++  if (@available(iOS 17.0, *)) {
++    if (width <= 0) {
++      return;
++    }
++    BOOL isOverridden = [self.traitOverrides containsTrait:UITraitHorizontalSizeClass.class];
++    if (width < RNSSplitHostMinimumExpandedWidth) {
++      if (!isOverridden) {
++        self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
++      }
++    } else if (isOverridden) {
++      [self.traitOverrides removeTrait:UITraitHorizontalSizeClass.class];
++    }
++  }
++}
++
++- (void)viewWillLayoutSubviews
++{
++  [self updateHorizontalSizeClassForWidth:self.view.bounds.size.width];
++  [super viewWillLayoutSubviews];
++}
++
++- (void)viewWillTransitionToSize:(CGSize)size
++       withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
++{
++  [self updateHorizontalSizeClassForWidth:size.width];
++  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
++}
++
+ - (RNSSplitHostComponentEventEmitter *)reactEventEmitter
+ {
+   return [_splitHostComponentView reactEventEmitter];
+@@ -125,8 +161,14 @@ - (void)updateChildViewControllers
    NSMutableArray<RNSSplitNavigationController *> *currentViewControllers =
        [NSMutableArray arrayWithCapacity:currentColumns.count];
    for (RNSSplitScreenComponentView *column in currentColumns) {
@@ -149,7 +192,7 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b
    }
  
    self.viewControllers = currentViewControllers;
-@@ -158,8 +164,9 @@ - (void)refreshSecondaryNavBar
+@@ -158,8 +200,9 @@ - (void)refreshSecondaryNavBar
    UINavigationController *navigationController = (UINavigationController *)secondaryViewController;
  
    /** The assumption is that it should come in a single batch and it won't cause any delays in rendering the content. */
