@@ -16,6 +16,8 @@ import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { TipIAPProvider } from "@/services/iap/tip-iap-provider"
+import { AppSplitView } from "@/components/split-view/app-split-view"
+import { SidePane } from "@/components/split-view/side-pane"
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
@@ -238,7 +240,9 @@ function RootLayout() {
           <SafeAreaProvider initialMetrics={initialWindowMetrics}>
             <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
               <TipIAPProvider>
-                <AppStack />
+                <AppSplitView pane={<SidePane />}>
+                  <AppStack />
+                </AppSplitView>
               </TipIAPProvider>
             </PostHogProvider>
           </SafeAreaProvider>

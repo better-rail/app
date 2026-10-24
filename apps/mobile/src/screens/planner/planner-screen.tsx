@@ -30,12 +30,6 @@ import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
-import {
-  ArrangementView,
-  arrangementColumns,
-  isArrangementAvailable,
-  type ArrangementLayout,
-} from "../../../modules/arrangement/src"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 
@@ -65,15 +59,11 @@ export function PlannerScreen() {
   const now = new Date()
 
   const stations = useStations()
-  // On iOS 27.1+ UIKit's arrangement places the favorites beside the planner when there's room (iPhone Duo open,
-  // iPad), either side of the fold when partially folded, and animates between those layouts as the device opens,
-  // folds and closes. Until it first reports, and where it isn't available, the window's width decides.
+  // On iOS the favorite routes sit beside the planner in the system split view's second column (see AppSplitView),
+  // on iPhone Duo's open inner display and iPads; this screen is the first column, capped so it never stretches into
+  // a desktop-like form. Elsewhere, wide windows (tablets) lay the two out here, meeting on the display's centre line.
   const isWideWindow = useIsWideLayout()
-  const [arrangement, setArrangement] = useState<ArrangementLayout | null>(null)
-  const isWide = isArrangementAvailable && arrangement ? !arrangement.secondaryHidden : isWideWindow
-  const foldGap = arrangementColumns(arrangement)?.gap ?? 0
-  // Elsewhere, the planner and favorites meet on the display's centre line. The planner is capped within its half,
-  // so it never stretches into a desktop-like form.
+  const isWide = Platform.OS !== "ios" && isWideWindow
   const { width: windowWidth } = useWindowDimensions()
   const insets = useSafeAreaInsets()
   // The row starts after the start inset: the left one, or the right one in right-to-left layouts.
@@ -285,11 +275,7 @@ export function PlannerScreen() {
   )
 
   const favoritesSidebar = (
-    <ScrollView
-      // Beside the fold, the gap already separates the two, so there's no divider.
-      style={[styles.savedRoutesSidebar, foldGap > 0 && { borderStartWidth: 0 }]}
-      contentContainerStyle={styles.savedRoutesContent}
-    >
+    <ScrollView style={styles.savedRoutesSidebar} contentContainerStyle={styles.savedRoutesContent}>
       <FavoriteRoutes
         onSelect={() => {
           scaleStationCards()
@@ -301,23 +287,9 @@ export function PlannerScreen() {
 
   return (
     <Screen testID="planner-screen" style={styles.root} statusBarBackgroundColor="transparent" translucent>
-      {isArrangementAvailable ? (
-        <ArrangementView
-          style={styles.arrangement}
-          primary={
-            <FlingGestureWrapper onFling={onSwitchPress}>
-              <View style={[styles.contentWrapper, isWide && styles.widePlanner]}>{plannerForm}</View>
-            </FlingGestureWrapper>
-          }
-          secondary={favoritesSidebar}
-          // The planner is what matters: without room for both, the favorites give way.
-          primaryWidth={{ minimum: 320, preferred: 0.5, layoutPriority: 1000 }}
-          secondaryWidth={{ minimum: 300, preferred: 0.5, layoutPriority: 250 }}
-          onArrangementChange={setArrangement}
-        />
-      ) : isWide ? (
-        // Wide (iPad, or iPhone Duo before iOS 27.1): the planner keeps its phone layout in a column, and the favorite
-        // routes fill the other side — one tap from planning a trip.
+      {isWide ? (
+        // Wide tablets: the planner keeps its phone layout in a column, and the favorite routes fill the other side —
+        // one tap from planning a trip.
         <View style={styles.wideRow}>
           <View style={{ width: centreSplitWidth }}>
             <FlingGestureWrapper onFling={onSwitchPress}>
@@ -328,7 +300,8 @@ export function PlannerScreen() {
         </View>
       ) : (
         <FlingGestureWrapper onFling={onSwitchPress}>
-          <View style={styles.contentWrapper}>{plannerForm}</View>
+          {/* In the split view's column the cap only matters once the column is wider than a phone. */}
+          <View style={[styles.contentWrapper, Platform.OS === "ios" && styles.widePlanner]}>{plannerForm}</View>
         </FlingGestureWrapper>
       )}
 
@@ -360,9 +333,6 @@ const styles = StyleSheet.create((theme, rt) => ({
   wideRow: {
     flex: 1,
     flexDirection: "row",
-  },
-  arrangement: {
-    flex: 1,
   },
   widePlanner: {
     width: "100%",

@@ -1,8 +1,12 @@
-import { Image, View, type ViewStyle } from "react-native"
+import { I18nManager, Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { Text } from "@/components"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { useShallow } from "zustand/react/shallow"
+import { RouteDetailsHeader, Text } from "@/components"
 import type { RouteItem } from "@/services/api"
 import { RouteDetailsBody, useRouteDetailsData } from "@/screens/route-details/route-details-body"
+import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
+import { useSplitViewStore, type SplitViewSelection } from "@/components/split-view/split-view-store"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
 
@@ -10,39 +14,31 @@ const railwayStationIcon = require("../../../../assets/railway-station.png")
 export const routeKey = (route: RouteItem) =>
   route.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
 
-interface RouteDetailsPaneProps {
-  routeItem: RouteItem | null
-  originId: string
-  destinationId: string
-  showEntireRoute: boolean
-  /** The logical end inset (e.g. iPhone Duo's side bar column), which the pane's content keeps clear of. */
-  endInset: number
-  style?: ViewStyle
-}
+/**
+ * The split view's details column: the selected trip, as the route details screen shows it. Beside the list on wide
+ * layouts, and the screen the list pushes on phones, where the split view is collapsed — so it carries the details
+ * screen's test id.
+ */
+export function RouteDetailsPane() {
+  const insets = useSafeAreaInsets()
+  const { selection, showEntireRoute, setShowEntireRoute } = useSplitViewStore(
+    useShallow((s) => ({ selection: s.selection, showEntireRoute: s.showEntireRoute, setShowEntireRoute: s.setShowEntireRoute })),
+  )
+  const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
 
-/** The route list's second column on wide layouts: the selected trip's details, as the route details screen shows them. */
-export function RouteDetailsPane({
-  routeItem,
-  originId,
-  destinationId,
-  showEntireRoute,
-  endInset,
-  style,
-}: RouteDetailsPaneProps) {
   return (
-    <View style={[styles.pane, style]} testID="route-details-pane">
-      {routeItem ? (
+    <View style={styles.pane}>
+      {selection ? (
         <SelectedRouteDetails
           // Remount per trip so the scroll position and ride button animations start fresh.
-          key={routeKey(routeItem)}
-          routeItem={routeItem}
-          originId={originId}
-          destinationId={destinationId}
+          key={routeKey(selection.route)}
+          selection={selection}
           showEntireRoute={showEntireRoute}
-          endInset={endInset}
+          setShowEntireRoute={setShowEntireRoute}
+          sideInsets={sideInsets}
         />
       ) : (
-        <View style={[styles.emptyState, { paddingEnd: endInset }]}>
+        <View style={[styles.pane, styles.emptyState, { paddingStart: sideInsets.start, paddingEnd: sideInsets.end }]}>
           <Image source={railwayStationIcon} style={styles.emptyIcon} />
           <Text tx="routeDetails.selectRoute" style={styles.emptyText} />
         </View>
@@ -52,33 +48,44 @@ export function RouteDetailsPane({
 }
 
 function SelectedRouteDetails({
-  routeItem,
-  originId,
-  destinationId,
+  selection,
   showEntireRoute,
-  endInset,
-}: Omit<RouteDetailsPaneProps, "routeItem" | "style"> & { routeItem: RouteItem }) {
-  const data = useRouteDetailsData(routeItem, originId, destinationId)
+  setShowEntireRoute,
+  sideInsets,
+}: {
+  selection: SplitViewSelection
+  showEntireRoute: boolean
+  setShowEntireRoute: React.Dispatch<React.SetStateAction<boolean>>
+  sideInsets: { start: number; end: number }
+}) {
+  const data = useRouteDetailsData(selection.route, selection.originId, selection.destinationId)
   return (
-    <RouteDetailsBody
-      data={data}
-      screenName="routeDetails"
-      showEntireRoute={showEntireRoute}
-      sideInsets={{ start: 0, end: endInset }}
-      // Beside the list, the rows stop at the toolbar column rather than running under it.
-      bleedUnderInsets={false}
-    />
+    <View style={styles.pane} testID="route-details-screen">
+      <RouteDetailsHeader
+        routeItem={data.routeItem}
+        originId={selection.originId}
+        destinationId={selection.destinationId}
+        screenName="routeDetails"
+        inSplitColumn
+        showEntireRoute={showEntireRoute}
+        setShowEntireRoute={setShowEntireRoute}
+        style={styles.headerContainer}
+      />
+      <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
+    </View>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
   pane: {
     flex: 1,
-    borderStartWidth: StyleSheet.hairlineWidth,
-    borderStartColor: theme.colors.dimmer,
+    backgroundColor: theme.colors.background,
+  },
+  headerContainer: {
+    paddingHorizontal: theme.spacing[3],
+    marginBottom: theme.spacing[3],
   },
   emptyState: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: theme.spacing[3],

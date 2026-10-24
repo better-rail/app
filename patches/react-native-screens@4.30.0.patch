@@ -1,5 +1,5 @@
 diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-index 96631b0..0d6321f 100644
+index 2f2133bf28c8e7e0fe0d63f71ba34c6b070ae06e..0abe0105d9c081997eff1decd51e8736716fa25e 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 @@ -466,28 +466,22 @@ class Screen(
@@ -80,7 +80,7 @@ index 96631b0..0d6321f 100644
      @SuppressLint("ClickableViewAccessibility")
      override fun onTouchEvent(event: MotionEvent?): Boolean =
 diff --git a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
-index 2372cac..e95f200 100644
+index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b244e581c70 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/ScreenStack.kt
 @@ -83,6 +83,8 @@ class ScreenStack(
@@ -92,3 +92,25 @@ index 2372cac..e95f200 100644
          super.endViewTransition(view)
  
          disappearingTransitioningChildren.remove(view)
+diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
+index f97140a2ca7f97a50c5f6203106596b9f275080b..be0660d740c7a89d20d86bea780f81be25032a7a 100644
+--- a/ios/gamma/split/RNSSplitScreenController.mm
++++ b/ios/gamma/split/RNSSplitScreenController.mm
+@@ -69,6 +69,17 @@ - (void)viewDidLayoutSubviews
+ {
+   [super viewDidLayoutSubviews];
+ 
++  // The column's view is a React component view, so React also sets its frame, from the last size this controller
++  // reported. A size UIKit gave the column while it was off screen (a collapsed split view's secondary column keeps
++  // the bounds of the display it was last expanded on) then comes back from React once the column is pushed into
++  // the primary's navigation controller, and the stale size is reported again. The container UIKit put the column
++  // in is the authority on its size.
++  UIView *container = self.view.superview;
++  if (container != nil && [self isInSplitHostSubtree] &&
++      !CGSizeEqualToSize(self.view.bounds.size, container.bounds.size)) {
++    self.view.frame = container.bounds;
++  }
++
+   [self updateShadowTreeState];
+ }
+ 

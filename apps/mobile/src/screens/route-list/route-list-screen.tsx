@@ -1,14 +1,14 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, I18nManager, useColorScheme, useWindowDimensions } from "react-native"
+import { View, ActivityIndicator, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -33,12 +33,7 @@ import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
-import {
-  ArrangementView,
-  arrangementColumns,
-  isArrangementAvailable,
-  type ArrangementLayout,
-} from "../../../modules/arrangement/src"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -173,62 +168,42 @@ export function RouteListScreen() {
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
 
-  // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does. On
-  // iOS 27.1+ UIKit's arrangement decides: it places the details beside the list when there's room, either side of
-  // the fold when partially folded, and animates between those layouts as the device opens, folds and closes. Until
-  // it first reports, and where it isn't available, the window's width decides. A narrow window never counts as
-  // wide: it changes a frame or two before the arrangement reports its hidden pane as the device closes.
+  // On iOS the selected trip's details live in the system split view's details column (see AppSplitView): beside
+  // the list on wide windows, pushed over it on phones. Elsewhere, wide windows (tablets) lay the details beside the
+  // list here, and phones open the route details screen.
   const isWideWindow = useIsWideLayout()
-  const [arrangement, setArrangement] = useState<ArrangementLayout | null>(null)
-  const isWide = isArrangementAvailable && arrangement ? !arrangement.secondaryHidden && isWideWindow : isWideWindow
-  const columns = arrangementColumns(arrangement)
-  const listWidth =
-    isArrangementAvailable && isWide && columns
-      ? columns.firstWidth
-      : isWide
-        ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
-        : windowWidth - sideInsets.start - sideInsets.end
-  const [selectedRoute, setSelectedRoute] = useState<RouteItem | null>(null)
-  const [showEntireRoute, setShowEntireRoute] = useState(false)
+  const isWide = Platform.OS !== "ios" && isWideWindow
+  const listWidth = isWide
+    ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
+    : windowWidth - sideInsets.start - sideInsets.end
+  const { selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
+    useShallow((s) => ({
+      selectedRoute: s.selection?.route,
+      showDetails: s.showDetails,
+      clearSelection: s.clearSelection,
+      setRouteListMounted: s.setRouteListMounted,
+    })),
+  )
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
 
   useEffect(() => {
-    setSelectedRoute(null)
-  }, [originId, destinationId])
+    setRouteListMounted(true)
+    return () => setRouteListMounted(false)
+  }, [setRouteListMounted])
 
-  const openRouteDetails = (routeItem: RouteItem, instant = false) => {
-    useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
-    router.push({ pathname: "/route-details", params: instant ? { instant: "1" } : {} })
-  }
+  useEffect(() => {
+    clearSelection()
+  }, [originId, destinationId, clearSelection])
 
-  // The split view and the separate screens are two presentations of the same selection, so switching between them
-  // (closing or opening the device, rotating, Split View) swaps one for the other without a navigation transition.
-  // Narrowing continues on the details screen; until that's on top the details cover the narrowed list, so there's no
-  // frame of it to see. Widening is handled by that screen, which hands its trip back here and pops itself.
-  const isFocused = useIsFocused()
-  const wasWide = useRef(isWide)
-  const [coveredByDetails, setCoveredByDetails] = useState(false)
-  useLayoutEffect(() => {
-    // Not while a sheet (fares, filter) or another screen is on top: the swap would land under it.
-    if (wasWide.current && !isWide && selectedRoute && isFocused) {
-      setCoveredByDetails(true)
-      openRouteDetails(selectedRoute, true)
+  const openRouteDetails = (routeItem: RouteItem) => {
+    if (Platform.OS === "ios" || isWide) {
+      if (isWide) HapticFeedback.trigger("selection")
+      showDetails({ route: routeItem, originId, destinationId })
+      return
     }
-    wasWide.current = isWide
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWide])
-  useEffect(() => {
-    if (!isFocused || isWide) setCoveredByDetails(false)
-  }, [isFocused, isWide])
-
-  const splitHandoff = useNavigationParamsStore((s) => s.splitHandoff)
-  useEffect(() => {
-    // Kept until the split is up: the arrangement may report the details pane a frame after the window widens.
-    if (!splitHandoff || !isWide) return
-    useNavigationParamsStore.getState().setSplitHandoff(null)
-    setSelectedRoute(splitHandoff)
-    setShowEntireRoute(false)
-  }, [splitHandoff, isWide])
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
+    router.push("/route-details")
+  }
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -554,22 +529,14 @@ export function RouteListScreen() {
         delay={item.delay}
         isActiveRide={isRouteActive(item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
-        onPress={() => {
-          if (isWide) {
-            HapticFeedback.trigger("selection")
-            setSelectedRoute(item)
-            setShowEntireRoute(false)
-          } else {
-            openRouteDetails(item)
-          }
-        }}
+        onPress={() => openRouteDetails(item)}
         onLongPress={() => handleRouteLongPress(item)}
         routeItem={item}
         originId={originId}
         destinationId={destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
-        cardStyle={isWide && selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
+        cardStyle={selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
       />
     )
   }
@@ -620,7 +587,7 @@ export function RouteListScreen() {
           }}
           initialScrollIndex={initialScrollIndex}
           // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, selectedRouteKey, isWide]}
+          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, selectedRouteKey]}
           ListFooterComponent={
             <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
           }
@@ -639,25 +606,9 @@ export function RouteListScreen() {
       {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
       {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning
-          routesDate={trains.data[0].trains[0].departureTime}
-          warningType={resultType as WarningType}
-          inColumn={isWide}
-        />
+        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
       )}
     </>
-  )
-
-  const detailsPane = (
-    <RouteDetailsPane
-      routeItem={selectedRoute}
-      originId={originId}
-      destinationId={destinationId}
-      showEntireRoute={showEntireRoute}
-      endInset={sideInsets.end}
-      // Beside the fold, the gap already separates the two, so there's no divider.
-      style={columns && columns.gap > 0 ? { borderStartWidth: 0 } : undefined}
-    />
   )
 
   return (
@@ -676,41 +627,19 @@ export function RouteListScreen() {
         originId={originId}
         destinationId={destinationId}
         style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-        // On wide layouts the toolbar also carries the selected trip's actions, as the route details screen does.
-        routeItem={isWide ? (selectedRoute ?? undefined) : undefined}
-        splitColumns={isWide ? { firstWidth: listWidth, gap: columns?.gap ?? 0 } : null}
-        showEntireRoute={showEntireRoute}
-        setShowEntireRoute={setShowEntireRoute}
       />
 
       {/* The photo header spans the full width; everything below stays clear of the side bars. */}
       <View
         style={[
           styles.content,
-          !isArrangementAvailable && isWide && styles.splitContent,
-          // In the split the details pane reaches the end edge itself, so its banners can bleed under the inset.
+          isWide && styles.splitContent,
+          // Beside the list the details pane reaches the end edge itself, so its banners can bleed under the inset.
           { paddingStart: sideInsets.start, paddingEnd: isWide ? 0 : sideInsets.end },
         ]}
       >
-        {isArrangementAvailable ? (
-          <ArrangementView
-            style={styles.content}
-            primary={<View style={styles.content}>{listContent}</View>}
-            secondary={detailsPane}
-            // The list is what matters: without room for both, the details give way (to their own screen).
-            primaryWidth={{ minimum: 340, preferred: 0.45, maximum: 440, layoutPriority: 1000 }}
-            secondaryWidth={{ minimum: 320, layoutPriority: 250 }}
-            onArrangementChange={setArrangement}
-          />
-        ) : (
-          <>
-            <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
-            {isWide && detailsPane}
-          </>
-        )}
-        {coveredByDetails && (
-          <View style={[StyleSheet.absoluteFill, styles.root, { paddingEnd: sideInsets.end }]}>{detailsPane}</View>
-        )}
+        <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
+        {isWide && <RouteDetailsPane />}
       </View>
     </Screen>
   )
