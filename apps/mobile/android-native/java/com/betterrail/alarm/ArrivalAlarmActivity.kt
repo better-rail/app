@@ -20,6 +20,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.betterrail.R
+import com.betterrail.liveride.SemanticColorCompat
 import java.util.Date
 
 /**
@@ -148,7 +149,7 @@ class ArrivalAlarmActivity : Activity() {
 
     companion object {
         // The app's blues: primary for the button, its lighter tint for the icon, on a deep navy.
-        private const val BUTTON = 0xFF0C83FF.toInt()
+        private const val BUTTON = SemanticColorCompat.BRAND_COLOR
         private const val ICON = 0xFF47A0FF.toInt()
         private const val BACKGROUND_TOP = 0xFF0D2550.toInt()
         private const val BACKGROUND_BOTTOM = 0xFF061233.toInt()

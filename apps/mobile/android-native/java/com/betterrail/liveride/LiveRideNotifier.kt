@@ -34,14 +34,9 @@ object LiveRideNotifier {
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
     private const val SEGMENT_RESOLUTION = 100
 
-    private const val BRAND_COLOR = 0xFF0C83FF.toInt()
-    private const val COLOR_DELAY_RED = 0xFFFF3B30.toInt()
-    private const val COLOR_EXCHANGE_ORANGE = 0xFFFF9500.toInt()
-    private const val COLOR_ON_TIME_GREEN = 0xFF34C759.toInt()
-    private const val COLOR_STATION_POINT = 0xFFC8E1FF.toInt()
-
     fun showProgress(context: Context, content: LiveRideContent, staleUntil: Long? = null) {
         ensureChannel(context)
+        dismissAlerts(context)
         val remainingMs = staleUntil?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) }
         val notification = if (Build.VERSION.SDK_INT >= 36) {
             runCatching { buildLiveUpdate(context, content, remainingMs) }
@@ -60,7 +55,7 @@ object LiveRideNotifier {
         dismissAlerts(context)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(BRAND_COLOR)
+            .setColor(SemanticColorCompat.BRAND_COLOR)
             .setContentTitle(title)
             .setContentText(body)
             .setOngoing(false)
@@ -129,7 +124,7 @@ object LiveRideNotifier {
     fun postAlert(context: Context, tag: String, channelId: String, title: String, body: String, timeoutMs: Long) {
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(BRAND_COLOR)
+            .setColor(SemanticColorCompat.BRAND_COLOR)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
@@ -148,13 +143,6 @@ object LiveRideNotifier {
         return ProgressBounds(numSegments, max, currentProgress.coerceIn(0, max))
     }
 
-    private fun resolveTrackColor(semanticStyle: Int?): Int = when (semanticStyle) {
-        SemanticColorCompat.SEMANTIC_STYLE_DANGER -> COLOR_DELAY_RED
-        SemanticColorCompat.SEMANTIC_STYLE_CAUTION -> COLOR_EXCHANGE_ORANGE
-        SemanticColorCompat.SEMANTIC_STYLE_SAFE -> COLOR_ON_TIME_GREEN
-        else -> BRAND_COLOR
-    }
-
     private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val (numSegments, max, clampedProgress) = computeProgressBounds(content)
 
@@ -162,7 +150,7 @@ object LiveRideNotifier {
             .setStyledByProgress(true)
             .setProgress(clampedProgress)
 
-        val trackColor = resolveTrackColor(content.titleSemanticStyle)
+        val trackColor = SemanticColorCompat.resolveColor(content.titleSemanticStyle)
         val semanticStyle = content.titleSemanticStyle ?: SemanticColorCompat.SEMANTIC_STYLE_INFO
 
         val trackSegment = Notification.ProgressStyle.Segment(max)
@@ -175,7 +163,7 @@ object LiveRideNotifier {
         for (step in 1..intermediateStops) {
             val position = (max.toLong() * step / numSegments).toInt()
             val point = Notification.ProgressStyle.Point(position)
-            point.setColor(COLOR_STATION_POINT)
+            point.setColor(SemanticColorCompat.COLOR_STATION_POINT)
             point.setId(step)
             val pointStyle = if (step == intermediateStops) semanticStyle else SemanticColorCompat.SEMANTIC_STYLE_INFO
             SemanticColorCompat.applySemanticStyle(point, pointStyle)
@@ -189,7 +177,7 @@ object LiveRideNotifier {
 
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(BRAND_COLOR)
+            .setColor(SemanticColorCompat.BRAND_COLOR)
             .setCategory(Notification.CATEGORY_PROGRESS)
             .setContentTitle(titleText)
             .setContentText(bodyText)
@@ -231,7 +219,7 @@ object LiveRideNotifier {
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
-            .setColor(BRAND_COLOR)
+            .setColor(SemanticColorCompat.BRAND_COLOR)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setContentTitle(content.title)
             .setContentText(content.body)

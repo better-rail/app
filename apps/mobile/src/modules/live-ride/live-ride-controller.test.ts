@@ -154,7 +154,7 @@ describe("LiveRideController", () => {
     expect(bridge.updates[1].currentStop).toBe(1)
   })
 
-  it("folds milestone alerts into the live ride notification and posts a heads-up alert", async () => {
+  it("folds milestone alerts into the live ride notification without double-posting an alert", async () => {
     const route = buildRoute(10 * MINUTE)
     await controller.start(route, "test-ride-id")
 
@@ -172,9 +172,7 @@ describe("LiveRideController", () => {
 
     await controller.processIncomingPush(fcmData)
 
-    expect(bridge.alerts.length).toBe(1)
-    expect(bridge.alerts[0].title).toBe("Hop on board!")
-    expect(bridge.alerts[0].body).toBe("Take the train from Platform 3")
+    expect(bridge.alerts.length).toBe(0)
     expect(bridge.updates.length).toBe(2)
 
     const alertUpdate = bridge.updates[1]

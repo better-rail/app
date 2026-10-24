@@ -14,6 +14,12 @@ import android.text.SpannableStringBuilder
  * - INFO (Blue): General informational markers & route track
  */
 object SemanticColorCompat {
+    const val BRAND_COLOR = 0xFF0C83FF.toInt()
+    const val COLOR_DELAY_RED = 0xFFFF3B30.toInt()
+    const val COLOR_EXCHANGE_ORANGE = 0xFFFF9500.toInt()
+    const val COLOR_ON_TIME_GREEN = 0xFF34C759.toInt()
+    const val COLOR_STATION_POINT = 0xFFC8E1FF.toInt()
+
     const val SEMANTIC_STYLE_UNSPECIFIED = 0
     const val SEMANTIC_STYLE_INFO = 1
     const val SEMANTIC_STYLE_SAFE = 2
@@ -21,6 +27,14 @@ object SemanticColorCompat {
     const val SEMANTIC_STYLE_DANGER = 4
 
     private const val ANNOTATION_KEY = "android.app.notification.semanticStyle"
+
+    /** Maps a semantic style to its ARGB color representation. Defaults to BRAND_COLOR. */
+    fun resolveColor(semanticStyle: Int?): Int = when (semanticStyle) {
+        SEMANTIC_STYLE_DANGER -> COLOR_DELAY_RED
+        SEMANTIC_STYLE_CAUTION -> COLOR_EXCHANGE_ORANGE
+        SEMANTIC_STYLE_SAFE -> COLOR_ON_TIME_GREEN
+        else -> BRAND_COLOR
+    }
 
     /** Applies semantic styling to Notification, ProgressStyle.Segment, or ProgressStyle.Point via reflection. */
     fun applySemanticStyle(target: Any, style: Int): Boolean {

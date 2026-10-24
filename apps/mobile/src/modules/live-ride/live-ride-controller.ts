@@ -237,15 +237,6 @@ export class LiveRideController {
       } catch {}
     }
 
-    if (alert && (alert.title || alert.body)) {
-      await this.deps.bridge.postAlert({
-        tag: alert.id ?? "live-ride-alert",
-        channelId: "better-rail",
-        title: alert.title ?? "",
-        body: alert.body ?? "",
-        timeoutMs: 60_000,
-      })
-    }
 
     const state: LiveRideState = {
       status: toRideStatus(data.status),
