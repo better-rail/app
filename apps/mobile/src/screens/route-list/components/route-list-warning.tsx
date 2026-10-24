@@ -20,6 +20,12 @@ export type { WarningType }
 export interface RouteListModalProps {
   routesDate: number
   warningType: WarningType
+  /**
+   * Whether the list shares the screen with the trip's details. The notice then sits at the bottom of the list's own
+   * column, as wide as its cards, instead of in the window's bottom toolbar (which on a partially folded iPhone Duo
+   * UIKit hosts in the other half).
+   */
+  inColumn?: boolean
 }
 
 /**
@@ -28,7 +34,7 @@ export interface RouteListModalProps {
  *
  * For iOS we'll display a native alert, for Android we'll show modal
  */
-export const RouteListWarning = function RouteListWarning({ routesDate, warningType }: RouteListModalProps) {
+export const RouteListWarning = function RouteListWarning({ routesDate, warningType, inColumn }: RouteListModalProps) {
   const [warningVisible, setWarningVisible] = useState(false)
   const [displayWarningSheet, setDisplayWarningSheet] = useState(false)
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", {
@@ -103,14 +109,21 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
           onClose={handleClose}
         />
       )}
-      {displayWarningSheet && useNativeToolbar && (
+      {displayWarningSheet && useNativeToolbar && !inColumn && (
         <Stack.Toolbar>
           <Stack.Toolbar.View hidesSharedBackground>
-            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+            <GlassView style={styles.toolbarContent} tintColor={NOTICE_TINT}>
               {warningContent}
             </GlassView>
           </Stack.Toolbar.View>
         </Stack.Toolbar>
+      )}
+      {displayWarningSheet && useNativeToolbar && inColumn && (
+        <Animated.View entering={FadeInDown} style={styles.columnNotice} pointerEvents="none">
+          <GlassView style={styles.columnNoticeContent} tintColor={NOTICE_TINT}>
+            {warningContent}
+          </GlassView>
+        </Animated.View>
       )}
       {displayWarningSheet && !useNativeToolbar && (
         <Animated.View entering={FadeInDown}>
@@ -121,10 +134,25 @@ export const RouteListWarning = function RouteListWarning({ routesDate, warningT
   )
 }
 
+const NOTICE_TINT = "rgba(255, 159, 10, 0.55)"
+
 const styles = StyleSheet.create((theme, rt) => ({
   // The toolbar host has no intrinsic size, so the custom view needs an explicit width
   toolbarContent: {
     width: rt.screen.width - rt.insets.left - rt.insets.right - 32,
+    height: 64,
+    justifyContent: "center",
+    paddingHorizontal: 18,
+    borderRadius: 24,
+  },
+  // Over the list's column, inset like its cards and sitting where the toolbar would.
+  columnNotice: {
+    position: "absolute",
+    start: theme.spacing[3],
+    end: theme.spacing[3],
+    bottom: Math.max(rt.insets.bottom, theme.spacing[3]),
+  },
+  columnNoticeContent: {
     height: 64,
     justifyContent: "center",
     paddingHorizontal: 18,

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { I18nManager, Platform, StyleSheet, type NativeSyntheticEvent, type ViewProps } from "react-native"
+import { I18nManager, Platform, StyleSheet, View, type NativeSyntheticEvent, type ViewProps } from "react-native"
 import { requireNativeViewManager, requireOptionalNativeModule } from "expo-modules-core"
 
 /**
@@ -64,14 +64,20 @@ export function ArrangementView({
       {...props}
       primaryWidth={primaryWidth}
       secondaryWidth={secondaryWidth}
-      onArrangementChange={(event) => onArrangementChange?.(event.nativeEvent)}
+      onArrangementChange={(event) => {
+        const layout = event.nativeEvent
+        // On iPhone Duo's closed display UIKit's state still says the secondary is shown while its view is already out
+        // of the window, so no frame comes with it; what has no frame is not on screen.
+        onArrangementChange?.({ ...layout, secondaryHidden: layout.secondaryHidden || !layout.secondary })
+      }}
     >
-      {/* Keyed by placement: a pane's placement is fixed once it's in the arrangement. */}
+      {/* Keyed by placement: a pane's placement is fixed once it's in the arrangement. The content fills the pane
+          absolutely: a flex child overflows the height UIKit hands the pane (its width it takes). */}
       <NativePane key="primary" placement="primary" style={styles.pane}>
-        {primary}
+        <View style={StyleSheet.absoluteFill}>{primary}</View>
       </NativePane>
       <NativePane key="secondary" placement="secondary" style={styles.pane}>
-        {secondary}
+        <View style={StyleSheet.absoluteFill}>{secondary}</View>
       </NativePane>
     </NativeHost>
   )

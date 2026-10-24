@@ -469,7 +469,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
 
       {/* The photo spans the full width, but the station buttons stay clear of the side bars. */}
       <View style={[{ top: -20, marginBottom: -30, zIndex: 5 }, sideInsetPadding(insets, I18nManager.isRTL)]}>
-        <View style={[styles.routeDetailsWrapper, style, splitLayout?.row]}>
+        {/* Remounted between the two layouts: the origin's split width otherwise stays on the view once it's dropped
+            from the style (seen on iPhone Duo as it closes). */}
+        <View key={splitLayout ? "split" : "row"} style={[styles.routeDetailsWrapper, style, splitLayout?.row]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
             onPress={changeOriginStation}

@@ -43,6 +43,7 @@ export default function MainLayout() {
         <Stack.Screen
           name="route-details"
           // `instant` swaps the route list's split view for this screen when the window narrows, with no push to see.
+          // The screen restores the default animation once it's up, so leaving it is an ordinary pop.
           options={({ route }) => ({
             headerShown: false,
             ...((route.params as { instant?: string } | undefined)?.instant ? { animation: "none" as const } : {}),

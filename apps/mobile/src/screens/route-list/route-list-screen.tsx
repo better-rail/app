@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, I18nManager, useColorScheme, useWindowDimensions } from "react-native"
@@ -176,10 +176,11 @@ export function RouteListScreen() {
   // Wide windows (iPhone Duo open, iPad) show the list beside the selected trip's details, as the website does. On
   // iOS 27.1+ UIKit's arrangement decides: it places the details beside the list when there's room, either side of
   // the fold when partially folded, and animates between those layouts as the device opens, folds and closes. Until
-  // it first reports, and where it isn't available, the window's width decides.
+  // it first reports, and where it isn't available, the window's width decides. A narrow window never counts as
+  // wide: it changes a frame or two before the arrangement reports its hidden pane as the device closes.
   const isWideWindow = useIsWideLayout()
   const [arrangement, setArrangement] = useState<ArrangementLayout | null>(null)
-  const isWide = isArrangementAvailable && arrangement ? !arrangement.secondaryHidden : isWideWindow
+  const isWide = isArrangementAvailable && arrangement ? !arrangement.secondaryHidden && isWideWindow : isWideWindow
   const columns = arrangementColumns(arrangement)
   const listWidth =
     isArrangementAvailable && isWide && columns
@@ -202,25 +203,31 @@ export function RouteListScreen() {
 
   // The split view and the separate screens are two presentations of the same selection, so switching between them
   // (closing or opening the device, rotating, Split View) swaps one for the other without a navigation transition.
-  // Narrowing continues on the details screen, pushed without animation; widening is handled by that screen, which
-  // hands its trip back here and pops itself.
+  // Narrowing continues on the details screen; until that's on top the details cover the narrowed list, so there's no
+  // frame of it to see. Widening is handled by that screen, which hands its trip back here and pops itself.
   const isFocused = useIsFocused()
   const wasWide = useRef(isWide)
-  useEffect(() => {
+  const [coveredByDetails, setCoveredByDetails] = useState(false)
+  useLayoutEffect(() => {
     // Not while a sheet (fares, filter) or another screen is on top: the swap would land under it.
-    if (wasWide.current && !isWide && selectedRoute && isFocused) openRouteDetails(selectedRoute, true)
+    if (wasWide.current && !isWide && selectedRoute && isFocused) {
+      setCoveredByDetails(true)
+      openRouteDetails(selectedRoute, true)
+    }
     wasWide.current = isWide
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWide])
+  useEffect(() => {
+    if (!isFocused || isWide) setCoveredByDetails(false)
+  }, [isFocused, isWide])
 
   const splitHandoff = useNavigationParamsStore((s) => s.splitHandoff)
   useEffect(() => {
-    if (!splitHandoff) return
+    // Kept until the split is up: the arrangement may report the details pane a frame after the window widens.
+    if (!splitHandoff || !isWide) return
     useNavigationParamsStore.getState().setSplitHandoff(null)
-    if (isWide) {
-      setSelectedRoute(splitHandoff)
-      setShowEntireRoute(false)
-    }
+    setSelectedRoute(splitHandoff)
+    setShowEntireRoute(false)
   }, [splitHandoff, isWide])
   const hasRecordedSearch = useRef(false)
 
@@ -632,7 +639,11 @@ export function RouteListScreen() {
       {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
 
       {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+        <RouteListWarning
+          routesDate={trains.data[0].trains[0].departureTime}
+          warningType={resultType as WarningType}
+          inColumn={isWide}
+        />
       )}
     </>
   )
@@ -696,6 +707,9 @@ export function RouteListScreen() {
             <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
             {isWide && detailsPane}
           </>
+        )}
+        {coveredByDetails && (
+          <View style={[StyleSheet.absoluteFill, styles.root, { paddingEnd: sideInsets.end }]}>{detailsPane}</View>
         )}
       </View>
     </Screen>

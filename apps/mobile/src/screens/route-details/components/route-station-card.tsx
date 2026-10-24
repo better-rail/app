@@ -3,8 +3,6 @@ import { View, ViewStyle, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
-import { spacing } from "@/theme"
-import { useSideInsetBleed } from "./side-inset-bleed"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
 
@@ -42,13 +40,12 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
   const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
     props
 
-  const bleed = useSideInsetBleed({ start: spacing[6] + 8, end: spacing[2] })
 
   const platformText =
     platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 
   return (
-    <View style={[styles.routeStationWrapper, bleed, style]}>
+    <View style={[styles.routeStationWrapper, style]}>
       <View style={styles.routeStationTimeWrapper}>
         {delayedTime ? (
           <>
@@ -115,7 +112,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   routeStationWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    // Horizontal padding comes from useSideInsetBleed, so the background can reach the screen edges.
+    // Stops at the side insets (iPhone Duo's toolbar column) rather than running under them like the banners do.
+    paddingStart: theme.spacing[6] + 8,
+    paddingEnd: theme.spacing[2],
     paddingVertical: theme.spacing[3],
     backgroundColor: theme.colors.secondaryBackground,
     zIndex: 100,
