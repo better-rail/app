@@ -196,6 +196,7 @@
     "testflightMessage": "The app has been installed via TestFlight.\nIn order to send a tip, you'll need to download the app from the App Store.",
     "purchaseCancelled": "Purchase cancelled",
     "purchaseFailed": "Purchase failed",
+    "purchasesUnavailable": "Tips can't be sent right now. It looks like in-app purchases are turned off on this device.",
     "supportBetterRail": "Support Better Rail",
     "supportLinkError": "Could not open the support page.",
     "aboutText": "Better Rail is an open source app that aims to make Israel Railways schedules more accessible to the public.",
