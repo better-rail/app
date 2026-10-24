@@ -26,7 +26,6 @@ import {
 import { useQuery } from "react-query"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
-import { usePathname } from "expo-router"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
@@ -42,10 +41,9 @@ import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
 // scale because of its line box and padding. Match that visible surface.
 const floatingButtonSize = (fontScale: number) => Math.max(59, 55 * Math.min(fontScale, 1.2))
 
-export function RouteDetailsScreen() {
+// Passed by the route file, since usePathname() follows whichever sheet is focused on top
+export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName?: "routeDetails" | "activeRide" }) {
   const { rt } = useUnistyles()
-  const pathname = usePathname()
-  const screenName = pathname.includes("active-ride") ? "activeRide" : "routeDetails"
   const {
     routeItem: paramsRouteItem,
     originId,
