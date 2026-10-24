@@ -3,6 +3,7 @@ import { Text as ReactNativeText } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import type { TextProps } from "./text.props"
 import { translate } from "@/i18n"
+import { headingFontStyle, labelFontStyle } from "@/theme/theme-fonts"
 
 /**
  * For your text displaying needs.
@@ -42,9 +43,9 @@ const styles = StyleSheet.create((theme) => ({
         // A bold version of the default text.
         bold: { fontWeight: "bold" },
         // Large headers.
-        header: { fontSize: 32, fontWeight: "bold" },
+        header: headingFontStyle(theme, 32, "bold"),
         // Field labels that appear on forms above the inputs.
-        fieldLabel: { fontSize: 13, color: theme.colors.label },
+        fieldLabel: { ...labelFontStyle(theme, 13), color: theme.colors.label },
         // A smaller piece of secondary information.
         secondary: { fontSize: 9, color: theme.colors.dim },
         small: { fontSize: 14 },

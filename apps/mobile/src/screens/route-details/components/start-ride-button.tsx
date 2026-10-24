@@ -1,5 +1,5 @@
 import { Alert, Dimensions, Image, Linking, Platform, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { Button } from "@/components"
@@ -7,7 +7,7 @@ import { translate, userLocale } from "@/i18n"
 import type { RouteItem } from "@/services/api"
 import { differenceInMinutes } from "date-fns"
 import { isRouteInThePast, timezoneCorrection } from "@/utils/helpers/date-helpers"
-import { color, fontScale } from "@/theme"
+import { fontScale } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
 import { trackEvent } from "@/services/analytics"
@@ -22,6 +22,7 @@ interface StartRideButtonProps {
 }
 
 export function StartRideButton(props: StartRideButtonProps) {
+  const { theme } = useUnistyles()
   const router = useRouter()
   const ride = useRideStore(
     useShallow((s) => ({
@@ -89,7 +90,7 @@ export function StartRideButton(props: StartRideButtonProps) {
       <Button
         variant="secondary"
         style={{
-          backgroundColor: color.secondary,
+          backgroundColor: theme.colors.secondary,
           width: Platform.OS === "ios" && userLocale === "he" ? 160 * Math.min(fontScale, 1.2) : 148 * Math.min(fontScale, 1.2),
         }}
         icon={

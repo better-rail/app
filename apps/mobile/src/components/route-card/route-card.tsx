@@ -15,6 +15,7 @@ import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { IS_E2E } from "@/config/e2e"
+import { labelFontStyle } from "@/theme/theme-fonts"
 import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 
 // Setting static height for FlatList getItemLayout
@@ -113,6 +114,8 @@ export function RouteCard(props: RouteCardProps) {
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
   const timeTextStyle = [styles.timeText, use12HourClock && styles.timeText12h, isCancelled && styles.cancelledTimeText]
+  const departureTimeStyle = [...timeTextStyle, styles.departureTimeText]
+  const arrivalTimeStyle = [...timeTextStyle, styles.arrivalTimeText]
 
   const getTrainType = (train: any): string => {
     if (!train?.visaWagonData?.wagons?.[0]?.krsG3) {
@@ -207,7 +210,7 @@ export function RouteCard(props: RouteCardProps) {
               />
             )}
           </View>
-          <Text style={timeTextStyle}>{formattedDepatureTime}</Text>
+          <Text style={departureTimeStyle}>{formattedDepatureTime}</Text>
         </View>
 
         {showDashedLine && <DashedLine />}
@@ -235,7 +238,7 @@ export function RouteCard(props: RouteCardProps) {
 
         <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
           <Text style={styles.timeTypeText} tx="routes.arrival" />
-          <Text style={timeTextStyle}>{formattedArrivalTime}</Text>
+          <Text style={arrivalTimeStyle}>{formattedArrivalTime}</Text>
         </View>
       </View>
     </TouchableComponent>
@@ -269,6 +272,16 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOffset: { height: 0, width: 0 },
     shadowOpacity: 0.05,
     elevation: 1,
+    // Set even without a skin: a key dropped on a theme switch keeps its old native value
+    ...(theme.skin.routeCard
+      ? {
+          backgroundColor: theme.skin.routeCard.background,
+          borderRadius: theme.skin.routeCard.radius,
+          borderWidth: theme.skin.routeCard.borderWidth,
+          borderColor: theme.skin.routeCard.border,
+          boxShadow: theme.skin.routeCard.shadow,
+        }
+      : { borderWidth: 0, borderColor: "transparent", boxShadow: "0 0 0 transparent" }),
   },
   containerWithoutHeader: {
     flexDirection: "row",
@@ -300,8 +313,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     // Without it the row grows to its content width and overflows the card
     flexShrink: 1,
   },
+  // In the stylesheet so it switches with the theme fonts, not a render later
   dashedLine: {
-    width: 35,
+    width: theme.skin.timeFont?.compact ? 20 : 35,
     flexShrink: 1,
   },
   headerText: {
@@ -366,19 +380,36 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   timeTypeText: {
     marginBottom: -2,
-    fontFamily: theme.typography.primary,
-    fontSize: 14,
-    fontWeight: "500",
-    color: theme.colors.dim,
+    color: theme.skin.routeCard?.label ?? theme.colors.dim,
+    ...labelFontStyle(theme, 14, "500"),
   },
+  // Heebo's line height keeps the card layout with any time font; every key is set so a theme switch resets it
   timeText: {
-    fontFamily: theme.typography.primary,
-    fontWeight: "700",
-    fontSize: 24,
     color: theme.colors.text,
+    lineHeight: 35,
+    ...(theme.skin.timeFont
+      ? {
+          fontFamily: theme.skin.timeFont.family,
+          fontWeight: "normal",
+          fontSize: theme.skin.timeFont.size,
+          letterSpacing: theme.skin.timeFont.letterSpacing ?? 0,
+        }
+      : { fontFamily: theme.typography.primary, fontWeight: "700", fontSize: 24, letterSpacing: 0 }),
+  },
+  // LED-style glow on skinned cards
+  departureTimeText: {
+    color: theme.skin.routeCard?.departureTime ?? theme.colors.text,
+    textShadowColor: theme.skin.routeCard?.timeGlow ? theme.skin.routeCard.departureTime : "transparent",
+    textShadowRadius: theme.skin.routeCard?.timeGlow ? 8 : 0,
+  },
+  arrivalTimeText: {
+    color: theme.skin.routeCard?.arrivalTime ?? theme.colors.text,
+    textShadowColor: theme.skin.routeCard?.timeGlow ? theme.skin.routeCard.arrivalTime : "transparent",
+    textShadowRadius: theme.skin.routeCard?.timeGlow ? 8 : 0,
   },
   timeText12h: {
     fontSize: 20,
+    lineHeight: 29,
   },
   cancelledTimeText: {
     textDecorationLine: "line-through",
@@ -390,5 +421,6 @@ const styles = StyleSheet.create((theme, rt) => ({
   durationText: {
     marginBottom: -2,
     fontSize: 16,
+    color: theme.skin.routeCard?.text ?? theme.colors.text,
   },
 }))

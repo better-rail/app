@@ -84,5 +84,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   stopsText: {
     fontSize: 14,
+    color: theme.skin.routeCard?.text ?? theme.colors.text,
   },
 }))

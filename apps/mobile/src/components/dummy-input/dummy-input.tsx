@@ -3,6 +3,7 @@ import { Platform, TouchableOpacity, ViewStyle, PressableProps } from "react-nat
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { labelFontStyle } from "@/theme/theme-fonts"
 
 export interface DummyInputProps extends PressableProps {
   /**
@@ -76,9 +77,7 @@ const styles = StyleSheet.create((theme) => ({
     elevation: 1,
   },
   text: {
-    fontFamily: theme.typography.primary,
-    fontWeight: "500",
-    fontSize: 16,
+    ...labelFontStyle(theme, 16, "500"),
     textAlign: "left",
     color: theme.colors.dim,
   },

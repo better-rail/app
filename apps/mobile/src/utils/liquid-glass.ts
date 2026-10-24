@@ -1,4 +1,5 @@
 import { useColorScheme } from "react-native"
+import { useUnistyles } from "react-native-unistyles"
 import { isGlassEffectAPIAvailable, isLiquidGlassAvailable } from "expo-glass-effect"
 import { palette } from "@/theme/palette"
 
@@ -16,6 +17,12 @@ const glassTints = {
   transparent: ["transparent", "transparent"],
 } as const
 
+// Accent themes set these roles as plain strings, which GlassView can take as is
+const themedRoles = new Set<string>(["primary", "secondary", "secondaryLighter", "secondaryBackground"])
+
 export function useGlassTint(role: keyof typeof glassTints): string {
-  return glassTints[role][useColorScheme() === "dark" ? 1 : 0]
+  const { theme } = useUnistyles()
+  const themed = themedRoles.has(role) ? theme.colors[role as keyof typeof theme.colors] : undefined
+  const fallback = glassTints[role][useColorScheme() === "dark" ? 1 : 0]
+  return typeof themed === "string" ? themed : fallback
 }

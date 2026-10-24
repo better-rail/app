@@ -1,45 +1,51 @@
-import { create } from "zustand";
-import type { PopUpMessage } from "@/services/api";
+import { create } from "zustand"
+import type { PopUpMessage } from "@/services/api"
+import { isAccentThemeId, type AccentThemeId } from "@/theme/accent-themes"
 
-export type MaxChanges = 0 | 1 | null;
-export type ColorSchemePreference = "automatic" | "light" | "dark";
-export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2;
+export type MaxChanges = 0 | 1 | null
+export type ColorSchemePreference = "automatic" | "light" | "dark"
+export const TRAIN_INFO_PROMPT_SEARCH_THRESHOLD = 2
 
 export interface SettingsState {
-  seenUrgentMessagesIds: number[];
+  seenUrgentMessagesIds: number[]
   /** The rider's Israel Railways fare profile id (0 = general), shown on the fares sheet. */
-  profileCode: number;
-  totalTip: number;
-  recordedTipTransactionIds: string[];
-  showRouteCardHeader: boolean;
-  showHourIndex: boolean;
-  colorScheme: ColorSchemePreference;
-  hideSlowTrains: boolean;
-  maxChanges: MaxChanges;
-  trainSearchCount: number;
-  seenTrainInfoPrompt: boolean;
+  profileCode: number
+  totalTip: number
+  recordedTipTransactionIds: string[]
+  showRouteCardHeader: boolean
+  showHourIndex: boolean
+  colorScheme: ColorSchemePreference
+  accentTheme: AccentThemeId
+  showThemeBackground: boolean
+  useAlternateTimeFont: boolean
+  hideSlowTrains: boolean
+  maxChanges: MaxChanges
+  trainSearchCount: number
+  seenTrainInfoPrompt: boolean
 }
 
 export interface SettingsActions {
-  setProfileCode: (code: number) => void;
-  recordTip: (transactionId: string, amount: number) => void;
-  setShowRouteCardHeader: (show: boolean) => void;
-  setShowHourIndex: (show: boolean) => void;
-  setColorScheme: (colorScheme: ColorSchemePreference) => void;
-  setHideSlowTrains: (hide: boolean) => void;
-  setMaxChanges: (maxChanges: MaxChanges) => void;
-  recordTrainSearch: () => void;
-  setSeenUrgentMessagesIds: (messagesIds: number[]) => void;
-  setSeenTrainInfoPrompt: (seen: boolean) => void;
+  setProfileCode: (code: number) => void
+  recordTip: (transactionId: string, amount: number) => void
+  setShowRouteCardHeader: (show: boolean) => void
+  setShowHourIndex: (show: boolean) => void
+  setColorScheme: (colorScheme: ColorSchemePreference) => void
+  setAccentTheme: (accentTheme: AccentThemeId) => void
+  setShowThemeBackground: (show: boolean) => void
+  setUseAlternateTimeFont: (use: boolean) => void
+  setHideSlowTrains: (hide: boolean) => void
+  setMaxChanges: (maxChanges: MaxChanges) => void
+  recordTrainSearch: () => void
+  setSeenUrgentMessagesIds: (messagesIds: number[]) => void
+  setSeenTrainInfoPrompt: (seen: boolean) => void
 }
 
-export type SettingsStore = SettingsState & SettingsActions;
+export type SettingsStore = SettingsState & SettingsActions
 
 // Israel Railways' "general" profile. The retired fares feature stored 1 for it,
 // an id the rail API never lists — hydration maps that onto 0.
-const GENERAL_PROFILE_CODE = 0;
-const migrateProfileCode = (code: unknown): number =>
-  typeof code === "number" && code !== 1 ? code : GENERAL_PROFILE_CODE;
+const GENERAL_PROFILE_CODE = 0
+const migrateProfileCode = (code: unknown): number => (typeof code === "number" && code !== 1 ? code : GENERAL_PROFILE_CODE)
 
 const initialSettingsState: SettingsState = {
   seenUrgentMessagesIds: [],
@@ -49,104 +55,106 @@ const initialSettingsState: SettingsState = {
   showRouteCardHeader: false,
   showHourIndex: false,
   colorScheme: "automatic",
+  accentTheme: "default",
+  showThemeBackground: false,
+  useAlternateTimeFont: false,
   hideSlowTrains: false,
   maxChanges: null,
   trainSearchCount: 0,
   seenTrainInfoPrompt: false,
-};
+}
 
-export const resetSettingsStore = () =>
-  useSettingsStore.setState(initialSettingsState);
+export const resetSettingsStore = () => useSettingsStore.setState(initialSettingsState)
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
   ...initialSettingsState,
 
   setProfileCode(code) {
-    set({ profileCode: code });
+    set({ profileCode: code })
   },
 
   recordTip(transactionId, amount) {
-    if (get().recordedTipTransactionIds.includes(transactionId)) return;
+    if (get().recordedTipTransactionIds.includes(transactionId)) return
     set((state) => ({
       totalTip: state.totalTip + amount,
-      recordedTipTransactionIds: [
-        ...state.recordedTipTransactionIds,
-        transactionId,
-      ],
-    }));
+      recordedTipTransactionIds: [...state.recordedTipTransactionIds, transactionId],
+    }))
   },
 
   setShowRouteCardHeader(show) {
-    set({ showRouteCardHeader: show });
+    set({ showRouteCardHeader: show })
   },
 
   setShowHourIndex(show) {
-    set({ showHourIndex: show });
+    set({ showHourIndex: show })
   },
 
   setColorScheme(colorScheme) {
-    set({ colorScheme });
+    set({ colorScheme })
+  },
+
+  setAccentTheme(accentTheme) {
+    set({ accentTheme })
+  },
+
+  setShowThemeBackground(show) {
+    set({ showThemeBackground: show })
+  },
+
+  setUseAlternateTimeFont(use) {
+    set({ useAlternateTimeFont: use })
   },
 
   setHideSlowTrains(hide) {
-    set({ hideSlowTrains: hide });
+    set({ hideSlowTrains: hide })
   },
 
   setMaxChanges(maxChanges) {
-    set({ maxChanges });
+    set({ maxChanges })
   },
 
   recordTrainSearch() {
-    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return;
-    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }));
+    if (get().trainSearchCount >= TRAIN_INFO_PROMPT_SEARCH_THRESHOLD) return
+    set((state) => ({ trainSearchCount: state.trainSearchCount + 1 }))
   },
 
   setSeenUrgentMessagesIds(messagesIds) {
-    set({ seenUrgentMessagesIds: messagesIds });
+    set({ seenUrgentMessagesIds: messagesIds })
   },
 
   setSeenTrainInfoPrompt(seen) {
-    set({ seenTrainInfoPrompt: seen });
+    set({ seenTrainInfoPrompt: seen })
   },
-
-}));
+}))
 
 /** How many route filters the user has turned on — the toolbar shows the number, not just that one is on. */
-export const activeFilterCount = (
-  state: Pick<SettingsState, "hideSlowTrains" | "maxChanges">,
-): number =>
-  (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0);
+export const activeFilterCount = (state: Pick<SettingsState, "hideSlowTrains" | "maxChanges">): number =>
+  (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0)
 
 // Drops routes the filters hide and date headers left empty
 export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boolean }>(
   data: (T | string)[],
   filters: Pick<SettingsState, "hideSlowTrains" | "maxChanges">,
 ) {
-  const { hideSlowTrains, maxChanges } = filters;
-  if (!hideSlowTrains && maxChanges === null) return data;
+  const { hideSlowTrains, maxChanges } = filters
+  if (!hideSlowTrains && maxChanges === null) return data
 
-  const result: (T | string)[] = [];
-  let pendingHeader: string | null = null;
+  const result: (T | string)[] = []
+  let pendingHeader: string | null = null
   for (const item of data) {
     if (typeof item === "string") {
-      pendingHeader = item;
-    } else if (
-      !(hideSlowTrains && item.isMuchLonger) &&
-      (maxChanges === null || item.trains.length - 1 <= maxChanges)
-    ) {
-      if (pendingHeader !== null) result.push(pendingHeader);
-      pendingHeader = null;
-      result.push(item);
+      pendingHeader = item
+    } else if (!(hideSlowTrains && item.isMuchLonger) && (maxChanges === null || item.trains.length - 1 <= maxChanges)) {
+      if (pendingHeader !== null) result.push(pendingHeader)
+      pendingHeader = null
+      result.push(item)
     }
   }
-  return result;
+  return result
 }
 
-export function filterUnseenUrgentMessages(
-  messages: PopUpMessage[],
-  seenIds: number[],
-) {
-  return messages.filter((message) => !seenIds.includes(message.id));
+export function filterUnseenUrgentMessages(messages: PopUpMessage[], seenIds: number[]) {
+  return messages.filter((message) => !seenIds.includes(message.id))
 }
 
 export function getSettingsSnapshot(state: SettingsState) {
@@ -158,29 +166,31 @@ export function getSettingsSnapshot(state: SettingsState) {
     showRouteCardHeader: state.showRouteCardHeader,
     showHourIndex: state.showHourIndex,
     colorScheme: state.colorScheme,
+    accentTheme: state.accentTheme,
+    showThemeBackground: state.showThemeBackground,
+    useAlternateTimeFont: state.useAlternateTimeFont,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
     seenTrainInfoPrompt: state.seenTrainInfoPrompt,
-  };
+  }
 }
 
 export function hydrateSettingsStore(data: any) {
-  if (!data) return;
+  if (!data) return
 
   // Migration: handle old "hideCollectorTrains" property
-  let processedData = { ...data };
+  let processedData = { ...data }
   if (data.hideCollectorTrains !== undefined && !("hideSlowTrains" in data)) {
-    processedData.hideSlowTrains = data.hideCollectorTrains;
+    processedData.hideSlowTrains = data.hideCollectorTrains
   }
-  delete processedData.hideCollectorTrains;
+  delete processedData.hideCollectorTrains
 
-  const persistedTrainSearchCount = processedData.trainSearchCount;
+  const persistedTrainSearchCount = processedData.trainSearchCount
   const trainSearchCount =
-    Number.isSafeInteger(persistedTrainSearchCount) &&
-    persistedTrainSearchCount >= 0
+    Number.isSafeInteger(persistedTrainSearchCount) && persistedTrainSearchCount >= 0
       ? Math.min(persistedTrainSearchCount, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD)
-      : 0;
+      : 0
 
   useSettingsStore.setState({
     seenUrgentMessagesIds: processedData.seenUrgentMessagesIds ?? [],
@@ -189,14 +199,13 @@ export function hydrateSettingsStore(data: any) {
     recordedTipTransactionIds: processedData.recordedTipTransactionIds ?? [],
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     showHourIndex: processedData.showHourIndex ?? false,
-    colorScheme: ["automatic", "light", "dark"].includes(
-      processedData.colorScheme,
-    )
-      ? processedData.colorScheme
-      : "automatic",
+    colorScheme: ["automatic", "light", "dark"].includes(processedData.colorScheme) ? processedData.colorScheme : "automatic",
+    accentTheme: isAccentThemeId(processedData.accentTheme) ? processedData.accentTheme : "default",
+    showThemeBackground: processedData.showThemeBackground ?? false,
+    useAlternateTimeFont: processedData.useAlternateTimeFont ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,
     seenTrainInfoPrompt: processedData.seenTrainInfoPrompt ?? false,
-  });
+  })
 }

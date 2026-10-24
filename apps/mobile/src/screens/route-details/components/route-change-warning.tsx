@@ -1,8 +1,9 @@
 import React from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
+import { useUnistyles } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate, TxKeyPath } from "@/i18n"
-import { color, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import type { Train } from "@/services/api"
 
 const t = (key: TxKeyPath, options?: object): string => translate(key, options) ?? ""
@@ -11,7 +12,6 @@ const WARNING_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   marginBottom: spacing[4],
-  backgroundColor: color.secondary,
   width: "100%",
 }
 
@@ -26,13 +26,17 @@ const WARNING_TEXT: TextStyle = {
   textAlign: "center",
 }
 
-const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: string }) => (
-  <View style={WARNING_WRAPPER}>
-    <Text style={{ fontSize: 48 }}>{emoji}</Text>
-    <Text style={WARNING_TITLE}>{title}</Text>
-    <Text style={WARNING_TEXT}>{text}</Text>
-  </View>
-)
+const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: string }) => {
+  const { theme } = useUnistyles()
+
+  return (
+    <View style={[WARNING_WRAPPER, { backgroundColor: theme.colors.secondary }]}>
+      <Text style={{ fontSize: 48 }}>{emoji}</Text>
+      <Text style={WARNING_TITLE}>{title}</Text>
+      <Text style={WARNING_TEXT}>{text}</Text>
+    </View>
+  )
+}
 
 export const RouteChangeWarnings = ({ train }: { train: Train }) => {
   if (train.isCancelled) {

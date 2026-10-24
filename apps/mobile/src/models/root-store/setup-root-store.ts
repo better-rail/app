@@ -2,6 +2,7 @@ import * as storage from "@/utils/storage"
 import { Appearance } from "react-native"
 import { UnistylesRuntime } from "react-native-unistyles"
 import { syncAnalyticsUserProperties } from "@/services/analytics"
+import { applyAccentTheme } from "@/theme/apply-accent-theme"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -112,6 +113,11 @@ export async function setupRootStore() {
     })
   }
   applyColorScheme(useSettingsStore.getState().colorScheme)
+  const applyTheme = () => {
+    const { accentTheme, useAlternateTimeFont } = useSettingsStore.getState()
+    applyAccentTheme(accentTheme, useAlternateTimeFont)
+  }
+  applyTheme()
 
   appearanceAnalyticsSubscription?.remove()
   appearanceAnalyticsSubscription = Appearance.addChangeListener(({ colorScheme }) => {
@@ -147,6 +153,9 @@ export async function setupRootStore() {
   useFavoritesStore.subscribe(persist)
   useSettingsStore.subscribe((state, previousState) => {
     if (state.colorScheme !== previousState.colorScheme) applyColorScheme(state.colorScheme)
+    if (state.accentTheme !== previousState.accentTheme || state.useAlternateTimeFont !== previousState.useAlternateTimeFont) {
+      applyTheme()
+    }
     persist()
   })
   useRideStore.subscribe(persist)
