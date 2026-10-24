@@ -18,6 +18,10 @@ import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+
+const CLOSE_ICON = require("../../../assets/close.png")
 
 const STAR_ICON = require("../../../assets/star-fill.png")
 const CHECKMARK_ICON = require("../../../assets/checkmark.png")
@@ -150,8 +154,20 @@ export function SelectStationScreen() {
         {!allowedStations && (
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
         )}
-        <Pressable testID="cancel-station-selection" onPress={() => router.back()}>
-          <Text style={styles.cancelLink} tx="common.cancel" />
+        <Pressable
+          testID="cancel-station-selection"
+          style={styles.closeButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={translate("common.cancel") ?? ""}
+        >
+          {isLiquidGlassSupported ? (
+            <GlassView isInteractive style={styles.closeGlass}>
+              <Image source={CLOSE_ICON} style={styles.closeIcon} />
+            </GlassView>
+          ) : (
+            <Text style={styles.cancelLink} tx="common.cancel" />
+          )}
         </Pressable>
         {hasTrainStart && (
           <Pressable
@@ -218,9 +234,23 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginHorizontal: theme.spacing[3],
     marginBottom: theme.spacing[3],
   },
-  cancelLink: {
+  closeButton: {
     marginStart: theme.spacing[3],
+  },
+  cancelLink: {
     color: theme.colors.link,
+  },
+  closeGlass: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeIcon: {
+    width: 16,
+    height: 16,
+    tintColor: theme.colors.text,
   },
   infoButton: {
     marginStart: "auto",

@@ -8,7 +8,7 @@ import { FlashList, type FlashListRef } from "@shopify/flash-list"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useNavigation, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
@@ -186,10 +186,21 @@ export function RouteListScreen() {
   )
   const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
 
+  // The pane beside the app follows this screen: it turns to the trip's details when the list arrives, and back to
+  // the favorites as the list starts to leave, in step with the pop rather than after it.
+  const navigation = useNavigation()
   useEffect(() => {
     setRouteListMounted(true)
-    return () => setRouteListMounted(false)
-  }, [setRouteListMounted])
+    // Typed for the root navigator by expo-router; this is a native stack screen, which does have `beforeRemove`.
+    const unsubscribe = (navigation as unknown as { addListener: (e: "beforeRemove", cb: () => void) => () => void }).addListener(
+      "beforeRemove",
+      () => setRouteListMounted(false),
+    )
+    return () => {
+      unsubscribe()
+      setRouteListMounted(false)
+    }
+  }, [navigation, setRouteListMounted])
 
   useEffect(() => {
     clearSelection()

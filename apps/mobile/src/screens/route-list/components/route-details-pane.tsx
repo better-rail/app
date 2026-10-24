@@ -1,4 +1,5 @@
 import { I18nManager, Image, Platform, StyleSheet as RNStyleSheet, View } from "react-native"
+import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
@@ -42,16 +43,17 @@ export function RouteDetailsPane() {
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
 
   const backItem: HeaderBarButtonItem[] = isCollapsed
-    ? [{ type: "button", icon: { type: "sfSymbol", name: "chevron.backward" }, onPress: showList }]
+    ? [{ type: "button", icon: { type: "sfSymbol", name: "chevron.backward" }, sharesBackground: false, onPress: showList }]
     : []
   // The same actions the route details screen offers from its bar (see RouteDetailsHeader). The bar has room, so the
-  // two most used are buttons of their own, and only the rest sit behind the menu.
+  // most used are buttons of their own, each with its own background, and only the rest sit behind the menu.
   const actionItems: HeaderBarButtonItem[] = selection
     ? [
         {
           type: "button",
           title: translate("routes.share") ?? "",
           icon: { type: "sfSymbol", name: "square.and.arrow.up" },
+          sharesBackground: false,
           onPress: () => {
             const share = createContextMenuActions(selection.route, selection.originId, selection.destinationId).find(
               (action) => action.systemIcon === "square.and.arrow.up",
@@ -61,23 +63,25 @@ export function RouteDetailsPane() {
         },
         {
           type: "button",
-          title: translate("routeDetails.addToCalendar") ?? "",
-          icon: { type: "sfSymbol", name: "calendar" },
-          onPress: () => {
-            addRouteToCalendar(selection.route).catch((error) => console.error("Failed to add to calendar:", error))
-          },
+          title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations") ?? "",
+          icon: { type: "sfSymbol", name: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical" },
+          sharesBackground: false,
+          onPress: () => setShowEntireRoute((prev) => !prev),
         },
         {
           type: "menu",
           title: translate("routes.routeActions") ?? "",
           icon: { type: "sfSymbol", name: "ellipsis" },
+          sharesBackground: false,
           menu: {
             items: [
               {
                 type: "action",
-                title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations") ?? "",
-                icon: { type: "sfSymbol", name: showEntireRoute ? "rectangle.compress.vertical" : "rectangle.expand.vertical" },
-                onPress: () => setShowEntireRoute((prev) => !prev),
+                title: translate("routeDetails.addToCalendar") ?? "",
+                icon: { type: "sfSymbol", name: "calendar" },
+                onPress: () => {
+                  addRouteToCalendar(selection.route).catch((error) => console.error("Failed to add to calendar:", error))
+                },
               },
               {
                 type: "action",
@@ -155,19 +159,24 @@ function SelectedRouteDetails({
   return (
     // Without the photo header the rows start below the top inset, where the status bar is on an open display.
     <View style={[styles.pane, !withHeader && { paddingTop: insets.top + spacing[3] }]} testID="route-details-screen">
+      {/* The header fades as the device opens and the column takes its place beside the list, and back as it closes. */}
       {withHeader && (
-        <RouteDetailsHeader
-          routeItem={data.routeItem}
-          originId={selection.originId}
-          destinationId={selection.destinationId}
-          screenName="routeDetails"
-          inSplitColumn
-          showEntireRoute={showEntireRoute}
-          setShowEntireRoute={setShowEntireRoute}
-          style={styles.headerContainer}
-        />
+        <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)}>
+          <RouteDetailsHeader
+            routeItem={data.routeItem}
+            originId={selection.originId}
+            destinationId={selection.destinationId}
+            screenName="routeDetails"
+            inSplitColumn
+            showEntireRoute={showEntireRoute}
+            setShowEntireRoute={setShowEntireRoute}
+            style={styles.headerContainer}
+          />
+        </Animated.View>
       )}
-      <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
+      <Animated.View style={styles.pane} layout={LinearTransition.duration(250)}>
+        <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
+      </Animated.View>
     </View>
   )
 }

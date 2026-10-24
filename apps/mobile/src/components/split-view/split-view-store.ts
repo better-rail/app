@@ -41,9 +41,9 @@ export const useSplitViewStore = create<SplitViewStore>((set) => ({
   showEntireRoute: false,
   columnRequest: { column: "primary", n: 0 },
   setCollapsed: (isCollapsed) => set({ isCollapsed }),
+  // A new list starts without a trip; the old one's stays up while the pane fades to the favorites as the list leaves.
   setRouteListMounted: (isRouteListMounted) =>
-    // Leaving the list drops its trip, so the column is empty next time the list is opened.
-    set(isRouteListMounted ? { isRouteListMounted } : { isRouteListMounted, selection: null }),
+    set(isRouteListMounted ? { isRouteListMounted, selection: null } : { isRouteListMounted }),
   // A new selection starts from the trip's own stations, as opening the route details screen does.
   showDetails: (selection) =>
     set((state) => ({
