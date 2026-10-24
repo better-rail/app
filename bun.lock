@@ -190,6 +190,7 @@
   },
   "patchedDependencies": {
     "react-native-nitro-modules@0.37.1": "patches/react-native-nitro-modules@0.37.1.patch",
+    "@expo/ui@58.0.19": "patches/@expo%2Fui@58.0.19.patch",
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "react-native-screens@4.30.0": "patches/react-native-screens@4.30.0.patch",
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",

@@ -14,7 +14,7 @@ import { TIP_PRODUCT_IDS } from "@/services/iap/tip-purchases"
 const installSource = getInstallerPackageNameSync()
 
 export function TipJarScreen() {
-  const { products, connected, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
+  const { products, connected, isUnavailable, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
   const totalTip = useSettingsStore((state) => state.totalTip)
   const sortedProducts = products
     .filter((product) => TIP_PRODUCT_IDS.includes(product.id))
@@ -28,7 +28,9 @@ export function TipJarScreen() {
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />
         {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={styles.testflightMsg} />}
 
-        {connected && sortedProducts.length === TIP_PRODUCT_IDS.length && !isPurchasing ? (
+        {isUnavailable ? (
+          <Text tx="settings.purchasesUnavailable" style={styles.unavailableMsg} />
+        ) : connected && sortedProducts.length === TIP_PRODUCT_IDS.length && !isPurchasing ? (
           <>
             <TipRow
               disabled={!canTip}
@@ -116,6 +118,12 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing[4] + 2,
     marginBottom: theme.spacing[4],
     fontSize: 16.5,
+    textAlign: "center",
+  },
+  unavailableMsg: {
+    marginVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    fontWeight: "500",
     textAlign: "center",
   },
   testflightMsg: {
