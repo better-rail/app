@@ -1,5 +1,6 @@
-import type { ReactNode } from "react"
+import { useContext, type ReactNode } from "react"
 import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, View, useColorScheme } from "react-native"
+import { HeaderHeightContext } from "expo-router/react-navigation"
 import { StyleSheet } from "react-native-unistyles"
 import { ScreenProps } from "./screen.props"
 import { isNonScrolling, offsets } from "./screen.presets"
@@ -23,8 +24,15 @@ function ScreenInsets({ children }: { children: ReactNode }) {
   return <SafeAreaProvider style={styles.provider}>{children}</SafeAreaProvider>
 }
 
+/** The height of the native stack header above the screen, when it asks to start below it (0 outside a stack). */
+function useHeaderInset(props: ScreenProps) {
+  const headerHeight = useContext(HeaderHeightContext) ?? 0
+  return props.belowHeader ? headerHeight : 0
+}
+
 function ScreenWithoutScrolling(props: ScreenProps) {
   const isDarkMode = useColorScheme() === "dark"
+  const headerInset = useHeaderInset(props)
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
 
@@ -43,7 +51,7 @@ function ScreenWithoutScrolling(props: ScreenProps) {
       <SafeAreaView
         testID={props.testID}
         edges={sideEdges(props)}
-        style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe)]}
+        style={[styles.fixedInner, style, styles.insetTop(!!props.unsafe, headerInset)]}
       >
         {props.children}
       </SafeAreaView>
@@ -53,6 +61,7 @@ function ScreenWithoutScrolling(props: ScreenProps) {
 
 function ScreenWithScrolling(props: ScreenProps) {
   const isDarkMode = useColorScheme() === "dark"
+  const headerInset = useHeaderInset(props)
   const style = props.style || {}
   const backgroundStyle = props.backgroundColor ? { backgroundColor: props.backgroundColor } : {}
 
@@ -68,7 +77,7 @@ function ScreenWithScrolling(props: ScreenProps) {
         backgroundColor={props.statusBarBackgroundColor || (isDarkMode ? "#1c1c1e" : "#f2f2f7")}
         animated={true}
       />
-      <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe)]}>
+      <View testID={props.testID} style={[styles.scrollOuter, backgroundStyle, styles.insetTop(!!props.unsafe, headerInset)]}>
         {/* The scroll view spans the full width, so absolutely positioned backgrounds reach the screen edges; the
             side insets pad its content instead. */}
         <ScrollView style={[styles.scrollOuter, backgroundStyle]} contentContainerStyle={[styles.scrollInner, style]}>
@@ -118,7 +127,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "flex-start",
     alignItems: "stretch",
   },
-  insetTop: (unsafe: boolean) => ({
-    paddingTop: unsafe ? 0 : rt.insets.top,
+  // A header inset already includes the top safe-area inset.
+  insetTop: (unsafe: boolean, headerInset: number) => ({
+    paddingTop: headerInset > 0 ? headerInset : unsafe ? 0 : rt.insets.top,
   }),
 }))

@@ -26,6 +26,7 @@ export function TipJarScreen() {
       <Screen
         style={styles.root}
         preset="scroll"
+        belowHeader
         unsafe={true}
         statusBar={Platform.select({ ios: "light-content" })}
         statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}

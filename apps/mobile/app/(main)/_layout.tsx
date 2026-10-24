@@ -1,5 +1,7 @@
 import { useMemo } from "react"
+import { Platform } from "react-native"
 import { Stack } from "expo-router/stack"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
@@ -14,6 +16,7 @@ const formSheetOptions = {
 
 export default function MainLayout() {
   const theme = useTheme()
+  const isWideWindow = useIsWideLayout()
   // The route list header sits over a dark photo, so its glass buttons stay dark in light mode too.
   const darkHeaderTheme = useMemo(() => ({ ...theme, dark: true }), [theme])
 
@@ -34,9 +37,12 @@ export default function MainLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="select-station"
+          // A sheet where there's room for one (iPhone Duo's open inner display, iPads); the full screen on phones.
           options={{
             headerShown: false,
-            presentation: "fullScreenModal",
+            ...(isWideWindow && Platform.OS === "ios"
+              ? { presentation: "formSheet" as const, sheetAllowedDetents: [1], sheetGrabberVisible: false }
+              : { presentation: "fullScreenModal" as const }),
           }}
         />
         <Stack.Screen name="route-list" options={{ headerShown: false }} />

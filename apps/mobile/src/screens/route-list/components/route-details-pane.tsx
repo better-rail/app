@@ -44,34 +44,35 @@ export function RouteDetailsPane() {
   const backItem: HeaderBarButtonItem[] = isCollapsed
     ? [{ type: "button", icon: { type: "sfSymbol", name: "chevron.backward" }, onPress: showList }]
     : []
-  // The same actions the route details screen offers from its bar (see RouteDetailsHeader).
-  const menuItem: HeaderBarButtonItem[] = selection
+  // The same actions the route details screen offers from its bar (see RouteDetailsHeader). The bar has room, so the
+  // two most used are buttons of their own, and only the rest sit behind the menu.
+  const actionItems: HeaderBarButtonItem[] = selection
     ? [
+        {
+          type: "button",
+          title: translate("routes.share") ?? "",
+          icon: { type: "sfSymbol", name: "square.and.arrow.up" },
+          onPress: () => {
+            const share = createContextMenuActions(selection.route, selection.originId, selection.destinationId).find(
+              (action) => action.systemIcon === "square.and.arrow.up",
+            )
+            share?.onPress()
+          },
+        },
+        {
+          type: "button",
+          title: translate("routeDetails.addToCalendar") ?? "",
+          icon: { type: "sfSymbol", name: "calendar" },
+          onPress: () => {
+            addRouteToCalendar(selection.route).catch((error) => console.error("Failed to add to calendar:", error))
+          },
+        },
         {
           type: "menu",
           title: translate("routes.routeActions") ?? "",
           icon: { type: "sfSymbol", name: "ellipsis" },
           menu: {
             items: [
-              {
-                type: "action",
-                title: translate("routes.share") ?? "",
-                icon: { type: "sfSymbol", name: "square.and.arrow.up" },
-                onPress: () => {
-                  const share = createContextMenuActions(selection.route, selection.originId, selection.destinationId).find(
-                    (action) => action.systemIcon === "square.and.arrow.up",
-                  )
-                  share?.onPress()
-                },
-              },
-              {
-                type: "action",
-                title: translate("routeDetails.addToCalendar") ?? "",
-                icon: { type: "sfSymbol", name: "calendar" },
-                onPress: () => {
-                  addRouteToCalendar(selection.route).catch((error) => console.error("Failed to add to calendar:", error))
-                },
-              },
               {
                 type: "action",
                 title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations") ?? "",
@@ -127,7 +128,7 @@ export function RouteDetailsPane() {
           backgroundColor: "transparent",
           hideShadow: true,
           headerLeftBarButtonItems: backItem,
-          headerRightBarButtonItems: menuItem,
+          headerRightBarButtonItems: actionItems,
         }}
       >
         {content}

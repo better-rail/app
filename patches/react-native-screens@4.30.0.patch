@@ -92,6 +92,42 @@ index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b24
          super.endViewTransition(view)
  
          disappearingTransitioningChildren.remove(view)
+diff --git a/ios/RNSScreen.mm b/ios/RNSScreen.mm
+index 049fd22427b2bde17fd7ca59b8de65d0ee07b4b5..cdac952b372e419af13a95c921705655a2d66ecd 100644
+--- a/ios/RNSScreen.mm
++++ b/ios/RNSScreen.mm
+@@ -167,6 +167,9 @@ - (void)updateBounds
+     // TODO: Requesting layout on every layout is wrong. We should look for a way to get rid of this.
+     UINavigationController *navctr = _controller.navigationController;
+     [navctr.view setNeedsLayout];
++    // The navigation bar's bottom edge is part of the provided insets (see providerSafeAreaInsets) and moves with
++    // layouts the safe area doesn't notice, e.g. the title row on iPhone Duo.
++    [self dispatchSafeAreaDidChangeNotification];
+   }
+ 
+   if (_stackPresentation == RNSScreenStackPresentationFormSheet) {
+@@ -1161,7 +1164,20 @@ - (void)updateContentScrollViewEdgeEffectsIfExists
+ 
+ - (UIEdgeInsets)providerSafeAreaInsets
+ {
+-  return self.safeAreaInsets;
++  UIEdgeInsets insets = self.safeAreaInsets;
++  // On iPhone Duo (iOS 27) a navigation bar whose items sit in the vertical bar keeps its title row at the top of the
++  // screen without extending the safe area over it, so a screen laid out under the bar (iOS 26+) would start under
++  // the title. The bar's bottom edge is the floor of the top inset.
++  UINavigationController *navctr = _controller.navigationController;
++  UINavigationBar *bar = navctr.navigationBar;
++  if (bar != nil && !navctr.isNavigationBarHidden && !bar.isHidden && bar.window != nil &&
++      [self isDescendantOfView:navctr.view]) {
++    CGFloat barBottom = CGRectGetMaxY([bar convertRect:bar.bounds toView:self]);
++    if (barBottom > insets.top && barBottom < CGRectGetHeight(self.bounds) / 2) {
++      insets.top = barBottom;
++    }
++  }
++  return insets;
+ }
+ 
+ - (void)dispatchSafeAreaDidChangeNotification
 diff --git a/ios/gamma/split/RNSSplitHostController.mm b/ios/gamma/split/RNSSplitHostController.mm
 index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b680fbc73 100644
 --- a/ios/gamma/split/RNSSplitHostController.mm
@@ -125,7 +161,7 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..38358e24970ac54a92c811a982ad5a4b
  
  #pragma mark - Helpers
 diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
-index f97140a2ca7f97a50c5f6203106596b9f275080b..be0660d740c7a89d20d86bea780f81be25032a7a 100644
+index f97140a2ca7f97a50c5f6203106596b9f275080b..e0bb7134fdc3efa2f3b1f45a1c6138e8f8aedbbe 100644
 --- a/ios/gamma/split/RNSSplitScreenController.mm
 +++ b/ios/gamma/split/RNSSplitScreenController.mm
 @@ -69,6 +69,17 @@ - (void)viewDidLayoutSubviews
@@ -146,3 +182,44 @@ index f97140a2ca7f97a50c5f6203106596b9f275080b..be0660d740c7a89d20d86bea780f81be
    [self updateShadowTreeState];
  }
  
+@@ -106,6 +117,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
+ - (void)viewWillAppear:(BOOL)animated
+ {
+   [super viewWillAppear:animated];
++  // A column that was laid out while off screen (a collapsed split view's secondary, pushed in only now) may hold a
++  // frame in the shadow tree that its last scheduled update doesn't tell from the current one; schedule it afresh.
++  [[self shadowStateProxy] invalidateLastScheduledFrame];
++  [self updateShadowTreeState];
+   [[self reactEventEmitter] emitOnWillAppear];
+ }
+ 
+diff --git a/ios/gamma/split/RNSSplitScreenShadowStateProxy.h b/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
+index 6aa8756207575b5eaa37c90e8abcf19788ea5f3f..561c8c3d8315903859c86428939202d8a5ce5ed4 100644
+--- a/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
++++ b/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
+@@ -68,6 +68,9 @@ NS_ASSUME_NONNULL_BEGIN
+  */
+ - (void)updateShadowStateWithFrame:(CGRect)frame;
+ 
++/// Forgets the last frame scheduled, so the next update reaches the shadow tree even for a frame scheduled before.
++- (void)invalidateLastScheduledFrame;
++
+ @end
+ 
+ #pragma mark - Hidden from Swift
+diff --git a/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm b/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
+index 03470e1daeb63283198215999743655980d68597..a2b8cc4f126b283b2bdd4fe3bcc53f503e329323 100644
+--- a/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
++++ b/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
+@@ -59,6 +59,11 @@ - (void)updateShadowStateOfComponent:(RNSSplitScreenComponentView *)screenCompon
+   [self updateShadowStateWithFrame:convertedFrame];
+ }
+ 
++- (void)invalidateLastScheduledFrame
++{
++  _lastScheduledFrame = CGRectNull;
++}
++
+ - (void)updateState:(react::State::Shared const &)state oldState:(react::State::Shared const &)oldState
+ {
+   _state = std::static_pointer_cast<const react::RNSSplitScreenShadowNode::ConcreteState>(state);
