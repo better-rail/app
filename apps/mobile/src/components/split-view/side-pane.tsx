@@ -33,12 +33,21 @@ export function SidePane() {
     const timeout = setTimeout(() => setDetailsMounted(false), FADE_DURATION)
     return () => clearTimeout(timeout)
   }, [isRouteListMounted, details])
-  const detailsStyle = useAnimatedStyle(() => ({ opacity: details.value }))
+  // Only the favorites fade, over the details: a glass view under an ancestor at opacity 0 never renders, even mounted
+  // after the fade (the ride buttons beside the list).
   const favoritesStyle = useAnimatedStyle(() => ({ opacity: 1 - details.value }))
 
   return (
     <View style={styles.pane}>
-      <Animated.View style={[RNStyleSheet.absoluteFill, favoritesStyle]} pointerEvents={isRouteListMounted ? "none" : "auto"}>
+      {detailsMounted && (
+        <View style={RNStyleSheet.absoluteFill} pointerEvents={isRouteListMounted ? "auto" : "none"}>
+          <RouteDetailsPane />
+        </View>
+      )}
+      <Animated.View
+        style={[RNStyleSheet.absoluteFill, styles.favorites, favoritesStyle]}
+        pointerEvents={isRouteListMounted ? "none" : "auto"}
+      >
         <ScrollView
           contentContainerStyle={[
             styles.favoritesContent,
@@ -49,11 +58,6 @@ export function SidePane() {
           <FavoriteRoutes onSelect={() => HapticFeedback.trigger("impactLight")} />
         </ScrollView>
       </Animated.View>
-      {detailsMounted && (
-        <Animated.View style={[RNStyleSheet.absoluteFill, detailsStyle]} pointerEvents={isRouteListMounted ? "auto" : "none"}>
-          <RouteDetailsPane />
-        </Animated.View>
-      )}
     </View>
   )
 }
@@ -64,6 +68,10 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.background,
     borderStartWidth: StyleSheet.hairlineWidth,
     borderStartColor: theme.colors.dimmer,
+  },
+  // Opaque, so it covers the details as it fades in over them.
+  favorites: {
+    backgroundColor: theme.colors.background,
   },
   // Lines the favorites' heading up with the planner's title, below its header row.
   favoritesContent: {
