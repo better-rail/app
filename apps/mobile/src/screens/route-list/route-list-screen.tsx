@@ -189,7 +189,7 @@ export function RouteListScreen() {
   // The pane beside the app follows this screen: the trip's details while the list is up, the favorites otherwise.
   // A native pop reaches the navigation state only once its animation is over, so the swap is taken from the
   // screen's own transition events: `transitionStart` with `closing` as the list starts to leave (also when a
-  // full-screen modal covers it), and `focus` as it's back.
+  // full-screen modal covers it), `gestureCancel` for a back swipe let go halfway, and `focus` as it's back.
   const navigation = useNavigation()
   useEffect(() => {
     setRouteListMounted(true)
@@ -197,9 +197,9 @@ export function RouteListScreen() {
       addListener: (event: string, cb: (e: { data?: { closing?: boolean } }) => void) => () => void
     }
     const unsubscribe = [
-      nav.addListener("transitionStart", (e) => {
-        if (e.data?.closing) setRouteListMounted(false)
-      }),
+      nav.addListener("transitionStart", (e) => setRouteListMounted(!e.data?.closing)),
+      // A back swipe let go halfway brings the screen back with no transition of its own, only this.
+      nav.addListener("gestureCancel", () => setRouteListMounted(true)),
       nav.addListener("focus", () => setRouteListMounted(true)),
       nav.addListener("beforeRemove", () => setRouteListMounted(false)),
     ]
