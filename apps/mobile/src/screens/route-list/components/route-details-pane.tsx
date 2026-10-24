@@ -1,12 +1,11 @@
 import { I18nManager, Image, Platform, StyleSheet as RNStyleSheet, View } from "react-native"
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ScreenStack, ScreenStackItem, type HeaderBarButtonItem } from "react-native-screens"
 import HapticFeedback from "react-native-haptic-feedback"
 import { useShallow } from "zustand/react/shallow"
-import { RouteDetailsHeader, Text } from "@/components"
+import { Text } from "@/components"
 import { createContextMenuActions } from "@/components/route-card/route-context-menu-actions"
 import { translate } from "@/i18n"
 import { spacing } from "@/theme"
@@ -23,28 +22,22 @@ export const routeKey = (route: RouteItem) =>
   route.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
 
 /**
- * The split view's details column: the selected trip, as the route details screen shows it. Beside the list on wide
- * layouts, and the screen the list pushes on phones, where the split view is collapsed — so it carries the details
- * screen's test id, and its own stack bar holds the back button and the trip's actions, which the system lays out in
- * iPhone Duo's vertical bar as it does the list's.
+ * The split view's details column beside the list: the selected trip, as the route details screen shows it below its
+ * header (the list's header already shows the stations). Its own stack bar holds the trip's actions, which the system
+ * lays out in iPhone Duo's vertical bar as it does the list's.
  */
 export function RouteDetailsPane() {
   const insets = useSafeAreaInsets()
   const router = useRouter()
-  const { selection, showEntireRoute, setShowEntireRoute, isCollapsed, showList } = useSplitViewStore(
+  const { selection, showEntireRoute, setShowEntireRoute } = useSplitViewStore(
     useShallow((s) => ({
       selection: s.selection,
       showEntireRoute: s.showEntireRoute,
       setShowEntireRoute: s.setShowEntireRoute,
-      isCollapsed: s.isCollapsed,
-      showList: s.showList,
     })),
   )
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
 
-  const backItem: HeaderBarButtonItem[] = isCollapsed
-    ? [{ type: "button", icon: { type: "sfSymbol", name: "chevron.backward" }, sharesBackground: false, onPress: showList }]
-    : []
   // The same actions the route details screen offers from its bar (see RouteDetailsHeader). The bar has room, so the
   // most used are buttons of their own, each with its own background, and only the rest sit behind the menu.
   const actionItems: HeaderBarButtonItem[] = selection
@@ -107,11 +100,7 @@ export function RouteDetailsPane() {
       key={routeKey(selection.route)}
       selection={selection}
       showEntireRoute={showEntireRoute}
-      setShowEntireRoute={setShowEntireRoute}
       sideInsets={sideInsets}
-      // Beside the list the photo header would double the list's own; pushed over it the column is a screen of its
-      // own and gets the header.
-      withHeader={isCollapsed}
     />
   ) : (
     <View style={[styles.pane, styles.emptyState, { paddingStart: sideInsets.start, paddingEnd: sideInsets.end }]}>
@@ -134,7 +123,6 @@ export function RouteDetailsPane() {
           translucent: true,
           backgroundColor: "transparent",
           hideShadow: true,
-          headerLeftBarButtonItems: backItem,
           headerRightBarButtonItems: actionItems,
         }}
       >
@@ -147,36 +135,17 @@ export function RouteDetailsPane() {
 function SelectedRouteDetails({
   selection,
   showEntireRoute,
-  setShowEntireRoute,
   sideInsets,
-  withHeader,
 }: {
   selection: SplitViewSelection
   showEntireRoute: boolean
-  setShowEntireRoute: React.Dispatch<React.SetStateAction<boolean>>
   sideInsets: { start: number; end: number }
-  withHeader: boolean
 }) {
   const data = useRouteDetailsData(selection.route, selection.originId, selection.destinationId)
   const insets = useSafeAreaInsets()
   return (
     // Without the photo header the rows start below the top inset, where the status bar is on an open display.
-    <View style={[styles.pane, !withHeader && { paddingTop: insets.top + spacing[3] }]} testID="route-details-screen">
-      {/* The header fades as the device opens and the column takes its place beside the list, and back as it closes. */}
-      {withHeader && (
-        <Animated.View entering={FadeIn.duration(250)} exiting={FadeOut.duration(200)}>
-          <RouteDetailsHeader
-            routeItem={data.routeItem}
-            originId={selection.originId}
-            destinationId={selection.destinationId}
-            screenName="routeDetails"
-            inSplitColumn
-            showEntireRoute={showEntireRoute}
-            setShowEntireRoute={setShowEntireRoute}
-            style={styles.headerContainer}
-          />
-        </Animated.View>
-      )}
+    <View style={[styles.pane, { paddingTop: insets.top + spacing[3] }]} testID="route-details-screen">
       {/* No layout transition here: the live ride sheet below is positioned absolutely and entering animations on
           it (and the Start Ride button) take their frame from the wrong layout pass under one. */}
       <RouteDetailsBody data={data} screenName="routeDetails" showEntireRoute={showEntireRoute} sideInsets={sideInsets} />
@@ -188,10 +157,6 @@ const styles = StyleSheet.create((theme) => ({
   pane: {
     flex: 1,
     backgroundColor: theme.colors.background,
-  },
-  headerContainer: {
-    paddingHorizontal: theme.spacing[3],
-    marginBottom: theme.spacing[3],
   },
   emptyState: {
     alignItems: "center",

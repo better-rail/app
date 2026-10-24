@@ -56,16 +56,11 @@ export interface RouteDetailsHeaderProps {
   eventConfig?: CalendarEventConfig
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
-  /**
-   * Rendered in the split view's details column rather than on a screen of the app's stack: the column's own bar
-   * carries the back button and the trip's actions (see RouteDetailsPane), so none are drawn here.
-   */
-  inSplitColumn?: boolean
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const glassTint = useGlassTint("secondary")
-  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute, inSplitColumn } = props
+  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
   const {
     routes: favoriteRoutesData,
     add: addFavorite,
@@ -94,8 +89,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
   // A native header lets UIKit place the buttons, e.g. in the iPhone Duo's sidebar when unfolded.
-  const useNativeToolbar =
-    (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios" && !inSplitColumn
+  const useNativeToolbar = (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios"
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -362,7 +356,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeToolbar && !inSplitColumn && (
+        {screenName !== "activeRide" && !useNativeToolbar && (
           <View
             style={{
               position: "absolute",

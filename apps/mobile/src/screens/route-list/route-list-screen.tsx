@@ -157,16 +157,17 @@ function RouteListResults({
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
 
-  // On iOS the selected trip's details live in the system split view's details column (see AppSplitView): beside
-  // the list on wide windows, pushed over it on phones. Elsewhere, wide windows (tablets) lay the details beside the
-  // list here, and phones open the route details screen.
+  // Where there's room, the selected trip's details sit beside the list: in the system split view's details column on
+  // iOS (see AppSplitView), and in a pane here elsewhere (tablets). Phones and the closed iPhone Duo open the route
+  // details screen.
   const isWideWindow = useIsWideLayout()
   const isWide = Platform.OS !== "ios" && isWideWindow
   const listWidth = isWide
     ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
     : windowWidth - sideInsets.start - sideInsets.end
-  const { selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
+  const { isSplitCollapsed, selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
     useShallow((s) => ({
+      isSplitCollapsed: s.isCollapsed,
       selectedRoute: s.selection?.route,
       showDetails: s.showDetails,
       clearSelection: s.clearSelection,
@@ -188,8 +189,8 @@ function RouteListResults({
     }
     const unsubscribe = [
       nav.addListener("transitionStart", (e) => {
-        // Collapsing the split view (the device closing) pushes the details column over the list, which also starts
-        // a closing transition here; the window is narrow by then, and the list isn't leaving.
+        // On a narrow window the pane is off screen, and the route details screen pushed over the list also starts
+        // a closing transition here; the list isn't leaving.
         const isWindowWide = Dimensions.get("window").width >= WIDE_LAYOUT_MIN_WIDTH
         if (!e.data?.closing) setRouteListMounted(true)
         else if (isWindowWide) setRouteListMounted(false)
@@ -209,8 +210,23 @@ function RouteListResults({
     clearSelection()
   }, [originId, destinationId, clearSelection])
 
+  // Closing the device with a trip beside the list carries it over to the route details screen, in place.
+  useEffect(() => {
+    if (Platform.OS !== "ios" || !isSplitCollapsed) return
+    const { selection } = useSplitViewStore.getState()
+    if (!selection) return
+    clearSelection()
+    if (!navigation.isFocused()) return
+    useNavigationParamsStore.getState().setRouteDetails({
+      routeItem: selection.route,
+      originId: selection.originId,
+      destinationId: selection.destinationId,
+    })
+    router.push({ pathname: "/route-details", params: { handoff: "true" } })
+  }, [isSplitCollapsed, clearSelection, navigation, router])
+
   const openRouteDetails = (routeItem: RouteItem) => {
-    if (Platform.OS === "ios" || isWide) {
+    if ((Platform.OS === "ios" && !isSplitCollapsed) || isWide) {
       if (isWide) HapticFeedback.trigger("selection")
       showDetails({ route: routeItem, originId, destinationId })
       return
@@ -277,13 +293,25 @@ function RouteListResults({
         route.trains.map((train) => train.trainNumber).join("-") === trip,
     )
     if (!routeItem) return
-    useNavigationParamsStore.getState().setRouteDetails({
-      routeItem: { ...routeItem, viaStationId },
-      originId,
-      destinationId,
-    })
+    const tripItem = { ...routeItem, viaStationId }
+    if (Platform.OS === "ios" && !useSplitViewStore.getState().isCollapsed) {
+      showDetails({ route: tripItem, originId, destinationId })
+      return
+    }
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem: tripItem, originId, destinationId })
     router.push("/route-details")
-  }, [isFocused, trip, websiteTripRoutes.isSuccess, websiteTripRoutes.data, originId, destinationId, time, viaStationId, router])
+  }, [
+    isFocused,
+    trip,
+    websiteTripRoutes.isSuccess,
+    websiteTripRoutes.data,
+    originId,
+    destinationId,
+    time,
+    viaStationId,
+    router,
+    showDetails,
+  ])
 
   // This also handles cached results, for which onSuccess is not called on initial display.
   useEffect(() => {
