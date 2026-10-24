@@ -1,0 +1,48 @@
+diff --git a/android/src/main/java/expo/modules/localization/LocalizationModule.kt b/android/src/main/java/expo/modules/localization/LocalizationModule.kt
+index 7eb019839302734ed4559c367c2859e9d3cdb9d9..c3d7d6bf2c8dcff226039827f2d89ae221209674 100644
+--- a/android/src/main/java/expo/modules/localization/LocalizationModule.kt
++++ b/android/src/main/java/expo/modules/localization/LocalizationModule.kt
+@@ -52,14 +52,13 @@ class LocalizationModule : Module() {
+   }
+ 
+   private fun setRTLFromStringResources(context: Context) {
+-    val supportsRTL =
+-      context.getString(R.string.ExpoLocalization_supportsRTL).toBooleanStrictOrNull() ?: true
+-    val forcesRTL =
+-      context.getString(R.string.ExpoLocalization_forcesRTL).toBooleanStrictOrNull() ?: false
++    val supportsRTL = context.getString(R.string.ExpoLocalization_supportsRTL).toBooleanStrictOrNull()
++    val forcesRTL = context.getString(R.string.ExpoLocalization_forcesRTL).toBooleanStrictOrNull()
+ 
+     // We call these methods before React loads to ensure it gets rendered correctly the first time the app is opened.
+-    I18nUtil.instance.allowRTL(context, supportsRTL)
+-    I18nUtil.instance.forceRTL(context, forcesRTL)
++    // Unset options leave I18nManager alone, so an app-level forceRTL() survives relaunches (as in SDK 57).
++    supportsRTL?.let { I18nUtil.instance.allowRTL(context, it) }
++    forcesRTL?.let { I18nUtil.instance.forceRTL(context, it) }
+   }
+ 
+   private fun getMeasurementSystem(locale: Locale): String? {
+diff --git a/ios/LocalizationModule.swift b/ios/LocalizationModule.swift
+index 2e1f38b171f408893c82c109f718647771832aee..aa5ffcbb5cbcfb672af4253ff1a139fc513cb012 100644
+--- a/ios/LocalizationModule.swift
++++ b/ios/LocalizationModule.swift
+@@ -50,14 +50,15 @@ public class LocalizationModule: Module {
+   }
+ 
+   func setRTLPreferences() {
+-    let supportsRTL = Bundle.main.object(forInfoDictionaryKey: "ExpoLocalization_supportsRTL") as? Bool ?? true
+-    let forcesRTL = Bundle.main.object(forInfoDictionaryKey: "ExpoLocalization_forcesRTL") as? Bool ?? false
++    let supportsRTL = Bundle.main.object(forInfoDictionaryKey: "ExpoLocalization_supportsRTL") as? Bool
++    let forcesRTL = Bundle.main.object(forInfoDictionaryKey: "ExpoLocalization_forcesRTL") as? Bool
+ 
+     // We call these methods before React loads to ensure it gets rendered correctly the first time the app is opened.
+     // Uses required reason API based on the following reason: CA92.1
++    // Unset options leave I18nManager alone, so an app-level forceRTL() survives reloads (as in SDK 57).
+     if let i18nUtil = RCTI18nUtil.sharedInstance() {
+-      i18nUtil.allowRTL(supportsRTL)
+-      i18nUtil.forceRTL(forcesRTL)
++      if let supportsRTL { i18nUtil.allowRTL(supportsRTL) }
++      if let forcesRTL { i18nUtil.forceRTL(forcesRTL) }
+     }
+   }
+ 

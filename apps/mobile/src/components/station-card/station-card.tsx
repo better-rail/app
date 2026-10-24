@@ -20,12 +20,13 @@ import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
-// Sized from the window, which follows the display the app is on and resizes with it.
-function stationCardHeight(windowHeight: number) {
-  if (windowHeight > 900) return 190
-  if (windowHeight > 780) return 178.5
-  if (windowHeight > 730) return 157.5
-  if (windowHeight > 600) return 135
+
+// The stylesheet passes rt.screen.height, so the height updates when a foldable changes its screen size.
+function getCardHeight(screenHeight: number) {
+  if (screenHeight > 900) return 190
+  if (screenHeight > 780) return 178.5
+  if (screenHeight > 730) return 157.5
+  if (screenHeight > 600) return 135
   return 120
 }
 
@@ -35,6 +36,7 @@ export interface StationCardProps extends TouchableScaleProps {
   style?: ViewStyle
   loading?: boolean
   badges?: StationCardBadge[]
+  selected?: boolean
 }
 
 export type StationCardBadge = {
@@ -43,7 +45,18 @@ export type StationCardBadge = {
   tone?: "highlight" | "neutral"
 }
 export function StationCard(props: StationCardProps) {
-  const { name, image, style, loading, badges, ...rest } = props
+  const { name, image, style, loading, badges, selected, ...rest } = props
+
+  const selectionMark = selected && (
+    <>
+      <View pointerEvents="none" style={styles.selectionRing} />
+      <View style={styles.selectionMark}>
+        <Image source={require("../../../assets/checkmark.png")} style={styles.selectionMarkIcon} />
+      </View>
+    </>
+  )
+
+  const title = <Text style={styles.text}>{name}</Text>
 
   const badgeRow = !!badges?.length && (
     <View style={styles.badges}>
@@ -90,7 +103,8 @@ export function StationCard(props: StationCardProps) {
         <LinearGradient style={styles.gardient} colors={["rgba(0, 0, 0, 0.05)", "rgba(0, 0, 0, 0.3)"]} />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ThemedTouchableScale>
     )
@@ -111,7 +125,8 @@ export function StationCard(props: StationCardProps) {
         />
 
         {badgeRow}
-        <Text style={styles.text}>{name}</Text>
+        {selectionMark}
+        {title}
         {loadingOverlay}
       </ImageBackground>
     </ThemedTouchableScale>
@@ -127,13 +142,19 @@ const styles = StyleSheet.create((theme, rt) => ({
     shadowOpacity: 0.2,
     elevation: 3,
   },
+  selectionRing: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 3,
+    borderColor: theme.colors.link,
+    borderRadius: isLiquidGlassSupported ? 14 : 6,
+  },
   imagelessCard: {
-    height: stationCardHeight(rt.screen.height),
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   emptyCardWrapper: {
     width: "100%",
-    height: stationCardHeight(rt.screen.height),
+    height: getCardHeight(rt.screen.height),
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 12,
@@ -146,7 +167,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   background: {
     width: "100%",
-    height: stationCardHeight(rt.screen.height),
+    height: getCardHeight(rt.screen.height),
     justifyContent: "flex-end",
   },
   imageBackgroundImage: {
@@ -163,6 +184,26 @@ const styles = StyleSheet.create((theme, rt) => ({
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+  },
+  selectionMark: {
+    position: "absolute",
+    top: theme.spacing[2],
+    start: theme.spacing[2],
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: theme.colors.link,
+    borderWidth: 2,
+    borderColor: theme.colors.palette.white,
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+  },
+  selectionMarkIcon: {
+    width: 13,
+    height: 13,
+    resizeMode: "contain",
+    tintColor: theme.colors.palette.white,
   },
   badges: {
     position: "absolute",

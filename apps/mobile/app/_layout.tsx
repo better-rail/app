@@ -1,13 +1,13 @@
 import "@/i18n"
 import "@/utils/ignore-warnings"
 import React, { useState, useEffect, useRef } from "react"
-import { AppState, Platform, useColorScheme } from "react-native"
+import { AppState, I18nManager, Platform, useColorScheme } from "react-native"
 import { useDeepLinking } from "@/hooks/use-deep-linking"
 import { Stack } from "expo-router/stack"
-import { useRouter } from "expo-router"
+import { enableLegacyHeaderAppearance } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
-import { QueryClient, QueryClientProvider, QueryCache, MutationCache } from "react-query"
+import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
@@ -24,26 +24,36 @@ import * as storage from "@/utils/storage"
 import { setupRootStore, RoutesNotFoundError } from "@/models"
 import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
-import { setInitialLanguage, setUserLanguage } from "@/i18n/i18n"
-import { translate } from "@/i18n"
+import {
+  changeUserLanguage,
+  getLanguageChangedInIOSSettings,
+  isRTLLanguage,
+  setInitialLanguage,
+  setUserLanguage,
+} from "@/i18n/i18n"
 import { posthog } from "@/services/analytics"
-import { identifyPosthogUser, setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
+import { identifyPosthogUser, setAnalyticsUserProperty } from "@/services/analytics"
 import { trackInstalledWidgets } from "@/utils/widget-helpers"
 import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
+import { isNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
+import { formSheetOptions } from "@/utils/form-sheet-options"
 
 enableScreens()
 
 // Enable per-route navigation metrics (cold/warm TTR, per-route TTI). Must run at
 // module scope before any screen mounts — it cannot be toggled at runtime.
 Observe.configure({
-  integrations: { "expo-router": true },
+  integrations: { "expo-router": { filteredParams: ["phone", "code"] } },
 })
+
+// SDK 58 made iOS 26+ stack headers transparent with system fonts; keep the opaque, themed headers.
+enableLegacyHeaderAppearance()
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
@@ -80,6 +90,11 @@ disableSentryIfTelemetryDisabled()
 // route context to the event and marks in-flight navigation transactions as errored.
 export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
 
+// Usually a connectivity blip or a slow connection timing out, so group them into one warning
+// issue. A spike there can still mean the API is unreachable or hanging (DNS, TLS, outage).
+const networkErrorContext = (error: unknown) =>
+  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
@@ -95,6 +110,7 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query" },
         extra: { queryKey: query.queryKey },
+        ...networkErrorContext(error),
       })
     },
   }),
@@ -103,14 +119,21 @@ export const queryClient = new QueryClient({
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
+        ...networkErrorContext(error),
       })
     },
   }),
 })
 
+// React Native has no window focus events: treat returning to the app as focus,
+// so live data (delays, platforms) refetches right away instead of on the next interval
+focusManager.setEventListener((handleFocus) => {
+  const subscription = AppState.addEventListener("change", (state) => handleFocus(state === "active"))
+  return () => subscription.remove()
+})
+
 function AppStack() {
   const colorScheme = useColorScheme()
-  const router = useRouter()
   const { isUpdateRequired } = useForceUpdate()
 
   if (isUpdateRequired) return <ForceUpdateScreen />
@@ -121,29 +144,10 @@ function AppStack() {
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
+        {/* Root level, so the live ride modal presents it over itself instead of pushing a second (main) stack */}
+        <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
-        <Stack.Screen
-          name="lawsuit"
-          options={{
-            presentation: "modal",
-            ...(Platform.OS === "ios" && {
-              headerShown: true,
-              headerTransparent: true,
-              title: "",
-              unstable_headerLeftItems: () => [
-                {
-                  type: "button",
-                  label: translate("common.close") ?? "Close",
-                  icon: { type: "sfSymbol", name: "xmark" },
-                  onPress: () => {
-                    trackEvent("lawsuit_close_press")
-                    router.back()
-                  },
-                },
-              ],
-            }),
-          }}
-        />
+        <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal" }} />
@@ -211,8 +215,16 @@ function RootLayout() {
     // After the widget lookup, so its properties are sent this launch
     trackInstalledWidgets().finally(identifyPosthogUser)
 
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode) {
+    storage.load("appLanguage").then(async (storedLanguageCode) => {
+      const iosSettingsLanguage = getLanguageChangedInIOSSettings()
+      const languageCode = iosSettingsLanguage ?? storedLanguageCode
+
+      // forceRTL only applies after a reload
+      if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
+        changeUserLanguage(iosSettingsLanguage)
+      } else if (languageCode) {
+        // Saved before setUserLanguage marks it synced, or a lost write reverts the choice next launch
+        if (iosSettingsLanguage) await storage.save("appLanguage", iosSettingsLanguage)
         setUserLanguage(languageCode)
         setLocaleReady(true)
         setAnalyticsUserProperty("user_locale", languageCode)

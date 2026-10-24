@@ -1,0 +1,32 @@
+import { defineConfig } from "vite"
+import { tanstackStart } from "@tanstack/react-start/plugin/vite"
+import viteReact from "@vitejs/plugin-react"
+import tailwindcss from "@tailwindcss/vite"
+import { cloudflare } from "@cloudflare/vite-plugin"
+import { sentryTanstackStart } from "@sentry/tanstackstart-react/vite"
+
+export default defineConfig({
+  // The hoisted TanStack packages would otherwise load the root React (the mobile app's version) next to this app's.
+  resolve: { tsconfigPaths: true, dedupe: ["react", "react-dom"] },
+  // The sitemap's `lastmod` (the day the site was built) and the id that keys edge-cached pages to this build.
+  define: {
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+    __BUILD_ID__: JSON.stringify(Date.now().toString(36)),
+  },
+  // The Cloudflare plugin runs the SSR environment in workerd (dev and preview) and emits the Worker + static assets on build.
+  plugins: [
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tailwindcss(),
+    tanstackStart(),
+    viteReact(),
+    // Uploads source maps when the build has a SENTRY_AUTH_TOKEN. Wrangler uploads the Worker's maps too, so only the
+    // browser's are deleted after upload, keeping them off the public site.
+    sentryTanstackStart({
+      org: "better-rail",
+      project: "web",
+      autoInstrumentMiddleware: false,
+      telemetry: false,
+      sourcemaps: { filesToDeleteAfterUpload: ["./dist/client/**/*.map"] },
+    }),
+  ],
+})

@@ -4,15 +4,7 @@ import { Stack } from "expo-router/stack"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-
-const formSheetOptions = {
-  presentation: "formSheet" as const,
-  headerShown: false,
-  sheetAllowedDetents: "fitToContents" as const,
-  contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-  sheetGrabberVisible: true,
-}
+import { formSheetOptions } from "@/utils/form-sheet-options"
 
 export default function MainLayout() {
   const theme = useTheme()
@@ -25,6 +17,7 @@ export default function MainLayout() {
       <Stack
         screenOptions={{
           headerBackButtonDisplayMode: "minimal",
+          headerBackButtonMenuEnabled: false,
           headerTitleStyle: {
             fontSize: 20,
             fontFamily: typography.primary,
@@ -50,7 +43,6 @@ export default function MainLayout() {
         <Stack.Screen name="station-hours" options={formSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />
-        <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
         <Stack.Screen name="live-permissions" options={formSheetOptions} />
       </Stack>

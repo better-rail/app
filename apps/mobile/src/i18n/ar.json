@@ -59,9 +59,11 @@
     "updates": "تحديثات من قطار اسرائيل",
     "updatesError": "حدث خطأ أثناء تحميل التحديثات من قطارات إسرائيل",
     "shortRoute": "طريق قصير",
+    "shortRouteCompact": "قصير",
     "maxBackwardsDate": "لا يمكن الرجوع أكثر من 3 أيام",
     "routeDetails": "تفاصيل المسار",
     "routeActions": "إجراءات المسار",
+    "hourIndex": "الانتقال إلى ساعة",
     "copyRoute": "نسخ المسار",
     "share": "مشاركة تفاصيل الرحلة",
     "routeCopied": "تم نسخ المسار",
@@ -79,6 +81,8 @@
     "noDirectTrainsFound": "لم يتم العثور على قطارات مباشرة، لكن توجد قطارات مع تبديلات.",
     "noOneChangeTrainsFound": "لم يتم العثور على قطارات بتبديل واحد كحد أقصى، لكن توجد قطارات مع تبديلات أكثر.",
     "showAllTrains": "عرض جميع القطارات",
+    "onlySlowTrainsFound": "فقط القطارات البطيئة تطابق عوامل التصفية.",
+    "showSlowTrains": "عرض القطارات البطيئة",
     "trainInfoPromptTitle": "معلومات الرحلة",
     "trainInfoPromptDescription": "أضف رقم الرصيف ورقم القطار إلى بطاقة المسار.",
     "trainInfoPromptShow": "متقدم",
@@ -101,7 +105,7 @@
     "acrossPlatform": "على الجهة الأخرى من الرصيف",
     "platformStay": "الرجاء الانتظار في الرصيف",
     "platformChange": "الرجاء الانتقال الى رصيف",
-    "waitingTime": "مدة الانتظار",
+    "waitingTime": "مدة الانتظار %{duration}",
     "unsafeChange": "هذا التغيير غير مضمون",
     "lastStop": "المحطة الأخيرة",
     "trainCancelled": "تم إلغاء القطار",
@@ -135,6 +139,8 @@
     "colorSchemeDark": "داكن",
     "routeCard": "بطاقة الرحلة",
     "showRouteCardHeader": "إظهار رأس بطاقة المسار",
+    "routeList": "قائمة الرحلات",
+    "showHourIndex": "تمرير الساعات",
     "about": "عن",
     "share": "مشاركة Better Rail",
     "widget": "دليل القطعة",
@@ -179,7 +185,8 @@
     "deleteAllData": "حذف جميع البيانات",
     "deleteAllDataConfirm": "هل أنت متأكد أنك تريد حذف جميع بيانات التطبيق المحلية؟ لا يمكن التراجع عن هذا الإجراء.",
     "purchaseCancelled": "تم إلغاء الشراء",
-    "purchaseFailed": "فشل الشراء"
+    "purchaseFailed": "فشل الشراء",
+    "purchasesUnavailable": "لا يمكن إرسال إكرامية حاليًا. يبدو أن عمليات الشراء داخل التطبيقات متوقفة على هذا الجهاز."
   },
   "favorites": {
     "title": "طرق مفضلة",
@@ -229,17 +236,12 @@
     "noFareForRoute": "لم يتم العثور على سعر لهذا المسار."
   },
   "modals": {
+    "noTrainsFoundForRequestedDate": "لم يتم العثور على قطارات ليوم %{date}",
+    "showingTrainsForDate": "تُعرض قطارات ليوم %{date}",
     "noTrainsFoundForDate": "لم يتم العثور على القطارات للتاريخ المطلوب",
     "foundTrainsAtDate": " هنالك قطارات ابتداءً مِن",
     "noTrainsFoundForHour": "لم يتم العثور على قطارات حول الوقت المطلوب",
     "foundTrainsAtHour": "توجد قطارات في أوقات مختلفة في التاريخ المحدد"
-  },
-  "lawsuit": {
-    "title": "شركة قطار إسرائيل تهدد برفع دعوى قضائية ضدنا",
-    "intro": "تلقّينا إنذارًا قبل رفع دعوى قضائية لاستخدامنا جدول مواعيد قطار إسرائيل",
-    "whatNow": "بعد تلقّي الرسالة، انتقل التطبيق إلى الاعتماد على بيانات وزارة المواصلات.\n\nقد لا تكون هذه البيانات محدّثة بقدر بيانات قطار إسرائيل، إذ تحتفظ الشركة بأحدث المعلومات لنفسها وتمنعنا من إتاحتها لكم، أيها الركاب.\n\nنحن بحاجة إلى مساعدتكم: أخبروا أصدقاءكم عن Better Rail. فكلما زاد عدد المستخدمين، ازدادت قوتنا!",
-    "readPost": "اقرؤوا المنشور كاملًا",
-    "followTwitter": "تابعونا على تويتر للاطّلاع على آخر المستجدات"
   },
   "widgetOnboarding": {
     "homeWidgets": "Home Screen Widgets",
@@ -287,11 +289,79 @@
     "notificationPermission1": "لكي نبقيكم على علم في الوقت الحقيقي بتقدم القطار، يُرجى السماح لنا بإرسال الإشعارات.",
     "notificationPermission2": "نستخدم آلية إشعار فعّالة ولا نرسل إشعارات غير ضرورية.",
     "notificationPermission3": "الإشعارات",
-    "notificationPermission4": "إشعارات دقيقة"
+    "notificationPermission4": "إشعارات دقيقة",
+    "alarmButton": "منبّه الوصول",
+    "alarmMenuTitle": "يُحدَّث وقت المنبّه تلقائيًا حسب التأخيرات. سيصلك إشعار صامت عند كل تغيير.",
+    "alarmLeadOption": "%{minutes} دقائق قبل الوصول",
+    "alarmTurnOff": "إيقاف المنبّه",
+    "alarmSetFor": "المنبّه في %{time}",
+    "alarmTitle": "اقتربت من %{station}",
+    "alarmTitleTransfer": "اقتربت من %{station}، بدّل القطار",
+    "alarmStopsTitle": "المنبّه قبل",
+    "alarmStop": "إيقاف",
+    "alarmTooLateTitle": "الوصول قريب جدًا",
+    "alarmTooLateMessage": "يصل القطار خلال أقل من %{minutes} دقائق. اختر وقتًا أقصر.",
+    "alarmDeniedTitle": "المنبّهات متوقفة",
+    "alarmDeniedMessage": "لكي يرنّ المنبّه قبل محطتك، اسمح لـ Better Rail بجدولة المنبّهات من الإعدادات.",
+    "alarmDeniedMessageAndroid": "لكي يرنّ المنبّه قبل محطتك، اسمح لـ Better Rail بضبط المنبّهات وإرسال الإشعارات من الإعدادات.",
+    "alarmNoUpdatesTitle": "لن يتغيّر المنبّه حسب التأخيرات",
+    "alarmNoUpdatesMessage": "اسمح بالإشعارات من الإعدادات كي يتغيّر المنبّه عند تأخر القطار، حتى عندما يكون Better Rail مغلقًا.",
+    "alarmFullScreenTitle": "هل تريد عرض المنبّه على شاشة القفل؟",
+    "alarmFullScreenMessage": "سيرنّ المنبّه في كل الأحوال. اسمح بالإشعارات بملء الشاشة كي يظهر على كامل الشاشة أيضًا عندما يكون هاتفك مقفلًا.",
+    "alarmFailed": "تعذّر ضبط المنبّه. حاول مرة أخرى."
   },
   "forceUpdate": {
     "title": "التحديث مطلوب",
     "description": "يتوفر إصدار جديد من Better Rail. يرجى التحديث للمتابعة.",
     "button": "تحديث الآن"
+  },
+  "voucher": {
+    "titleTo": "قسيمة سفر إلى القدس",
+    "titleFrom": "قسيمة سفر من القدس",
+    "orderTitle": "طلب قسيمة",
+    "book": "لطلب قسيمة سفر",
+    "seatsAvailable": "%{count} مقاعد متاحة",
+    "almostSoldOut": "القسائم على وشك النفاد · %{count} مقاعد متاحة",
+    "soldOut": "نفدت القسائم لهذا القطار",
+    "booked": {
+      "one": "تم طلب القسيمة · راكب واحد",
+      "other": "تم طلب القسيمة · %{count} ركاب"
+    },
+    "show": "عرض القسيمة",
+    "passengers": "كم عدد الركاب؟",
+    "addPassenger": "إضافة راكب",
+    "removePassenger": "إزالة راكب",
+    "phoneHint": "سترسل سكك حديد إسرائيل رمز تحقق برسالة SMS",
+    "invalidPhone": "أدخل رقم هاتف صحيحًا",
+    "sendCode": "إرسال الرمز",
+    "codeTitle": "أدخل الرمز",
+    "codeSentTo": "أرسلت سكك حديد إسرائيل رمزًا من 5 أرقام إلى %{phone}",
+    "changeNumber": "تغيير الرقم",
+    "resend": "لم أستلم، أرسل مرة أخرى",
+    "resendIn": "إعادة الإرسال بعد %{seconds} ث",
+    "codeResent": "تم إرسال رمز التحقق مرة أخرى",
+    "noneLeftForPhone": "طلب هذا الرقم الحد الأقصى من القسائم لهذا القطار.",
+    "orderVouchers": "طلب القسائم",
+    "codeExpired": "انتهت صلاحية الرمز. أرسل رمزًا جديدًا وحاول مرة أخرى.",
+    "genericError": "حدث خطأ ما. حاول مرة أخرى.",
+    "connectionError": "تعذر الاتصال بسكك حديد إسرائيل. تحقق من الاتصال وحاول مرة أخرى.",
+    "errors": {
+      "INVALID_OTP": "رمز التحقق غير صحيح.",
+      "OTP_NOT_FOUND": "لا يمكن استخدام هذا الرمز. أرسل رمزًا جديدًا وحاول مرة أخرى.",
+      "MAX_PASSENGERS_PER_TRIP_EXCEEDED": "وصلت إلى الحد الأقصى من القسائم لرقم الهاتف المحمول هذا."
+    },
+    "forPassengers": {
+      "one": "لراكب واحد",
+      "other": "لـ %{count} ركاب"
+    },
+    "phoneTitle": "ما رقم هاتفك المحمول؟",
+    "upTo": "يمكنك طلب حتى %{count} قسائم لهذا القطار",
+    "cancelHint": "للإلغاء، استخدم الرابط في رسالة SMS من سكك حديد إسرائيل",
+    "trainOnDate": "قطار %{trainNumber} · %{date}",
+    "privacyNote": "تُرسل بياناتك مباشرة إلى سكك حديد إسرائيل",
+    "removeCancelled": "ألغيتها بالفعل؟ احذفها من التطبيق",
+    "removeTitle": "حذف هذه القسيمة؟",
+    "removeMessage": "احذفها فقط إذا ألغيتها عبر الرابط في رسالة SMS من سكك حديد إسرائيل. ستُحذف من هذا الجهاز فقط.",
+    "remove": "حذف"
   }
 }

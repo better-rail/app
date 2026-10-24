@@ -1,13 +1,17 @@
 import { View, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
-import { color } from "@/theme"
+import { color, fontScale, spacing } from "@/theme"
 import { localizedDate } from "@/i18n"
+
+const LINE_HEIGHT = 24
+// Fixed so the route list can place and offset date headers without measuring them; text scaling caps at 1.3
+export const RESULT_DATE_CARD_HEIGHT = Math.round(spacing[2] * 2 + LINE_HEIGHT * Math.min(fontScale, 1.3))
 
 export const ResultDateCard = function ResultDateCard(props: { date: string; isLoading?: boolean }) {
   return (
-    <View style={styles.dateContainer}>
-      <Text text={localizedDate(props.date)} style={styles.dateText} />
+    <View testID="route-results-date" style={styles.dateContainer}>
+      <Text text={localizedDate(props.date)} style={styles.dateText} accessibilityRole="header" />
       {props.isLoading && <ActivityIndicator size="small" color={color.primary} style={styles.indicator} />}
     </View>
   )
@@ -16,13 +20,14 @@ export const ResultDateCard = function ResultDateCard(props: { date: string; isL
 const styles = StyleSheet.create((theme) => ({
   dateText: {
     color: theme.colors.primary,
+    lineHeight: LINE_HEIGHT,
   },
   dateContainer: {
     display: "flex",
     alignItems: "center",
     alignContent: "center",
-    paddingBottom: theme.spacing[2],
-    height: "100%",
+    height: RESULT_DATE_CARD_HEIGHT,
+    backgroundColor: theme.colors.background,
     justifyContent: "center",
     flexDirection: "row",
   },

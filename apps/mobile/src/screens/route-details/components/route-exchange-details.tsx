@@ -4,18 +4,19 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text, ChangeDirectionButton } from "@/components"
 import { color, spacing, fontScale } from "@/theme"
 import { intervalToDuration, formatDuration, addMinutes, millisecondsToMinutes, milliseconds, Duration } from "date-fns"
-import { dateFnsLocalization, translate } from "@/i18n"
+import { dateFnsLocalization, translate, userLocale } from "@/i18n"
 import { Train } from "@/services/api"
 import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import { useSideInsetBleed } from "./side-inset-bleed"
-import { useRideStore } from "@/models"
+import { acrossTheIsland } from "@/data/island-platforms"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
 const infoIcon = require("../../../../assets/info.png")
+const walkingIcon = require("../../../../assets/walking.png")
 
 const SAFE_DURATION_MINS = 3
 
@@ -25,24 +26,28 @@ type RouteExchangeProps = {
   departurePlatform: number
   firstTrain: Train
   secondTrain: Train
+  isRideOnThisRoute: boolean
   style?: ViewStyle
 }
 
 export const RouteExchangeDetails = (props: RouteExchangeProps) => {
-  const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, style } = props
+  const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, isRideOnThisRoute, style } = props
   const router = useRouter()
-  const isRideInProgress = useRideStore((s) => s.loading || !!s.id)
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
   const bleed = useSideInsetBleed({ start: spacing[4], end: spacing[4] })
 
   const onChangeStationPress = () => {
-    const platformChanges = Object.entries(easyPlatformChanges(firstTrain, secondTrain, alternatives))
+    const currentStationId = String(firstTrain.destinationStationId)
+    // Keep the stations in the order the first train reaches them
+    const runOrder = firstTrain.routeStations.map((s) => String(s.stationId))
+    const stationIds = [currentStationId, ...alternatives].sort((a, b) => runOrder.indexOf(a) - runOrder.indexOf(b))
+    const platformChanges = Object.entries(easyPlatformChanges(firstTrain, secondTrain, stationIds))
     const idsWith = (change: string) =>
       platformChanges
         .filter(([, c]) => c === change)
         .map(([id]) => id)
         .join(",")
-    if (isRideInProgress) {
+    if (isRideOnThisRoute) {
       Alert.alert(translate("ride.changeStationBlockedTitle"), translate("ride.changeStationBlockedMessage"))
       return
     }
@@ -52,7 +57,8 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
       pathname: "/select-station",
       params: {
         selectionType: "via",
-        stationIds: alternatives.join(","),
+        stationIds: stationIds.join(","),
+        currentStationId,
         trainStartId: trainStartStation(secondTrain),
         samePlatformIds: idsWith("same"),
         acrossPlatformIds: idsWith("across"),
@@ -68,6 +74,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     }
   })()
 
+  // Both platforms share one island, so there's no bridge or underpass to cross
+  const isAcrossTheIsland = acrossTheIsland(String(firstTrain.destinationStationId), arrivalPlatform, departurePlatform)
+
   const exchangeDuration = (() => {
     const arrivalTime = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
     const departureTime = addMinutes(secondTrain.departureTime, secondTrain.delay)
@@ -79,9 +88,11 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     return intervalToDuration({ start: arrivalTime, end: departureTime })
   })()
 
-  const exchangeDurationText = formatDuration(exchangeDuration, {
+  const formattedDuration = formatDuration(exchangeDuration, {
     locale: dateFnsLocalization,
   })
+  // Hebrew attaches כ with a hyphen before digits ("כ-5 דקות") but directly before words ("כשתי דקות")
+  const exchangeDurationText = userLocale === "he" && /^\d/.test(formattedDuration) ? `-${formattedDuration}` : formattedDuration
 
   const isExchangeSafe = (() => {
     const exchangeMs = milliseconds(exchangeDuration)
@@ -120,6 +131,14 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
               {platformDetailText}
             </Text>
           </View>
+          {isAcrossTheIsland && (
+            <View style={[styles.infoDetailWrapper, { marginBottom: spacing[1] }]}>
+              <Image style={styles.infoIcon} source={walkingIcon} />
+              <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
+                {translate("routeDetails.acrossPlatform")}
+              </Text>
+            </View>
+          )}
           <View
             style={[
               styles.infoDetailWrapper,
@@ -130,7 +149,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           >
             <Image style={styles.infoIcon} source={clockIcon} />
             <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
-              {translate("routeDetails.waitingTime")} {exchangeDurationText}
+              {translate("routeDetails.waitingTime", { duration: exchangeDurationText })}
             </Text>
           </View>
           {!isExchangeSafe && (

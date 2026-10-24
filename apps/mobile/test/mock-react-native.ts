@@ -37,6 +37,10 @@ mock.module("react-native", () => {
       flatten: (style: any) => style,
     },
     View: "View",
+    ActivityIndicator: "ActivityIndicator",
+    Modal: "Modal",
+    useColorScheme: () => "light",
+    useWindowDimensions: () => ({ width: 375, height: 812, scale: 3, fontScale: 1 }),
     Text: "Text",
     ScrollView: "ScrollView",
     TouchableOpacity: "TouchableOpacity",
@@ -60,6 +64,10 @@ mock.module("react-native", () => {
       removeEventListener: mock(),
     },
     NativeModules: {},
+    Settings: {
+      get: mock(),
+      set: mock(),
+    },
     NativeEventEmitter: mock(),
     I18nManager: {
       isRTL: false,

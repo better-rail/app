@@ -3,10 +3,9 @@ import { Alert, Platform, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { isDarkMode } from "@/theme"
 import { changeUserLanguage, translate, userLocale } from "@/i18n"
 import HapticFeedback from "react-native-haptic-feedback"
-import { SETTING_GROUP } from "./settings-styles"
+import { settingsStyles } from "./settings-styles"
 
 export function LanguageScreen() {
   const [clickCounter, setClickCounter] = useState(0)
@@ -43,10 +42,8 @@ export function LanguageScreen() {
       belowHeader
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
     >
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="language-option-he"
           first

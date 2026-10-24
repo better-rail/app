@@ -1,27 +1,23 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
-import { Alert, Image, Platform, PlatformColor, Pressable, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import React, { useEffect, useState } from "react"
+import { Platform, View } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated"
 import { useShallow } from "zustand/react/shallow"
 import { useQuery } from "react-query"
-import { useRouter } from "expo-router"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { GlassView } from "expo-glass-effect"
-import HapticFeedback from "react-native-haptic-feedback"
 import { useRideStore } from "@/models"
 import { useRideProgress } from "@/hooks/use-ride-progress"
 import { spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
-import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useStations } from "@/data/stations"
 import { calculateDelayedTime, formatClockTime, formatDateForAPI, formatTime } from "@/utils/helpers/date-helpers"
-import { getSelectedRide } from "@/utils/helpers/ride-helpers"
+import { getSelectedRide, isSameRoute } from "@/utils/helpers/ride-helpers"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-import { translate } from "@/i18n"
-import { trackEvent } from "@/services/analytics"
+import { getVoucherTrain } from "@/utils/helpers/voucher-helpers"
+import { publishFreshRoutes } from "@/screens/route-list/route-list-query"
 import {
   LiveRideSheet,
   LongRouteWarning,
@@ -31,12 +27,17 @@ import {
   RouteStationCard,
   RouteStopCard,
   StartRideButton,
+  TrainInfoButton,
+  VoucherButton,
 } from "./components"
 import { SideInsetBleedProvider } from "./components/side-inset-bleed"
 
 const routeApi = new RouteApi()
-const preventLongPressNavigation = () => undefined
 const NO_BLEED = { start: 0, end: 0 }
+
+// The text button renders 4pt taller than its minimum at the default font
+// scale because of its line box and padding. Match that visible surface.
+const floatingButtonSize = (fontScale: number) => Math.max(59, 55 * Math.min(fontScale, 1.2))
 
 /**
  * Keeps a route fresh while it's on screen: refetched every minute for platform changes and delays, or taken
@@ -48,12 +49,11 @@ export function useRouteDetailsData(paramsRouteItem: RouteItem, originId: string
   const {
     rideRoute,
     id: rideId,
-    isRouteActive,
     stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, isRouteActive: s.isRouteActive, stopRide: s.stopRide })))
+  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
 
-  // we re-run this check every time the ride changes
-  const isRideOnThisRoute = useMemo(() => isRouteActive(paramsRouteItem), [rideRoute])
+  // Derived from both inputs: openActiveRide can swap the params under a mounted screen
+  const isRideOnThisRoute = isSameRoute(rideRoute, paramsRouteItem)
 
   const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
@@ -63,9 +63,11 @@ export function useRouteDetailsData(paramsRouteItem: RouteItem, originId: string
     ["routeDetails", originId, destinationId, viaStationId, paramsRouteItem.departureTime, ...trainNumbers],
     async () => {
       const [date, time] = formatDateForAPI(paramsRouteItem.departureTime)
-      const originId = paramsRouteItem.trains[0].originStationId.toString()
-      const destinationId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
-      const routes = await routeApi.getRoutes(originId, destinationId, date, time, { viaStation: viaStationId })
+      const fromId = paramsRouteItem.trains[0].originStationId.toString()
+      const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
+      const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
+      // A change-station search isn't what the list shows
+      if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
       return fresh ? { ...fresh, viaStationId } : paramsRouteItem
     },
@@ -116,12 +118,14 @@ export function RouteDetailsBody({
 }: RouteDetailsBodyProps) {
   const { routeItem, isRideOnThisRoute, progress } = data
   const { stations } = progress
-  const router = useRouter()
+  const { rt } = useUnistyles()
   const insets = useSafeAreaInsets()
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
 
-  const hasWagonData = routeItem.trains[0]?.visaWagonData?.wagons?.length > 0
+  const voucherTrain = getVoucherTrain(routeItem)
+  // During a ride the action buttons stack above the sheet, so the route needs room to scroll past them
+  const liveActionsRowHeight = isRideOnThisRoute ? floatingButtonSize(rt.fontScale) + spacing[3] : 0
   const [shouldFadeRideButton, setShouldFadeRideButton] = useState(false)
 
   useEffect(() => {
@@ -138,7 +142,7 @@ export function RouteDetailsBody({
         <ScrollView
           contentContainerStyle={{
             paddingTop: spacing[4],
-            paddingBottom: 80 + insets.bottom,
+            paddingBottom: 80 + insets.bottom + liveActionsRowHeight,
             paddingStart: sideInsets.start,
             paddingEnd: sideInsets.end,
           }}
@@ -249,6 +253,7 @@ export function RouteDetailsBody({
                         departurePlatform={routeItem.trains[index + 1].originPlatform}
                         firstTrain={train}
                         secondTrain={routeItem.trains[index + 1]}
+                        isRideOnThisRoute={isRideOnThisRoute}
                       />
                     )}
                   </View>
@@ -309,6 +314,7 @@ export function RouteDetailsBody({
                       departurePlatform={routeItem.trains[index + 1].originPlatform}
                       firstTrain={train}
                       secondTrain={routeItem.trains[index + 1]}
+                      isRideOnThisRoute={isRideOnThisRoute}
                     />
                   )}
                 </View>
@@ -326,11 +332,17 @@ export function RouteDetailsBody({
           // button below. zIndex is needed for Android in order to make the button pressable.
           style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: Platform.select({ ios: 0, android: 1 }) }}
         >
-          <LiveRideSheet progress={progress} screenName={screenName} />
+          {/* Train composition and vouchers matter most while riding, so their actions ride above the sheet */}
+          <View style={styles.liveActions}>
+            {voucherTrain && <VoucherButton train={voucherTrain} style={styles.infoButton} />}
+            <TrainInfoButton route={routeItem} style={styles.infoButton} />
+          </View>
+          {/* The wrapper is already pinned to the bottom. Keeping the sheet in flow stacks the actions above it, not under it */}
+          <LiveRideSheet progress={progress} screenName={screenName} style={styles.liveRideSheet} />
         </Animated.View>
       )}
 
-      {(Platform.OS === "android" || canRunLiveActivities) && !isRideOnThisRoute && (
+      {!isRideOnThisRoute && (Platform.OS === "android" || canRunLiveActivities || voucherTrain) && (
         <Animated.View
           entering={shouldFadeRideButton && FadeInDown.delay(100)}
           exiting={FadeOutDown}
@@ -347,35 +359,11 @@ export function RouteDetailsBody({
             gap: spacing[3],
           }}
         >
-          <Pressable
-            testID="train-info-button"
-            // Without an onLongPress handler, Pressable treats a long hold as
-            // a regular press on release and presents the sheet mid-gesture.
-            onLongPress={preventLongPressNavigation}
-            onPress={() => {
-              if (hasWagonData) {
-                trackEvent("train_info_sheet_opened")
-                HapticFeedback.trigger("impactLight")
-                useNavigationParamsStore.getState().setTrainInfo(routeItem.trains[0])
-                router.push("/train-info")
-              } else {
-                Alert.alert(translate("routeDetails.trainInformation") ?? "", translate("routeDetails.noTrainDetails") ?? "")
-              }
-            }}
-            accessibilityLabel={translate("routeDetails.trainInformation") ?? undefined}
-            accessibilityHint={!hasWagonData ? (translate("routeDetails.noTrainDetails") ?? undefined) : undefined}
-          >
-            <GlassView
-              style={[styles.infoButton, !hasWagonData && styles.infoButtonDisabled]}
-              isInteractive={hasWagonData}
-              glassEffectStyle="regular"
-              tintColor={Platform.OS === "ios" ? PlatformColor("tertiarySystemBackground") : undefined}
-            >
-              <Image source={require("../../../assets/info.circle.png")} style={styles.infoButtonIcon} />
-            </GlassView>
-          </Pressable>
+          {voucherTrain && <VoucherButton train={voucherTrain} style={styles.infoButton} />}
 
-          <StartRideButton route={routeItem} screenName={screenName} />
+          {(Platform.OS === "android" || canRunLiveActivities) && <TrainInfoButton route={routeItem} style={styles.infoButton} />}
+
+          {(Platform.OS === "android" || canRunLiveActivities) && <StartRideButton route={routeItem} screenName={screenName} />}
         </Animated.View>
       )}
     </View>
@@ -390,10 +378,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.background,
   },
   infoButton: {
-    // The text button renders 4pt taller than its minimum at the default font
-    // scale because of its line box and padding. Match that visible surface.
-    width: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
-    height: Math.max(59, 55 * Math.min(rt.fontScale, 1.2)),
+    width: floatingButtonSize(rt.fontScale),
+    height: floatingButtonSize(rt.fontScale),
     alignItems: "center",
     justifyContent: "center",
     borderRadius: Platform.select({ ios: 16, android: 6 }),
@@ -406,12 +392,15 @@ const styles = StyleSheet.create((theme, rt) => ({
         : theme.colors.tertiaryBackground,
     elevation: 3,
   },
-  infoButtonDisabled: {
-    opacity: 0.5,
+  liveActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: theme.spacing[3],
+    // Like the ride button: the side bar column only holds controls at the top.
+    paddingEnd: 18,
+    marginBottom: theme.spacing[3],
   },
-  infoButtonIcon: {
-    width: 24,
-    height: 24,
-    tintColor: theme.colors.text,
+  liveRideSheet: {
+    position: "relative",
   },
 }))

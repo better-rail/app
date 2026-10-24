@@ -4,7 +4,6 @@ import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
 import { SettingBox } from "./components/settings-box"
 
-import { isDarkMode } from "@/theme"
 import { openLink } from "@/utils/helpers/open-link"
 import { deviceLocale, translate, userLocale } from "@/i18n"
 import { useRouter } from "expo-router"
@@ -26,15 +25,7 @@ Device Locale: ${deviceLocale}
 export function AboutScreen() {
   const router = useRouter()
   return (
-    <Screen
-      style={styles.root}
-      preset="scroll"
-      belowHeader
-      unsafe={true}
-      statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-      translucent
-    >
+    <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
       <View style={[styles.settingGroup, styles.aboutGroup]}>
         <View style={styles.appIconWrapper}>
           <Image source={require("../../../assets/app-icon.png")} style={styles.appIconImage} />

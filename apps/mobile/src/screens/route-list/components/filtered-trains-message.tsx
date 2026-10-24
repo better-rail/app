@@ -8,11 +8,17 @@ import type { MaxChanges } from "@/models/settings/settings"
 
 type Props = {
   maxChanges: MaxChanges
+  // Trains within the change limit exist, but they're all slow
+  onlySlowTrains: boolean
   onShowAll: () => void
 }
 
-export function FilteredTrainsMessage({ maxChanges, onShowAll }: Props) {
-  const textKey = maxChanges === 0 ? "routes.noDirectTrainsFound" : "routes.noOneChangeTrainsFound"
+export function FilteredTrainsMessage({ maxChanges, onlySlowTrains, onShowAll }: Props) {
+  const textKey = onlySlowTrains
+    ? "routes.onlySlowTrainsFound"
+    : maxChanges === 0
+      ? "routes.noDirectTrainsFound"
+      : "routes.noOneChangeTrainsFound"
 
   return (
     <View style={styles.wrapper}>
@@ -26,7 +32,7 @@ export function FilteredTrainsMessage({ maxChanges, onShowAll }: Props) {
         }}
         style={styles.chip}
       >
-        <Text tx="routes.showAllTrains" style={styles.chipText} />
+        <Text tx={onlySlowTrains ? "routes.showSlowTrains" : "routes.showAllTrains"} style={styles.chipText} />
       </Chip>
     </View>
   )

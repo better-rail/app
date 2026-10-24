@@ -19,6 +19,14 @@ const IOS_BUNDLE_ID = "il.co.better-rail"
 const ANDROID_PACKAGE = "com.betterrail"
 const IOS_SUPPORTED_LOCALES = ["en", "he", "ar", "ru"]
 
+// Shown in the system prompt the first time a rider turns on the arrival alarm (AlarmKit).
+const ALARMKIT_USAGE_DESCRIPTIONS = {
+  en: "Better Rail rings a few minutes before your train reaches your destination. If the train is delayed, the alarm will ring later to match.",
+  he: "בטר רייל תצלצל כמה דקות לפני הגעת הרכבת ליעד. אם הרכבת מתעכבת, הצלצול יידחה בהתאם.",
+  ar: "يرنّ Better Rail قبل بضع دقائق من وصول القطار إلى وجهتك. إذا تأخّر القطار، يتأجّل التنبيه وفقًا لذلك.",
+  ru: "Better Rail подаст сигнал за несколько минут до прибытия поезда в пункт назначения. Если поезд задерживается, сигнал сдвинется на более позднее время.",
+}
+
 // iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
 // via `fontWeight`. The flat string array is all iOS needs.
 const HEEBO_FONTS_IOS = [
@@ -53,16 +61,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Better Rail",
   slug: "better-rail",
   owner: "better-rail",
-  version: "2.8.2",
+  version: "2.8.8",
   updates: {
     enabled: !IS_E2E,
     url: "https://u.expo.dev/b7819f45-8466-4c11-8628-3539099e6c78",
+    // The running update plus two older ones to fall back to if a new update crashes on launch.
+    maxUpdatesToKeep: 3,
   },
-  // OTA updates only reach builds with the same runtime version (tied to `version` above), so bump
-  // `version` whenever the native layer (modules/widgets/plugins/deps) changes — an OTA JS update
-  // must never land on an incompatible binary.
   runtimeVersion: {
-    policy: "appVersion",
+    policy: "fingerprint",
   },
   orientation: "portrait",
   userInterfaceStyle: "automatic",
@@ -83,6 +90,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // Consumed by @bacons/apple-targets for signing the generated extension/widget/watch targets.
     appleTeamId: APPLE_TEAM_ID,
     supportsTablet: false,
+    associatedDomains: ["applinks:better-rail.co.il", "activitycontinuation:better-rail.co.il"],
     // Icon Composer (Liquid Glass) icon — a string path, per Expo's requirement. The .icon
     // bundle carries its own light/dark/tinted appearance specializations, so it replaces the
     // light/dark/tinted PNG object. Named "AppIcon" (not "Icon") so the project-wide
@@ -103,6 +111,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSContactsUsageDescription: "We need access to your contacts to import and manage contacts within our app.",
       NSRemindersFullAccessUsageDescription: "We need full access to reminders to create alerts for your train rides.",
       NSRemindersUsageDescription: "Allow $(PRODUCT_NAME) to access your reminders.",
+      NSAlarmKitUsageDescription: ALARMKIT_USAGE_DESCRIPTIONS.en,
       NSAppTransportSecurity: {
         NSAllowsLocalNetworking: true,
         NSExceptionDomains: {
@@ -116,6 +125,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "aps-environment": IS_DEV ? "development" : "production",
     },
   },
+
+  locales: Object.fromEntries(
+    Object.entries(ALARMKIT_USAGE_DESCRIPTIONS).map(([locale, text]) => [locale, { ios: { NSAlarmKitUsageDescription: text } }]),
+  ),
 
   android: {
     package: ANDROID_PACKAGE,
@@ -141,6 +154,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.WAKE_LOCK",
       "android.permission.SCHEDULE_EXACT_ALARM",
       "android.permission.RECEIVE_BOOT_COMPLETED",
+      // Arrival alarm: rings from a foreground service and takes over the lock screen.
+      "android.permission.FOREGROUND_SERVICE",
+      "android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED",
+      "android.permission.USE_FULL_SCREEN_INTENT",
       "android.permission.READ_CALENDAR",
       "android.permission.WRITE_CALENDAR",
     ],
@@ -150,12 +167,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         category: ["DEFAULT", "BROWSABLE"],
         data: [{ scheme: "betterrail" }],
       },
+      {
+        action: "VIEW",
+        autoVerify: true,
+        category: ["DEFAULT", "BROWSABLE"],
+        data: [
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/routes/" },
+          { scheme: "https", host: "better-rail.co.il", pathPrefix: "/en/routes/" },
+        ],
+      },
     ],
   },
 
   plugins: [
     "expo-router",
     "expo-iap",
+    // Patched: SDK 58 resets the app's forceRTL on every launch. Built from source on Android (package.json
+    // expo.autolinking) so the patch applies. Drop both once an expo-localization release keeps runtime RTL.
     ["expo-localization", { supportedLocales: { ios: IOS_SUPPORTED_LOCALES } }],
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
@@ -179,11 +207,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           deploymentTarget: "16.4",
         },
         android: {
-          kotlinVersion: "2.1.20",
-          compileSdkVersion: 36,
+          compileSdkVersion: 37,
           targetSdkVersion: 36,
           minSdkVersion: 24,
-          enableProguardInReleaseBuilds: false,
+          // SDK 58 turns R8 on by default; keep it off until reflection-heavy libs have keep rules.
+          enableMinifyInReleaseBuilds: false,
         },
       },
     ],

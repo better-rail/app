@@ -1,32 +1,38 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
-import { FlashList, type FlashListRef } from "@shopify/flash-list"
+import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
-import { closestIndexTo } from "date-fns"
-import { useRouter, useLocalSearchParams, useNavigation, Redirect } from "expo-router"
+import { addDays } from "date-fns"
+import { useRouter, useLocalSearchParams, useNavigation, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
+import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useShallow } from "zustand/react/shallow"
 import { useTrainRoutesStore, useRoutePlanStore, useRideStore, useSettingsStore } from "@/models"
-import { filterRouteDataByMaxChanges, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
+import { filterRouteData, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/settings/settings"
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
-import { Screen, RouteDetailsHeader, RouteCard } from "@/components"
+import { RouteApi } from "@/services/api/route-api"
+import { retryOnceOnNetworkError } from "@/utils/helpers/network-errors"
+import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, RouteCardHeightWithHeader, WebsiteHandoff } from "@/components"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
   RouteListError,
   RouteListWarning,
-  type WarningType,
   ResultDateCard,
+  RESULT_DATE_CARD_HEIGHT,
   DateScroll,
   RouteDetailsPane,
   routeKey,
+  HourIndexBar,
+  HOUR_INDEX_MAX_FONT_SCALE,
+  type HourIndexEntry,
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
@@ -36,102 +42,82 @@ import { useIsWideLayout, WIDE_LAYOUT_MIN_WIDTH } from "@/hooks/use-is-wide-layo
 import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
-import { isRouteInThePast } from "@/utils/helpers/date-helpers"
+import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers"
+import { isHourIndexSupported } from "@/utils/hour-index"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { findRouteVoucher } from "@/utils/helpers/voucher-helpers"
+import { isOnRideTrains } from "@/utils/helpers/ride-helpers"
+import { useVouchersStore } from "@/models/vouchers/vouchers"
 import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
+import { RoutesNotFoundError, type RouteSearchResult } from "@/models/train-routes/search-routes"
+import {
+  getInitialScrollIndex,
+  getRouteListWarning,
+  getScrollTarget,
+  organizeRouteResults,
+  patchRoutes,
+  routeListDayQueryKey,
+  subscribeToFreshRoutes,
+  upsertRouteResult,
+  type RouteData,
+} from "./route-list-query"
 
-type RouteData = RouteItem | string
-
-// Organize routes into a flat list of date headers followed by their routes.
-// Kept at module scope for a stable reference — as a component-scoped function its
-// reference would change each render and re-trigger the effect that calls setRouteData.
-function organizeRoutesByDate(routes: RouteItem[], currentDateStr: string, existingData: RouteData[] = []) {
-  // Extract all existing dates and their routes
-  const dateToRoutesMap = new Map<string, RouteItem[]>()
-
-  // Initialize with empty arrays for all dates from existing data
-  const allDates = existingData.filter((item) => typeof item === "string") as string[]
-  allDates.forEach((date) => dateToRoutesMap.set(date, []))
-
-  // Add the current date if it doesn't exist
-  if (!dateToRoutesMap.has(currentDateStr)) {
-    dateToRoutesMap.set(currentDateStr, [])
-  }
-
-  // Fill in routes for each date from existing data
-  let headerDate: string | null = null
-  for (const item of existingData) {
-    if (typeof item === "string") {
-      headerDate = item
-    } else if (headerDate) {
-      // Only add the route if it's not from the date we're updating
-      if (headerDate !== currentDateStr) {
-        const existingRoutes = dateToRoutesMap.get(headerDate) || []
-        existingRoutes.push(item)
-        dateToRoutesMap.set(headerDate, existingRoutes)
-      }
-    }
-  }
-
-  // Add the new routes for the current date
-  // First, validate that each route actually belongs to this date
-  const validatedRoutes = routes.filter((route) => {
-    const routeDate = new Date(route.trains[0].departureTime).toDateString()
-    // If the route date is different from the requested date, we need to handle it
-    if (routeDate !== currentDateStr) {
-      // If we don't have this date in our map yet, add it
-      if (!dateToRoutesMap.has(routeDate)) {
-        dateToRoutesMap.set(routeDate, [])
-      }
-      // Add this route to its actual date instead of the requested date
-      const routesForActualDate = dateToRoutesMap.get(routeDate) || []
-      routesForActualDate.push(route)
-      dateToRoutesMap.set(routeDate, routesForActualDate)
-      return false // Don't include this route in the current date's routes
-    }
-    return true
-  })
-
-  // Add the validated routes to the current date
-  dateToRoutesMap.set(currentDateStr, validatedRoutes)
-
-  // Convert the map back to a flat array with date headers followed by their routes
-  const newData: RouteData[] = []
-
-  // Sort dates chronologically
-  const sortedDates = Array.from(dateToRoutesMap.keys()).sort((a, b) => {
-    return new Date(a).getTime() - new Date(b).getTime()
-  })
-
-  // Build the final array with dates and their routes
-  for (const date of sortedDates) {
-    const dateRoutes = dateToRoutesMap.get(date) || []
-    if (dateRoutes.length > 0) {
-      newData.push(date)
-      newData.push(...dateRoutes)
-    }
-  }
-
-  return newData
-}
+// Report the top row as soon as it scrolls in, so the hour index highlight keeps up
+const VIEWABILITY_CONFIG = { minimumViewTime: 0, itemVisiblePercentThreshold: 50 }
 
 export function RouteListScreen() {
-  const router = useRouter()
-  const rawParams = useLocalSearchParams<{ originId: string; destinationId: string; time: string; enableQuery?: string }>()
-  const originId = rawParams.originId
-  const destinationId = rawParams.destinationId
-  const time = parseInt(rawParams.time as string, 10)
-  const enableQuery = rawParams.enableQuery === "true"
-  const canSearchForTrains = enableQuery && !!originId && !!destinationId
-  const { resultType, getRoutes, updateResultType } = useTrainRoutesStore(
-    useShallow((s) => ({ resultType: s.resultType, getRoutes: s.getRoutes, updateResultType: s.updateResultType })),
+  const params = useLocalSearchParams<{
+    originId: string
+    destinationId: string
+    time: string
+    enableQuery?: string
+    trip?: string
+    viaStationId?: string
+  }>()
+  const time = Number(params.time)
+  if (!params.originId || !params.destinationId || !Number.isFinite(time)) return <Redirect href="/" />
+
+  return (
+    <RouteListResults
+      key={`${params.originId}-${params.destinationId}-${time}`}
+      originId={params.originId}
+      destinationId={params.destinationId}
+      time={time}
+      enableQuery={params.enableQuery === "true"}
+      trip={params.trip}
+      viaStationId={params.viaStationId}
+    />
   )
+}
+
+function RouteListResults({
+  originId,
+  destinationId,
+  time,
+  enableQuery,
+  trip,
+  viaStationId,
+}: {
+  originId: string
+  destinationId: string
+  time: number
+  enableQuery: boolean
+  trip?: string
+  viaStationId?: string
+}) {
+  const router = useRouter()
+  const vouchers = useVouchersStore((s) => s.vouchers)
+  const getRoutes = useTrainRoutesStore((s) => s.getRoutes)
+  const isFocused = useIsFocused()
   const { dateType, date: routePlanDate } = useRoutePlanStore(useShallow((s) => ({ dateType: s.dateType, date: s.date })))
-  const isRouteActive = useRideStore((s) => s.isRouteActive)
   const rideRoute = useRideStore((s) => s.route)
-  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
+  const hourIndexEnabled = useSettingsStore((s) => s.showHourIndex)
+  const showRouteCardHeader = useSettingsStore((s) => s.showRouteCardHeader)
   const maxChanges = useSettingsStore((s) => s.maxChanges)
+  const hideSlowTrains = useSettingsStore((s) => s.hideSlowTrains)
   const setMaxChanges = useSettingsStore((s) => s.setMaxChanges)
+  const setHideSlowTrains = useSettingsStore((s) => s.setHideSlowTrains)
   const { trainSearchCount, recordTrainSearch, seenTrainInfoPrompt, setSeenTrainInfoPrompt } = useSettingsStore(
     useShallow((s) => ({
       trainSearchCount: s.trainSearchCount,
@@ -144,26 +130,29 @@ export function RouteListScreen() {
   const colorScheme = useColorScheme()
   const { markInteractive } = useObserve()
 
-  const [routeData, setRouteData] = useState<RouteData[]>([])
+  const [dayResults, setDayResults] = useState<RouteSearchResult[]>([])
+  const routeData = useMemo(() => organizeRouteResults(dayResults), [dayResults])
+  // Only explicit pagination changes the query date. Automatic fallback stays tied to its request.
+  const [currentDate, setCurrentDate] = useState(() => new Date(time))
+  const nextDayDate = addDays(dayResults.at(-1)?.resolvedTime ?? time, 1)
 
-  // Track the current date and the next day being loaded
-  const [currentDate, setCurrentDate] = useState<Date>(new Date(time))
-  const [nextDayDate, setNextDayDate] = useState<Date>(() => {
-    const date = new Date(time)
-    date.setDate(date.getDate() + 1)
-    return date
-  })
-  const [loadingDate, setLoadingDate] = useState<string | null>(null)
+  // Route details refresh live data across loaded days, preserving each search's warning.
+  useEffect(
+    () =>
+      subscribeToFreshRoutes({
+        originId,
+        destinationId,
+        onRoutes: (routes) =>
+          setDayResults((results) =>
+            results.map((result) => ({
+              ...result,
+              routes: patchRoutes(result.routes, routes),
+            })),
+          ),
+      }),
+    [originId, destinationId],
+  )
 
-  // Keep track of the dates we've already loaded
-  const [loadedDates, setLoadedDates] = useState<Set<string>>(new Set())
-
-  useEffect(() => {
-    setRouteData([])
-    setLoadedDates(new Set())
-  }, [originId, destinationId])
-
-  const flashListRef = useRef<FlashListRef<RouteData>>(null)
   const insets = useSafeAreaInsets()
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
@@ -229,6 +218,9 @@ export function RouteListScreen() {
     useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
     router.push("/route-details")
   }
+  const listRef = useRef<LegendListRef>(null)
+  // LegendList hides rows until it has jumped to the closest train; hide the footer and scroll bar with them
+  const [isListReady, setIsListReady] = useState(false)
   const hasRecordedSearch = useRef(false)
 
   // Prompt the user once to choose whether to show the "Train Info" row on route cards.
@@ -247,200 +239,147 @@ export function RouteListScreen() {
     return () => clearTimeout(timeout)
   }, [router, seenTrainInfoPrompt, setSeenTrainInfoPrompt, trainInfoPromptFlag, trainSearchCount])
 
-  // Function to get the next day date
-  const getNextDayDate = (): Date => nextDayDate
-
-  // Function to load data for the next day
-  const loadNextDayData = () => {
-    const newDate = getNextDayDate()
-    const newDateString = newDate.toDateString()
-
-    // Check if we've already loaded this date
-    if (loadedDates.has(newDateString)) {
-      // If we've already loaded this date, just update the current date
-      setCurrentDate(newDate)
-
-      // Update the next day date
-      const nextDate = new Date(newDate)
-      nextDate.setDate(nextDate.getDate() + 1)
-      setNextDayDate(nextDate)
-
-      return
-    }
-
-    // Set the loading date
-    setLoadingDate(newDateString)
-
-    // Update the current date
-    setCurrentDate(newDate)
-
-    // Don't update the next day date until loading is complete
-    // This ensures the DateScroll component shows the correct date during loading
-  }
-
   const { isInternetReachable } = useNetworkState()
+  const queryKey = routeListDayQueryKey(originId, destinationId, currentDate.getTime())
+  const trains = useQuery(queryKey, () => getRoutes(originId, destinationId, currentDate.getTime()), {
+    enabled: enableQuery,
+    retry: retryOnceOnNetworkError,
+    refetchInterval: 60_000,
+    keepPreviousData: false,
+  })
 
-  const trains = useQuery(
-    ["origin", originId, "destination", destinationId, "time", currentDate.getTime(), "hideSlowTrains", hideSlowTrains],
+  // Keep trip restoration tied to the requested day while the list loads other days.
+  const requestedDayQueryKey = routeListDayQueryKey(originId, destinationId, time)
+  const websiteTripRoutes = useQuery(
+    viaStationId ? ["websiteTrip", originId, destinationId, time, viaStationId] : requestedDayQueryKey,
     async () => {
-      const result = await getRoutes(originId, destinationId, currentDate.getTime())
-      return result
+      if (!viaStationId) return getRoutes(originId, destinationId, time)
+      const [date, hour] = formatDateForAPI(time)
+      return new RouteApi().getRoutes(originId, destinationId, date, hour, { viaStation: viaStationId })
     },
     {
-      enabled: canSearchForTrains,
-      retry: false,
-      // Periodically refresh to catch platform changes and delays
-      refetchInterval: 60_000,
-      // Don't show stale data while refetching
-      keepPreviousData: false,
-      // Handle errors properly
-      onError: () => {
-        // Only update the error state if we don't have any data yet
-        if (routeData.length === 0) {
-          updateResultType("not-found")
-        }
-        setLoadingDate(null)
-      },
-      onSuccess: (data) => {
-        // Count only completed searches, and only once for this results-screen visit.
-        if (!hasRecordedSearch.current) {
-          hasRecordedSearch.current = true
-          recordTrainSearch()
-        }
-
-        // Check if we need to update the date based on the actual routes
-        if (data && data.length > 0) {
-          const firstRouteDate = new Date(data[0].trains[0].departureTime).toDateString()
-          if (firstRouteDate !== currentDate.toDateString()) {
-            // Update the current date to match the actual date of the routes, keeping the
-            // originally requested time-of-day — resetting to midnight re-runs the query
-            // with 00:00 and triggers a spurious "different-hour" warning.
-            const updatedDate = new Date(firstRouteDate)
-            updatedDate.setHours(currentDate.getHours(), currentDate.getMinutes(), 0, 0)
-            setCurrentDate(updatedDate)
-            // Update the next day date accordingly
-            const nextDate = new Date(updatedDate)
-            nextDate.setDate(nextDate.getDate() + 1)
-            setNextDayDate(nextDate)
-          }
-        }
-
-        // Add the current date to the set of loaded dates
-        setLoadedDates((prev) => {
-          const newSet = new Set(prev)
-          newSet.add(currentDate.toDateString())
-          return newSet
-        })
-
-        // Now that loading is complete, update the next day date
-        const nextDate = new Date(currentDate)
-        nextDate.setDate(nextDate.getDate() + 1)
-        setNextDayDate(nextDate)
-
-        // Clear loading state
-        setLoadingDate(null)
-      },
+      enabled: enableQuery && !!trip && isFocused,
+      retry: retryOnceOnNetworkError,
+      select: (data) => (Array.isArray(data) ? data : data.routes),
     },
   )
 
-  // Update the loading date when the current date changes
+  const openedWebsiteTrip = useRef<string | null>(null)
   useEffect(() => {
-    if (trains.isLoading) {
-      setLoadingDate(currentDate.toDateString())
-    }
-  }, [currentDate, trains.isLoading])
+    if (!isFocused || !trip || !websiteTripRoutes.isSuccess || !websiteTripRoutes.data) return
+    const key = `${originId}/${destinationId}/${time}/${trip}/${viaStationId ?? ""}`
+    if (openedWebsiteTrip.current === key) return
+    // Handle unavailable trips once so polling doesn't open details later.
+    openedWebsiteTrip.current = key
+    const routeItem = websiteTripRoutes.data.find(
+      (route) =>
+        new Date(route.departureTime).toDateString() === new Date(time).toDateString() &&
+        route.trains.map((train) => train.trainNumber).join("-") === trip,
+    )
+    if (!routeItem) return
+    useNavigationParamsStore.getState().setRouteDetails({
+      routeItem: { ...routeItem, viaStationId },
+      originId,
+      destinationId,
+    })
+    router.push("/route-details")
+  }, [isFocused, trip, websiteTripRoutes.isSuccess, websiteTripRoutes.data, originId, destinationId, time, viaStationId, router])
 
+  // This also handles cached results, for which onSuccess is not called on initial display.
   useEffect(() => {
-    // Reset the error state when starting a new query
-    if (trains.isLoading) {
-      updateResultType("normal")
+    if (!trains.data) return
+    setDayResults((results) => upsertRouteResult(results, trains.data))
+    if (!hasRecordedSearch.current) {
+      hasRecordedSearch.current = true
+      recordTrainSearch()
     }
+  }, [trains.data, recordTrainSearch])
 
-    if (trains.isSuccess) {
-      // Create a new date string for the current date
-      const dateString = currentDate.toDateString()
-
-      // Organize routes by date
-      setRouteData((prevData) => {
-        const newData = organizeRoutesByDate(trains.data, dateString, prevData)
-        return newData
-      })
-    }
-  }, [trains.data, currentDate, trains.isSuccess, trains.isLoading, updateResultType])
+  const loadingDate = trains.isLoading ? currentDate.toDateString() : null
+  const loadNextDayData = () => {
+    if (trains.isFetching) return
+    if (nextDayDate.getTime() === currentDate.getTime()) trains.refetch()
+    else setCurrentDate(nextDayDate)
+  }
 
   // Filtered on loaded data so switching never refetches
-  const displayData = useMemo(() => filterRouteDataByMaxChanges(routeData, maxChanges), [routeData, maxChanges])
+  const displayData = useMemo(
+    () => filterRouteData(routeData, { hideSlowTrains, maxChanges }),
+    [routeData, hideSlowTrains, maxChanges],
+  )
+  const todayDate = new Date().toDateString()
   const allRoutesHiddenByFilter = routeData.some((item) => typeof item !== "string") && displayData.length === 0
+  const onlySlowTrainsHidden =
+    allRoutesHiddenByFilter && filterRouteData(routeData, { hideSlowTrains: false, maxChanges }).length > 0
 
-  // Start over from the requested date
+  // The hour index covers the day currently at the top of the list, and highlights its hour.
+  // The hour lives in a shared value so scrolling doesn't re-render the screen.
+  const [visibleDate, setVisibleDate] = useState<string | null>(null)
+  const handoffDate = new Date(visibleDate ?? displayData.find((item) => typeof item === "string") ?? currentDate.getTime())
+  handoffDate.setHours(currentDate.getHours(), currentDate.getMinutes(), 0, 0)
+  const topHour = useSharedValue(-1)
+  const onViewableItemsChanged = ({ viewableItems }: { viewableItems: ViewToken<RouteData>[] }) => {
+    const first = viewableItems[0]?.item
+    if (!first) return
+    setVisibleDate(typeof first === "string" ? first : new Date(first.trains[0].departureTime).toDateString())
+    const firstRoute = viewableItems.find((token) => typeof token.item !== "string")?.item as RouteItem | undefined
+    if (firstRoute) topHour.value = new Date(firstRoute.trains[0].departureTime).getHours()
+  }
+
+  const hourIndexEntries = useMemo(() => {
+    const entries: HourIndexEntry[] = []
+    const targetDate = visibleDate ?? displayData.find((item) => typeof item === "string")
+    let date: string | null = null
+    displayData.forEach((item, index) => {
+      if (typeof item === "string") {
+        date = item
+        return
+      }
+      if (date !== targetDate) return
+      const hour = new Date(item.trains[0].departureTime).getHours()
+      if (entries.at(-1)?.hour !== hour) entries.push({ hour, index })
+    })
+    return entries
+  }, [displayData, visibleDate])
+  const showHourIndex =
+    isHourIndexSupported() && hourIndexEnabled && hourIndexEntries.length >= 4 && fontScale <= HOUR_INDEX_MAX_FONT_SCALE
+
+  const scrollToHour = ({ index }: HourIndexEntry) => {
+    // Keep the date header in view when jumping to the first train of the day
+    const target = typeof displayData[index - 1] === "string" ? index - 1 : index
+    listRef.current?.scrollToIndex({
+      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, todayDate),
+      animated: false,
+    })
+  }
+
+  // Signal TTI after the results or an empty/error state has resolved.
   useEffect(() => {
-    const initialDate = new Date(time).toDateString()
-    setRouteData([])
-    setLoadedDates(new Set([initialDate]))
-
-    // Also make sure the current and next day dates are properly set
-    const current = new Date(time)
-    setCurrentDate(current)
-
-    const nextDay = new Date(time)
-    nextDay.setDate(nextDay.getDate() + 1)
-    setNextDayDate(nextDay)
-  }, [time, hideSlowTrains])
-
-  // Signal EAS Observe per-route TTI once the route results have resolved — either
-  // routes are rendered, or we've reached a terminal not-found / error state.
-  useEffect(() => {
-    const hasResults = displayData.length > 0
-    const isTerminalEmpty =
-      !trains.isLoading && (resultType === "not-found" || trains.status === "error" || allRoutesHiddenByFilter)
-    if (hasResults || isTerminalEmpty) {
+    if (displayData.length > 0 || (!trains.isLoading && (trains.isError || allRoutesHiddenByFilter))) {
       markInteractive()
     }
-  }, [displayData.length, trains.isLoading, trains.status, resultType, allRoutesHiddenByFilter, markInteractive])
+  }, [displayData.length, trains.isLoading, trains.isError, allRoutesHiddenByFilter, markInteractive])
 
-  // Set the initial scroll index, since the Israel Rail API ignores the supplied time and
-  // returns a route list for the whole day.
-  const initialScrollIndex = (() => {
-    if (!trains.isSuccess || displayData.length === 0) return undefined
-
-    // Get only the route items (not date headers)
-    const routeItems = displayData.filter((item): item is RouteItem => typeof item !== "string")
-
-    if (routeItems.length === 0) return undefined
-
-    let targetRoute: RouteItem | undefined
-
-    if (dateType === "departure") {
-      const departureTimes = routeItems.map((r) => r.trains[0].departureTime)
-      const closestIdx = closestIndexTo(time, departureTimes)
-      targetRoute = routeItems[closestIdx]
-    } else if (dateType === "arrival") {
-      const arrivalTimes = routeItems.map((r) => r.trains[0].arrivalTime)
-      const closestIdx = closestIndexTo(time, arrivalTimes)
-      targetRoute = routeItems[closestIdx]
-    }
-
-    if (!targetRoute) return undefined
-
-    // Find the actual index in displayData (which includes date headers)
-    return displayData.findIndex((item) => item === targetRoute)
-  })()
+  const closestIndex = getInitialScrollIndex(displayData, time, dateType)
+  const initialScrollTarget =
+    closestIndex === undefined ? undefined : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, todayDate)
 
   // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
+  const reanchorList = useEffectEvent(() => {
+    if (initialScrollTarget) listRef.current?.scrollToIndex({ ...initialScrollTarget, animated: true })
+  })
   const isFirstRender = useRef(true)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    if (initialScrollIndex === undefined) return
-    flashListRef.current?.scrollToIndex({ index: initialScrollIndex, animated: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [maxChanges])
+    reanchorList()
+  }, [hideSlowTrains, maxChanges])
 
   const shouldShowDashedLine = (() => {
     // Get the longest text for duration and delay that will be in the list
-    const allTexts = flatMap(trains.data ?? [], ({ delay, duration }) => [
+    const allTexts = flatMap(trains.data?.routes ?? [], ({ delay, duration }) => [
       delay > 0 ? (delay + " " + translate("routes.delayTime")).length : 0,
       duration.length,
     ])
@@ -552,7 +491,8 @@ export function RouteListScreen() {
         departureTime={departureTime}
         arrivalTime={arrivalTime}
         delay={item.delay}
-        isActiveRide={isRouteActive(item)}
+        isActiveRide={isOnRideTrains(rideRoute, item)}
+        hasVoucher={!!findRouteVoucher(vouchers, item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
         onPress={() => openRouteDetails(item)}
         onLongPress={() => handleRouteLongPress(item)}
@@ -566,26 +506,17 @@ export function RouteListScreen() {
     )
   }
 
-  const shouldShowWarning =
-    trains.isSuccess &&
-    trains.data?.length > 0 &&
-    !allRoutesHiddenByFilter &&
-    ["different-date", "different-hour"].includes(resultType)
-
-  // Check if the next day date is currently loading
+  const warning = getRouteListWarning(dayResults)
   const isNextDayLoading = loadingDate === nextDayDate.toDateString()
-
-  if (!originId || !destinationId) {
-    return <Redirect href="/" />
-  }
+  const noTrainsFound = trains.error instanceof RoutesNotFoundError
 
   const listContent = (
     <>
       {/* Only show the no internet error if we're not loading and there's no data */}
-      {!isInternetReachable && !trains.isLoading && !trains.data && <RouteListError errorType="no-internet" />}
+      {!isInternetReachable && !trains.isLoading && routeData.length === 0 && <RouteListError errorType="no-internet" />}
 
       {/* Only show the request error if we're not loading, internet is available, and there's an error */}
-      {isInternetReachable && !trains.isLoading && trains.status === "error" && !trains.data && (
+      {isInternetReachable && !trains.isLoading && trains.isError && !noTrainsFound && routeData.length === 0 && (
         <RouteListError errorType="request-error" />
       )}
 
@@ -595,58 +526,98 @@ export function RouteListScreen() {
       )}
 
       {displayData.length > 0 && (
-        <FlashList
-          key={`route-list-${hideSlowTrains}`}
-          ref={flashListRef}
-          renderItem={renderRouteCard}
-          keyExtractor={(item) =>
-            typeof item === "string"
-              ? item
-              : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
-          }
-          data={displayData}
-          contentContainerStyle={{
-            paddingTop: spacing[4],
-            paddingHorizontal: spacing[3],
-            paddingBottom: shouldShowWarning ? spacing[8] + spacing[5] : spacing[3],
-          }}
-          initialScrollIndex={initialScrollIndex}
-          // so the list will re-render when the ride route changes, and so the item will be marked
-          extraData={[rideRoute, routePlanDate, trains.status, loadingDate, hideSlowTrains, maxChanges, selectedRouteKey]}
-          ListFooterComponent={
-            <DateScroll setTime={loadNextDayData} currenTime={nextDayDate.getTime()} isLoadingDate={isNextDayLoading} />
-          }
-          ListFooterComponentStyle={{ paddingBottom: spacing[3] }}
-        />
+        <View style={styles.listContainer}>
+          <LegendList
+            // The list caches row sizes, so it starts over when the train info prompt changes the card height
+            key={`route-list-${showRouteCardHeader}`}
+            ref={listRef}
+            renderItem={renderRouteCard}
+            keyExtractor={(item) =>
+              typeof item === "string"
+                ? item
+                : item.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join()
+            }
+            data={displayData}
+            getItemType={(item) => (typeof item === "string" ? "date" : "route")}
+            // Rows have fixed heights, so the list can jump to the closest train without measuring first
+            getFixedItemSize={(_, __, type) =>
+              type === "route"
+                ? (showRouteCardHeader ? RouteCardHeightWithHeader : RouteCardHeight) + spacing[3]
+                : RESULT_DATE_CARD_HEIGHT
+            }
+            recycleItems
+            stickyHeaderIndices={displayData.flatMap((item, index) =>
+              typeof item === "string" && item !== todayDate ? [index] : [],
+            )}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={VIEWABILITY_CONFIG}
+            // The native scroll indicator would sit on top of the hour index
+            showsVerticalScrollIndicator={isListReady && !showHourIndex}
+            contentContainerStyle={{
+              paddingTop: spacing[4],
+              paddingStart: spacing[3],
+              paddingEnd: showHourIndex ? spacing[5] + spacing[1] : spacing[3],
+              paddingBottom: warning && isLiquidGlassSupported ? spacing[8] + spacing[5] : spacing[3],
+            }}
+            initialScrollIndex={initialScrollTarget}
+            // Rows only re-render when their item or this changes, so it lists everything else renderRouteCard reads.
+            // dataUpdatedAt re-renders them on each refetch, so departed trains grey out.
+            extraData={[
+              rideRoute,
+              routePlanDate,
+              trains.status,
+              trains.dataUpdatedAt,
+              loadingDate,
+              hideSlowTrains,
+              maxChanges,
+              vouchers,
+              shouldShowDashedLine,
+              colorScheme,
+              selectedRouteKey,
+            ]}
+            ListFooterComponent={
+              <DateScroll
+                setTime={loadNextDayData}
+                currenTime={nextDayDate.getTime()}
+                isLoadingDate={isNextDayLoading}
+                isDisabled={trains.isFetching}
+              />
+            }
+            ListFooterComponentStyle={{ paddingBottom: spacing[3], opacity: isListReady ? 1 : 0 }}
+            onLoad={() => {
+              setIsListReady(true)
+              // iOS sends no scroll event for the initial offset, which leaves the sticky date header unpinned
+              const list = listRef.current
+              if (Platform.OS === "ios" && list) {
+                const { scroll } = list.getState()
+                list.scrollToOffset({ offset: scroll + 1, animated: false })
+                list.scrollToOffset({ offset: scroll, animated: false })
+              }
+            }}
+          />
+          {showHourIndex && <HourIndexBar entries={hourIndexEntries} topHour={topHour} onSelect={scrollToHour} />}
+        </View>
       )}
 
-      {/* A failed background refetch sets "not-found" in the store directly, bypassing the
-      onError guard — so also require that no results are currently displayed. */}
-      {resultType === "not-found" && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
+      {noTrainsFound && !trains.isLoading && isInternetReachable && routeData.length === 0 && (
         <View style={{ marginTop: spacing[4] }}>
           <NoTrainsFoundMessage />
         </View>
       )}
 
-      {allRoutesHiddenByFilter && <FilteredTrainsMessage maxChanges={maxChanges} onShowAll={() => setMaxChanges(null)} />}
-
-      {shouldShowWarning && !trains.isLoading && (
-        <RouteListWarning routesDate={trains.data[0].trains[0].departureTime} warningType={resultType as WarningType} />
+      {allRoutesHiddenByFilter && (
+        <FilteredTrainsMessage
+          maxChanges={maxChanges}
+          onlySlowTrains={onlySlowTrainsHidden}
+          onShowAll={() => (onlySlowTrainsHidden ? setHideSlowTrains(false) : setMaxChanges(null))}
+        />
       )}
     </>
   )
 
   return (
-    <Screen
-      testID="route-list-screen"
-      style={styles.root}
-      preset="fixed"
-      unsafe={true}
-      edgeToEdge
-      statusBar="light-content"
-      statusBarBackgroundColor="transparent"
-      translucent
-    >
+    <Screen testID="route-list-screen" style={styles.root} preset="fixed" unsafe={true} edgeToEdge statusBar="light-content">
+      <WebsiteHandoff originId={originId} destinationId={destinationId} time={handoffDate.getTime()} />
       <RouteDetailsHeader
         screenName="routeList"
         originId={originId}
@@ -666,6 +637,8 @@ export function RouteListScreen() {
         <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
         {isWide && <RouteDetailsPane />}
       </View>
+
+      {warning && <RouteListWarning key={`${warning.requestedTime}-${warning.routesDate}-${warning.warningType}`} {...warning} />}
     </Screen>
   )
 }
@@ -684,5 +657,8 @@ const styles = StyleSheet.create((theme) => ({
   selectedCard: {
     outlineWidth: 2,
     outlineColor: theme.colors.primary,
+  },
+  listContainer: {
+    flex: 1,
   },
 }))

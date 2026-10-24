@@ -141,4 +141,8 @@
     <!-- Test stations for mock data -->
     <string name="station_9999">תחנת מוצא לבדיקה</string>
     <string name="station_8888">תחנת יעד לבדיקה</string>
+
+    <!-- Arrival alarm -->
+    <string name="arrival_alarm_channel_name">התראת הגעה</string>
+    <string name="arrival_alarm_channel_description">מצלצלת לפני התחנה שלכם בזמן נסיעה חיה</string>
 </resources>

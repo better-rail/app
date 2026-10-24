@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Pressable, type PressableProps, Image, ActivityIndicator, PlatformColor } from "react-native"
+import { Pressable, type PressableProps, Image, ActivityIndicator, Platform, View, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text, BottomScreenSheet } from "@/components"
 import { useRouter } from "expo-router"
@@ -8,16 +8,22 @@ import { useRideStore } from "@/models"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import { GlassView } from "expo-glass-effect"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
+import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
+import { formatTime } from "@/utils/helpers/date-helpers"
+import { getNextArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
+import { ArrivalAlarmButton } from "./arrival-alarm-button"
 
 // TODO: add typings to progress
-export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide" }) {
-  const { id, stopRide } = useRideStore(useShallow((s) => ({ id: s.id, stopRide: s.stopRide })))
-  const { progress, screenName } = props
+export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "activeRide"; style?: ViewStyle }) {
+  const { id, stopRide, arrivalAlarm } = useRideStore(
+    useShallow((s) => ({ id: s.id, stopRide: s.stopRide, arrivalAlarm: s.arrivalAlarm })),
+  )
+  const { progress, screenName, style } = props
 
   const router = useRouter()
 
-  const { status, minutesLeft } = progress
+  const { status, minutesLeft, now } = progress
 
   const progressText = (() => {
     if (!id) return translate("ride.activatingRide")
@@ -37,27 +43,40 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
   })()
 
   return (
-    <BottomScreenSheet>
-      <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
-        {progressText}
-      </Text>
+    <BottomScreenSheet style={style}>
+      <View style={styles.progress}>
+        <Text style={styles.progressText} maxFontSizeMultiplier={1.2}>
+          {progressText}
+        </Text>
+        {arrivalAlarm && (
+          <Text style={styles.alarmText} maxFontSizeMultiplier={1.2}>
+            {translate("ride.alarmSetFor", { time: formatTime(getNextArrivalAlarmStop(arrivalAlarm.stops, now).fireDate) })}
+          </Text>
+        )}
+      </View>
 
-      <StopButton
-        loading={!id}
-        onPress={() => {
-          stopRide(id)
-          trackEvent("stop_live_ride")
+      <View style={styles.buttons}>
+        {id && isArrivalAlarmSupported() && (isLiquidGlassSupported || Platform.OS === "android") && (
+          <ArrivalAlarmButton now={now} />
+        )}
+        <StopButton
+          loading={!id}
+          onPress={() => {
+            stopRide(id)
+            trackEvent("stop_live_ride")
 
-          if (screenName === "activeRide") {
-            router.back()
-          }
-        }}
-      />
+            if (screenName === "activeRide") {
+              router.back()
+            }
+          }}
+        />
+      </View>
     </BottomScreenSheet>
   )
 }
 
 const StopButton = (props: { loading: boolean } & PressableProps) => {
+  const glassTint = useGlassTint("stop")
   const { loading } = props
   const [isDisabled, setIsDisabled] = useState(loading)
 
@@ -87,7 +106,7 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
   if (isLiquidGlassSupported) {
     return (
       <Pressable disabled={isDisabled} {...props}>
-        <GlassView isInteractive style={styles.stopButton} tintColor={PlatformColor("systemRed")}>
+        <GlassView isInteractive style={styles.stopButton} tintColor={glassTint}>
           {loading ? (
             <ActivityIndicator color="white" />
           ) : (
@@ -110,6 +129,19 @@ const StopButton = (props: { loading: boolean } & PressableProps) => {
 }
 
 const styles = StyleSheet.create((theme) => ({
+  progress: {
+    flexShrink: 1,
+  },
+  alarmText: {
+    fontSize: 14,
+    color: theme.colors.text,
+    opacity: 0.6,
+  },
+  buttons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[3],
+  },
   progressText: {
     fontSize: 20,
     fontWeight: "bold",

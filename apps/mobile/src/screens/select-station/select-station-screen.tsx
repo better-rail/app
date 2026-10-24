@@ -7,11 +7,11 @@ import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
-import { isDarkMode, spacing } from "@/theme"
+import { spacing } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
-import { FlashList, FlashListRef } from "@shopify/flash-list"
+import { LegendList, type LegendListRef } from "@legendapp/list/react-native"
 import { useFilteredStations } from "@/hooks"
 import { fetchChangeStationRoute, prefetchChangeStations } from "@/screens/route-details/replace-change-station"
 import { useQueryClient } from "react-query"
@@ -33,9 +33,10 @@ export type SelectionType = "origin" | "destination" | "via"
 export function SelectStationScreen() {
   const router = useRouter()
   const navigation = useNavigation()
-  const { selectionType, stationIds, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
+  const { selectionType, stationIds, currentStationId, trainStartId, samePlatformIds, acrossPlatformIds } = useLocalSearchParams<{
     selectionType: SelectionType
     stationIds?: string
+    currentStationId?: string
     trainStartId?: string
     samePlatformIds?: string
     acrossPlatformIds?: string
@@ -61,15 +62,15 @@ export function SelectStationScreen() {
   const setRouteItem = useNavigationParamsStore((s) => s.setRouteItem)
   const { filteredStations } = useFilteredStations(searchTerm)
   const listData = allowedStations ?? filteredStations
-  const listRef = useRef<FlashListRef<NormalizedStation>>(null)
+  const listRef = useRef<LegendListRef>(null)
 
   useEffect(() => {
     if (selectionType !== "via" || !allowedStations) return
     prefetchChangeStations(
       queryClient,
-      allowedStations.map((s) => s.id),
+      allowedStations.filter((s) => s.id !== currentStationId).map((s) => s.id),
     )
-  }, [selectionType, allowedStations, queryClient])
+  }, [selectionType, allowedStations, currentStationId, queryClient])
 
   // Scroll back to the top whenever the search results change.
   useEffect(() => {
@@ -78,6 +79,10 @@ export function SelectStationScreen() {
 
   const pickChangeStation = async (stationId: string) => {
     if (replacingStationId) return
+    if (stationId === currentStationId) {
+      router.back()
+      return
+    }
     setReplacingStationId(stationId)
     const replacement = await fetchChangeStationRoute(queryClient, stationId).catch(() => null)
     setReplacingStationId(undefined)
@@ -121,9 +126,13 @@ export function SelectStationScreen() {
       name={station.name}
       image={station.image}
       badges={changeBadges(station.id)}
+      selected={selectionType === "via" && station.id === currentStationId}
       style={styles.stationCard}
       loading={station.id === replacingStationId}
       disabled={!!replacingStationId}
+      accessibilityState={
+        selectionType === "via" ? { selected: station.id === currentStationId, disabled: !!replacingStationId } : undefined
+      }
       onPress={() => {
         if (selectionType === "origin") {
           saveRecentSearch({ id: station.id })
@@ -147,14 +156,7 @@ export function SelectStationScreen() {
   const closeColor = theme.colors.text
 
   return (
-    <Screen
-      testID="select-station-screen"
-      style={styles.root}
-      preset="fixed"
-      unsafe={true}
-      edgeToEdge
-      statusBarBackgroundColor={isDarkMode ? "#1c1c1e" : "#f2f2f7"}
-    >
+    <Screen testID="select-station-screen" style={styles.root} preset="fixed" unsafe={true} edgeToEdge>
       {/* The bar's background spans the full width; its search field and close button stay clear of the side bars. */}
       <View style={[styles.searchBarWrapper, sideInsetPadding(insets, I18nManager.isRTL, spacing[3])]}>
         {!allowedStations && (
@@ -197,29 +199,27 @@ export function SelectStationScreen() {
         )}
       </View>
 
-      <FlashList
-        ref={listRef}
-        data={listData}
-        renderItem={({ item }) => renderItem(item)}
-        keyExtractor={(item) => item.id}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[
-          styles.listContent,
-          sideInsetPadding(insets, I18nManager.isRTL),
-          { paddingBottom: insets.bottom + spacing[0] },
-        ]}
-        extraData={replacingStationId}
-        // Disabled: otherwise FlashList may scroll the list out of view when results change between keystrokes.
-        maintainVisibleContentPosition={{ disabled: true }}
-        ListEmptyComponent={() =>
-          allowedStations ? null : (
-            <View>
-              <RecentSearchesBox selectionType={selectionType} />
-              {recentSearchEntries.length > 1 && <FavoriteRoutes />}
-            </View>
-          )
-        }
-      />
+      <View style={styles.listContainer}>
+        <LegendList
+          ref={listRef}
+          data={listData}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.id}
+          recycleItems
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[styles.listContent, sideInsetPadding(insets, I18nManager.isRTL)]}
+          ListFooterComponent={<View style={styles.listFooter} />}
+          extraData={replacingStationId}
+          ListEmptyComponent={() =>
+            allowedStations ? null : (
+              <View>
+                <RecentSearchesBox selectionType={selectionType} />
+                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+              </View>
+            )
+          }
+        />
+      </View>
     </Screen>
   )
 }
@@ -229,9 +229,18 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.secondaryBackground,
     flex: 1,
   },
-  // Side and bottom insets come from the screen's own safe area (see the render): a sheet doesn't reach the bars.
+  // Android is edge-to-edge, so the keyboard doesn't resize the screen (iOS uses Screen's KeyboardAvoidingView).
+  listContainer: {
+    flex: 1,
+    paddingBottom: Platform.OS === "android" && rt.insets.ime > 0 ? rt.insets.ime + rt.insets.bottom : 0,
+  },
+  // Side insets come from the screen's own safe area (see the render): a sheet doesn't reach the bars.
   listContent: {
     paddingBottom: theme.spacing[0],
+  },
+  // A native view, since the list doesn't apply contentContainerStyle changes without a re-render.
+  listFooter: {
+    height: rt.insets.ime > 0 ? 0 : rt.insets.bottom,
   },
   searchBarWrapper: {
     flexDirection: "row",

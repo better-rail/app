@@ -1,6 +1,5 @@
 import { QueryClient } from "react-query"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import { useSettingsStore } from "@/models"
 import { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
@@ -12,13 +11,12 @@ const MAX_PREFETCH = 4
 // The current route re-planned through `stationId`, keeping the same boarding time
 function replacementQuery(stationId: string) {
   const { routeItem, originId, destinationId } = useNavigationParamsStore.getState()
-  const { hideSlowTrains } = useSettingsStore.getState()
 
-  const queryKey = ["changeStationReplacement", originId, destinationId, routeItem?.departureTime, hideSlowTrains, stationId]
+  const queryKey = ["changeStationReplacement", originId, destinationId, routeItem?.departureTime, stationId]
   const queryFn = async (): Promise<RouteItem | null> => {
     if (!routeItem || !originId || !destinationId) return null
     const [date, hour] = formatDateForAPI(routeItem.departureTime)
-    const routes = await new RouteApi().getRoutes(originId, destinationId, date, hour, { hideSlowTrains, viaStation: stationId })
+    const routes = await new RouteApi().getRoutes(originId, destinationId, date, hour, { viaStation: stationId })
 
     const sameBoarding = routes.find((route) => route.departureTime === routeItem.departureTime)
     const nextBoarding = routes.find((route) => route.departureTime > routeItem.departureTime)
@@ -28,7 +26,7 @@ function replacementQuery(stationId: string) {
   return { queryKey, queryFn }
 }
 
-// getRoutes also returns [] on network errors, so an empty result shouldn't stick
+// A timetable can change, so an empty replacement should not stick in the cache.
 function forgetIfEmpty(queryClient: QueryClient, queryKey: unknown[]) {
   if (queryClient.getQueryData(queryKey) === null) queryClient.removeQueries(queryKey, { exact: true })
 }

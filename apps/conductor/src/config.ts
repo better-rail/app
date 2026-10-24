@@ -13,8 +13,8 @@ export type ConductorConfig = {
 
 export const isSnowflake = (value: unknown): value is string => typeof value === "string" && /^\d{17,20}$/.test(value)
 
-export function loadConfig(): ConductorConfig {
-  const env = process.env
+/** Reads the configuration from the Worker's `env` (secrets and variables), or from `process.env` in the setup script. */
+export function loadConfig(env: Record<string, string | undefined>): ConductorConfig {
   const applicationId = env.DISCORD_APPLICATION_ID
   const guildId = env.DISCORD_GUILD_ID
   const publicKey = env.DISCORD_PUBLIC_KEY ?? ""

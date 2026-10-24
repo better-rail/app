@@ -1,21 +1,31 @@
 import { describe, expect, test } from "bun:test"
 import { createHmac, generateKeyPairSync, sign } from "node:crypto"
-import type { ConductorConfig } from "./config"
+import { limitRequestBody, MAX_REQUEST_BODY_BYTES } from "./body-limit"
+import { type ConductorConfig, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
 import {
   chunkEmailBody,
+  cleanQuotedReply,
   detectTextDirection,
   EmailBridge,
+  enforceRfcLineLength,
   extractSenderEmail,
   extractThreadId,
   formatEmailHtml,
   formatReplySubject,
   htmlToText,
 } from "./email-bridge"
+import worker from "./index"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
-import { ResendApi, type ResendReceivedAttachment, type ResendReceivedEmail, type ResendSendEmailOptions, verifyResendSignature } from "./resend"
+import {
+  ResendApi,
+  type ResendReceivedAttachment,
+  type ResendReceivedEmail,
+  type ResendSendEmailOptions,
+  verifyResendSignature,
+} from "./resend"
 import { isFlairRole, OnboardingRoles } from "./roles"
 
 const keys = generateKeyPairSync("ed25519")
@@ -57,6 +67,7 @@ class FakeDiscord extends DiscordApi {
   channels = new Map<string, DiscordChannel>()
   messages = new Map<string, DiscordMessage[]>()
   threadCounter = 1000n
+  uploads: Blob[] = []
 
   constructor() {
     super("test-only")
@@ -133,6 +144,8 @@ class FakeDiscord extends DiscordApi {
           if (typeof payloadJson === "string") {
             content = JSON.parse(payloadJson).content || ""
           }
+          const file = body.get("files[0]")
+          if (file instanceof Blob) this.uploads.push(file)
         } else if (body && typeof body === "object" && "content" in body) {
           content = (body as { content: string }).content
         }
@@ -387,6 +400,59 @@ describe("conductor onboarding", () => {
   })
 })
 
+describe("conductor worker", () => {
+  const env = {
+    DISCORD_APPLICATION_ID: applicationId,
+    DISCORD_PUBLIC_KEY: publicKey,
+    DISCORD_BOT_TOKEN: "test-only",
+    DISCORD_GUILD_ID: guildId,
+    DISCORD_PLATFORM_ROLES: JSON.stringify(config.platformRoles),
+  }
+  const context = { waitUntil: (work: Promise<unknown>) => void work, passThroughOnException: () => {}, props: {} }
+
+  test("loadConfig reads the Worker env and rejects incomplete settings", () => {
+    expect(loadConfig({ ...env, RESEND_API_KEY: "re_key" })).toEqual({ ...config, resendApiKey: "re_key" })
+    expect(() => loadConfig({ ...env, DISCORD_GUILD_ID: "guild" })).toThrow("application and guild IDs")
+    expect(() => loadConfig({ ...env, DISCORD_PUBLIC_KEY: publicKey.slice(1) })).toThrow("public key")
+    expect(() => loadConfig({ ...env, DISCORD_BOT_TOKEN: "" })).toThrow("DISCORD_BOT_TOKEN")
+    expect(loadConfig({ ...env, DISCORD_PLATFORM_ROLES: undefined }).platformRoles).toEqual({})
+  })
+
+  test("signatures verify through the Worker entry, which caps request bodies at 64 KB", async () => {
+    const health = await worker.fetch!(new Request("http://localhost/health"), env, context)
+    expect(await health.json()).toEqual({ ok: true, name: "The Conductor" })
+    expect(await (await worker.fetch!(signedRequest({ type: 1 }), env, context)).json()).toEqual({ type: 1 })
+    expect((await worker.fetch!(signedRequest({ type: 1 }, "0"), env, context)).status).toBe(401)
+
+    const oversized = signedRequest({ type: 1, padding: "x".repeat(MAX_REQUEST_BODY_BYTES) })
+    expect((await worker.fetch!(oversized, env, context)).status).toBe(413)
+    const declared = new Request("http://localhost/discord/interactions", {
+      method: "POST",
+      body: "{}",
+      headers: { "content-length": String(MAX_REQUEST_BODY_BYTES + 1) },
+    })
+    expect(((await limitRequestBody(declared)) as Response).status).toBe(413)
+    // A streamed body with no declared length is cut off at the limit
+    const chunks = Array.from({ length: 8 }, () => new Uint8Array(10_000))
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        const chunk = chunks.shift()
+        if (chunk) controller.enqueue(chunk)
+        else controller.close()
+      },
+    })
+    const streamed = new Request("http://localhost/discord/interactions", {
+      method: "POST",
+      body: stream,
+      duplex: "half",
+    } as RequestInit)
+    expect(((await limitRequestBody(streamed)) as Response).status).toBe(413)
+    const passed = await limitRequestBody(new Request("http://localhost/discord/interactions", { method: "POST", body: "{}" }))
+    expect(passed).toBeInstanceOf(Request)
+    expect(await (passed as Request).text()).toBe("{}")
+  })
+})
+
 const feedbackChannelId = "1548785837758615692"
 const testWebhookSecret = ["whsec", Buffer.from("mock-webhook-secret-bytes-32-len!").toString("base64")].join("_")
 const emailConfig: ConductorConfig = {
@@ -473,20 +539,22 @@ function replyCommand(channelId: string, message: string, id = "cmd_reply", perm
 }
 
 describe("resend email bridge", () => {
-  test("verifyResendSignature validates signatures and rejects tampered or expired requests", () => {
+  test("verifyResendSignature validates signatures and rejects tampered or expired requests", async () => {
     const payload = { test: true }
     const valid = signedResendRequest(payload, testWebhookSecret)
     const validBody = Buffer.from(JSON.stringify(payload))
-    expect(verifyResendSignature(valid, validBody, testWebhookSecret)).toBe(true)
+    expect(await verifyResendSignature(valid, validBody, testWebhookSecret)).toBe(true)
 
     const tamperedBody = Buffer.from(JSON.stringify({ test: false }))
-    expect(verifyResendSignature(valid, tamperedBody, testWebhookSecret)).toBe(false)
+    expect(await verifyResendSignature(valid, tamperedBody, testWebhookSecret)).toBe(false)
 
     const expired = signedResendRequest(payload, testWebhookSecret, String(Math.floor(Date.now() / 1000) - 400))
-    expect(verifyResendSignature(expired, validBody, testWebhookSecret)).toBe(false)
+    expect(await verifyResendSignature(expired, validBody, testWebhookSecret)).toBe(false)
 
     const wrongSecret = ["whsec", Buffer.from("wrong-webhook-secret-bytes-32-len!").toString("base64")].join("_")
-    expect(verifyResendSignature(valid, validBody, wrongSecret)).toBe(false)
+    expect(await verifyResendSignature(valid, validBody, wrongSecret)).toBe(false)
+    const malformed = new Request(valid, { headers: { ...Object.fromEntries(valid.headers), "svix-signature": "v1,%%%" } })
+    expect(await verifyResendSignature(malformed, validBody, testWebhookSecret)).toBe(false)
   })
 
   test("email parsing and formatting helpers", () => {
@@ -514,6 +582,48 @@ describe("resend email bridge", () => {
     expect(detectTextDirection("مرحبا بكم")).toEqual({ dir: "rtl", align: "right", lang: "ar" })
     expect(formatEmailHtml("Hello", threadId)).toContain('dir="ltr"')
     expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
+    expect(formatEmailHtml("<script>alert('xss')</script>", threadId)).toContain("&lt;script&gt;")
+    expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
+    expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
+
+    const longUrl = "https://better-rail.co.il/" + "x".repeat(750)
+    expect(formatEmailHtml(longUrl, threadId)).toContain(
+      `<p dir="ltr" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ltr; text-align: left;">${longUrl}</p>`,
+    )
+    expect(formatEmailHtml("It costs $$5 and $& and $' end", threadId)).toContain("It costs $$5 and $&amp; and $' end</p>")
+
+    const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
+    expect(crlf).not.toContain("\r<br")
+    expect(crlf).toContain("A</p>")
+    expect(crlf).toContain("B<br />\r\nC</p>")
+
+    expect(formatEmailHtml("Use {{threadId}} literally", threadId)).toContain("Use {{threadId}} literally")
+
+    for (const sample of ["Word ".repeat(300), "שלום ".repeat(300), "https://x.co/" + "&".repeat(1200), "😀".repeat(1200)]) {
+      for (const line of formatEmailHtml(sample, threadId).split("\r\n")) {
+        expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
+      }
+    }
+    for (const line of enforceRfcLineLength("< " + "word ".repeat(300)).split("\r\n")) {
+      expect(Buffer.byteLength(line)).toBeLessThanOrEqual(998)
+    }
+
+    const unbreakable = "https://x.co/" + "a".repeat(1200)
+    expect(enforceRfcLineLength(`See ${unbreakable} now`)).toBe(`See\r\n${unbreakable}\r\nnow`)
+
+    expect(
+      cleanQuotedReply(
+        `סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.\n>\n> --------------\n> Better Rail Support • Ref: [#${threadId}]\n>`,
+      ),
+    ).toBe("סבבה\n\nOn Wed, 30 Sept 2026, Better Rail wrote:\n\n> אנחנו נסדר את זה.")
+    expect(cleanQuotedReply(`Thanks\n\n> > Earlier\n> >\n> > Better Rail Support • Ref: [#${threadId}]`)).toBe(
+      "Thanks\n\n> > Earlier",
+    )
+    expect(cleanQuotedReply(`Thanks\n\nWe fixed it.\nBetter Rail Support • Ref: [#${threadId}]`)).toBe("Thanks\n\nWe fixed it.")
+    expect(cleanQuotedReply(`Thanks\n\n> We fixed it.\n>\n> --------------\n> Ref: [#${threadId}]`)).toBe(
+      "Thanks\n\n> We fixed it.",
+    )
+    expect(cleanQuotedReply("> Better Rail Support is great")).toBe("> Better Rail Support is great")
 
     const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
     expect(text).toContain("Hello team,")
@@ -605,6 +715,25 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].headers?.["References"]).not.toContain("<fake@evil.com>")
   })
 
+  test("long headers keep the sender address, and the overflow attachment is the raw body", async () => {
+    const { discord, bridge } = createEmailBridge()
+    const rawBody = `${"Long report. ".repeat(400)}\n\n> Earlier\n> Better Rail Support • Ref: [#1548800000000001001]`
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_long",
+      from: `${"N".repeat(400)} <long@example.com>`,
+      to: ["feedback@better-rail.co.il"],
+      subject: `${"s".repeat(998)}😀 tail`,
+      text: rawBody,
+    })
+    const messages = discord.messages.get(threadId)!
+    expect(messages[0].content).toContain("… <long@example.com>`")
+    expect(messages[0].content).toContain("😀…")
+    expect(messages[0].content).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/)
+    expect(messages[0].content.length).toBeLessThanOrEqual(2000)
+    expect(messages.at(-1)!.content).toContain("unedited")
+    expect(await discord.uploads.at(-1)!.text()).toBe(rawBody)
+  })
+
   test("inbound email downloads valid attachments and rejects oversized ones", async () => {
     const { discord, resend, bridge } = createEmailBridge()
     const originalFetch = globalThis.fetch
@@ -621,8 +750,20 @@ describe("resend email bridge", () => {
       }) as typeof fetch
 
       resend.receivedAttachments.set("email_att", [
-        { id: "1", filename: "invoice.pdf", content_type: "application/pdf", size: 1024, download_url: "https://files.resend.com/invoice.pdf" },
-        { id: "2", filename: "huge.zip", content_type: "application/zip", size: 30 * 1024 * 1024, download_url: "https://files.resend.com/huge.zip" },
+        {
+          id: "1",
+          filename: "invoice.pdf",
+          content_type: "application/pdf",
+          size: 1024,
+          download_url: "https://files.resend.com/invoice.pdf",
+        },
+        {
+          id: "2",
+          filename: "huge.zip",
+          content_type: "application/zip",
+          size: 30 * 1024 * 1024,
+          download_url: "https://files.resend.com/huge.zip",
+        },
       ])
 
       const res = await bridge.handleInboundEmail({
@@ -647,10 +788,14 @@ describe("resend email bridge", () => {
 
   test("POST /resend/webhook processes incoming email and rejects unauthorized requests", async () => {
     const { handler: unconfiguredSecret } = createEmailBridge({ ...emailConfig, resendWebhookSecret: undefined })
-    expect((await unconfiguredSecret(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status).toBe(503)
+    expect(
+      (await unconfiguredSecret(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status,
+    ).toBe(503)
 
     const { handler: unconfiguredKey } = createEmailBridge({ ...emailConfig, resendApiKey: undefined })
-    expect((await unconfiguredKey(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status).toBe(503)
+    expect((await unconfiguredKey(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status).toBe(
+      503,
+    )
 
     const { discord, resend, handler } = createEmailBridge()
     const invalid = await handler(
@@ -674,10 +819,17 @@ describe("resend email bridge", () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({ ok: true })
 
-    const duplicateReq = signedResendRequest({ type: "email.received", data: { email_id: "msg_999" } }, emailConfig.resendWebhookSecret!)
+    const duplicateReq = signedResendRequest(
+      { type: "email.received", data: { email_id: "msg_999" } },
+      emailConfig.resendWebhookSecret!,
+    )
     expect((await handler(duplicateReq)).status).toBe(200)
 
-    for (let attempt = 0; attempt < 100 && Array.from(discord.channels.values()).filter((c) => c.name === "Dark mode request").length === 0; attempt++) {
+    for (
+      let attempt = 0;
+      attempt < 100 && Array.from(discord.channels.values()).filter((c) => c.name === "Dark mode request").length === 0;
+      attempt++
+    ) {
       await Bun.sleep(5)
     }
     const thread = Array.from(discord.channels.values()).find((c) => c.name === "Dark mode request")
@@ -694,7 +846,8 @@ describe("resend email bridge", () => {
       {
         id: "1548800000000001001",
         channel_id: threadId,
-        content: "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n**Message-ID:** `<CAD123@mail.gmail.com>`\n──────────────────────────────\nApp crashed",
+        content:
+          "**New Email from:** `yael@example.com`\n**Subject:** Ticket purchase crash\n**Message-ID:** `<CAD123@mail.gmail.com>`\n──────────────────────────────\nApp crashed",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
       ...Array.from({ length: 104 }, (_, i) => ({
@@ -712,13 +865,15 @@ describe("resend email bridge", () => {
       {
         id: "1548800000000001201",
         channel_id: threadId,
-        content: "*(2/2)*\nAttacker body line:\n**New Email from:** `body_attacker@evil.com`\n**Message-ID:** `<injected@evil.com>\r\nBcc: evil@attacker.com`",
+        content:
+          "*(2/2)*\nAttacker body line:\n**New Email from:** `body_attacker@evil.com`\n**Message-ID:** `<injected@evil.com>\r\nBcc: evil@attacker.com`",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
       {
         id: "1548800000000001202",
         channel_id: threadId,
-        content: "**Follow-up Email from:** `yael@example.com`\n**Message-ID:** `<CAD456@mail.gmail.com>`\n------------------------------\nStill seeing it",
+        content:
+          "**Follow-up Email from:** `yael@example.com`\n**Message-ID:** `<CAD456@mail.gmail.com>`\n------------------------------\nStill seeing it",
         author: { id: applicationId, username: "The Conductor", bot: true },
       },
     ])
@@ -732,7 +887,9 @@ describe("resend email bridge", () => {
       type: 0,
       permission_overwrites: [],
     })
-    expect(await (await handler(signedRequest(replyCommand(randomChannelId, "Hello outside", "cmd_outside")))).json()).toEqual({ type: 5 })
+    expect(await (await handler(signedRequest(replyCommand(randomChannelId, "Hello outside", "cmd_outside")))).json()).toEqual({
+      type: 5,
+    })
     expect((await waitForResponse(discord)).content).toContain("only be used inside an #email-feedback thread")
 
     const unprivileged = replyCommand(threadId, "Trying without perms", "cmd_noperm", "0")
@@ -750,7 +907,8 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
     expect(resend.sentEmails[0].reply_to).toBe(`feedback+${threadId}@better-rail.co.il`)
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
-    expect(resend.sentEmails[0].text).toContain(`Better Rail Support • Ref: [#${threadId}]`)
+    expect(resend.sentEmails[0].text).toEndWith(`\r\n--------------\r\nRef: [#${threadId}]`)
+    expect(resend.sentEmails[0].html).not.toContain("Better Rail Support &bull;")
     expect(resend.sentEmails[0].html).toContain('dir="ltr"')
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")
@@ -773,4 +931,3 @@ describe("resend email bridge", () => {
     expect(longResponse.content).toContain("...")
   })
 })
-

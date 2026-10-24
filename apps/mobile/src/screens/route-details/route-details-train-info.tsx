@@ -1,11 +1,13 @@
-import { useRef } from "react"
-import { View, ScrollView, Platform, Pressable, LayoutChangeEvent } from "react-native"
+import { useRef, useState } from "react"
+import { View, ScrollView, Platform, Pressable, LayoutChangeEvent, type ScrollViewInstance } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
+import SegmentedControl from "@expo/ui/community/segmented-control"
 import { Text } from "@/components"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
-import type { Wagon } from "@/services/api/rail-api.types"
+import type { Train, Wagon } from "@/services/api/rail-api.types"
 import { translate } from "@/i18n"
-import { getTrainDirection } from "@/utils/helpers/direction-helpers"
+import { palette } from "@/theme/palette"
+import { getTrainHeading } from "@/utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
 
@@ -52,9 +54,7 @@ function WagonItem({
   )
 }
 
-export function RouteDetailsTrainInfo() {
-  const train = useNavigationParamsStore((s) => s.train)
-  const insets = useSafeAreaInsets()
+function TrainWagons({ train }: { train: Train }) {
   const sortedWagons = (() => {
     if (!train.visaWagonData?.wagons || train.visaWagonData.wagons.length === 0) {
       return []
@@ -62,16 +62,7 @@ export function RouteDetailsTrainInfo() {
     return [...train.visaWagonData.wagons].sort((a, b) => a.shurA2 - b.shurA2)
   })()
 
-  const direction = (() => {
-    try {
-      const routeStationIds = train.routeStations.map((s) => s.stationId.toString())
-      return getTrainDirection(train.originStationId.toString(), routeStationIds)
-    } catch {
-      return null
-    }
-  })()
-
-  const scrollViewRef = useRef<ScrollView>(null)
+  const scrollViewRef = useRef<ScrollViewInstance>(null)
   const wagonLayoutsRef = useRef<Record<number, number>>({})
 
   const scrollToWagonIndex = (targetIndex: number) => {
@@ -81,19 +72,16 @@ export function RouteDetailsTrainInfo() {
     }
   }
 
-  // Car #1 is always the front (locomotive end). Accessibility = southernmost car.
-  // N/E: descending (car #N on left = southernmost/accessibility, car #1 on right = front) → N
-  // S/W: ascending  (car #1 on left = southernmost/accessibility/front)              ← S
-  // In both cases the accessibility car lands at index 0 (leftmost).
-  const displayWagons = (() => {
-    if (direction === "N" || direction === "E") return [...sortedWagons].reverse()
-    return sortedWagons
-  })()
+  const heading = getTrainHeading(train.routeStations.map((s) => s.stationId.toString()))
 
-  // Accessibility = southernmost car = highest shurA2 = always index 0 in the descending display.
+  // Car #1 is the front. The south end is always drawn on the left, so riders can tell which
+  // platform end the accessible car (usually in the southern half) stops at.
+  const frontOnRight = heading !== "S"
+  const displayWagons = frontOnRight ? [...sortedWagons].reverse() : sortedWagons
+
   const accessibilityWagonIndex = (() => {
-    if (!direction || displayWagons.length === 0) return null
-    return 0
+    const index = displayWagons.findIndex((w) => w.handicapped)
+    return index === -1 ? null : index
   })()
 
   const hasWagons = displayWagons.length > 0
@@ -120,11 +108,7 @@ export function RouteDetailsTrainInfo() {
   const wagonCount = train.visaWagonData?.totkr
 
   return (
-    <View
-      testID="train-info-screen"
-      collapsable={false}
-      style={{ paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }}
-    >
+    <>
       <View style={styles.headerContainer}>
         <Text style={styles.headerText}>
           {train.trainNumber} {translate("common.toStationName", { stationName: train.lastStop })}
@@ -140,16 +124,15 @@ export function RouteDetailsTrainInfo() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.wagonsScrollContainer}
               onContentSizeChange={() => {
-                // Content is forced LTR, so scroll positions are always physical:
-                // scrollToEnd = rightmost (car #1 for N/E), scrollTo(0) = leftmost (car #1 for S/W).
-                if (direction === "N" || direction === "E") {
+                // Content is forced LTR, so scroll to whichever physical edge holds car #1
+                if (frontOnRight) {
                   scrollViewRef.current?.scrollToEnd({ animated: false })
-                } else if (direction === "S" || direction === "W") {
+                } else {
                   scrollViewRef.current?.scrollTo({ x: 0, animated: false })
                 }
               }}
             >
-              {(direction === "S" || direction === "W") && (
+              {!frontOnRight && (
                 <View style={[styles.directionIndicator, styles.directionIndicatorStart]}>
                   <Text style={styles.wagonNumberText}> </Text>
                   <View style={styles.directionArrowContainer}>
@@ -163,13 +146,13 @@ export function RouteDetailsTrainInfo() {
                   wagon={wagon}
                   isFirst={index === 0}
                   isLast={index === displayWagons.length - 1}
-                  isAccessibilityWagon={index === accessibilityWagonIndex}
+                  isAccessibilityWagon={wagon.handicapped}
                   onLayout={(e) => {
                     wagonLayoutsRef.current[index] = e.nativeEvent.layout.x
                   }}
                 />
               ))}
-              {(direction === "N" || direction === "E" || direction === null) && (
+              {frontOnRight && (
                 <View style={styles.directionIndicator}>
                   <Text style={styles.wagonNumberText}> </Text>
                   <View style={styles.directionArrowContainer}>
@@ -221,11 +204,49 @@ export function RouteDetailsTrainInfo() {
           <Text style={styles.emptyStateText}>{translate("routeDetails.noWagonInformationAvailable")}</Text>
         </View>
       )}
+    </>
+  )
+}
+
+export function RouteDetailsTrainInfo() {
+  const trains = useNavigationParamsStore((s) => s.trains)
+  const initialTrainIndex = useNavigationParamsStore((s) => s.initialTrainIndex)
+  const insets = useSafeAreaInsets()
+  const [selectedIndex, setSelectedIndex] = useState(initialTrainIndex)
+  const train = trains[selectedIndex]
+
+  return (
+    <View
+      testID="train-info-screen"
+      collapsable={false}
+      style={{ paddingBottom: Platform.select({ ios: 0, android: insets.bottom + 8 }) }}
+    >
+      {trains.length > 1 && (
+        <SegmentedControl
+          testID="train-info-train-picker"
+          values={trains.map((t) => t.trainNumber.toString())}
+          selectedIndex={selectedIndex}
+          // Android only: a light blue keeps the dark selected label readable
+          tintColor={`${palette.blue}33`}
+          onChange={(event) => {
+            HapticFeedback.trigger("impactLight")
+            setSelectedIndex(event.nativeEvent.selectedSegmentIndex)
+          }}
+          style={styles.trainPicker}
+        />
+      )}
+
+      {/* keyed by train so the wagon scroll position and layout cache reset when switching trains */}
+      {train && <TrainWagons key={train.trainNumber} train={train} />}
     </View>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
+  trainPicker: {
+    marginHorizontal: theme.spacing[5],
+    marginTop: theme.spacing[5],
+  },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",

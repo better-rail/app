@@ -9,7 +9,7 @@ import { ContextMenu } from "@/components/context-menu/context-menu"
 import { useMountEffect } from "@/hooks/use-mount-effect"
 import { translate, userLocale } from "@/i18n"
 import { useSettingsStore } from "@/models"
-import { SETTING_GROUP, settingsBorderRadius } from "@/screens/settings/settings-styles"
+import { settingsStyles, settingsBorderRadius } from "@/screens/settings/settings-styles"
 import { faresApi, isConnectionError } from "@/services/api"
 import type { FareProfile } from "@/services/api"
 import { trackEvent } from "@/services/analytics"
@@ -113,7 +113,7 @@ export function FaresScreen() {
         <Text style={styles.message} tx="fares.noFareForRoute" />
       ) : (
         <>
-          <View style={SETTING_GROUP}>
+          <View style={settingsStyles.group}>
             <PriceRow
               first
               label={translate("fares.singleRide")}

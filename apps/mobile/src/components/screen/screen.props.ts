@@ -31,16 +31,6 @@ export interface ScreenProps {
   statusBar?: "light-content" | "dark-content"
 
   /**
-   * Whether the status bar should be translucent
-   */
-  translucent?: boolean
-
-  /**
-   * An optional status bar setting. Defaults to light-content.
-   */
-  statusBarBackgroundColor?: string
-
-  /**
    * Should we not wrap in SafeAreaView? Defaults to false.
    */
   unsafe?: boolean
@@ -62,4 +52,10 @@ export interface ScreenProps {
    * By how much should we offset the keyboard? Defaults to none.
    */
   keyboardOffset?: KeyboardOffsets
+
+  /**
+   * Whether to avoid the keyboard. Defaults to true. Disable on screens without inputs that
+   * stay visible behind a modal, which would otherwise shift when the modal opens the keyboard.
+   */
+  keyboardAvoiding?: boolean
 }

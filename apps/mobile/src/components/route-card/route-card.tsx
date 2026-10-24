@@ -15,6 +15,7 @@ import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import { IS_E2E } from "@/config/e2e"
+import { getVoucherTitle } from "@/utils/helpers/voucher-helpers"
 
 // Setting static height for FlatList getItemLayout
 export let RouteCardHeight = 75
@@ -49,6 +50,8 @@ export interface RouteCardProps extends TouchableScaleProps {
    * Used to render side-by-side preview cards (e.g. the train info prompt).
    */
   showHeaderOverride?: boolean
+  /** The rider holds a Jerusalem voucher for this route. */
+  hasVoucher?: boolean
 }
 
 export function RouteCard(props: RouteCardProps) {
@@ -69,6 +72,7 @@ export function RouteCard(props: RouteCardProps) {
     originId,
     destinationId,
     showHeaderOverride,
+    hasVoucher,
   } = props
 
   const { hideSlowTrains, showRouteCardHeader } = useSettingsStore(
@@ -89,8 +93,10 @@ export function RouteCard(props: RouteCardProps) {
     return `${stops} ${translate("routes.changes")}`
   })()
 
-  // Check if indicators are bloated (short route badge with delay or changes shown)
-  const isBloatedIndicators = isMuchShorter && !isMuchLonger && (delay > 0 || stops > 0) && !hideSlowTrains
+  // More than one of short route badge, delay and changes crowds the row; cancelled cards show only their badge
+  const isCancelled = routeItem?.isCancelled ?? false
+  const showShortRouteBadge = isMuchShorter && !isMuchLonger && !hideSlowTrains
+  const isBloatedIndicators = !isCancelled && [showShortRouteBadge, delay > 0, stops > 0].filter(Boolean).length > 1
   // "12:08 PM" needs the room the dashed lines take at the default font size
   const showDashedLine = shouldShowDashedLine && !isBloatedIndicators && !use12HourClock
 
@@ -106,7 +112,6 @@ export function RouteCard(props: RouteCardProps) {
 
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
-  const isCancelled = routeItem?.isCancelled ?? false
   const timeTextStyle = [styles.timeText, use12HourClock && styles.timeText12h, isCancelled && styles.cancelledTimeText]
 
   const getTrainType = (train: any): string => {
@@ -155,6 +160,7 @@ export function RouteCard(props: RouteCardProps) {
       style={[
         styles.containerBase,
         containerStyle,
+        hasVoucher && styles.voucherContainer,
         props.isActiveRide && styles.activeRideContainer,
         props.isRouteInThePast && styles.pastRideContainer,
         props.cardStyle,
@@ -191,7 +197,16 @@ export function RouteCard(props: RouteCardProps) {
       {/* Main route content */}
       <View style={styles.routeContent}>
         <View style={{ marginEnd: spacing[3] }}>
-          <Text style={styles.timeTypeText} tx="routes.departure" />
+          <View style={styles.departureLabel}>
+            <Text style={styles.timeTypeText} tx="routes.departure" />
+            {hasVoucher && (
+              <Image
+                source={require("../../../assets/station-ticket.png")}
+                style={styles.voucherIcon}
+                accessibilityLabel={getVoucherTitle(originId)}
+              />
+            )}
+          </View>
           <Text style={timeTextStyle}>{formattedDepatureTime}</Text>
         </View>
 
@@ -234,10 +249,13 @@ export function RouteCard(props: RouteCardProps) {
   )
 }
 
+// Gives up its room first when the row is too wide, e.g. Russian labels on a 390pt screen
 const DashedLine = () => (
-  <Svg height={5} width={35}>
-    <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
-  </Svg>
+  <View style={styles.dashedLine}>
+    <Svg height={5} width="100%">
+      <Line stroke={color.dim} strokeWidth={4} strokeDasharray="5,5" x1="0" y1="0" x2="100%" y2={0} />
+    </Svg>
+  </View>
 )
 
 const styles = StyleSheet.create((theme, rt) => ({
@@ -279,6 +297,12 @@ const styles = StyleSheet.create((theme, rt) => ({
     justifyContent: "space-between",
     alignItems: "center",
     flex: 1,
+    // Without it the row grows to its content width and overflows the card
+    flexShrink: 1,
+  },
+  dashedLine: {
+    width: 35,
+    flexShrink: 1,
   },
   headerText: {
     fontFamily: theme.typography.primary,
@@ -320,6 +344,22 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: theme.colors.greenBackground,
     shadowOpacity: 0.15,
     elevation: 2,
+  },
+  voucherContainer: {
+    backgroundColor: theme.colors.voucherBackground,
+    borderWidth: 1,
+    borderColor: theme.colors.voucherBorder,
+  },
+  departureLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[1],
+  },
+  voucherIcon: {
+    width: 15,
+    height: 15,
+    marginBottom: -2,
+    tintColor: theme.colors.voucherText,
   },
   pastRideContainer: {
     opacity: 0.4,

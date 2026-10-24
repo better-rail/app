@@ -20,6 +20,8 @@ import { createTipPurchaseProcessor, createTipPurchaseQueue, TIP_PRODUCT_IDS } f
 interface TipIAPContextValue {
   products: Product[]
   connected: boolean
+  // Purchases are restricted on the device (e.g. Screen Time).
+  isUnavailable: boolean
   isPurchasing: boolean
   canTip: boolean
   showThanksModal: boolean
@@ -52,6 +54,7 @@ export function TipIAPProvider({ children }: React.PropsWithChildren) {
 function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [isDeferred, setIsDeferred] = useState(false)
+  const [isUnavailable, setIsUnavailable] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [hasRecovered, setHasRecovered] = useState(false)
   const [showThanksModal, setShowThanksModal] = useState(false)
@@ -117,10 +120,11 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
   } = useIAP({
     onPurchaseSuccess: handlePurchase,
     onPurchaseError: (error) => {
+      if (error.code === ErrorCode.IapNotAvailable) setIsUnavailable(true)
       // Finishing a paid transaction can also emit a native error. Only an active
       // payment request may show a payment failure; background errors stay in diagnostics.
       if (!requestedSku.current) {
-        if (error.code !== ErrorCode.UserCancelled) Sentry.captureException(error)
+        if (error.code !== ErrorCode.UserCancelled && error.code !== ErrorCode.IapNotAvailable) Sentry.captureException(error)
         return
       }
       if (isDeferredPayment(error)) {
@@ -247,6 +251,7 @@ function IOSTipIAPProvider({ children }: React.PropsWithChildren) {
       value={{
         products,
         connected,
+        isUnavailable: isUnavailable && !connected,
         isPurchasing,
         canTip: connected && hasRecovered && !isPurchasing && !isDeferred && !isProcessing,
         showThanksModal,

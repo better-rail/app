@@ -40,7 +40,6 @@ export const RouteStationCard = (props: RouteStopCardProps) => {
   const { stationName, stopTime, platform, trainNumber, delay, delayedTime, lastStop, platformChanged, lastStopChanged, style } =
     props
 
-
   const platformText =
     platform === 0 ? translate("routeDetails.noPlatformSet") : `${translate("routeDetails.platform")} ${platform}`
 

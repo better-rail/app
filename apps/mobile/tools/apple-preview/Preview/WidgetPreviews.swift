@@ -63,3 +63,18 @@ private let attributes = BetterRailActivityAttributes(
   BetterRailActivityAttributes.ContentState(delay: 0, nextStationId: 2300, status: .waitForTrain)
   BetterRailActivityAttributes.ContentState(delay: 0, nextStationId: 2500, status: .inTransit)
 }
+
+private let compactAttributes = BetterRailActivityAttributes(
+  activityStartDate: Date(),
+  route: SampleRoute.route(minutesRemaining: 6, status: .waitForTrain)
+)
+
+#Preview("Dynamic Island · compact", as: .dynamicIsland(.compact), using: compactAttributes) {
+  BetterRailLiveActivity()
+} contentStates: {
+  // Exercise single-, double-, and triple-digit countdown widths.
+  BetterRailActivityAttributes.ContentState(delay: 0, nextStationId: 2300, status: .waitForTrain)
+  BetterRailActivityAttributes.ContentState(delay: 6, nextStationId: 2300, status: .waitForTrain)
+  BetterRailActivityAttributes.ContentState(delay: 93, nextStationId: 2300, status: .waitForTrain)
+  BetterRailActivityAttributes.ContentState(delay: 993, nextStationId: 2300, status: .waitForTrain)
+}

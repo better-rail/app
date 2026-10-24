@@ -2,7 +2,6 @@ import React from "react"
 import { View, Platform, ActivityIndicator } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen, Text } from "@/components"
-import { isDarkMode } from "@/theme"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { translate } from "@/i18n"
 import { useSettingsStore } from "@/models"
@@ -15,7 +14,7 @@ import { TIP_PRODUCT_IDS } from "@/services/iap/tip-purchases"
 const installSource = getInstallerPackageNameSync()
 
 export function TipJarScreen() {
-  const { products, connected, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
+  const { products, connected, isUnavailable, isPurchasing, canTip, showThanksModal, dismissThanks, requestTip } = useTipIAP()
   const totalTip = useSettingsStore((state) => state.totalTip)
   const sortedProducts = products
     .filter((product) => TIP_PRODUCT_IDS.includes(product.id))
@@ -23,21 +22,15 @@ export function TipJarScreen() {
 
   return (
     <>
-      <Screen
-        style={styles.root}
-        preset="scroll"
-        belowHeader
-        unsafe={true}
-        statusBar={Platform.select({ ios: "light-content" })}
-        statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-        translucent
-      >
+      <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
         <Text style={styles.heartIcon}>💖</Text>
         <Text tx="settings.tipJarTitle" style={styles.tipIntroTitle} />
         <Text tx="settings.tipJarSubtitle" style={styles.tipIntroSubtitle} />
         {installSource === "TestFlight" && <Text tx="settings.testflightMessage" style={styles.testflightMsg} />}
 
-        {connected && sortedProducts.length === TIP_PRODUCT_IDS.length && !isPurchasing ? (
+        {isUnavailable ? (
+          <Text tx="settings.purchasesUnavailable" style={styles.unavailableMsg} />
+        ) : connected && sortedProducts.length === TIP_PRODUCT_IDS.length && !isPurchasing ? (
           <>
             <TipRow
               disabled={!canTip}
@@ -125,6 +118,12 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing[4] + 2,
     marginBottom: theme.spacing[4],
     fontSize: 16.5,
+    textAlign: "center",
+  },
+  unavailableMsg: {
+    marginVertical: theme.spacing[4],
+    paddingHorizontal: theme.spacing[4],
+    fontWeight: "500",
     textAlign: "center",
   },
   testflightMsg: {

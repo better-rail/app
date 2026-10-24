@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 import { useSettingsStore } from "@/models"
 import type { MaxChanges } from "@/models/settings/settings"
 import { SettingBox } from "@/screens/settings/components/settings-box"
-import { SETTING_GROUP } from "@/screens/settings/settings-styles"
+import { settingsStyles } from "@/screens/settings/settings-styles"
 import { translate, TxKeyPath } from "@/i18n"
 
 const CHANGES_OPTIONS: { label: TxKeyPath; value: MaxChanges }[] = [
@@ -28,7 +28,7 @@ export function FilterScreen() {
     <View testID="route-filter-screen" style={styles.wrapper}>
       <Text style={styles.title}>{translate("routes.filter")}</Text>
 
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox
           testID="filter-hide-slow-trains"
           first
@@ -43,7 +43,7 @@ export function FilterScreen() {
       <Text style={styles.description}>{translate("routes.slowTrainsDescription")}</Text>
 
       <Text style={styles.groupTitle}>{translate("routes.changesFilterTitle")}</Text>
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         {CHANGES_OPTIONS.map((option, index) => (
           <SettingBox
             testID={`filter-changes-${option.value ?? "any"}`}

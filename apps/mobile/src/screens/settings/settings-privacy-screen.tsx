@@ -4,8 +4,7 @@ import { Platform, View, Alert } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Screen } from "@/components"
 import { SettingBox } from "./components/settings-box"
-import { SETTING_GROUP } from "./settings-styles"
-import { isDarkMode } from "@/theme"
+import { settingsStyles } from "./settings-styles"
 import { useShallow } from "zustand/react/shallow"
 import { useUserStore, clearAllData } from "@/models"
 import { translate } from "@/i18n"
@@ -56,15 +55,8 @@ export function PrivacyScreen() {
   }
 
   return (
-    <Screen
-      style={styles.root}
-      preset="scroll"
-      belowHeader
-      unsafe={true}
-      statusBar={Platform.select({ ios: "light-content" })}
-      statusBarBackgroundColor={isDarkMode ? "#000" : "#fff"}
-    >
-      <View style={SETTING_GROUP}>
+    <Screen style={styles.root} preset="scroll" belowHeader unsafe={true} statusBar={Platform.select({ ios: "light-content" })}>
+      <View style={settingsStyles.group}>
         <SettingBox
           title={translate("settings.privacyPolicy")}
           onPress={() => openLink(translate("settings.privacyPolicyLink"))}
@@ -79,7 +71,7 @@ export function PrivacyScreen() {
           />
         )}
       </View>
-      <View style={SETTING_GROUP}>
+      <View style={settingsStyles.group}>
         <SettingBox title={translate("settings.deleteAllData")} onPress={handleDeleteAllData} first last />
       </View>
     </Screen>

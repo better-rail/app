@@ -89,7 +89,10 @@ export function RouteDetailsPane() {
                 icon: { type: "sfSymbol", name: "shekelsign.circle" },
                 onPress: () => {
                   HapticFeedback.trigger("impactMedium")
-                  router.push({ pathname: "/fares", params: { originId: selection.originId, destinationId: selection.destinationId } })
+                  router.push({
+                    pathname: "/fares",
+                    params: { originId: selection.originId, destinationId: selection.destinationId },
+                  })
                 },
               },
             ],

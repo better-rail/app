@@ -5,6 +5,8 @@ import ActivityKit
 /// Start/stop a Live Activity here to see the real card, including on a paired watch.
 @main
 struct HostApp: App {
+  @UIApplicationDelegateAdaptor(PushTokenDelegate.self) private var pushTokenDelegate
+
   var body: some Scene {
     WindowGroup {
       HostView()
@@ -16,6 +18,7 @@ private struct HostView: View {
   @State private var activity: Activity<BetterRailActivityAttributes>?
   @State private var status: ActivityStatus = .waitForTrain
   @State private var delay = 0
+  @State private var minutesRemaining = 6
 
   var body: some View {
     NavigationStack {
@@ -28,7 +31,15 @@ private struct HostView: View {
             Text("Get off").tag(ActivityStatus.getOff)
             Text("Arrived").tag(ActivityStatus.arrived)
           }
+          .disabled(activity != nil)
           Stepper("Delay: \(delay) min", value: $delay, in: 0...30)
+          Picker("Time remaining (min)", selection: $minutesRemaining) {
+            ForEach([1, 6, 12, 99, 120, 999], id: \.self) { minutes in
+              Text("\(minutes)").tag(minutes)
+            }
+          }
+          .pickerStyle(.segmented)
+          .disabled(activity != nil)
         }
 
         Section {
@@ -41,6 +52,8 @@ private struct HostView: View {
           .disabled(activity == nil)
         }
 
+        ArrivalAlarmSection()
+
         Section {
           Text("Lock the device (⌘L) to see the lock-screen card. The Smart Stack card is what a paired Apple Watch shows.")
             .font(.footnote)
@@ -48,11 +61,22 @@ private struct HostView: View {
         }
       }
       .navigationTitle("Live Activity Preview")
+      .task {
+        if let existingActivity = Activity<BetterRailActivityAttributes>.activities.first {
+          status = existingActivity.content.state.status
+          delay = existingActivity.content.state.delay
+          activity = existingActivity
+        }
+      }
     }
   }
 
   private var contentState: BetterRailActivityAttributes.ContentState {
-    .init(delay: delay, nextStationId: status == .waitForTrain ? 2300 : 2500, status: status)
+    .init(
+      delay: delay,
+      nextStationId: status == .waitForTrain ? 2300 : status == .inExchange ? 2800 : 2500,
+      status: status
+    )
   }
 
   private func startOrUpdate() async {
@@ -65,7 +89,7 @@ private struct HostView: View {
 
     let attributes = BetterRailActivityAttributes(
       activityStartDate: Date(),
-      route: SampleRoute.route
+      route: SampleRoute.route(minutesRemaining: minutesRemaining, status: status)
     )
 
     activity = try? Activity.request(

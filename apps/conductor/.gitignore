@@ -2,3 +2,5 @@
 .env.*
 !.env.example
 .conductor-setup.json
+.dev.vars
+.wrangler

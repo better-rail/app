@@ -4,13 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "bun src/index.ts",
-    "dev": "bun --watch src/index.ts",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
     "setup": "bun src/setup.ts",
     "test": "bun test",
-    "check": "tsc --noEmit"
+    "check": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
-    "@sentry/bun": "10.74.0"
+    "@sentry/cloudflare": "11.8.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20261019.1",
+    "@types/bun": "1.4.0",
+    "typescript": "5.9.3",
+    "wrangler": "4.151.3"
   }
 }

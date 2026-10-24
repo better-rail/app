@@ -31,8 +31,7 @@ const withAppDelegateShortcuts = (config) =>
         "    RNShortcuts.performAction(for: shortcutItem, completionHandler: completionHandler)",
         "  }",
       ].join("\n"),
-      // Insert right after the closing brace of didFinishLaunchingWithOptions:
-      // offset 0 = the `return super.application(...)` line, 1 = `  }`, 2 = after it.
+      // After didFinishLaunchingWithOptions; SDK 58's template dropped the "// Linking API" anchor.
       anchor: /return super\.application\(application, didFinishLaunchingWithOptions: launchOptions\)/,
       offset: 2,
       comment: "//",

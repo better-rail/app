@@ -3,35 +3,25 @@ import { StyleSheet } from "react-native-unistyles"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
 
-export type WarningType = "different-hour" | "different-date"
+import type { ResultType } from "@/models/train-routes/search-routes"
+
+export type WarningType = Exclude<ResultType, "normal">
 
 export interface RouteListWarningModalProps {
   visible: boolean
-  warningType: WarningType
-  formattedRoutesDate: string
+  title: string
+  message: string
   onClose: () => void
 }
 
-export function RouteListWarningModal({ visible, warningType, formattedRoutesDate, onClose }: RouteListWarningModalProps) {
+export function RouteListWarningModal({ visible, title, message, onClose }: RouteListWarningModalProps) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalWrapper}>
           <Text style={styles.modalIcon}>⚠️</Text>
-          <Text
-            style={styles.modalTitle}
-            tx={warningType === "different-hour" ? "modals.noTrainsFoundForHour" : "modals.noTrainsFoundForDate"}
-          />
-          <Text style={styles.modalText}>
-            {warningType === "different-hour" ? (
-              translate("modals.foundTrainsAtHour")
-            ) : (
-              <>
-                {translate("modals.foundTrainsAtDate")}
-                {formattedRoutesDate}
-              </>
-            )}
-          </Text>
+          <Text style={styles.modalTitle} text={title} />
+          <Text style={styles.modalText} text={message} />
           <Button
             title={translate("common.ok")}
             containerStyle={styles.modalButtonContainer}

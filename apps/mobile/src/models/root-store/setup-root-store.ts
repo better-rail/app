@@ -24,7 +24,9 @@ import {
   type ColorSchemePreference,
 } from "@/models/settings/settings"
 import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, resetRideStore } from "@/models/ride/ride"
+import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
+import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -45,6 +47,7 @@ function getSnapshot() {
     settings: getSettingsSnapshot(useSettingsStore.getState()),
     ride: getRideSnapshot(useRideStore.getState()),
     user: getUserSnapshot(useUserStore.getState()),
+    vouchers: getVouchersSnapshot(useVouchersStore.getState()),
   }
 }
 
@@ -80,6 +83,7 @@ export async function setupRootStore() {
     () => hydrateSettingsStore(data.settings),
     () => hydrateRideStore(data.ride),
     () => hydrateUserStore(data.user),
+    () => hydrateVouchersStore(data.vouchers),
   ]
 
   for (const hydrate of hydrators) {
@@ -117,6 +121,7 @@ export async function setupRootStore() {
 
   // Run afterCreate equivalents
   initializeRideStore()
+  initializeArrivalAlarm()
 
   // Re-persist immediately to normalize the data format.
   // This ensures any data saved by the old MobX State Tree format
@@ -146,6 +151,7 @@ export async function setupRootStore() {
   })
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
+  useVouchersStore.subscribe(persist)
 }
 
 /**
@@ -159,4 +165,5 @@ export function clearAllData() {
   resetSettingsStore()
   resetRideStore()
   resetUserStore()
+  resetVouchersStore()
 }
