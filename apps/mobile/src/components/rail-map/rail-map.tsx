@@ -77,10 +77,10 @@ const TAP_TOLERANCE = 2.5
 const STATION_TAP_TOLERANCE = 1.8
 /** How far in the map zooms on a station, relative to the whole width fitting the view. */
 const STATION_ZOOM = 3
-/** The most a disruption's stretch is zoomed in on, relative to the whole width fitting the view: names stay legible, not huge. */
-const SECTION_ZOOM = 2.6
-/** Room around a disruption's stretch, in map units: the names on either side and a station or so beyond its ends. */
-const SECTION_MARGIN = { x: 20, y: 6 }
+/** The most a disruption's stretch is zoomed in on, relative to the whole width fitting the view: enough of the network around it to place it. */
+const SECTION_ZOOM = 2
+/** Room around a disruption's stretch, in map units: the names on either side and a few stations beyond its ends. */
+const SECTION_MARGIN = { x: 22, y: 12 }
 /** The halo around a selected station: a soft disc over its marker, with a crisp rim; `pad` is the room past the marker. */
 const SELECTED_STATION_HALO = { pad: 1.1, rim: 0.24, glow: 1.4 }
 
@@ -217,7 +217,7 @@ export function RailMap({
   const scheme = useColorScheme()
   const palette = RAIL_MAP_PALETTE[scheme === "dark" ? "dark" : "light"]
   const model = useMemo(() => buildRailMapModel(dayType ?? currentDayType()), [dayType])
-  const fontMgr = useFonts(HEEBO_FONTS)
+  const fontMgr = useRailMapFonts()
   const [size, setSize] = useState<Size>({ width: 0, height: 0 })
 
   // --- viewport (pan & pinch) ------------------------------------------------------
@@ -441,6 +441,8 @@ export function RailMap({
   // The names' places and the city frames: measured with the real text, once per map and font.
   const placement = useMemo(() => {
     if (!fontMgr) return { labels: [], frames: [] }
+    const known = placements.get(model)
+    if (known) return known
     const probes = new Map<string, TextSize>()
     const measure = (stationId: string, maxWidth: number): TextSize => {
       const key = `${stationId}@${maxWidth}`
@@ -463,7 +465,9 @@ export function RailMap({
       probes.set(key, measured)
       return measured
     }
-    return placeLabels(model, measure)
+    const placed = placeLabels(model, measure)
+    placements.set(model, placed)
+    return placed
   }, [fontMgr, model])
   const labelSides = useMemo(() => new Map(placement.labels.map((l) => [l.stationId, l.side])), [placement])
 
@@ -743,6 +747,20 @@ export function RailMap({
 // --- helpers ----------------------------------------------------------------------------
 
 type FontManager = NonNullable<ReturnType<typeof useFonts>>
+
+/**
+ * The fonts, loaded once for every map: a screen with a few disruption pictures would otherwise read
+ * them again for each one before drawing a single name.
+ */
+let sharedFontMgr: FontManager | null = null
+const useRailMapFonts = (): FontManager | null => {
+  const loaded = useFonts(HEEBO_FONTS)
+  if (loaded && !sharedFontMgr) sharedFontMgr = loaded
+  return sharedFontMgr ?? loaded
+}
+
+/** Where the names go, worked out once per map: measuring every station's name is the slow part of a first draw. */
+const placements = new WeakMap<RailMapModel, ReturnType<typeof placeLabels>>()
 
 type DisruptedSection = {
   key: string

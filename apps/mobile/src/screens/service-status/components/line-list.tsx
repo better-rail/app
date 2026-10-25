@@ -34,8 +34,7 @@ type LineListProps = {
 
 /**
  * Every line's status in grouped cards: a headline card for the whole network, the rider's own lines
- * first, then the disrupted ones, worst first, and one row summing up the rest. With nothing disrupted
- * there is no "rest" to sum up: every running line gets a row.
+ * first, then the disrupted ones, worst first, and one row saying the rest run well, without naming them.
  */
 export function LineList({ userLineIds, onSelectLine }: LineListProps) {
   const { isInternetReachable } = useNetworkState()
@@ -45,6 +44,8 @@ export function LineList({ userLineIds, onSelectLine }: LineListProps) {
   const mine = userLineIds.map((id) => lines.find((l) => l.lineId === id)).filter((l): l is LineStatus => !!l)
   const others = lines.filter((l) => !userLineIds.includes(l.lineId))
   const disrupted = others.filter((l) => isDisruptedLevel(l.level)).sort((a, b) => compareServiceStatusLevels(b.level, a.level))
+  // With none of the rider's lines and nothing disrupted, the headline already says every line is fine.
+  const showRestGood = others.some((l) => l.level === "goodService") && (disrupted.length > 0 || mine.length > 0)
   // Nothing runs right now (the small hours, the weekend): say so, instead of an empty list.
   const nothingRunning = data !== undefined && !lines.some((l) => isDisruptedLevel(l.level) || GROUPED_LEVELS.includes(l.level))
 
@@ -70,17 +71,17 @@ export function LineList({ userLineIds, onSelectLine }: LineListProps) {
         </Section>
       )}
 
-      {/* Lines running well are left out: the headline already says the rest are fine. */}
-      {disrupted.length > 0 && (
+      {(disrupted.length > 0 || showRestGood) && (
         <Section title={(mine.length > 0 ? translate("serviceStatus.otherLines") : translate("serviceStatus.allLines")) ?? ""}>
           {disrupted.map((line, index) => (
             <LineStatusRow
               key={line.lineId}
               status={line}
-              last={index === disrupted.length - 1}
+              last={!showRestGood && index === disrupted.length - 1}
               onPress={() => onSelectLine(line.lineId)}
             />
           ))}
+          {showRestGood && <RestGoodRow />}
         </Section>
       )}
     </View>
@@ -93,6 +94,17 @@ function Section({ title, testID, children }: { title: string; testID?: string; 
     <View style={styles.section} testID={testID}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.card}>{children}</View>
+    </View>
+  )
+}
+
+/** The lines running well, summed up in one row instead of listed. */
+function RestGoodRow() {
+  const goodColor = useStatusLevelColor("goodService")
+  return (
+    <View style={styles.restGood} testID="service-status-rest-good">
+      <Image source={CHECKMARK_ICON} style={[styles.restGoodIcon, { tintColor: goodColor }]} />
+      <Text style={styles.restGoodText}>{translate("serviceStatus.restGood")}</Text>
     </View>
   )
 }
@@ -216,6 +228,22 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 13,
     fontWeight: "600",
     color: theme.colors.label,
+  },
+  restGood: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[3],
+    minHeight: 50,
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+  },
+  restGoodIcon: {
+    width: 17,
+    height: 17,
+  },
+  restGoodText: {
+    flex: 1,
+    fontSize: 17,
   },
   summary: {
     flexDirection: "row",

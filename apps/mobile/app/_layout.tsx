@@ -165,7 +165,7 @@ function AppStack() {
         {/* Root level, so the live ride modal presents it over itself instead of pushing a second (main) stack */}
         <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="announcements" options={{ presentation: "modal" }} />
-        <Stack.Screen name="service-status" options={{ presentation: "fullScreenModal" }} />
+        <Stack.Screen name="service-status" options={{ presentation: "modal" }} />
         <Stack.Screen name="voucher" options={{ presentation: "modal" }} />
         <Stack.Screen name="live-announcement" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="widget-onboarding" options={{ presentation: "fullScreenModal" }} />
