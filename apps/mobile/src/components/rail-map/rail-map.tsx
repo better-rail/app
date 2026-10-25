@@ -560,9 +560,10 @@ export function RailMap({
 
   // Arrows where the line goes on past a framed stretch, placed over the ends of the line in the view.
   const exits = useMemo(() => {
-    if (!focusStretch || !sectionExitLabel || !laidOut) return []
-    return stretchExits(focusStretch, sectionViewport(model, size, focusStretch.vertices, insets), size, sectionExitLabel)
-  }, [focusStretch, sectionExitLabel, laidOut, model, size, insets])
+    if (!focusLine || !focusStretch || !sectionExitLabel || !laidOut) return []
+    const view = sectionViewport(model, size, focusStretch.vertices, insets)
+    return stretchExits(focusLine, focusStretch, view, size, labels, labelSides, sectionExitLabel)
+  }, [focusLine, focusStretch, sectionExitLabel, laidOut, model, size, insets, labels, labelSides])
 
   const canvas = (
     <View
@@ -756,16 +757,32 @@ export function RailMap({
       {exits.length > 0 && (
         // Placed in the canvas's own coordinates, so laid out left to right whatever the language.
         <View style={styles.exits} pointerEvents="none">
-          {exits.map((exit) => (
-            <View
-              key={exit.edge}
-              style={[styles.exit, exit.edge === "top" ? styles.exitTop : styles.exitBottom, { left: exit.x - EXIT_WIDTH / 2 }]}
-            >
-              <Text style={[styles.exitText, { color: palette.cityInk, backgroundColor: palette.background }]} numberOfLines={1}>
-                {exit.edge === "top" ? `↑ ${exit.label}` : `↓ ${exit.label}`}
+          {exits.map((exit) => {
+            // The arrow beside the line, in its colour, and the name past it; laid out apart, so the
+            // name's script does not reorder them.
+            const arrow = (
+              <Text key="arrow" style={[styles.exitArrow, { color: focusLine?.line.color }]}>
+                {exit.edge === "top" ? "↑" : "↓"}
               </Text>
-            </View>
-          ))}
+            )
+            const name = (
+              <Text key="name" style={[styles.exitText, { color: palette.cityInk }]} numberOfLines={1}>
+                {exit.label}
+              </Text>
+            )
+            return (
+              <View
+                key={exit.edge}
+                style={[
+                  styles.exit,
+                  exit.edge === "top" ? styles.exitTop : styles.exitBottom,
+                  exit.side === "right" ? { left: exit.x + EXIT_GAP } : { right: size.width - exit.x + EXIT_GAP },
+                ]}
+              >
+                {exit.side === "right" ? [arrow, name] : [name, arrow]}
+              </View>
+            )
+          })}
         </View>
       )}
     </View>
@@ -778,32 +795,76 @@ export function RailMap({
 
 // --- helpers ----------------------------------------------------------------------------
 
-/** The room an exit arrow's name gets, in pixels. */
-const EXIT_WIDTH = 140
 /** The room kept clear above and below a framed stretch for its exit arrows, in pixels. */
-export const RAIL_MAP_EXIT_INSET = 30
+export const RAIL_MAP_EXIT_INSET = 26
+/** Between the line and its exit arrow, in pixels. */
+const EXIT_GAP = 4
+/** An exit arrow's row: its height from the view's edge, and a rough width per letter of its name, in pixels. */
+const EXIT_ROW = { offset: 4, height: 18, letter: 7.5, arrow: 14 }
 
-type Exit = { edge: "top" | "bottom"; x: number; label: string }
+type Exit = { edge: "top" | "bottom"; x: number; side: "left" | "right"; label: string }
 
-/** An arrow at the top and bottom of the view for each end of the stretch the line goes on past, over that end. */
+/** Where, in pixels across the view, the line leaves it through the top or bottom edge, walking out from `from`. */
+const edgeCrossing = (vertices: Point[], from: number, step: 1 | -1, view: Viewport, edgeY: number): number | undefined => {
+  const toPx = (v: Point) => ({ x: v.x * view.scale + view.translateX, y: v.y * view.scale + view.translateY })
+  for (let i = from; i + step >= 0 && i + step < vertices.length; i += step) {
+    const a = toPx(vertices[i])
+    const b = toPx(vertices[i + step])
+    if ((a.y - edgeY) * (b.y - edgeY) <= 0 && a.y !== b.y) return a.x + ((edgeY - a.y) / (b.y - a.y)) * (b.x - a.x)
+  }
+  return undefined
+}
+
+/**
+ * An arrow at the top and bottom of the view for each end of the stretch the line goes on past: beside
+ * the line where it leaves the view, on the side clear of station names, the end station's name first
+ * of all, and within the view.
+ */
 const stretchExits = (
+  line: LinePath,
   stretch: LineStretch,
   view: Viewport,
   size: Size,
+  labels: BuiltLabel[],
+  labelSides: Map<string, LabelSide>,
   label: (beyond: string[], framed: string[]) => string | undefined,
 ): Exit[] => {
   const first = stretch.vertices[0]
   const last = stretch.vertices[stretch.vertices.length - 1]
   const firstOnTop = first.y <= last.y
   const ends = [
-    { point: first, beyond: stretch.before, edge: firstOnTop ? "top" : "bottom" },
-    { point: last, beyond: stretch.after, edge: firstOnTop ? "bottom" : "top" },
+    { stationId: stretch.stationIds[0], beyond: stretch.before, step: -1, edge: firstOnTop ? "top" : "bottom" },
+    {
+      stationId: stretch.stationIds[stretch.stationIds.length - 1],
+      beyond: stretch.after,
+      step: 1,
+      edge: firstOnTop ? "bottom" : "top",
+    },
   ] as const
-  return ends.flatMap(({ point, beyond, edge }) => {
+  const inks = labels.map((l) => ({
+    left: l.ink.left * view.scale + view.translateX,
+    right: l.ink.right * view.scale + view.translateX,
+    top: l.ink.top * view.scale + view.translateY,
+    bottom: l.ink.bottom * view.scale + view.translateY,
+  }))
+  return ends.flatMap(({ stationId, beyond, step, edge }) => {
     const name = beyond.length > 0 ? label(beyond, stretch.stationIds) : undefined
-    if (!name) return []
-    const x = clamp(point.x * view.scale + view.translateX, EXIT_WIDTH / 2, size.width - EXIT_WIDTH / 2)
-    return [{ edge, x, label: name }]
+    const index = line.stationIndex.get(stationId)
+    if (!name || index === undefined) return []
+    const x = edgeCrossing(line.vertices, index, step, view, edge === "top" ? 0 : size.height)
+    if (x === undefined) return []
+    const width = EXIT_ROW.arrow + name.length * EXIT_ROW.letter
+    const top = edge === "top" ? EXIT_ROW.offset : size.height - EXIT_ROW.offset - EXIT_ROW.height
+    const fits = (side: "left" | "right") => {
+      const left = side === "right" ? x + EXIT_GAP : x - EXIT_GAP - width
+      const right = left + width
+      if (left < 0 || right > size.width) return false
+      return !inks.some((ink) => ink.left < right && ink.right > left && ink.top < top + EXIT_ROW.height && ink.bottom > top)
+    }
+    const preferred = labelSides.get(stationId) === "right" ? "left" : "right"
+    const other = preferred === "right" ? "left" : "right"
+    const side = fits(preferred) || !fits(other) ? preferred : other
+    return [{ edge, x, side, label: name }]
   })
 }
 
@@ -1047,20 +1108,21 @@ const styles = StyleSheet.create({
   },
   exit: {
     position: "absolute",
-    width: EXIT_WIDTH,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 2,
   },
   exitTop: {
-    top: 4,
+    top: EXIT_ROW.offset,
   },
   exitBottom: {
-    bottom: 4,
+    bottom: EXIT_ROW.offset,
+  },
+  exitArrow: {
+    fontSize: 13,
+    fontWeight: "700",
   },
   exitText: {
-    overflow: "hidden",
-    borderRadius: 9,
-    paddingHorizontal: 8,
-    paddingVertical: 1,
     fontSize: 13,
     fontWeight: "500",
   },
