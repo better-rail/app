@@ -252,7 +252,11 @@ function NetworkSummary({ level, title, detail, realtime }: NetworkSummaryProps)
         ) : level === "unknown" ? (
           <Image source={CLOCK_ICON} style={[styles.summaryIcon, { tintColor: levelColor }]} />
         ) : (
-          <Text style={[styles.summaryMark, { color: levelColor }]}>!</Text>
+          // Drawn, not typed: a glyph's font metrics put it off the badge's centre.
+          <View style={styles.summaryMark}>
+            <View style={[styles.summaryMarkBar, { backgroundColor: levelColor }]} />
+            <View style={[styles.summaryMarkDot, { backgroundColor: levelColor }]} />
+          </View>
         )}
       </View>
       <View style={styles.summaryTexts}>
@@ -355,9 +359,18 @@ const styles = StyleSheet.create((theme) => ({
     height: 22,
   },
   summaryMark: {
-    fontSize: 26,
-    lineHeight: 30,
-    fontWeight: "800",
+    alignItems: "center",
+    gap: 3,
+  },
+  summaryMarkBar: {
+    width: 4,
+    height: 14,
+    borderRadius: 2,
+  },
+  summaryMarkDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
   },
   summaryTexts: {
     flex: 1,

@@ -33,6 +33,7 @@ import {
   CAPSULE_RING,
   CAPSULE_WIDTH,
   CITY_FONT_SIZE,
+  FRAME_PADDING,
   FRAME_RADIUS,
   FRAME_STROKE,
   LABEL_LINE_HEIGHT,
@@ -493,6 +494,23 @@ export function RailMap({
     return placement.frames.map((frame) => buildCityLabel(frame, fontMgr, palette))
   }, [fontMgr, placement, palette])
 
+  // In a still picture of a stretch, a city's name whose corner of the frame is cut off is lifted into the part
+  // of the frame in view, so the frame still says which city it is.
+  const shownCityLabels = useMemo(() => {
+    if (interactive || !focusStretch || !laidOut) return cityLabels
+    const view = sectionViewport(model, size, focusStretch.framed, insets)
+    const visibleTop = -view.translateY / view.scale
+    const visibleBottom = (size.height - view.translateY) / view.scale
+    const pad = FRAME_PADDING
+    return cityLabels.map((label) => {
+      const frame = placement.frames.find((f) => f.id === label.id)
+      const height = label.paragraph.getHeight()
+      if (!frame || frame.box.bottom <= visibleTop || frame.box.top >= visibleBottom) return label
+      if (label.y + height <= visibleBottom - pad / 2) return label
+      return { ...label, y: Math.max(frame.box.top + pad, visibleBottom - pad - height) }
+    })
+  }, [interactive, focusStretch, laidOut, model, size, insets, cityLabels, placement])
+
   // The aeroplane after the airport's name.
   const plane = useMemo(() => {
     const label = labels.find((l) => l.stationId === model.airport.stationId)
@@ -748,7 +766,7 @@ export function RailMap({
             {plane && <Path path={plane} color={palette.cityInk} />}
 
             {/* City names in the corner of their frames. */}
-            {cityLabels.map((label) => (
+            {shownCityLabels.map((label) => (
               <Paragraph key={label.id} paragraph={label.paragraph} x={label.x} y={label.y} width={label.width} />
             ))}
           </Group>
