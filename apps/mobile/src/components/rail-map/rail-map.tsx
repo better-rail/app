@@ -451,36 +451,7 @@ export function RailMap({
   const disrupted = useMemo(() => collectDisruptedSections(model, lineStatuses), [model, lineStatuses])
 
   // The names' places and the city frames: measured with the real text, once per map and font.
-  const placement = useMemo(() => {
-    if (!fontMgr) return { labels: [], frames: [] }
-    const known = placements.get(model)
-    if (known) return known
-    const probes = new Map<string, TextSize>()
-    const measure = (stationId: string, maxWidth: number): TextSize => {
-      const key = `${stationId}@${maxWidth}`
-      const known = probes.get(key)
-      if (known) return known
-      const nameOnly = model.labels.find((l) => l.stationId === stationId)?.stationNameOnly ?? false
-      const name = labelText(stationId, nameOnly)
-      const size = nameFontSize(name)
-      const paragraph = makeParagraph(
-        fontMgr,
-        [{ text: wrappedName(fontMgr, name, size, maxWidth), size, color: "#000", weight: 500 }],
-        TextAlign.Left,
-        maxWidth,
-      )
-      const lines = Math.max(1, paragraph.getLineMetrics().length)
-      const measured = {
-        width: Math.min(paragraph.getLongestLine(), maxWidth),
-        height: blockHeight(paragraph.getHeight() / lines, lines, size),
-      }
-      probes.set(key, measured)
-      return measured
-    }
-    const placed = placeLabels(model, measure)
-    placements.set(model, placed)
-    return placed
-  }, [fontMgr, model])
+  const placement = useMemo(() => (fontMgr ? placementFor(model, fontMgr) : { labels: [], frames: [] }), [fontMgr, model])
   const labelSides = useMemo(() => new Map(placement.labels.map((l) => [l.stationId, l.side])), [placement])
 
   const labels = useMemo(() => {
@@ -977,8 +948,54 @@ const useRailMapFonts = (): FontManager | null => {
   return sharedFontMgr ?? loaded
 }
 
-/** Where the names go, worked out once per map: measuring every station's name is the slow part of a first draw. */
+/** Where the names go, worked out once per map: placing every station's name is the slow part of a first draw. */
 const placements = new WeakMap<RailMapModel, ReturnType<typeof placeLabels>>()
+
+/** The names' places and the city frames for `model`, measured with the real text; worked out on the first call. */
+const placementFor = (model: RailMapModel, fontMgr: FontManager): ReturnType<typeof placeLabels> => {
+  const known = placements.get(model)
+  if (known) return known
+  const probes = new Map<string, TextSize>()
+  const measure = (stationId: string, maxWidth: number): TextSize => {
+    const key = `${stationId}@${maxWidth}`
+    const probed = probes.get(key)
+    if (probed) return probed
+    const nameOnly = model.labels.find((l) => l.stationId === stationId)?.stationNameOnly ?? false
+    const name = labelText(stationId, nameOnly)
+    const size = nameFontSize(name)
+    const paragraph = makeParagraph(
+      fontMgr,
+      [{ text: wrappedName(fontMgr, name, size, maxWidth), size, color: "#000", weight: 500 }],
+      TextAlign.Left,
+      maxWidth,
+    )
+    const lines = Math.max(1, paragraph.getLineMetrics().length)
+    const measured = {
+      width: Math.min(paragraph.getLongestLine(), maxWidth),
+      height: blockHeight(paragraph.getHeight() / lines, lines, size),
+    }
+    probes.set(key, measured)
+    return measured
+  }
+  const placed = placeLabels(model, measure)
+  placements.set(model, placed)
+  return placed
+}
+
+/**
+ * Works out a map's names ahead of time, once the screen calling it has settled, so the first map
+ * drawn after it (a disruption's picture, say) need not before it can draw.
+ */
+export const useRailMapWarmup = (dayType?: DayType) => {
+  const fontMgr = useRailMapFonts()
+  useEffect(() => {
+    if (!fontMgr) return
+    const task = requestIdleCallback(() => {
+      placementFor(buildRailMapModel(dayType ?? currentDayType()), fontMgr)
+    })
+    return () => cancelIdleCallback(task)
+  }, [fontMgr, dayType])
+}
 
 type DisruptedSection = {
   key: string

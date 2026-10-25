@@ -5,6 +5,7 @@ import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { useShallow } from "zustand/react/shallow"
 import { trackEvent } from "@/services/analytics"
+import { useRailMapWarmup } from "@/components/rail-map"
 import { useFavoritesStore, useRoutePlanStore } from "@/models"
 import { LineList } from "./components/line-list"
 import { userLineIds, userRoutes } from "./user-lines"
@@ -25,6 +26,8 @@ export function ServiceStatusScreen() {
     [origin?.id, destination?.id, favorites],
   )
   const { refetch, isRefetching, data } = useServiceStatus()
+  // A line's disruptions open on maps: their names are placed while the list is read.
+  useRailMapWarmup()
 
   const selectLine = (lineId: string) => {
     HapticFeedback.trigger("impactLight")

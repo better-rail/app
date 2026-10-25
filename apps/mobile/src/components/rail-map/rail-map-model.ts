@@ -903,6 +903,12 @@ const SLIDES: Record<LabelSide, number[]> = {
   above: [0, -1.5, 1.5, -3, 3],
   below: [0, -1.5, 1.5, -3, 3],
 }
+/**
+ * How far from its station's marker any candidate place for a name can reach, in map units, with room to
+ * spare: the widest name, its furthest slide, a few wrapped lines and the clearances around it.
+ */
+const LABEL_REACH = 20
+
 /** Room kept between a name and anything else. */
 const LABEL_CLEARANCE = 0.3
 /** A little slack a name may take from a line's clearance rather than leave its station's row. */
@@ -1020,44 +1026,56 @@ export const placeLabels = (
   }
   const marks = new Map(model.marks.map((m) => [m.stationId, m]))
   const placed: PlacedLabel[] = []
+  // The placed names' and the markers' boxes grown by the clearance, and the frames' edges, worked out once
+  // rather than for every candidate.
+  const placedClear: Box[] = []
+  const markClear = new Map(model.marks.map((m) => [m.stationId, grow(m.clear, LABEL_CLEARANCE)]))
   const frames: CityFrameBox[] = []
+  const frameEdges: [Point, Point][] = []
   const bounds: Box = { left: 0, top: 0, right: model.bounds.width, bottom: model.bounds.height }
+  const inner = grow(bounds, -LABEL_CLEARANCE)
+  // A line's ink is out of bounds; its clearance around it is soft, so a graze costs less than leaving the row.
+  const hard = LINE_STROKE / 2 + 0.1
 
-  const cost = (stationId: string, box: Box): number => {
+  // What a name's candidates are scored against: only what lies within their reach of its station's marker.
+  // Everything further off cannot touch any of them, and scoring it was most of a first draw.
+  type Nearby = { segments: typeof segments; marks: Box[] }
+  const nearby = (mark: StationMark): Nearby => {
+    const reach = grow(mark.box, LABEL_REACH)
+    return {
+      segments: segments.filter((s) =>
+        boxesOverlap(reach, {
+          left: Math.min(s.a.x, s.b.x),
+          right: Math.max(s.a.x, s.b.x),
+          top: Math.min(s.a.y, s.b.y),
+          bottom: Math.max(s.a.y, s.b.y),
+        }),
+      ),
+      marks: model.marks
+        .filter((m) => m.stationId !== mark.stationId && boxesOverlap(reach, m.clear))
+        .map((m) => markClear.get(m.stationId) as Box),
+    }
+  }
+
+  const cost = (box: Box, near: Nearby): number => {
     let hits = 0
-    if (
-      !boxesOverlap(grow(bounds, -LABEL_CLEARANCE), box) ||
-      box.left < 0 ||
-      box.top < 0 ||
-      box.right > bounds.right ||
-      box.bottom > bounds.bottom
-    )
+    if (!boxesOverlap(inner, box) || box.left < 0 || box.top < 0 || box.right > bounds.right || box.bottom > bounds.bottom)
       hits += 10
-    // A line's ink is out of bounds; its clearance around it is soft, so a graze costs less than leaving the row.
-    const hard = LINE_STROKE / 2 + 0.1
-    for (const s of segments) {
+    for (const s of near.segments) {
       const d = segmentBoxDistance(s.a, s.b, box) - hard
       if (d <= 0) hits += 8
       else if (d < LABEL_SOFT_MARGIN) hits += 1 - d / LABEL_SOFT_MARGIN
     }
-    for (const m of model.marks) if (m.stationId !== stationId && boxesOverlap(grow(m.clear, LABEL_CLEARANCE), box)) hits += 8
-    for (const l of placed) if (boxesOverlap(grow(l.box, LABEL_CLEARANCE), box)) hits += 6
-    for (const f of frames) {
-      const edge = f.box
-      const corners = [
-        { x: edge.left, y: edge.top },
-        { x: edge.right, y: edge.top },
-        { x: edge.right, y: edge.bottom },
-        { x: edge.left, y: edge.bottom },
-      ]
-      for (let i = 0; i < 4; i++) if (segmentHitsBox(corners[i], corners[(i + 1) % 4], box, LABEL_CLEARANCE)) hits += 8
-    }
+    for (const m of near.marks) if (boxesOverlap(m, box)) hits += 8
+    for (const l of placedClear) if (boxesOverlap(l, box)) hits += 6
+    for (const [a, b] of frameEdges) if (segmentHitsBox(a, b, box, LABEL_CLEARANCE)) hits += 8
     return hits
   }
 
   const place = (request: StationLabel) => {
     const mark = marks.get(request.stationId)
     if (!mark) return
+    const near = nearby(mark)
     const sides: LabelSide[] = [request.preferred, opposite[request.preferred]]
     for (const side of ["left", "right", "above", "below"] as LabelSide[]) if (!sides.includes(side)) sides.push(side)
     let best: { label: PlacedLabel; score: number } | undefined
@@ -1072,7 +1090,7 @@ export const placeLabels = (
           // A name level with its dot comes first: beside a vertical line, sliding costs more than wrapping, changing side
           // or grazing a line's clearance.
           const slideCost = side === "left" || side === "right" ? 1.6 : 0.4
-          const score = cost(request.stationId, box) + sideIndex * 0.6 + Math.abs(slide) * slideCost + widthIndex * 0.5
+          const score = cost(box, near) + sideIndex * 0.6 + Math.abs(slide) * slideCost + widthIndex * 0.5
           if (!best || score < best.score) {
             best = {
               label: { stationId: request.stationId, side, anchor, maxWidth, box, stationNameOnly: request.stationNameOnly },
@@ -1083,7 +1101,10 @@ export const placeLabels = (
         }
       })
     })
-    if (best) placed.push(best.label)
+    if (best) {
+      placed.push(best.label)
+      placedClear.push(grow(best.label.box, LABEL_CLEARANCE))
+    }
   }
 
   // The cities' stations first, then their frames, then everything else, the busiest stations first.
@@ -1094,6 +1115,15 @@ export const placeLabels = (
     if (request) place(request)
   }
   frames.push(...cityFrames(model, placed))
+  for (const { box: edge } of frames) {
+    const corners = [
+      { x: edge.left, y: edge.top },
+      { x: edge.right, y: edge.top },
+      { x: edge.right, y: edge.bottom },
+      { x: edge.left, y: edge.bottom },
+    ]
+    for (let i = 0; i < 4; i++) frameEdges.push([corners[i], corners[(i + 1) % 4]])
+  }
   const rest = model.labels
     .filter((l) => !framedIds.includes(l.stationId))
     .sort((a, b) => {
