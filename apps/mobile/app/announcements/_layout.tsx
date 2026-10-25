@@ -1,24 +1,25 @@
 import { Stack } from "expo-router/stack"
+import { useUnistyles } from "react-native-unistyles"
 import { type TextStyle } from "react-native"
-import { color, spacing, typography } from "@/theme"
+import { spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
 import { useRouter } from "expo-router"
+import { headingFontStyle } from "@/theme/theme-fonts"
 
 const iOSTitleStyle: TextStyle = {
-  fontSize: 19,
-  fontFamily: typography.primary,
-  fontWeight: "400",
   marginRight: 10,
 }
 
 export default function AnnouncementsLayout() {
+  const { theme: appTheme } = useUnistyles()
   const router = useRouter()
+  const titleStyle: TextStyle = { ...iOSTitleStyle, ...headingFontStyle(appTheme, 19, "400") }
 
   return (
     <Stack
       screenOptions={{
-        headerTintColor: color.primary as unknown as string,
+        headerTintColor: appTheme.colors.primary as unknown as string,
         headerBackButtonDisplayMode: "minimal",
       }}
     >
@@ -35,7 +36,7 @@ export default function AnnouncementsLayout() {
               onPress: () => router.back(),
             },
           ],
-          headerTitleStyle: iOSTitleStyle,
+          headerTitleStyle: titleStyle,
         }}
       />
       <Stack.Screen
@@ -51,7 +52,7 @@ export default function AnnouncementsLayout() {
               onPress: () => router.back(),
             },
           ],
-          headerTitleStyle: iOSTitleStyle,
+          headerTitleStyle: titleStyle,
         }}
       />
     </Stack>

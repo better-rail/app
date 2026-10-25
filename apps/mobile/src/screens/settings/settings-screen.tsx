@@ -169,9 +169,9 @@ export function SettingsScreen() {
 }
 
 const styles = StyleSheet.create((theme) => ({
+  // Screen paints the page color; a background here (the scroll content) misses live theme switches
   root: {
     flex: 1,
-    backgroundColor: theme.colors.background,
     paddingTop: theme.spacing[4],
     paddingHorizontal: theme.spacing[4],
   },

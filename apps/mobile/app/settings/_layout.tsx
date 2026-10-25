@@ -1,23 +1,21 @@
 import { Stack } from "expo-router/stack"
+import { useUnistyles } from "react-native-unistyles"
 import { type TextStyle } from "react-native"
-import { color, spacing, typography } from "@/theme"
+import { spacing } from "@/theme"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
 import { useRouter } from "expo-router"
-
-const iOSTitleStyle: TextStyle = {
-  fontSize: 19,
-  fontFamily: typography.primary,
-  fontWeight: "400",
-}
+import { headingFontStyle } from "@/theme/theme-fonts"
 
 export default function SettingsLayout() {
+  const { theme: appTheme } = useUnistyles()
   const router = useRouter()
+  const titleStyle: TextStyle = headingFontStyle(appTheme, 19, "400")
 
   return (
     <Stack
       screenOptions={{
-        headerTintColor: color.primary as unknown as string,
+        headerTintColor: appTheme.colors.primary as unknown as string,
         headerBackButtonDisplayMode: "minimal",
       }}
     >
@@ -25,7 +23,7 @@ export default function SettingsLayout() {
         name="index"
         options={{
           title: translate("settings.title") ?? "",
-          headerTitleStyle: iOSTitleStyle,
+          headerTitleStyle: titleStyle,
           // Android fallback — overridden by unstable_headerLeftItems on iOS
           headerLeft: () => <CloseButton onPress={() => router.back()} style={{ marginRight: spacing[2] }} />,
           unstable_headerLeftItems: () => [
@@ -38,27 +36,27 @@ export default function SettingsLayout() {
           ],
         }}
       />
-      <Stack.Screen name="language" options={{ title: translate("settings.language") ?? "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen name="language" options={{ title: translate("settings.language") ?? "", headerTitleStyle: titleStyle }} />
       <Stack.Screen
         name="ui-settings"
-        options={{ title: translate("settings.uiSettings") ?? "", headerTitleStyle: iOSTitleStyle }}
+        options={{ title: translate("settings.uiSettings") ?? "", headerTitleStyle: titleStyle }}
       />
-      <Stack.Screen name="tip-jar" options={{ title: translate("settings.tipJar") ?? "", headerTitleStyle: iOSTitleStyle }} />
-      <Stack.Screen name="about" options={{ title: translate("settings.about") ?? "", headerTitleStyle: iOSTitleStyle }} />
-      <Stack.Screen name="privacy" options={{ title: translate("settings.privacy") ?? "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen name="tip-jar" options={{ title: translate("settings.tipJar") ?? "", headerTitleStyle: titleStyle }} />
+      <Stack.Screen name="about" options={{ title: translate("settings.about") ?? "", headerTitleStyle: titleStyle }} />
+      <Stack.Screen name="privacy" options={{ title: translate("settings.privacy") ?? "", headerTitleStyle: titleStyle }} />
       <Stack.Screen
         name="notifications"
-        options={{ title: translate("stationAlerts.settingsTitle") ?? "", headerTitleStyle: iOSTitleStyle }}
+        options={{ title: translate("stationAlerts.settingsTitle") ?? "", headerTitleStyle: titleStyle }}
       />
       <Stack.Screen
         name="notifications-stations"
         options={{ title: translate("stationAlerts.selectStations") ?? "", headerShown: false }}
       />
       {/* The station's name is set from the screen itself. */}
-      <Stack.Screen name="notifications-station" options={{ title: "", headerTitleStyle: iOSTitleStyle }} />
+      <Stack.Screen name="notifications-station" options={{ title: "", headerTitleStyle: titleStyle }} />
       <Stack.Screen
         name="notifications-train"
-        options={{ title: translate("delayGuard.settingsTitle") ?? "", headerTitleStyle: iOSTitleStyle }}
+        options={{ title: translate("delayGuard.settingsTitle") ?? "", headerTitleStyle: titleStyle }}
       />
     </Stack>
   )

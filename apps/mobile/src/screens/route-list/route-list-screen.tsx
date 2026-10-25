@@ -17,7 +17,9 @@ import { filterRouteData, TRAIN_INFO_PROMPT_SEARCH_THRESHOLD } from "@/models/se
 import { color, fontScale, spacing } from "@/theme"
 import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
+import { retryOnceOnNetworkError } from "@/utils/helpers/network-errors"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, RouteCardHeightWithHeader, WebsiteHandoff } from "@/components"
+import { ThemeBackground } from "@/components/theme-background/theme-background"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -171,7 +173,7 @@ function RouteListResults({
   const queryKey = routeListDayQueryKey(originId, destinationId, currentDate.getTime())
   const trains = useQuery(queryKey, () => getRoutes(originId, destinationId, currentDate.getTime()), {
     enabled: enableQuery,
-    retry: false,
+    retry: retryOnceOnNetworkError,
     refetchInterval: 60_000,
     keepPreviousData: false,
   })
@@ -187,7 +189,7 @@ function RouteListResults({
     },
     {
       enabled: enableQuery && !!trip && isFocused,
-      retry: false,
+      retry: retryOnceOnNetworkError,
       select: (data) => (Array.isArray(data) ? data : data.routes),
     },
   )
@@ -467,6 +469,7 @@ function RouteListResults({
 
       {displayData.length > 0 && (
         <View style={styles.listContainer}>
+          <ThemeBackground fade="none" />
           <LegendList
             // The list caches row sizes, so it starts over when the train info prompt changes the card height
             key={`route-list-${showRouteCardHeader}`}

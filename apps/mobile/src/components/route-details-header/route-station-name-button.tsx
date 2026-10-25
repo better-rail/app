@@ -5,6 +5,7 @@ import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scal
 import { Text } from "@/components/text/text"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
@@ -88,8 +89,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     color: theme.colors.text,
     opacity: 0.8,
     textAlign: "center",
-    fontWeight: "600",
-    fontSize: 14,
+    ...subheadingFontStyle(theme, 14, "600"),
   },
   hiddenText: {
     opacity: 0,

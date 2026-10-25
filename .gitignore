@@ -79,6 +79,9 @@ local.properties
 /apps/mobile/GoogleService-Info.plist
 /apps/mobile/google-services.json
 
+# Commercially licensed fonts may not be published; Metro falls back to Heebo without them
+/apps/mobile/assets/fonts/licensed/
+
 # Expo
 .expo/
 web-build/

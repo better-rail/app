@@ -1,0 +1,69 @@
+diff --git a/android/src/main/java/expo/modules/ui/TextView.kt b/android/src/main/java/expo/modules/ui/TextView.kt
+index 9bd672aa1aa9dda660f13986493388e93bdbdd7a..b7126946c71f6e388531f338a82aef6642e2e2e2 100644
+--- a/android/src/main/java/expo/modules/ui/TextView.kt
++++ b/android/src/main/java/expo/modules/ui/TextView.kt
+@@ -133,7 +133,12 @@ enum class TextLineBreakType(val value: String) : Enumerable {
+   }
+ }
+ 
+-fun resolveFontFamily(name: String?, context: Context): FontFamily? {
++fun resolveFontFamily(
++  name: String?,
++  context: Context,
++  fontWeight: FontWeight? = null,
++  fontStyle: FontStyle? = null
++): FontFamily? {
+   if (name == null) {
+     return null
+   }
+@@ -144,7 +149,14 @@ fun resolveFontFamily(name: String?, context: Context): FontFamily? {
+     "monospace" -> FontFamily.Monospace
+     "cursive" -> FontFamily.Cursive
+     else -> {
+-      val typeface = ReactFontManager.getInstance().getTypeface(name, Typeface.NORMAL, context.assets)
++      // Pass the weight and style so a font family registered via XML (expo-font's object form)
++      // resolves to the matching file instead of always the regular one.
++      val typeface = ReactFontManager.getInstance().getTypeface(
++        name,
++        fontWeight?.weight ?: FontWeight.Normal.weight,
++        fontStyle == FontStyle.Italic,
++        context.assets
++      )
+       FontFamily(typeface)
+     }
+   }
+@@ -270,7 +282,9 @@ private fun AnnotatedString.Builder.appendSpans(spans: List<TextSpanRecord>, con
+       fontSize = span.fontSize?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
+       fontWeight = span.fontWeight?.toComposeFontWeight(),
+       fontStyle = span.fontStyle?.toComposeFontStyle(),
+-      fontFamily = context?.let { resolveFontFamily(span.fontFamily, it) },
++      fontFamily = context?.let {
++        resolveFontFamily(span.fontFamily, it, span.fontWeight?.toComposeFontWeight(), span.fontStyle?.toComposeFontStyle())
++      },
+       textDecoration = span.textDecoration?.toComposeTextDecoration(),
+       letterSpacing = span.letterSpacing?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
+       background = colorToComposeColorOrNull(span.background) ?: androidx.compose.ui.graphics.Color.Unspecified,
+@@ -300,7 +314,9 @@ fun FunctionalComposableScope.TextContent(props: TextProps) {
+       fontSize = props.fontSize?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
+       fontWeight = props.fontWeight?.toComposeFontWeight(),
+       fontStyle = props.fontStyle?.toComposeFontStyle(),
+-      fontFamily = appContext.reactContext?.let { resolveFontFamily(props.fontFamily, it) },
++      fontFamily = appContext.reactContext?.let {
++        resolveFontFamily(props.fontFamily, it, props.fontWeight?.toComposeFontWeight(), props.fontStyle?.toComposeFontStyle())
++      },
+       textDecoration = props.textDecoration?.toComposeTextDecoration(),
+       letterSpacing = props.letterSpacing?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
+       lineHeight = props.lineHeight?.sp ?: androidx.compose.ui.unit.TextUnit.Unspecified,
+diff --git a/android/src/main/java/expo/modules/ui/textfield/TextFieldShared.kt b/android/src/main/java/expo/modules/ui/textfield/TextFieldShared.kt
+index 19bec07789bca4fe20a90402203b0598e0010486..cc371a3f04c8b33d8f2835deae8a06b97ca8273a 100644
+--- a/android/src/main/java/expo/modules/ui/textfield/TextFieldShared.kt
++++ b/android/src/main/java/expo/modules/ui/textfield/TextFieldShared.kt
+@@ -126,7 +126,7 @@ internal fun TextFieldTextStyleRecord?.toTextStyle(context: Context?): TextStyle
+     color = colorToComposeColorOrNull(color) ?: androidx.compose.ui.graphics.Color.Unspecified,
+     fontSize = fontSize?.sp ?: TextUnit.Unspecified,
+     fontWeight = fontWeight?.toComposeFontWeight(),
+-    fontFamily = context?.let { resolveFontFamily(fontFamily, it) },
++    fontFamily = context?.let { resolveFontFamily(fontFamily, it, fontWeight?.toComposeFontWeight()) },
+     letterSpacing = letterSpacing?.sp ?: TextUnit.Unspecified,
+     lineHeight = lineHeight?.sp ?: TextUnit.Unspecified,
+     textAlign = textAlign?.toComposeTextAlign() ?: TextAlign.Unspecified

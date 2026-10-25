@@ -122,7 +122,8 @@
     "autolinking": {
       "android": {
         "buildFromSource": [
-          "expo-localization"
+          "expo-localization",
+          "expo-ui"
         ]
       }
     },

@@ -1,7 +1,8 @@
 # .easignore — used by EAS Build INSTEAD of .gitignore when present.
 # Mirrors .gitignore so the build archive matches git, EXCEPT it re-includes
 # the production google-services.json (gitignored) so LOCAL `eas build --local`
-# can find it during prebuild. Keep in sync with .gitignore.
+# can find it during prebuild. It also doesn't ignore the licensed fonts
+# (apps/mobile/assets/fonts/licensed/), so builds ship them. Keep in sync with .gitignore.
 
 .DS_Store
 node_modules/

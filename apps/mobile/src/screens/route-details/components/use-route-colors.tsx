@@ -1,4 +1,5 @@
 import { useColorScheme } from "react-native"
+import { useUnistyles } from "react-native-unistyles"
 
 /**
  * The station / line state
@@ -28,6 +29,14 @@ export const ROUTE_STOP_CIRCLE_COLORS = {
  */
 export function useRouteColors(state: RouteElementStateType, element: "line" | "circle") {
   const colorScheme = useColorScheme()
+  const { theme } = useUnistyles()
+  const { primary, background } = theme.colors
+
+  // Themes with their own colors (hex strings) tint the idle line and match the dots to the page;
+  // passed and in-progress keep their ride status colors
+  if (state === "idle" && typeof primary === "string" && typeof background === "string") {
+    return element === "line" ? `${primary}73` : background
+  }
 
   if (element === "line") {
     return ROUTE_LINE_STATE_COLORS[state][colorScheme]

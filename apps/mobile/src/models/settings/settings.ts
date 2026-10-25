@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { DAY_TYPES, type DayType } from "@/data/rail-service-patterns"
 import { DEFAULT_GUARD_MINUTES, type DelayGuard, GUARD_MINUTES_OPTIONS, type PopUpMessage, guardKey } from "@/services/api"
+import { isAccentThemeId, type AccentThemeId } from "@/theme/accent-themes"
 
 export type { DelayGuard }
 
@@ -29,6 +30,9 @@ export interface SettingsState {
   showRouteCardHeader: boolean
   showHourIndex: boolean
   colorScheme: ColorSchemePreference
+  accentTheme: AccentThemeId
+  showThemeBackground: boolean
+  useAlternateTimeFont: boolean
   hideSlowTrains: boolean
   maxChanges: MaxChanges
   trainSearchCount: number
@@ -51,6 +55,9 @@ export interface SettingsActions {
   setShowRouteCardHeader: (show: boolean) => void
   setShowHourIndex: (show: boolean) => void
   setColorScheme: (colorScheme: ColorSchemePreference) => void
+  setAccentTheme: (accentTheme: AccentThemeId) => void
+  setShowThemeBackground: (show: boolean) => void
+  setUseAlternateTimeFont: (use: boolean) => void
   setHideSlowTrains: (hide: boolean) => void
   setMaxChanges: (maxChanges: MaxChanges) => void
   recordTrainSearch: () => void
@@ -81,6 +88,9 @@ const initialSettingsState: SettingsState = {
   showRouteCardHeader: false,
   showHourIndex: false,
   colorScheme: "automatic",
+  accentTheme: "default",
+  showThemeBackground: false,
+  useAlternateTimeFont: false,
   hideSlowTrains: false,
   maxChanges: null,
   trainSearchCount: 0,
@@ -118,6 +128,18 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   setColorScheme(colorScheme) {
     set({ colorScheme })
+  },
+
+  setAccentTheme(accentTheme) {
+    set({ accentTheme })
+  },
+
+  setShowThemeBackground(show) {
+    set({ showThemeBackground: show })
+  },
+
+  setUseAlternateTimeFont(use) {
+    set({ useAlternateTimeFont: use })
   },
 
   setHideSlowTrains(hide) {
@@ -236,6 +258,9 @@ export function getSettingsSnapshot(state: SettingsState) {
     showRouteCardHeader: state.showRouteCardHeader,
     showHourIndex: state.showHourIndex,
     colorScheme: state.colorScheme,
+    accentTheme: state.accentTheme,
+    showThemeBackground: state.showThemeBackground,
+    useAlternateTimeFont: state.useAlternateTimeFont,
     hideSlowTrains: state.hideSlowTrains,
     maxChanges: state.maxChanges,
     trainSearchCount: state.trainSearchCount,
@@ -327,6 +352,9 @@ export function hydrateSettingsStore(data: any) {
     showRouteCardHeader: processedData.showRouteCardHeader ?? false,
     showHourIndex: processedData.showHourIndex ?? false,
     colorScheme: ["automatic", "light", "dark"].includes(processedData.colorScheme) ? processedData.colorScheme : "automatic",
+    accentTheme: isAccentThemeId(processedData.accentTheme) ? processedData.accentTheme : "default",
+    showThemeBackground: processedData.showThemeBackground ?? false,
+    useAlternateTimeFont: processedData.useAlternateTimeFont ?? false,
     hideSlowTrains: processedData.hideSlowTrains ?? false,
     maxChanges: processedData.maxChanges ?? null,
     trainSearchCount,

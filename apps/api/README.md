@@ -135,8 +135,10 @@ Continuous deployment is Workers Builds, like the web app (Workers & Pages → t
 | Build command                        | `bun install --filter @better-rail/api && bun run test && bun run compile` |
 | Deploy command                       | `bunx wrangler deploy`                                                     |
 | Non-production branch deploy command | `bunx wrangler preview`                                                    |
-| Build watch paths (include)          | `apps/api/*`, `bun.lock`                                                   |
+| Build watch paths (include)          | `apps/api/*`, `bun.lock`, `package.json`, `bunfig.toml`                    |
 | Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
+
+Set these watch paths for both **Production** and **Previews Base** in Cloudflare → Settings → Builds.
 
 Workers Builds has Docker, so the ingest container image is built and rolled out with each deploy. Worker secrets and
 the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`).
