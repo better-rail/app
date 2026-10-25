@@ -1,8 +1,10 @@
-import { ActivityIndicator, Image, View } from "react-native"
+import { useState } from "react"
+import { ActivityIndicator, I18nManager, Image, LayoutAnimation, TouchableHighlight, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useNetworkState } from "expo-network"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
+import { color } from "@/theme"
 import {
   compareServiceStatusLevels,
   isDisruptedLevel,
@@ -25,6 +27,7 @@ const GROUPED_LEVELS: ServiceStatusLevel[] = ["goodService", "unknown"]
 
 const CHECKMARK_ICON = require("../../../../assets/checkmark.png")
 const CLOCK_ICON = require("../../../../assets/clock-ios.png")
+const CHEVRON_ICON = require("../../../../assets/chevron.png")
 
 type LineListProps = {
   /** The rider's own lines (the route planned, the favourites), brought up first in this order. */
@@ -35,6 +38,7 @@ type LineListProps = {
 /**
  * Every line's status in grouped cards: a headline card for the whole network, the rider's own lines
  * first, then the disrupted ones, worst first, and one row saying the rest run well, without naming them.
+ * Under the rider's own lines the others fold away, in a card that opens on a tap.
  */
 export function LineList({ userLineIds, onSelectLine }: LineListProps) {
   const { isInternetReachable } = useNetworkState()
@@ -71,19 +75,14 @@ export function LineList({ userLineIds, onSelectLine }: LineListProps) {
         </Section>
       )}
 
-      {(disrupted.length > 0 || showRestGood) && (
-        <Section title={(mine.length > 0 ? translate("serviceStatus.otherLines") : translate("serviceStatus.allLines")) ?? ""}>
-          {disrupted.map((line, index) => (
-            <LineStatusRow
-              key={line.lineId}
-              status={line}
-              last={!showRestGood && index === disrupted.length - 1}
-              onPress={() => onSelectLine(line.lineId)}
-            />
-          ))}
-          {showRestGood && <RestGoodRow />}
-        </Section>
-      )}
+      {(disrupted.length > 0 || showRestGood) &&
+        (mine.length > 0 ? (
+          <OtherLines disrupted={disrupted} showRestGood={showRestGood} onSelectLine={onSelectLine} />
+        ) : (
+          <Section title={translate("serviceStatus.allLines") ?? ""}>
+            <OtherLineRows disrupted={disrupted} showRestGood={showRestGood} onSelectLine={onSelectLine} />
+          </Section>
+        ))}
     </View>
   )
 }
@@ -94,6 +93,70 @@ function Section({ title, testID, children }: { title: string; testID?: string; 
     <View style={styles.section} testID={testID}>
       <Text style={styles.sectionTitle}>{title}</Text>
       <View style={styles.card}>{children}</View>
+    </View>
+  )
+}
+
+type OtherLinesProps = {
+  disrupted: LineStatus[]
+  showRestGood: boolean
+  onSelectLine: (lineId: string) => void
+}
+
+/** The disrupted lines, worst first, and the row for those running well. */
+function OtherLineRows({ disrupted, showRestGood, onSelectLine }: OtherLinesProps) {
+  return (
+    <>
+      {disrupted.map((line, index) => (
+        <LineStatusRow
+          key={line.lineId}
+          status={line}
+          last={!showRestGood && index === disrupted.length - 1}
+          onPress={() => onSelectLine(line.lineId)}
+        />
+      ))}
+      {showRestGood && <RestGoodRow />}
+    </>
+  )
+}
+
+/**
+ * The lines other than the rider's, folded into one row that says how many are disrupted; a tap
+ * opens the card on their rows, as a disclosure group in iOS's settings.
+ */
+function OtherLines(props: OtherLinesProps) {
+  const [open, setOpen] = useState(false)
+  const { disrupted } = props
+  const summary =
+    disrupted.length === 0
+      ? translate("serviceStatus.restGood")
+      : disrupted.length === 1
+        ? translate("serviceStatus.disruptedLine")
+        : translate("serviceStatus.disruptedLines", { count: disrupted.length })
+  const toggle = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.create(220, "easeInEaseOut", "opacity"))
+    setOpen((value) => !value)
+  }
+  // The chevron points to the row's trailing side while folded, and down while open.
+  const rotation = open ? "-90deg" : I18nManager.isRTL ? "0deg" : "180deg"
+  return (
+    <View style={styles.card} testID="service-status-other-lines">
+      <TouchableHighlight
+        underlayColor={color.inputPlaceholderBackground}
+        onPress={toggle}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
+        testID="service-status-other-lines-toggle"
+      >
+        <View style={[styles.disclosure, open && styles.disclosureOpen]}>
+          <View style={styles.disclosureTexts}>
+            <Text style={styles.disclosureTitle}>{translate("serviceStatus.otherLines")}</Text>
+            <Text style={styles.disclosureSummary}>{summary}</Text>
+          </View>
+          <Image source={CHEVRON_ICON} style={[styles.chevron, { transform: [{ rotate: rotation }] }]} />
+        </View>
+      </TouchableHighlight>
+      {open && <OtherLineRows {...props} />}
     </View>
   )
 }
@@ -169,8 +232,8 @@ type NetworkSummaryProps = {
 }
 
 /**
- * The headline card: a check (or a clock, when only the timetable is known) in the level's colour,
- * a few words, the trains running, and how live that is.
+ * The headline card: a check, an exclamation mark when lines are disrupted, or a clock when only the
+ * timetable is known, in the level's colour; a few words, the trains running, and how live that is.
  */
 function NetworkSummary({ level, title, detail, realtime }: NetworkSummaryProps) {
   const levelColor = useStatusLevelColor(level)
@@ -189,7 +252,7 @@ function NetworkSummary({ level, title, detail, realtime }: NetworkSummaryProps)
         ) : level === "unknown" ? (
           <Image source={CLOCK_ICON} style={[styles.summaryIcon, { tintColor: levelColor }]} />
         ) : (
-          <View style={[styles.summaryDot, { backgroundColor: levelColor }]} />
+          <Text style={[styles.summaryMark, { color: levelColor }]}>!</Text>
         )}
       </View>
       <View style={styles.summaryTexts}>
@@ -229,6 +292,35 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: "600",
     color: theme.colors.label,
   },
+  disclosure: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[3],
+    minHeight: 50,
+    paddingHorizontal: theme.spacing[4],
+    paddingVertical: theme.spacing[3],
+  },
+  disclosureOpen: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.separator,
+  },
+  disclosureTexts: {
+    flex: 1,
+    gap: 2,
+  },
+  disclosureTitle: {
+    fontSize: 17,
+    fontWeight: "600",
+  },
+  disclosureSummary: {
+    fontSize: 15,
+    color: theme.colors.label,
+  },
+  chevron: {
+    width: 8,
+    height: 14,
+    tintColor: theme.colors.label,
+  },
   restGood: {
     flexDirection: "row",
     alignItems: "center",
@@ -262,10 +354,10 @@ const styles = StyleSheet.create((theme) => ({
     width: 22,
     height: 22,
   },
-  summaryDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+  summaryMark: {
+    fontSize: 26,
+    lineHeight: 30,
+    fontWeight: "800",
   },
   summaryTexts: {
     flex: 1,

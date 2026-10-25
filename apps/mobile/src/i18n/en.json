@@ -434,6 +434,12 @@
     "allLines": "All lines",
     "yourLines": "Your lines",
     "restGood": "Good service on the other lines",
+    "cities": {
+      "telAviv": "Tel Aviv",
+      "haifa": "Haifa",
+      "jerusalem": "Jerusalem",
+      "beerSheva": "Be'er Sheva"
+    },
     "lineDetails": "Line details",
     "allLinesGood": "Good service on all lines",
     "disruptedLine": "Disruption on 1 line",

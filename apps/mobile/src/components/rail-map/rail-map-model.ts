@@ -1171,6 +1171,32 @@ export const lineVerticesBetween = (line: LinePath, fromStationId: string, toSta
   return line.vertices.slice(Math.min(a, b), Math.max(a, b) + 1)
 }
 
+/** A stretch of a line widened by some stations at each end, with the stations past either end, walking outward. */
+export type LineStretch = {
+  vertices: Point[]
+  /** The stations on the widened stretch, in the lane's order. */
+  stationIds: string[]
+  /** Past the stretch's first and last stations, nearest first; empty where the line ends. */
+  before: string[]
+  after: string[]
+}
+
+/** The stretch of `line` between two of its stations, `extra` stations further at each end where the line goes on. */
+export const lineStretch = (line: LinePath, fromStationId: string, toStationId: string, extra = 0): LineStretch | undefined => {
+  const order = [...line.stationIndex.entries()].sort((a, b) => a[1] - b[1]).map(([id]) => id)
+  const a = order.indexOf(fromStationId)
+  const b = order.indexOf(toStationId)
+  if (a === -1 || b === -1) return undefined
+  const first = Math.max(0, Math.min(a, b) - extra)
+  const last = Math.min(order.length - 1, Math.max(a, b) + extra)
+  return {
+    vertices: lineVerticesBetween(line, order[first], order[last]),
+    stationIds: order.slice(first, last + 1),
+    before: order.slice(0, first).reverse(),
+    after: order.slice(last + 1),
+  }
+}
+
 /** Where the given stations sit on `line` (stations not on the line are skipped). */
 export const lineStationPoints = (line: LinePath, stationIds: string[]): Point[] =>
   stationIds.flatMap((id) => {

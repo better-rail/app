@@ -436,6 +436,12 @@
     "allLines": "כל הקווים",
     "yourLines": "הקווים שלך",
     "restGood": "בשאר הקווים יש שירות תקין",
+    "cities": {
+      "telAviv": "תל אביב",
+      "haifa": "חיפה",
+      "jerusalem": "ירושלים",
+      "beerSheva": "באר שבע"
+    },
     "lineDetails": "פרטי הקו",
     "allLinesGood": "שירות תקין בכל הקווים",
     "disruptedLine": "שיבוש בקו אחד",

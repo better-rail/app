@@ -21,6 +21,7 @@ import {
 import { Gesture, GestureDetector } from "react-native-gesture-handler"
 import { useDerivedValue, useSharedValue, withDecay, withTiming } from "react-native-reanimated"
 import { scheduleOnRN } from "react-native-worklets"
+import { Text } from "@/components/text/text"
 import { userLocale } from "@/i18n"
 import { stationName } from "@/data/stations"
 import type { RailLineId } from "@/data/rail-lines"
@@ -43,6 +44,7 @@ import {
   type CityFrameBox,
   type DayType,
   type LinePath,
+  type LineStretch,
   type Point,
   type RailMapModel,
   type PlacedLabel,
@@ -52,7 +54,7 @@ import {
   currentDayType,
   linePathBetween,
   isRtlScript,
-  lineVerticesBetween,
+  lineStretch,
   mapStationName,
   nameFontSize,
   nearestLine,
@@ -79,8 +81,10 @@ const STATION_TAP_TOLERANCE = 1.8
 const STATION_ZOOM = 3
 /** The most a disruption's stretch is zoomed in on, relative to the whole width fitting the view: enough of the network around it to place it. */
 const SECTION_ZOOM = 2
-/** Room around a disruption's stretch, in map units: the names on either side and a few stations beyond its ends. */
-const SECTION_MARGIN = { x: 22, y: 12 }
+/** Room around a disruption's stretch, in map units: the names on either side, and a little past its end stations. */
+const SECTION_MARGIN = { x: 22, y: 6 }
+/** The stations shown past each end of a disruption's stretch, to place it on the line. */
+const SECTION_CONTEXT_STATIONS = 1
 /** The halo around a selected station: a soft disc over its marker, with a crisp rim; `pad` is the room past the marker. */
 const SELECTED_STATION_HALO = { pad: 1.1, rim: 0.24, glow: 1.4 }
 
@@ -101,10 +105,16 @@ export type RailMapProps = {
   /** Called with the tapped line, or null when tapping empty ground. */
   onSelectLine?: (lineId: RailLineId | null) => void
   /**
-   * With `selectedLineId`: frame this stretch of the line instead of the whole line, as a picture of
-   * a disruption. A stretch not on the line falls back to the line.
+   * With `selectedLineId`: frame this stretch of the line, and a station past each end, instead of the
+   * whole line, as a picture of a disruption. A stretch not on the line falls back to the line.
    */
   focusSection?: RailMapSection | null
+  /**
+   * With `focusSection`: the name for an arrow at the top and bottom of the view, where the line goes
+   * on past the frame. Called with the stations past that end, nearest first, and those in the frame;
+   * no arrow for undefined.
+   */
+  sectionExitLabel?: (beyond: string[], framed: string[]) => string | undefined
   /** Ring this station's marker, and scroll and zoom the view to it. */
   selectedStationId?: string | null
   /** Called with the tapped station: its marker, or its name. Stations win over the lines their markers sit on. */
@@ -208,6 +218,7 @@ export function RailMap({
   selectedLineId,
   onSelectLine,
   focusSection,
+  sectionExitLabel,
   selectedStationId,
   onSelectStation,
   insets,
@@ -259,8 +270,8 @@ export function RailMap({
   // The stretch to frame, when there is one on the focused line; an empty stretch means the whole line.
   const focusStretch = useMemo(() => {
     if (!focusLine || !focusSection) return undefined
-    const stretch = lineVerticesBetween(focusLine, focusSection.fromStationId, focusSection.toStationId)
-    return stretch.length > 0 ? stretch : undefined
+    const stretch = lineStretch(focusLine, focusSection.fromStationId, focusSection.toStationId, SECTION_CONTEXT_STATIONS)
+    return stretch && stretch.vertices.length > 0 ? stretch : undefined
   }, [focusLine, focusSection])
   const laidOut = size.width > 0
   // The insets in force when a view is next chosen: a change of insets on its own does not move the map.
@@ -283,7 +294,7 @@ export function RailMap({
     const view = focusPoint
       ? pointViewport(model, { width, height }, focusPoint, insetsRef.current)
       : focusStretch
-        ? sectionViewport(model, { width, height }, focusStretch, insetsRef.current)
+        ? sectionViewport(model, { width, height }, focusStretch.vertices, insetsRef.current)
         : initialViewport(model, { width, height }, focusLine, insetsRef.current)
     showViewport(view, false)
   }
@@ -297,7 +308,7 @@ export function RailMap({
       showViewport(pointViewport(model, size, focusPoint, insetsRef.current), true)
     } else if (focusStretch) {
       wasFocused.current = true
-      showViewport(sectionViewport(model, size, focusStretch, insetsRef.current), true)
+      showViewport(sectionViewport(model, size, focusStretch.vertices, insetsRef.current), true)
     } else if (focusLine) {
       wasFocused.current = true
       showViewport(initialViewport(model, size, focusLine, insetsRef.current), true)
@@ -547,6 +558,12 @@ export function RailMap({
     return { centre: mark.centre, radius: radius + SELECTED_STATION_HALO.pad }
   }, [model, selectedStationId])
 
+  // Arrows where the line goes on past a framed stretch, placed over the ends of the line in the view.
+  const exits = useMemo(() => {
+    if (!focusStretch || !sectionExitLabel || !laidOut) return []
+    return stretchExits(focusStretch, sectionViewport(model, size, focusStretch.vertices, insets), size, sectionExitLabel)
+  }, [focusStretch, sectionExitLabel, laidOut, model, size, insets])
+
   const canvas = (
     <View
       style={[styles.container, { backgroundColor: palette.background }, style]}
@@ -736,6 +753,21 @@ export function RailMap({
           </Group>
         </Canvas>
       )}
+      {exits.length > 0 && (
+        // Placed in the canvas's own coordinates, so laid out left to right whatever the language.
+        <View style={styles.exits} pointerEvents="none">
+          {exits.map((exit) => (
+            <View
+              key={exit.edge}
+              style={[styles.exit, exit.edge === "top" ? styles.exitTop : styles.exitBottom, { left: exit.x - EXIT_WIDTH / 2 }]}
+            >
+              <Text style={[styles.exitText, { color: palette.cityInk, backgroundColor: palette.background }]} numberOfLines={1}>
+                {exit.edge === "top" ? `↑ ${exit.label}` : `↓ ${exit.label}`}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   )
 
@@ -745,6 +777,58 @@ export function RailMap({
 }
 
 // --- helpers ----------------------------------------------------------------------------
+
+/** The room an exit arrow's name gets, in pixels. */
+const EXIT_WIDTH = 140
+/** The room kept clear above and below a framed stretch for its exit arrows, in pixels. */
+export const RAIL_MAP_EXIT_INSET = 30
+
+type Exit = { edge: "top" | "bottom"; x: number; label: string }
+
+/** An arrow at the top and bottom of the view for each end of the stretch the line goes on past, over that end. */
+const stretchExits = (
+  stretch: LineStretch,
+  view: Viewport,
+  size: Size,
+  label: (beyond: string[], framed: string[]) => string | undefined,
+): Exit[] => {
+  const first = stretch.vertices[0]
+  const last = stretch.vertices[stretch.vertices.length - 1]
+  const firstOnTop = first.y <= last.y
+  const ends = [
+    { point: first, beyond: stretch.before, edge: firstOnTop ? "top" : "bottom" },
+    { point: last, beyond: stretch.after, edge: firstOnTop ? "bottom" : "top" },
+  ] as const
+  return ends.flatMap(({ point, beyond, edge }) => {
+    const name = beyond.length > 0 ? label(beyond, stretch.stationIds) : undefined
+    if (!name) return []
+    const x = clamp(point.x * view.scale + view.translateX, EXIT_WIDTH / 2, size.width - EXIT_WIDTH / 2)
+    return [{ edge, x, label: name }]
+  })
+}
+
+/**
+ * How tall a picture of a disruption's stretch should be at `width` pixels to show it at the zoom it
+ * is framed at, within `min` and `max`; `insets` is the room kept above and below it.
+ */
+export const railMapSectionHeight = (
+  dayType: DayType,
+  lineId: RailLineId,
+  section: RailMapSection,
+  width: number,
+  { min, max, insets = 0 }: { min: number; max: number; insets?: number },
+): number => {
+  const model = buildRailMapModel(dayType)
+  const line = model.lines.find((l) => l.lineId === lineId)
+  const stretch = line && lineStretch(line, section.fromStationId, section.toStationId, SECTION_CONTEXT_STATIONS)
+  if (!stretch || stretch.vertices.length === 0 || width === 0) return min
+  const xs = stretch.vertices.map((v) => v.x)
+  const ys = stretch.vertices.map((v) => v.y)
+  const fitWidth = width / (model.bounds.width + PAD.left + PAD.right)
+  const scale = Math.min(width / (Math.max(...xs) - Math.min(...xs) + SECTION_MARGIN.x * 2), fitWidth * SECTION_ZOOM)
+  const height = (Math.max(...ys) - Math.min(...ys) + SECTION_MARGIN.y * 2) * scale + insets
+  return Math.round(clamp(height, min, max))
+}
 
 type FontManager = NonNullable<ReturnType<typeof useFonts>>
 
@@ -956,5 +1040,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     overflow: "hidden",
+  },
+  exits: {
+    ...StyleSheet.absoluteFill,
+    direction: "ltr",
+  },
+  exit: {
+    position: "absolute",
+    width: EXIT_WIDTH,
+    alignItems: "center",
+  },
+  exitTop: {
+    top: 4,
+  },
+  exitBottom: {
+    bottom: 4,
+  },
+  exitText: {
+    overflow: "hidden",
+    borderRadius: 9,
+    paddingHorizontal: 8,
+    paddingVertical: 1,
+    fontSize: 13,
+    fontWeight: "500",
   },
 })

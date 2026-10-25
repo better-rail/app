@@ -2,7 +2,7 @@ import { useRef } from "react"
 import { ActivityIndicator, type LayoutChangeEvent, Platform, TouchableOpacity, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { format } from "date-fns"
-import { Button, Text } from "@/components"
+import { Text } from "@/components"
 import { dateFnsLocalization, translate } from "@/i18n"
 import { stationName, stationsObject } from "@/data/stations"
 import type { DayType } from "@/data/rail-service-patterns"
@@ -11,33 +11,26 @@ import { openLink } from "@/utils/helpers/open-link"
 import { openInMaps } from "@/utils/helpers/open-in-maps"
 import { DisruptionCard } from "./disruption-card"
 import { EntranceCard } from "./entrance-card"
-import { LineDeparturesCard } from "./line-departures-card"
 import { StationAlertsCard } from "./station-alerts-card"
 import { StationMap } from "./station-map"
 import { useStationCardStatus } from "../use-station-card-status"
 
 /** The sections of the card the header's pills and bell take it to. */
-export type StationSection = "disruptions" | "lines" | "entrances" | "alerts"
+export type StationSection = "disruptions" | "entrances" | "alerts"
 
 type StationDetailsProps = {
   stationId: string
   dayType: DayType
-  onSelectLine: (lineId: string) => void
-  onGoNow: (stationId: string) => void
   /** Where a section starts, from the top of the card's content, for the header to scroll to. */
   onSectionLayout: (section: StationSection, y: number) => void
 }
 
 /**
- * A station's card below its header, after TfL Go's: "Go now", what is wrong there, the next
- * trains on each line calling, each entrance with its hours and facilities, and the rest of the
- * station's page.
+ * A station's card below its header, after TfL Go's: what is wrong there, each entrance with its
+ * hours and facilities, and the rest of the station's page.
  */
-export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSectionLayout }: StationDetailsProps) {
-  const { snapshot, info, infoLoading, infoError, departures, now, status, clock, dayName } = useStationCardStatus(
-    stationId,
-    dayType,
-  )
+export function StationDetails({ stationId, dayType, onSectionLayout }: StationDetailsProps) {
+  const { snapshot, info, infoLoading, infoError, status, clock, dayName } = useStationCardStatus(stationId, dayType)
   /** The line a disruption of the station's is on, for the picture of where it is. */
   const lineOf = (disruption: Disruption) => snapshot?.lines.find((l) => l.disruptions.includes(disruption))?.lineId
   const station = stationsObject[stationId]
@@ -53,8 +46,6 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSe
 
   return (
     <View style={styles.details} onLayout={onRootLayout} testID="station-details">
-      <Button title={translate("plan.title") ?? "Trip Plan"} onPress={() => onGoNow(stationId)} testID="station-go-now" />
-
       {info?.closed && (
         <View style={[styles.card, styles.closedCard]} testID="station-closed">
           <Text style={styles.closedTitle} tx="serviceStatus.station.stationClosed" />
@@ -84,25 +75,6 @@ export function StationDetails({ stationId, dayType, onSelectLine, onGoNow, onSe
           ))}
         </Section>
       )}
-
-      <Section title={translate("serviceStatus.station.linesHere") ?? ""} onLayout={sectionLayout("lines")}>
-        {status.lines.length === 0 ? (
-          <Text style={styles.empty} tx="serviceStatus.station.noLinesToday" />
-        ) : (
-          status.lines.map(({ line, status: lineStatus }) => (
-            <LineDeparturesCard
-              key={line.id}
-              line={line}
-              status={lineStatus}
-              directions={
-                departures === undefined ? undefined : (departures?.lines.find((l) => l.lineId === line.id)?.directions ?? [])
-              }
-              now={now}
-              onPress={() => onSelectLine(line.id)}
-            />
-          ))
-        )}
-      </Section>
 
       <Section title={translate("stationAlerts.cardTitle") ?? ""} onLayout={sectionLayout("alerts")}>
         <StationAlertsCard stationId={stationId} />

@@ -348,6 +348,12 @@
     "allLines": "كل الخطوط",
     "yourLines": "خطوطك",
     "restGood": "خدمة منتظمة على باقي الخطوط",
+    "cities": {
+      "telAviv": "تل أبيب",
+      "haifa": "حيفا",
+      "jerusalem": "القدس",
+      "beerSheva": "بئر السبع"
+    },
     "lineDetails": "تفاصيل الخط",
     "allLinesGood": "خدمة منتظمة على جميع الخطوط",
     "disruptedLine": "اضطراب على خط واحد",
