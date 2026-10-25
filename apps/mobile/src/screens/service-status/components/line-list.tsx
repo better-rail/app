@@ -172,12 +172,6 @@ function RestGoodRow() {
   )
 }
 
-/** "212 trains running", when any are. */
-const activeTrains = (lines: LineStatus[]): string | undefined => {
-  const count = lines.reduce((sum, line) => sum + line.trains.active, 0)
-  return count > 0 ? (translate("serviceStatus.trainsActive", { count }) ?? undefined) : undefined
-}
-
 type NetworkHeadlineProps = {
   snapshot: ServiceStatusSnapshot
   nothingRunning: boolean
@@ -209,7 +203,6 @@ function NetworkHeadline({ snapshot, nothingRunning }: NetworkHeadlineProps) {
             ? translate("serviceStatus.disruptedLine")
             : translate("serviceStatus.disruptedLines", { count: disruptedCount })) ?? ""
         }
-        detail={activeTrains(snapshot.lines)}
         realtime={snapshot.realtime}
       />
     )
@@ -218,7 +211,6 @@ function NetworkHeadline({ snapshot, nothingRunning }: NetworkHeadlineProps) {
     <NetworkSummary
       level={allGood ? "goodService" : "unknown"}
       title={allGood ? (translate("serviceStatus.allLinesGood") ?? "") : levelLabel("unknown")}
-      detail={activeTrains(snapshot.lines)}
       realtime={snapshot.realtime}
     />
   )
@@ -233,7 +225,7 @@ type NetworkSummaryProps = {
 
 /**
  * The headline card: a check, an exclamation mark when lines are disrupted, or a clock when only the
- * timetable is known, in the level's colour; a few words, the trains running, and how live that is.
+ * timetable is known, in the level's colour; a few words, and how live that is.
  */
 function NetworkSummary({ level, title, detail, realtime }: NetworkSummaryProps) {
   const levelColor = useStatusLevelColor(level)
