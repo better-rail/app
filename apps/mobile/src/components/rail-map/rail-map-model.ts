@@ -1174,11 +1174,39 @@ export const lineVerticesBetween = (line: LinePath, fromStationId: string, toSta
 /** A stretch of a line widened by some stations at each end, with the stations past either end, walking outward. */
 export type LineStretch = {
   vertices: Point[]
+  /**
+   * What a picture of the stretch takes in: its vertices, out to halfway to the next station where the
+   * line goes on (so the picture's edge cuts the line between stations), or a little past an end station.
+   */
+  framed: Point[]
   /** The stations on the widened stretch, in the lane's order. */
   stationIds: string[]
   /** Past the stretch's first and last stations, nearest first; empty where the line ends. */
   before: string[]
   after: string[]
+}
+
+/** The room past a line's end station a picture of a stretch keeps, in map units: enough for its name. */
+const END_STATION_ROOM = 3
+
+/** The point halfway along `vertices` from index `from` to index `to`. */
+const halfwayAlong = (vertices: Point[], from: number, to: number): Point => {
+  const step = to > from ? 1 : -1
+  let total = 0
+  for (let i = from; i !== to; i += step)
+    total += Math.hypot(vertices[i + step].x - vertices[i].x, vertices[i + step].y - vertices[i].y)
+  let left = total / 2
+  for (let i = from; i !== to; i += step) {
+    const a = vertices[i]
+    const b = vertices[i + step]
+    const d = Math.hypot(b.x - a.x, b.y - a.y)
+    if (left <= d) {
+      const t = d === 0 ? 0 : left / d
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }
+    }
+    left -= d
+  }
+  return vertices[to]
 }
 
 /** The stretch of `line` between two of its stations, `extra` stations further at each end where the line goes on. */
@@ -1189,8 +1217,21 @@ export const lineStretch = (line: LinePath, fromStationId: string, toStationId: 
   if (a === -1 || b === -1) return undefined
   const first = Math.max(0, Math.min(a, b) - extra)
   const last = Math.min(order.length - 1, Math.max(a, b) + extra)
+  const vertices = lineVerticesBetween(line, order[first], order[last])
+  const at = (index: number) => line.stationIndex.get(order[index]) as number
+  // Out from an end station: halfway along the lane to the next one, else a little past it, away from the stretch.
+  const beyond = (end: number, next: number, inward: Point): Point => {
+    if (next >= 0 && next < order.length) return halfwayAlong(line.vertices, at(end), at(next))
+    const p = line.vertices[at(end)]
+    return { x: p.x, y: p.y + (p.y >= inward.y ? END_STATION_ROOM : -END_STATION_ROOM) }
+  }
+  const framed =
+    vertices.length === 0
+      ? []
+      : [beyond(first, first - 1, vertices[vertices.length - 1]), ...vertices, beyond(last, last + 1, vertices[0])]
   return {
-    vertices: lineVerticesBetween(line, order[first], order[last]),
+    vertices,
+    framed,
     stationIds: order.slice(first, last + 1),
     before: order.slice(0, first).reverse(),
     after: order.slice(last + 1),

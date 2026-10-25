@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
-import { RAIL_MAP_EXIT_INSET, RailMap, railMapSectionHeight } from "@/components/rail-map"
+import { RailMap, railMapSectionHeight } from "@/components/rail-map"
 import { translate } from "@/i18n"
 import { stationName } from "@/data/stations"
 import { getRailLine } from "@/data/rail-lines"
@@ -42,8 +42,6 @@ const exitLabel = (beyond: string[], framed: string[]): string | undefined => {
   return beyond.length > 0 ? stationName(beyond[beyond.length - 1]) : undefined
 }
 
-const EXIT_INSETS = { top: RAIL_MAP_EXIT_INSET, bottom: RAIL_MAP_EXIT_INSET }
-
 type DisruptionMapProps = {
   lineId: string
   disruption: Disruption
@@ -61,10 +59,7 @@ export function DisruptionMap({ lineId, disruption }: DisruptionMapProps) {
   if (!line || !disruption.section) return null
 
   const dayType = dayTypeForLine(line.id)
-  const height = railMapSectionHeight(dayType, line.id, disruption.section, width, {
-    ...MAP_HEIGHT,
-    insets: EXIT_INSETS.top + EXIT_INSETS.bottom,
-  })
+  const height = railMapSectionHeight(dayType, line.id, disruption.section, width, MAP_HEIGHT)
   // Only this disruption is drawn: the map gets a status with this line, and this alone on it.
   const status = { lines: [{ lineId: line.id, disruptions: [disruption] }] }
   return (
@@ -82,7 +77,6 @@ export function DisruptionMap({ lineId, disruption }: DisruptionMapProps) {
           selectedLineId={line.id}
           focusSection={disruption.section}
           sectionExitLabel={exitLabel}
-          insets={EXIT_INSETS}
           interactive={false}
           style={styles.map}
         />
