@@ -1,8 +1,8 @@
 /**
  * station-info.ts — a station's page from the Israel Railways API, cleaned up.
  *
- * `GetStationInformation` is the endpoint the app's old "station hours" sheet read.
- * It answers with the station page as the site renders it: every entrance with its
+ * `GetStationInformationPost` (the GET `GetStationInformation` the app's old "station
+ * hours" sheet read, until October 2026) answers with the station page as the site renders it: every entrance with its
  * gate hours plus those of the ticket office and the customer-service desk (numbered
  * activity types, replace-texts like "24 hours" and "Closed" in the page's language),
  * the facilities at each, notices and parking. This
@@ -247,12 +247,14 @@ export const normalizeStationInfo = (
 
 /** The station's page from the API, or null when the API does not know the station. */
 export const fetchStationInfo = async (stationId: string, locale: StationInfoLocale): Promise<StationInfo | null> => {
-  const response = await railApiFetch(
-    `/common/api/v1/Stations/GetStationInformation?LanguageId=${railApiLocales[locale]}&StationId=${stationId}&SystemType=1`,
-    { retries: 2 },
-  )
+  // The page moved to a POST taking JSON in October 2026; the GET version now answers 404.
+  const response = await railApiFetch("/common/api/v1/Stations/GetStationInformationPost", {
+    method: "POST",
+    body: JSON.stringify({ LanguageId: railApiLocales[locale], SystemType: 2, StationId: Number(stationId) }),
+    retries: 2,
+  })
   if (response.status === 404) return null
-  if (!response.ok) throw new Error(`GetStationInformation ${stationId}/${locale}: HTTP ${response.status}`)
+  if (!response.ok) throw new Error(`GetStationInformationPost ${stationId}/${locale}: HTTP ${response.status}`)
   const body = (await response.json()) as RailEnvelope
   // An unknown station comes back as a page with no details.
   if (!body.result || !body.result.stationDetails || !body.result.stationDetails.stationName) return null
