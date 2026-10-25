@@ -6,6 +6,7 @@ import type { StationCardBadge } from "@/components/station-card/station-card"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
 import { spacing } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
@@ -56,6 +57,9 @@ export function SelectStationScreen() {
   const saveRecentSearch = useRecentSearchesStore((s) => s.save)
   const recentSearchEntries = useRecentSearchesStore((s) => s.entries)
   const favoriteRoutesData = useFavoritesStore((s) => s.routes)
+  // Over the planner on iPhone Duo's open display or an iPad, the favorite routes are already in the pane beside it
+  // (see SidePane); over the route list, the pane shows the trip instead.
+  const isFavoritesBeside = useSplitViewStore((s) => Platform.OS === "ios" && !s.isCollapsed && !s.isRouteListMounted)
   const [searchTerm, setSearchTerm] = useState("")
   const [replacingStationId, setReplacingStationId] = useState<string>()
   const queryClient = useQueryClient()
@@ -160,7 +164,11 @@ export function SelectStationScreen() {
       {/* The bar's background spans the full width; its search field and close button stay clear of the side bars. */}
       <View style={[styles.searchBarWrapper, sideInsetPadding(insets, I18nManager.isRTL, spacing[3])]}>
         {!allowedStations && (
-          <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
+          <SearchInput
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            autoFocus={isFavoritesBeside || favoriteRoutesData.length < 2}
+          />
         )}
         <Pressable
           testID="cancel-station-selection"
@@ -214,7 +222,7 @@ export function SelectStationScreen() {
             allowedStations ? null : (
               <View>
                 <RecentSearchesBox selectionType={selectionType} />
-                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+                {!isFavoritesBeside && recentSearchEntries.length > 1 && <FavoriteRoutes />}
               </View>
             )
           }
