@@ -11,6 +11,8 @@ const iOSTitleStyle: TextStyle = {
   fontFamily: typography.primary,
   fontWeight: "400",
   marginRight: 10,
+  // Not the tint colour: that is for the buttons.
+  color: color.text as unknown as string,
 }
 
 /** A link straight to a line or a station (a banner, a push) still gets the list of lines beneath it to go back to. */
@@ -30,6 +32,7 @@ export default function ServiceStatusLayout() {
         headerTitleStyle: iOSTitleStyle,
         headerBackButtonDisplayMode: "minimal",
         headerBackButtonMenuEnabled: false,
+        headerShadowVisible: false,
       }}
     >
       <Stack.Screen

@@ -49,6 +49,8 @@
     "tbd": "לא ידוע"
   },
   "routes": {
+    "aboutOrigin": "מידע על תחנת המוצא",
+    "aboutDestination": "מידע על תחנת היעד",
     "departure": "יציאה",
     "arrival": "הגעה",
     "noChange": "ללא החלפות",
@@ -432,6 +434,7 @@
     "liveUnavailable": "נתוני זמן אמת אינם זמינים כרגע",
     "otherLines": "שאר הקווים",
     "allLines": "כל הקווים",
+    "yourLines": "הקווים שלך",
     "lineDetails": "פרטי הקו",
     "allLinesGood": "שירות תקין בכל הקווים",
     "disruptedLine": "שיבוש בקו אחד",

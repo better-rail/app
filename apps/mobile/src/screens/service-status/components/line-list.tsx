@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native-unistyles"
 import { useNetworkState } from "expo-network"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
-import { RAIL_LINES } from "@/data/rail-lines"
 import {
   compareServiceStatusLevels,
   isDisruptedLevel,
@@ -12,11 +11,10 @@ import {
   type ServiceStatusSnapshot,
 } from "@/services/api"
 import { RouteListError } from "@/screens/route-list/components/route-list-error"
-import { BAR_WIDTH, LineStatusRow } from "./line-status-row"
-import { LiveIndicator } from "./live-indicator"
+import { LineStatusRow } from "./line-status-row"
 import { StatusError } from "./status-error"
 import { levelLabel } from "../service-status-text"
-import { contrastText, tinted, useStatusLevelColor } from "../service-status-theme"
+import { tinted, useStatusLevelColor } from "../service-status-theme"
 import { useServiceStatus } from "../use-service-status"
 
 /**
@@ -26,6 +24,7 @@ import { useServiceStatus } from "../use-service-status"
 const GROUPED_LEVELS: ServiceStatusLevel[] = ["goodService", "unknown"]
 
 const CHECKMARK_ICON = require("../../../../assets/checkmark.png")
+const CLOCK_ICON = require("../../../../assets/clock-ios.png")
 
 type LineListProps = {
   /** The rider's own lines (the route planned, the favourites), brought up first in this order. */
@@ -34,9 +33,9 @@ type LineListProps = {
 }
 
 /**
- * Every line's status, as TfL Go lays it out: a headline for the whole network, the rider's own lines
- * first, then the disrupted ones on full-width rows, worst first, and a band in the level's colour for
- * the rest. With nothing disrupted there is no "rest" to band together: every running line gets a row.
+ * Every line's status in grouped cards: a headline card for the whole network, the rider's own lines
+ * first, then the disrupted ones, worst first, and one row summing up the rest. With nothing disrupted
+ * there is no "rest" to sum up: every running line gets a row.
  */
 export function LineList({ userLineIds, onSelectLine }: LineListProps) {
   const { isInternetReachable } = useNetworkState()
@@ -46,13 +45,8 @@ export function LineList({ userLineIds, onSelectLine }: LineListProps) {
   const mine = userLineIds.map((id) => lines.find((l) => l.lineId === id)).filter((l): l is LineStatus => !!l)
   const others = lines.filter((l) => !userLineIds.includes(l.lineId))
   const disrupted = others.filter((l) => isDisruptedLevel(l.level)).sort((a, b) => compareServiceStatusLevels(b.level, a.level))
-  const running = others.filter((l) => GROUPED_LEVELS.includes(l.level)).sort((a, b) => catalogueIndex(a) - catalogueIndex(b))
-  const grouped = GROUPED_LEVELS.filter((level) => running.some((l) => l.level === level))
-  const anyDisrupted = lines.some((l) => isDisruptedLevel(l.level))
   // Nothing runs right now (the small hours, the weekend): say so, instead of an empty list.
   const nothingRunning = data !== undefined && !lines.some((l) => isDisruptedLevel(l.level) || GROUPED_LEVELS.includes(l.level))
-  // Nothing is wrong: a word saying so, and every running line on a row of its own rather than one band.
-  const allClear = data !== undefined && !anyDisrupted && !nothingRunning
 
   return (
     <View style={styles.list} testID="service-status-list">
@@ -63,36 +57,44 @@ export function LineList({ userLineIds, onSelectLine }: LineListProps) {
       {data && <NetworkHeadline snapshot={data} nothingRunning={nothingRunning} />}
 
       {mine.length > 0 && (
-        <View style={styles.mine} testID="service-status-user-lines">
-          {mine.map((line) => (
+        <Section title={translate("serviceStatus.yourLines") ?? ""} testID="service-status-user-lines">
+          {mine.map((line, index) => (
             <LineStatusRow
               key={line.lineId}
               status={line}
-              compact={!isDisruptedLevel(line.level)}
+              compact={line.level === "unknown"}
+              last={index === mine.length - 1}
               onPress={() => onSelectLine(line.lineId)}
             />
           ))}
-        </View>
+        </Section>
       )}
 
-      {disrupted.map((line) => (
-        <LineStatusRow key={line.lineId} status={line} onPress={() => onSelectLine(line.lineId)} />
-      ))}
-
-      {anyDisrupted && grouped.map((level) => <LevelBand key={level} level={level} />)}
-
-      {allClear &&
-        running.map((line) => (
-          <LineStatusRow key={line.lineId} status={line} compact onPress={() => onSelectLine(line.lineId)} />
-        ))}
+      {/* Lines running well are left out: the headline already says the rest are fine. */}
+      {disrupted.length > 0 && (
+        <Section title={(mine.length > 0 ? translate("serviceStatus.otherLines") : translate("serviceStatus.allLines")) ?? ""}>
+          {disrupted.map((line, index) => (
+            <LineStatusRow
+              key={line.lineId}
+              status={line}
+              last={index === disrupted.length - 1}
+              onPress={() => onSelectLine(line.lineId)}
+            />
+          ))}
+        </Section>
+      )}
     </View>
   )
 }
 
-/** Where the line sits in the catalogue, so a list of lines keeps the map's order. */
-const catalogueIndex = (status: LineStatus): number => {
-  const index = RAIL_LINES.findIndex((line) => line.id === status.lineId)
-  return index === -1 ? RAIL_LINES.length : index
+/** A heading over a rounded card of rows, as iOS groups a settings list. */
+function Section({ title, testID, children }: { title: string; testID?: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.section} testID={testID}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.card}>{children}</View>
+    </View>
+  )
 }
 
 /** "212 trains running", when any are. */
@@ -154,39 +156,38 @@ type NetworkSummaryProps = {
   realtime: ServiceStatusSnapshot["realtime"]
 }
 
-/** The headline: a check (or a dot) in the level's colour, a few words, and how live the data is. */
+/**
+ * The headline card: a check (or a clock, when only the timetable is known) in the level's colour,
+ * a few words, the trains running, and how live that is.
+ */
 function NetworkSummary({ level, title, detail, realtime }: NetworkSummaryProps) {
   const levelColor = useStatusLevelColor(level)
+  const liveColor = useStatusLevelColor("goodService")
+  // With no live data the title already says so; the line under it says where the numbers come from.
+  const source = realtime.available
+    ? translate("serviceStatus.live")
+    : level === "unknown"
+      ? translate("serviceStatus.fromTimetable")
+      : translate("serviceStatus.liveUnavailable")
   return (
-    <View style={styles.summary} testID={`service-status-summary-${level}`}>
+    <View style={[styles.card, styles.summary]} testID={`service-status-summary-${level}`}>
       <View style={[styles.summaryBadge, { backgroundColor: tinted(levelColor) }]}>
         {level === "goodService" ? (
-          <Image source={CHECKMARK_ICON} style={[styles.summaryCheck, { tintColor: levelColor }]} />
+          <Image source={CHECKMARK_ICON} style={[styles.summaryIcon, { tintColor: levelColor }]} />
+        ) : level === "unknown" ? (
+          <Image source={CLOCK_ICON} style={[styles.summaryIcon, { tintColor: levelColor }]} />
         ) : (
           <View style={[styles.summaryDot, { backgroundColor: levelColor }]} />
         )}
       </View>
       <View style={styles.summaryTexts}>
         <Text style={styles.summaryTitle}>{title}</Text>
-        {detail && (
-          <Text style={styles.summaryDetail} preset="small">
-            {detail}
-          </Text>
-        )}
-        <LiveIndicator realtime={realtime} />
+        {detail && <Text style={styles.summaryDetail}>{detail}</Text>}
+        <View style={styles.source}>
+          {realtime.available && <View style={[styles.liveDot, { backgroundColor: liveColor }]} />}
+          <Text style={styles.sourceText}>{source}</Text>
+        </View>
       </View>
-    </View>
-  )
-}
-
-/** TfL Go's "Other lines — Good service" band: the level the rest of the lines share, on its colour. */
-function LevelBand({ level }: { level: ServiceStatusLevel }) {
-  const levelColor = useStatusLevelColor(level)
-  const ink = { color: contrastText(levelColor) }
-  return (
-    <View style={[styles.band, { backgroundColor: levelColor }]} testID={`service-status-group-${level}`}>
-      <Text style={[styles.bandTitle, ink]} tx="serviceStatus.otherLines" />
-      <Text style={[styles.bandLevel, ink]}>{levelLabel(level)}</Text>
     </View>
   )
 }
@@ -194,66 +195,76 @@ function LevelBand({ level }: { level: ServiceStatusLevel }) {
 const styles = StyleSheet.create((theme) => ({
   list: {
     flex: 1,
+    paddingHorizontal: theme.spacing[4],
+    paddingTop: theme.spacing[3],
+    gap: theme.spacing[5],
   },
   loader: {
     marginVertical: theme.spacing[5],
   },
-  // The rider's own lines stand a little apart from the rest of the board.
-  mine: {
-    marginBottom: theme.spacing[4],
-    borderBottomWidth: theme.spacing[1],
-    borderBottomColor: theme.colors.separator,
+  card: {
+    backgroundColor: theme.colors.secondaryBackground,
+    borderRadius: 18,
+    borderCurve: "continuous",
+    overflow: "hidden",
   },
-  band: {
-    // The text lines up with the rows', past their colour bars.
-    paddingStart: BAR_WIDTH + theme.spacing[4],
-    paddingEnd: theme.spacing[4],
-    paddingVertical: theme.spacing[5],
-    gap: theme.spacing[1],
+  section: {
+    gap: theme.spacing[2],
   },
-  bandTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  bandLevel: {
-    fontSize: 16,
+  sectionTitle: {
+    paddingHorizontal: theme.spacing[4],
+    fontSize: 13,
+    fontWeight: "600",
+    color: theme.colors.label,
   },
   summary: {
     flexDirection: "row",
     alignItems: "center",
-    gap: theme.spacing[3],
-    paddingStart: BAR_WIDTH + theme.spacing[4],
-    paddingEnd: theme.spacing[4],
-    paddingTop: theme.spacing[4],
-    paddingBottom: theme.spacing[3],
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.separator,
+    gap: theme.spacing[4],
+    padding: theme.spacing[4],
   },
   summaryBadge: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: "center",
     justifyContent: "center",
   },
-  summaryCheck: {
-    width: 18,
-    height: 18,
+  summaryIcon: {
+    width: 22,
+    height: 22,
   },
   summaryDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
   summaryTexts: {
     flex: 1,
     gap: 2,
   },
   summaryTitle: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "700",
   },
   summaryDetail: {
+    fontSize: 15,
+    color: theme.colors.text,
+  },
+  source: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 2,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  sourceText: {
+    flexShrink: 1,
+    fontSize: 13,
     color: theme.colors.label,
   },
 }))

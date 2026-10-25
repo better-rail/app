@@ -48,6 +48,8 @@
     "tbd": "неизвестно"
   },
   "routes": {
+    "aboutOrigin": "О станции отправления",
+    "aboutDestination": "О станции назначения",
     "departure": "Отправление",
     "arrival": "Прибытие",
     "noChange": "Без пересадок",
@@ -348,6 +350,7 @@
     "liveUnavailable": "Данные в реальном времени сейчас недоступны",
     "otherLines": "Остальные линии",
     "allLines": "Все линии",
+    "yourLines": "Ваши линии",
     "lineDetails": "Сведения о линии",
     "allLinesGood": "Все линии работают в штатном режиме",
     "disruptedLine": "Сбой на 1 линии",

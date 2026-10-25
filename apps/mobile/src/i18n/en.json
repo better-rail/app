@@ -49,6 +49,8 @@
     "tbd": "TBD"
   },
   "routes": {
+    "aboutOrigin": "About origin station",
+    "aboutDestination": "About destination station",
     "departure": "Departure",
     "arrival": "Arrival",
     "noChange": "Direct",
@@ -430,6 +432,7 @@
     "liveUnavailable": "Live data is currently unavailable",
     "otherLines": "Other lines",
     "allLines": "All lines",
+    "yourLines": "Your lines",
     "lineDetails": "Line details",
     "allLinesGood": "Good service on all lines",
     "disruptedLine": "Disruption on 1 line",

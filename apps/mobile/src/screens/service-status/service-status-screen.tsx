@@ -58,7 +58,8 @@ export function ServiceStatusScreen() {
 const styles = StyleSheet.create((theme, rt) => ({
   root: {
     flex: 1,
-    backgroundColor: theme.colors.secondaryBackground,
+    // Grey, so the cards on it stand out as they do in iOS's grouped lists.
+    backgroundColor: theme.colors.background,
   },
   content: {
     flexGrow: 1,
