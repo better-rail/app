@@ -85,16 +85,21 @@ class FakeDiscord extends DiscordApi {
     if (method === "POST" && threadMatch) {
       const parentId = threadMatch[1]
       const threadId = String(1548800000000000000n + this.threadCounter++)
-      const b = body as { name: string; type: number }
+      const b = body as { name: string; type?: number; applied_tags?: string[]; message?: { content: string } }
       const channel: DiscordChannel = {
         id: threadId,
         guild_id: guildId,
         parent_id: parentId,
         name: b.name,
-        type: b.type,
+        type: b.type ?? 11,
         permission_overwrites: [],
+        applied_tags: b.applied_tags,
       }
       this.channels.set(threadId, channel)
+      if (b.message) {
+        const author = { id: applicationId, username: "The Conductor", bot: true }
+        this.messages.set(threadId, [{ id: threadId, channel_id: threadId, content: b.message.content, author }])
+      }
       return channel as T
     }
 
@@ -505,8 +510,23 @@ function signedResendRequest(payload: unknown, secret: string, timestamp = Strin
   })
 }
 
-function createEmailBridge(cfg = emailConfig) {
+const statusTagIds = { open: "1548800000000002001", replied: "1548800000000002002", resolved: "1548800000000002003" }
+
+function createEmailBridge(cfg = emailConfig, feedbackType = 0) {
   const discord = new FakeDiscord()
+  discord.channels.set(feedbackChannelId, {
+    id: feedbackChannelId,
+    guild_id: guildId,
+    name: "email-feedback",
+    type: feedbackType,
+    permission_overwrites: [],
+    available_tags: [
+      { id: "1548800000000002000", name: "Bug" },
+      { id: statusTagIds.open, name: "Open" },
+      { id: statusTagIds.replied, name: "replied" },
+      { id: statusTagIds.resolved, name: "Resolved" },
+    ],
+  })
   const resend = new FakeResend()
   const bridge = new EmailBridge(cfg, discord, resend)
   const handler = createHandler(cfg, discord, new OnboardingRoles(cfg, discord), resend, bridge)
@@ -929,5 +949,63 @@ describe("resend email bridge", () => {
     const longResponse = await waitForResponse(discord, 5)
     expect(longResponse.content.length).toBeLessThanOrEqual(2000)
     expect(longResponse.content).toContain("...")
+  })
+
+  test("forum posts track Open, Replied and Resolved through the email flow", async () => {
+    const { discord, resend, handler, bridge } = createEmailBridge(emailConfig, 15)
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_forum",
+      from: "Noa <noa@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Widget is blank",
+      text: "The widget shows nothing.",
+      message_id: "<noa-1@example.com>",
+    })
+    const thread = discord.channels.get(threadId)!
+    expect(thread.applied_tags).toEqual([statusTagIds.open])
+    // The starter message is part of the post, so the thread holds just the one message
+    expect(discord.messages.get(threadId)).toHaveLength(1)
+    expect(discord.messages.get(threadId)![0].id).toBe(threadId)
+
+    thread.applied_tags = [statusTagIds.open, "1548800000000002000"]
+    await handler(signedRequest(replyCommand(threadId, "Fixed in 3.2", "cmd_forum_reply")))
+    expect((await waitForResponse(discord)).content).toContain("noa@example.com")
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<noa-1@example.com>")
+    expect(thread.applied_tags).toEqual([statusTagIds.replied, "1548800000000002000"])
+
+    const resolve = { ...replyCommand(threadId, "", "cmd_forum_resolve"), data: { name: "resolve" } }
+    expect(await (await handler(signedRequest(resolve))).json()).toEqual({ type: 5 })
+    expect((await waitForResponse(discord, 2)).content).toContain("Resolved")
+    for (let attempt = 0; !thread.thread_metadata?.archived && attempt < 100; attempt++) await Bun.sleep(5)
+    expect(thread.applied_tags).toEqual([statusTagIds.resolved, "1548800000000002000"])
+    expect(thread.thread_metadata?.archived).toBe(true)
+
+    await bridge.handleInboundEmail({
+      id: "email_forum_2",
+      from: "noa@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: `Re: Widget is blank [#${threadId}]`,
+      text: "It's back.",
+    })
+    expect(thread.thread_metadata?.archived).toBe(false)
+    expect(thread.applied_tags).toEqual([statusTagIds.open, "1548800000000002000"])
+  })
+
+  test("text-channel threads get no status, and /resolve needs staff permission", async () => {
+    const { discord, handler, bridge } = createEmailBridge()
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_text",
+      from: "dan@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Hi",
+      text: "Hello",
+    })
+    const thread = discord.channels.get(threadId)!
+    expect(thread.applied_tags).toBeUndefined()
+
+    const unprivileged = { ...replyCommand(threadId, "", "cmd_resolve_noperm", "0"), data: { name: "resolve" } }
+    await handler(signedRequest(unprivileged))
+    expect((await waitForResponse(discord)).content).toContain("do not have permission to use `/resolve`")
+    expect(thread.thread_metadata?.archived).toBeUndefined()
   })
 })

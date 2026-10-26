@@ -1,6 +1,7 @@
 import { concatBytes } from "./bytes"
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
+import { type FeedbackStatus, FORUM_CHANNEL, statusTags } from "./feedback-status"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
 import { enforceRfcLineLength, formatEmailHtml } from "./templates/reply"
 
@@ -321,6 +322,7 @@ export class EmailBridge {
             if (channel.thread_metadata?.archived) {
               await this.discordApi.call("PATCH", `/channels/${candidateThreadId}`, { archived: false }).catch(() => {})
             }
+            await this.setStatus(channel, "open")
           } else {
             console.warn(
               `Conductor: sender mismatch for thread ${candidateThreadId} (original: ${originalSender}, received: ${currentSender}), opening a new thread instead`,
@@ -332,18 +334,6 @@ export class EmailBridge {
       }
     }
 
-    if (!targetThreadId) {
-      const subjectClean = (email.subject || "Email Feedback").trim().replace(/[\r\n]+/g, " ")
-      const threadTitle = subjectClean.slice(0, 100) || "Email Feedback"
-
-      const newThread = await this.discordApi.call<DiscordChannel>("POST", `/channels/${feedbackChannelId}/threads`, {
-        name: threadTitle,
-        type: 11, // PUBLIC_THREAD
-        auto_archive_duration: 10080, // 7 days
-      })
-      targetThreadId = newThread.id
-    }
-
     const bodyContent = cleanQuotedReply(rawBody) || "(No message body)"
     const parsed = chunkEmailBody(bodyContent)
     // The attachment is the raw body, before quoted-footer cleanup
@@ -353,23 +343,30 @@ export class EmailBridge {
     const messageId = extractEmailMessageId(email)
     const header = formatEmailHeader(email.from, email.subject, isFollowUp, messageId)
 
-    if (chunks.length === 1 && !overflowFile && (header + "\n" + chunks[0]).length <= 1900) {
-      await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
-        content: `${header}\n${chunks[0]}`,
-        allowed_mentions: { parse: [] },
+    const contents =
+      chunks.length === 1 && !overflowFile && (header + "\n" + chunks[0]).length <= 1900
+        ? [`${header}\n${chunks[0]}`]
+        : [header, ...chunks.map((chunk, i) => (chunks.length > 1 ? `*(${i + 1}/${chunks.length})*\n` : "") + chunk)]
+    let messages = contents.map((content) => ({ content, allowed_mentions: { parse: [] } }))
+
+    if (!targetThreadId) {
+      const subjectClean = (email.subject || "Email Feedback").trim().replace(/[\r\n]+/g, " ")
+      const threadTitle = subjectClean.slice(0, 100) || "Email Feedback"
+      const feedbackChannel = await this.discordApi.call<DiscordChannel>("GET", `/channels/${feedbackChannelId}`)
+      const isForum = feedbackChannel.type === FORUM_CHANNEL
+
+      const newThread = await this.discordApi.call<DiscordChannel>("POST", `/channels/${feedbackChannelId}/threads`, {
+        name: threadTitle,
+        auto_archive_duration: 10080, // 7 days
+        // A forum post is created with its first message and can carry the status tag; elsewhere it's a PUBLIC_THREAD
+        ...(isForum ? { message: messages[0], applied_tags: statusTags(feedbackChannel, [], "open") ?? [] } : { type: 11 }),
       })
-    } else {
-      await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
-        content: header,
-        allowed_mentions: { parse: [] },
-      })
-      for (let i = 0; i < chunks.length; i++) {
-        const prefix = chunks.length > 1 ? `*(${i + 1}/${chunks.length})*\n` : ""
-        await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, {
-          content: `${prefix}${chunks[i]}`,
-          allowed_mentions: { parse: [] },
-        })
-      }
+      targetThreadId = newThread.id
+      if (isForum) messages = messages.slice(1)
+    }
+
+    for (const message of messages) {
+      await this.discordApi.call("POST", `/channels/${targetThreadId}/messages`, message)
     }
 
     if (overflowFile) {
@@ -419,25 +416,34 @@ export class EmailBridge {
     return { threadId: targetThreadId, created: !isFollowUp }
   }
 
-  async handleReplyCommand(interaction: SlashCommandInteraction): Promise<{ success: boolean; message: string }> {
+  /** The #email-feedback thread the command runs in, or why it can't run there. */
+  private async feedbackThread(interaction: SlashCommandInteraction): Promise<DiscordChannel | string> {
+    const command = `/${interaction.data?.name ?? "reply"}`
     const channelId = interaction.channel_id
     const feedbackChannelId = this.config.emailFeedbackChannelId
 
     if (!channelId || !feedbackChannelId) {
-      return { success: false, message: "Configuration error: channel missing." }
+      return "Configuration error: channel missing."
     }
 
     const channel = await this.discordApi.call<DiscordChannel>("GET", `/channels/${channelId}`).catch(() => undefined)
     if (!channel || channel.parent_id !== feedbackChannelId) {
-      return { success: false, message: "`/reply` can only be used inside an #email-feedback thread." }
+      return `\`${command}\` can only be used inside an #email-feedback thread.`
     }
 
     const perms = BigInt(interaction.member?.permissions || "0")
     const MANAGE_MESSAGES = 1n << 13n
     const ADMINISTRATOR = 1n << 3n
     if ((perms & MANAGE_MESSAGES) === 0n && (perms & ADMINISTRATOR) === 0n) {
-      return { success: false, message: "You do not have permission to use `/reply`." }
+      return `You do not have permission to use \`${command}\`.`
     }
+    return channel
+  }
+
+  async handleReplyCommand(interaction: SlashCommandInteraction): Promise<{ success: boolean; message: string }> {
+    const channel = await this.feedbackThread(interaction)
+    if (typeof channel === "string") return { success: false, message: channel }
+    const channelId = channel.id
 
     const messageOption = interaction.data?.options?.find((opt) => opt.name === "message")?.value
     const replyText = typeof messageOption === "string" ? messageOption.trim() : ""
@@ -477,6 +483,7 @@ export class EmailBridge {
       reply_to: `feedback+${channelId}@better-rail.co.il`,
       headers,
     })
+    await this.setStatus(channel, "replied")
 
     const senderName = interaction.member?.user?.username || "A team member"
     const quoted = replyText.replace(/\n/g, "\n> ")
@@ -488,9 +495,36 @@ export class EmailBridge {
     }
   }
 
+  async handleResolveCommand(interaction: SlashCommandInteraction): Promise<{ success: boolean; message: string }> {
+    const channel = await this.feedbackThread(interaction)
+    if (typeof channel === "string") return { success: false, message: channel }
+    await this.setStatus(channel, "resolved")
+    const senderName = interaction.member?.user?.username || "A team member"
+    return { success: true, message: `✅ **Resolved** by **${senderName}**.` }
+  }
+
+  // Only forum posts carry a status; a failure is logged and never blocks the email flow.
+  private async setStatus(thread: DiscordChannel, status: FeedbackStatus) {
+    try {
+      const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`)
+      if (forum.type !== FORUM_CHANNEL) return
+      const applied = thread.applied_tags ?? []
+      const tags = statusTags(forum, applied, status)
+      if (!tags) {
+        console.warn(`Conductor: the feedback forum has no "${status}" status tag; run setup to add it`)
+        return
+      }
+      if (tags.length === applied.length && tags.every((id) => applied.includes(id))) return
+      await this.discordApi.call("PATCH", `/channels/${thread.id}`, { applied_tags: tags })
+    } catch (err) {
+      console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, (err as Error).message)
+    }
+  }
+
   private async findStarterEmail(threadId: string): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {
     const starterMessages = await this.discordApi
-      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${threadId}&limit=1`)
+      // A forum post's starter message shares the thread's ID; in a text channel the first message comes after it.
+      .call<DiscordMessage[]>("GET", `/channels/${threadId}/messages?after=${BigInt(threadId) - 1n}&limit=1`)
       .catch(() => [] as DiscordMessage[])
 
     const starterMsg = starterMessages[0]

@@ -5,9 +5,23 @@ Discord bot that handles:
 1. Community onboarding: assigns `ios` or `android` roles from welcome buttons.
 2. Email feedback bridge: routes incoming customer emails to `#email-feedback` Discord threads and sends outbound replies via `/reply` through Resend.
 
+## Feedback status
+
+When `#email-feedback` is a Forum channel, every post carries a status tag:
+
+| Status   | Set when                                            |
+| -------- | --------------------------------------------------- |
+| Open     | A new email arrives, or the customer follows up     |
+| Replied  | Someone answers with `/reply`                       |
+| Resolved | Someone runs `/resolve`, which also closes the post |
+
+Tags are matched by name (`Open`, `Replied`, `Resolved`), and other tags on a post are left alone. `bun run setup` adds
+any that are missing, which needs Manage Channels; otherwise add them in the forum's settings. Threads in a plain text
+channel work as before, without a status.
+
 ## Setup
 
-1. Fill `.env` from `.env.example` and run `bun run setup` (provisions flair roles, posts welcome picker, and registers `/reply` command).
+1. Fill `.env` from `.env.example` and run `bun run setup` (provisions flair roles, posts welcome picker, registers the `/reply` and `/resolve` commands, and adds the forum's status tags).
 2. Copy `platformRoles` from `.conductor-setup.json` to `DISCORD_PLATFORM_ROLES`.
 3. Set the Interactions Endpoint URL in the Discord Developer Portal to `https://<worker-url>/discord/interactions` so `/reply` reaches the bot.
 4. Set Resend inbound webhook in the Resend dashboard to `https://<worker-url>/resend/webhook` listening for `email.received`.

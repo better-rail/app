@@ -71,26 +71,37 @@ export function createHandler(
       })
   }
 
-  async function finishReply(interaction: SlashCommandInteraction) {
+  async function finishEmailCommand(interaction: SlashCommandInteraction) {
+    const command = interaction.data?.name === "resolve" ? "resolve" : "reply"
     try {
-      const result = await emailBridge.handleReplyCommand(interaction)
+      const result =
+        command === "resolve"
+          ? await emailBridge.handleResolveCommand(interaction)
+          : await emailBridge.handleReplyCommand(interaction)
       await api.call(
         "PATCH",
         `/webhooks/${config.applicationId}/${interaction.token}/messages/@original`,
         { content: result.message, allowed_mentions: { parse: [] } },
         false,
       )
+      // Archive only after responding, since an archived thread rejects the response edit.
+      if (command === "resolve" && result.success) {
+        await api.call("PATCH", `/channels/${interaction.channel_id}`, { archived: true })
+      }
     } catch (error) {
-      console.error("Conductor: reply command failed:", (error as Error).message)
+      console.error(`Conductor: ${command} command failed:`, (error as Error).message)
       Sentry.captureException(error, {
-        tags: { command: "reply" },
-        fingerprint: ["reply-command", (error as Error).message],
+        tags: { command },
+        fingerprint: [`${command}-command`, (error as Error).message],
       })
       await api
         .call(
           "PATCH",
           `/webhooks/${config.applicationId}/${interaction.token}/messages/@original`,
-          { content: `Failed to send reply: ${(error as Error).message}`, allowed_mentions: { parse: [] } },
+          {
+            content: `Failed to ${command === "resolve" ? "resolve" : "send reply"}: ${(error as Error).message}`,
+            allowed_mentions: { parse: [] },
+          },
           false,
         )
         .catch(() => {})
@@ -163,7 +174,7 @@ export function createHandler(
     const duplicate = handled.get(interaction.id)
     if (duplicate) return Response.json(duplicate.result)
 
-    if (interaction.type === 2 && interaction.data?.name === "reply") {
+    if (interaction.type === 2 && (interaction.data?.name === "reply" || interaction.data?.name === "resolve")) {
       if (interaction.guild_id !== config.guildId) {
         return Response.json({
           type: 4,
@@ -173,7 +184,7 @@ export function createHandler(
 
       const result = { type: 5 }
       handled.set(interaction.id, { at: Date.now(), result })
-      background(finishReply(interaction))
+      background(finishEmailCommand(interaction))
       return Response.json(result)
     }
 
