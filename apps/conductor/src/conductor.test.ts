@@ -16,6 +16,7 @@ import {
   formatReplySubject,
   htmlToText,
 } from "./email-bridge"
+import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
 import worker from "./index"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
@@ -920,5 +921,30 @@ describe("resend email bridge", () => {
     expect((await waitForResponse(discord, 3)).content).toContain("do not have permission to use `/resolve`")
     expect(thread.applied_tags).toEqual([statusTagIds.open])
     expect(thread.thread_metadata?.archived).toBeUndefined()
+  })
+})
+
+describe("feedback status tags", () => {
+  const forum = (available_tags: DiscordChannel["available_tags"]) =>
+    ({ id: "forum", type: FORUM_CHANNEL, available_tags }) as DiscordChannel
+
+  test("recolors existing status tags and adds the missing ones, keeping other tags", () => {
+    const tags = syncedStatusTags(
+      forum([
+        { id: "1", name: "open", emoji_name: "📬" },
+        { id: "2", name: "Bug", emoji_name: "🐛" },
+      ]),
+    )
+    expect(tags).toEqual([
+      { id: "1", name: "open", emoji_id: null, emoji_name: "🔴" },
+      { id: "2", name: "Bug", emoji_name: "🐛" },
+      { name: "Replied", emoji_name: "🟡" },
+      { name: "Resolved", emoji_name: "🟢" },
+    ])
+  })
+
+  test("returns null once the forum is in sync", () => {
+    const synced = syncedStatusTags(forum([]))!.map((tag, i) => ({ id: String(i), ...tag }))
+    expect(syncedStatusTags(forum(synced))).toBeNull()
   })
 })
