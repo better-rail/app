@@ -144,4 +144,48 @@ export const config = {
   get sentryDsn() {
     return variable("SENTRY_DSN") ?? ""
   },
+
+  // --- service status ---------------------------------------------------------
+  /**
+   * Whether this deployment takes station alert / Delay Notifications subscriptions and
+   * watches them (src/alerts/alerts-do.ts). They push to real riders' devices, so like
+   * the rides it is on unless STATION_ALERTS_ENABLED=false (a Preview, a local run).
+   */
+  get stationAlertsEnabled() {
+    return variable("STATION_ALERTS_ENABLED") !== "false"
+  },
+  /** How often the subscribed stations and guarded trains are checked. */
+  get stationAlertsCheckSeconds() {
+    return num("STATION_ALERTS_CHECK_SECONDS", 60)
+  },
+  /**
+   * Israel Railways' published service updates → announced disruptions on the status screens,
+   * read by a Claude model whenever the feed changes (src/service-status/announcements.ts).
+   * Idle without ANTHROPIC_API_KEY.
+   */
+  get anthropicApiKey() {
+    return variable("ANTHROPIC_API_KEY") ?? ""
+  },
+  get anthropicModel() {
+    return variable("ANTHROPIC_MODEL") || "claude-opus-5-5"
+  },
+  /** Effort for the extraction ("low" … "max"); the model's default when empty. */
+  get anthropicEffort() {
+    return variable("ANTHROPIC_EFFORT") ?? "medium"
+  },
+  get announcementsPollSeconds() {
+    return num("ANNOUNCEMENTS_POLL_SECONDS", 300)
+  },
+  /** Israel Railways' own timetable compared with the GTFS schedule (src/service-status/timetable.ts). */
+  get timetableCheckSeconds() {
+    return num("TIMETABLE_CHECK_SECONDS", 300)
+  },
+  /** How far ahead (minutes of scheduled departure) the check looks. */
+  get timetableWindowMinutes() {
+    return num("TIMETABLE_WINDOW_MINUTES", 120)
+  },
+  /** A check older than this is not laid over the status (three poll cycles). */
+  get timetableStaleSeconds() {
+    return num("TIMETABLE_STALE_SECONDS", 900)
+  },
 }

@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
+import { openDelayGuardSheet } from "@/utils/helpers/delay-guard-helpers"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
@@ -153,6 +154,21 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     router.push("/filter")
   }
 
+  // The trip's two stations, each opening its card (status, next trains, entrances and hours).
+  const stationActions = [
+    { id: originId, title: translate("routes.aboutOrigin") },
+    { id: destinationId, title: translate("routes.aboutDestination") },
+  ]
+    .filter((station) => station.id)
+    .map((station) => ({
+      title: station.title,
+      systemIcon: "info.circle" as const,
+      onPress: () => {
+        trackEvent("route_station_info_opened", { stationId: String(station.id), source: screenName ?? "routeList" })
+        router.push({ pathname: "/station", params: { stationId: String(station.id) } })
+      },
+    }))
+
   const routeMenuActions = (() => {
     if (!routeItem) return []
     return createContextMenuActions(routeItem, originId, destinationId)
@@ -201,6 +217,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       systemIcon: "shekelsign.circle" as const,
       onPress: openFaresSheet,
     },
+    {
+      title: translate("delayGuard.title"),
+      systemIcon: "bell.badge" as const,
+      onPress: () => routeItem && openDelayGuardSheet(routeItem, "route_details"),
+    },
+    ...stationActions,
   ]
 
   const renderHeaderRight = () => {
@@ -225,6 +247,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         selected: isFilterActive,
         onPress: openFilterSheet,
       },
+      ...stationActions,
     ]
 
     return (
@@ -257,6 +280,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                       icon: { type: "sfSymbol", name: "ellipsis" },
                       accessibilityLabel: translate("routes.routeActions") ?? undefined,
                       menu: {
+                        // expo-router makes menus single-selection by default, which ticks the last item tapped.
+                        multiselectable: true,
                         items: routeDetailsActions.map((action) => ({
                           type: "action" as const,
                           label: action.title ?? "",
@@ -298,6 +323,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                       icon: { type: "sfSymbol", name: "ellipsis" },
                       accessibilityLabel: translate("routes.routeActions") ?? undefined,
                       menu: {
+                        multiselectable: true,
                         items: [
                           {
                             type: "action",
@@ -314,6 +340,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                             state: isFilterActive ? "on" : "off",
                             onPress: openFilterSheet,
                           },
+                          ...stationActions.map((action) => ({
+                            type: "action" as const,
+                            label: action.title ?? "",
+                            icon: { type: "sfSymbol" as const, name: action.systemIcon },
+                            onPress: action.onPress,
+                          })),
                         ],
                       },
                     },

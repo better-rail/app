@@ -41,7 +41,8 @@
     "node": ">=20"
   },
   "trustedDependencies": [
-    "protobufjs"
+    "protobufjs",
+    "react-native-skia"
   ],
   "patchedDependencies": {
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
@@ -53,6 +54,7 @@
     "react-native-date-picker@5.0.12": "patches/react-native-date-picker@5.0.12.patch",
     "expo-iap@5.5.0": "patches/expo-iap@5.5.0.patch",
     "expo-localization@58.0.4": "patches/expo-localization@58.0.4.patch",
+    "@bacons/apple-targets@4.0.7": "patches/@bacons%2Fapple-targets@4.0.7.patch",
     "react-native-nitro-modules@0.37.1": "patches/react-native-nitro-modules@0.37.1.patch",
     "@expo/ui@58.0.19": "patches/@expo%2Fui@58.0.19.patch"
   }

@@ -12,8 +12,10 @@ import { app } from "./app"
 import { bindRuntime, type Env } from "./runtime"
 import { sentryOptions } from "./sentry"
 import { runScheduled } from "./scheduled"
+import { AlertsDO as AlertsDOClass } from "./alerts/alerts-do"
 import { ApnsTokenDO as ApnsTokenDOClass } from "./push/apns-token-do"
 import { RideDO as RideDOClass } from "./rides/ride-do"
+import { ServiceStatusDO as ServiceStatusDOClass } from "./service-status/status-do"
 import { SiriPollerDO as SiriPollerDOClass } from "./siri/poller-do"
 import { IngestContainer as IngestContainerClass } from "./ingest/container"
 
@@ -45,4 +47,12 @@ export const ApnsTokenDO = Sentry.instrumentDurableObjectWithSentry(
 export const IngestContainer = Sentry.instrumentDurableObjectWithSentry(
   (env) => sentryOptions(env as Record<string, unknown>),
   IngestContainerClass,
+)
+export const ServiceStatusDO = Sentry.instrumentDurableObjectWithSentry(
+  (env) => sentryOptions(env as Record<string, unknown>),
+  ServiceStatusDOClass,
+)
+export const AlertsDO = Sentry.instrumentDurableObjectWithSentry(
+  (env) => sentryOptions(env as Record<string, unknown>),
+  AlertsDOClass,
 )

@@ -26,4 +26,18 @@ INGEST_TOKEN=
 SENTRY_DSN=
 # Off locally unless you mean to test rides against your own device (pushes go out!)
 RIDES_ENABLED=false
+# Station alerts and Delay Notifications: same opt-in as the rides (subscriptions are taken and
+# watched, and pushes go out to the subscribed devices)
+STATION_ALERTS_ENABLED=false
+STATION_ALERTS_CHECK_SECONDS=
+# The service-status gatherer: Israel Railways' service updates read into announced disruptions
+# by Claude (idle without ANTHROPIC_API_KEY), and their timetable compared with the GTFS schedule.
+# Both need RAIL_URL + RAIL_API_KEY.
+ANTHROPIC_API_KEY=
+ANTHROPIC_MODEL=
+ANTHROPIC_EFFORT=
+ANNOUNCEMENTS_POLL_SECONDS=
+TIMETABLE_CHECK_SECONDS=
+TIMETABLE_WINDOW_MINUTES=
+TIMETABLE_STALE_SECONDS=
 NODE_ENV=test

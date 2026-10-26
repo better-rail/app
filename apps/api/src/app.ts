@@ -13,6 +13,9 @@ import { rideRoutes } from "./routes/rides"
 import { faresRoutes } from "./routes/fares"
 import { siriDebugRoutes } from "./routes/siri-debug"
 import { internalRoutes } from "./routes/internal"
+import { serviceStatusRoutes } from "./routes/service-status"
+import { stationAlertsRoutes } from "./routes/station-alerts"
+import { delayGuardsRoutes } from "./routes/delay-guards"
 
 // Dynamic mode: Workers forbid code generation from strings (`new Function`), which
 // Elysia's ahead-of-time route compilation relies on.
@@ -31,4 +34,16 @@ export const app = new Elysia({ adapter: CloudflareAdapter, aot: false })
     return "Internal Server Error"
   })
   .get("/isAlive", () => "App is ready! 🚂")
-  .group("/api/v1", (api) => api.use(rideRoutes).use(faresRoutes).use(siriDebugRoutes).use(internalRoutes).use(railApiRoutes))
+  .group("/api/v1", (api) =>
+    api
+      .use(rideRoutes)
+      .use(faresRoutes)
+      .use(siriDebugRoutes)
+      .use(internalRoutes)
+      // Network health per line, station departures and station pages (read-only)
+      .use(serviceStatusRoutes)
+      // Push subscriptions: station alerts and Delay Notifications
+      .use(stationAlertsRoutes)
+      .use(delayGuardsRoutes)
+      .use(railApiRoutes),
+  )

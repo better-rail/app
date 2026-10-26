@@ -136,6 +136,26 @@ export const sendApnNotification = (deviceToken: string, aps: Record<string, unk
     body: { aps },
   })
 
+/**
+ * A plain alert push (the station alerts and Delay Notifications), which the system shows itself — as
+ * opposed to the Live Activity updates above. `data` sits beside `aps`, where apns2 placed it.
+ */
+export const sendApnAlert = (
+  deviceToken: string,
+  options: { alert: { title: string; body: string }; data: Record<string, string>; collapseId: string; sound?: string },
+) =>
+  post({
+    deviceToken,
+    pushType: "alert",
+    topic: config.appleBundleId,
+    priority: "immediate",
+    collapseId: options.collapseId,
+    body: {
+      aps: { alert: options.alert, sound: options.sound ?? "default", "thread-id": options.collapseId },
+      ...options.data,
+    },
+  })
+
 /** A visible push to the app's device token. The notification service extension moves the arrival alarm before it's shown. */
 export const sendApnAlarmNotification = (
   deviceToken: string,

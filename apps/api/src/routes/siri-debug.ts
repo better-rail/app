@@ -1,5 +1,6 @@
 /**
- * siri-debug.ts — token-guarded remote-debugging routes for the SIRI pipeline.
+ * siri-debug.ts — token-guarded remote-debugging routes for the SIRI pipeline
+ * and the service-status gatherer.
  *
  * The SIRI API is IP-allow-listed, so local machines can't call it; these
  * routes are how we inspect the deployed pipeline and capture real payloads as
@@ -12,8 +13,10 @@
  */
 import { Elysia } from "elysia"
 
+import { ALERTS_NAME } from "../alerts/alerts-do"
 import { config } from "../config"
 import { runtime } from "../runtime"
+import { STATUS_NAME } from "../service-status/state"
 import { POLLER_NAME } from "../siri/snapshot"
 import type { SiriSnapshot } from "../siri/types"
 import { createRateLimiter } from "../utils/rate-limiter"
@@ -21,6 +24,8 @@ import { notFound, rateLimited, safeEqual } from "./helpers"
 
 const limiter = createRateLimiter(60 * 1000, 30)
 const poller = () => runtime().SIRI.getByName(POLLER_NAME)
+const gatherer = () => runtime().STATUS.getByName(STATUS_NAME)
+const alerts = () => runtime().ALERTS.getByName(ALERTS_NAME)
 const jsonText = (text: string) => new Response(text, { headers: { "content-type": "application/json; charset=utf-8" } })
 
 export const siriDebugRoutes = new Elysia({ prefix: "/siri" })
@@ -54,3 +59,9 @@ export const siriDebugRoutes = new Elysia({ prefix: "/siri" })
   // The last poll's raw SIRI chunk bodies — download and promote to test fixtures.
   .get("/raw", async () => jsonText(await poller().getRaw()))
   .get("/unmatched", async () => jsonText(await poller().getUnmatched()))
+  // What the announcements task last read out of Israel Railways' updates (service-status/announcements.ts).
+  .get("/announcements", async () => Response.json((await gatherer().getAnnouncements()) ?? null))
+  // The latest Israel Railways timetable vs GTFS comparison (service-status/timetable.ts).
+  .get("/timetable", async () => Response.json((await gatherer().getTimetableCheck()) ?? null))
+  // The gatherer's and the alert watchers' schedules and subscription counts.
+  .get("/tasks", async () => ({ status: await gatherer().getTaskStatus(), alerts: await alerts().getStatus() }))

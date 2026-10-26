@@ -11,8 +11,10 @@
  * under `bun test` without any Cloudflare shim.
  */
 import type { D1Database, DurableObjectNamespace, KVNamespace } from "@cloudflare/workers-types"
+import type { AlertsDO } from "./alerts/alerts-do"
 import type { ApnsTokenDO } from "./push/apns-token-do"
 import type { RideDO } from "./rides/ride-do"
+import type { ServiceStatusDO } from "./service-status/status-do"
 import type { SiriPollerDO } from "./siri/poller-do"
 
 export interface Env {
@@ -20,6 +22,10 @@ export interface Env {
   KV: KVNamespace
   RIDES: DurableObjectNamespace<RideDO>
   SIRI: DurableObjectNamespace<SiriPollerDO>
+  /** The service-status gatherer: Israel Railways' announcements and the timetable check (`src/service-status/status-do.ts`). */
+  STATUS: DurableObjectNamespace<ServiceStatusDO>
+  /** Push subscriptions and their watchers: station alerts and Delay Notifications (`src/alerts/alerts-do.ts`). */
+  ALERTS: DurableObjectNamespace<AlertsDO>
   /** The one APNs provider token, shared by every isolate (`src/push/apns-token-do.ts`). */
   APNS_TOKEN: DurableObjectNamespace<ApnsTokenDO>
   /** The GTFS ingest container (a Durable Object that owns one container instance). */

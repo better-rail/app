@@ -5,6 +5,7 @@ import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import type { RouteItem } from "@/services/api"
 import type { ContextMenuAction } from "@/components/context-menu/context-menu"
+import { openDelayGuardSheet } from "@/utils/helpers/delay-guard-helpers"
 
 export const createContextMenuActions = (routeItem: RouteItem, originId: string, destinationId: string): ContextMenuAction[] => [
   {
@@ -35,5 +36,10 @@ export const createContextMenuActions = (routeItem: RouteItem, originId: string,
     title: translate("routes.share"),
     systemIcon: "square.and.arrow.up",
     onPress: () => shareRouteAction(routeItem, originId, destinationId),
+  },
+  {
+    title: translate("delayGuard.title") ?? "",
+    systemIcon: "bell.badge",
+    onPress: () => openDelayGuardSheet(routeItem, "route_list"),
   },
 ]
