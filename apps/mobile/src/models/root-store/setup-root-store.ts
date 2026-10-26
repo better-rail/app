@@ -28,6 +28,12 @@ import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, r
 import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
+import {
+  useRideHistoryStore,
+  getRideHistorySnapshot,
+  hydrateRideHistoryStore,
+  resetRideHistoryStore,
+} from "@/models/ride-history/ride-history"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -49,6 +55,7 @@ function getSnapshot() {
     ride: getRideSnapshot(useRideStore.getState()),
     user: getUserSnapshot(useUserStore.getState()),
     vouchers: getVouchersSnapshot(useVouchersStore.getState()),
+    rideHistory: getRideHistorySnapshot(useRideHistoryStore.getState()),
   }
 }
 
@@ -85,6 +92,7 @@ export async function setupRootStore() {
     () => hydrateRideStore(data.ride),
     () => hydrateUserStore(data.user),
     () => hydrateVouchersStore(data.vouchers),
+    () => hydrateRideHistoryStore(data.rideHistory),
   ]
 
   for (const hydrate of hydrators) {
@@ -161,6 +169,7 @@ export async function setupRootStore() {
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
   useVouchersStore.subscribe(persist)
+  useRideHistoryStore.subscribe(persist)
 }
 
 /**
@@ -175,4 +184,5 @@ export function clearAllData() {
   resetRideStore()
   resetUserStore()
   resetVouchersStore()
+  resetRideHistoryStore()
 }

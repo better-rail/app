@@ -155,6 +155,7 @@ function AppStack() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />
+        <Stack.Screen name="statistics" options={{ presentation: "fullScreenModal" }} />
         <Stack.Screen name="active-ride" options={{ presentation: "modal" }} />
         {/* Root level, so the live ride modal presents it over itself instead of pushing a second (main) stack */}
         <Stack.Screen name="train-info" options={formSheetOptions} />

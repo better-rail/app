@@ -21,6 +21,7 @@ const TRAIN_ICON = require("../../../assets/train.ios.png")
 const SPARKLES_ICON = require("../../../assets/sparkles.png")
 const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
+const STATISTICS_ICON = require("../../../assets/statistics.png")
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
 const DEBUG_FORCE_NEW_BADGE = false
@@ -96,6 +97,11 @@ export function PlannerScreenHeader() {
     trackEvent("settings_icon_pressed")
   }
 
+  const openStatistics = () => {
+    router.push("/statistics")
+    trackEvent("statistics_icon_pressed")
+  }
+
   return (
     <>
       <View style={styles.headerWrapper}>
@@ -137,6 +143,14 @@ export function PlannerScreenHeader() {
             <Image source={UPDATES_ICON} style={[styles.headerIconImage]} />
           </TouchableOpacity>
         )}
+        <TouchableOpacity
+          testID="open-statistics-button"
+          onPress={openStatistics}
+          activeOpacity={0.8}
+          accessibilityLabel={translate("statistics.title") ?? undefined}
+        >
+          <Image source={STATISTICS_ICON} style={styles.headerIconImage} />
+        </TouchableOpacity>
         <TouchableOpacity
           testID="open-settings-button"
           onPress={openSettings}

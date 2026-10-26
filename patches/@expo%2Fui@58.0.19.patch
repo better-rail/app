@@ -67,3 +67,49 @@ index 19bec07789bca4fe20a90402203b0598e0010486..cc371a3f04c8b33d8f2835deae8a06b9
      letterSpacing = letterSpacing?.sp ?: TextUnit.Unspecified,
      lineHeight = lineHeight?.sp ?: TextUnit.Unspecified,
      textAlign = textAlign?.toComposeTextAlign() ?: TextAlign.Unspecified
+diff --git a/ios/HostView.swift b/ios/HostView.swift
+index 2e7f97b1bd5f048ffe525e4750ddbb96fa9b594f..5b02f3d43adc26354064b48535cce604435ad33e 100644
+--- a/ios/HostView.swift
++++ b/ios/HostView.swift
+@@ -108,6 +108,7 @@ struct HostView: ExpoSwiftUI.View, ExpoSwiftUI.WithHostingView {
+         pinHorizontal: pinHorizontal,
+         pinVertical: pinVertical
+       ))
++      .modifier(RootSafeAreaModifier(ignoreSafeArea: props.ignoreSafeArea))
+       .coordinateSpace(name: expoHostCoordinateSpace)
+     } else {
+       ZStack(alignment: alignment) {
+@@ -131,6 +132,7 @@ struct HostView: ExpoSwiftUI.View, ExpoSwiftUI.WithHostingView {
+         pinHorizontal: pinHorizontal,
+         pinVertical: pinVertical
+       ))
++      .modifier(RootSafeAreaModifier(ignoreSafeArea: props.ignoreSafeArea))
+       .coordinateSpace(name: expoHostCoordinateSpace)
+     }
+   }
+@@ -259,6 +261,25 @@ private struct FillAlignmentModifier: ViewModifier {
+   }
+ }
+ 
++/// `safeAreaRegions` on the hosting controller alone doesn't stop SwiftUI from insetting the root view
++/// when the `Host` sits under a translucent navigation bar, so the root ignores the safe area too.
++private struct RootSafeAreaModifier: ViewModifier {
++  let ignoreSafeArea: ExpoSwiftUI.IgnoreSafeArea?
++
++  func body(content: Content) -> some View {
++    switch ignoreSafeArea {
++    case .all:
++      content.ignoresSafeArea()
++    case .container:
++      content.ignoresSafeArea(.container)
++    case .keyboard:
++      content.ignoresSafeArea(.keyboard)
++    case nil:
++      content
++    }
++  }
++}
++
+ private struct ColorSchemeModifier: ViewModifier {
+   let colorScheme: ColorScheme?
+ 

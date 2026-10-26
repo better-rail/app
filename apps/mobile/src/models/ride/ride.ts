@@ -17,6 +17,7 @@ import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
 import { isSameRoute } from "@/utils/helpers/ride-helpers"
 import type { ArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
+import { useRideHistoryStore } from "@/models/ride-history/ride-history"
 
 const routeApi = new RouteApi()
 
@@ -173,6 +174,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
     startRideHandler(route)
       .then((rideId) => {
         set((state) => ({ id: rideId, loading: false, rideCount: state.rideCount + 1 }))
+        useRideHistoryStore.getState().addRide(rideId, route)
       })
       .catch((error) => {
         set({ route: undefined, id: undefined, loading: false })
@@ -189,6 +191,9 @@ export const useRideStore = create<RideStore>((set, get) => ({
   async stopRide(rideId) {
     const { canRunLiveActivities } = get()
     if (Platform.OS === "ios" && !canRunLiveActivities) return
+
+    const lastTrain = last(get().route?.trains)
+    if (lastTrain) useRideHistoryStore.getState().updateDelay(rideId, lastTrain.delay)
 
     // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
