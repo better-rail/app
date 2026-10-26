@@ -27,6 +27,7 @@ import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, r
 import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
+import { isColorSchemeSettingSupported } from "@/utils/color-scheme"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -98,7 +99,9 @@ export async function setupRootStore() {
   }
 
   // Restore both native colors and Unistyles before rendering the first screen.
-  const applyColorScheme = (colorScheme: ColorSchemePreference) => {
+  // Binaries before v3 have no appearance setting, so they always follow the system.
+  const applyColorScheme = (preference: ColorSchemePreference) => {
+    const colorScheme = isColorSchemeSettingSupported() ? preference : "automatic"
     Appearance.setColorScheme(colorScheme === "automatic" ? "unspecified" : colorScheme)
     if (colorScheme === "automatic") {
       UnistylesRuntime.setAdaptiveThemes(true)
@@ -115,7 +118,7 @@ export async function setupRootStore() {
 
   appearanceAnalyticsSubscription?.remove()
   appearanceAnalyticsSubscription = Appearance.addChangeListener(({ colorScheme }) => {
-    if (useSettingsStore.getState().colorScheme !== "automatic") return
+    if (isColorSchemeSettingSupported() && useSettingsStore.getState().colorScheme !== "automatic") return
     syncAnalyticsUserProperties({ color_scheme: colorScheme ?? "unspecified", color_scheme_preference: "automatic" })
   })
 
