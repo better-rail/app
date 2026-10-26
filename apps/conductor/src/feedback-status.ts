@@ -4,9 +4,9 @@ export const FORUM_CHANNEL = 15
 
 // Forum tags matched by name, so a renamed tag stops being tracked.
 export const feedbackStatuses = [
-  { id: "open", name: "Open", emoji: "📬" },
-  { id: "replied", name: "Replied", emoji: "✉️" },
-  { id: "resolved", name: "Resolved", emoji: "✅" },
+  { id: "open", name: "Open", emoji: "🔴" },
+  { id: "replied", name: "Replied", emoji: "🟡" },
+  { id: "resolved", name: "Resolved", emoji: "🟢" },
 ] as const
 
 export type FeedbackStatus = (typeof feedbackStatuses)[number]["id"]
@@ -28,10 +28,18 @@ export function statusTags(forum: DiscordChannel, applied: string[], status: Fee
   return [target.id, ...others]
 }
 
-/** The status tags the forum is missing, ready to append to its `available_tags`. */
-export function missingStatusTags(forum: DiscordChannel) {
-  const names = (forum.available_tags ?? []).map((tag) => tag.name.toLowerCase())
-  return feedbackStatuses
-    .filter((status) => !names.includes(status.name.toLowerCase()))
+/** The forum's `available_tags` with every status tag present and wearing its emoji, or null when nothing changes. */
+export function syncedStatusTags(forum: DiscordChannel) {
+  const existing = forum.available_tags ?? []
+  let changed = false
+  const tags = existing.map((tag) => {
+    const status = feedbackStatuses.find((s) => s.name.toLowerCase() === tag.name.toLowerCase())
+    if (!status || tag.emoji_name === status.emoji) return tag
+    changed = true
+    return { ...tag, emoji_id: null, emoji_name: status.emoji }
+  })
+  const missing = feedbackStatuses
+    .filter((status) => !existing.some((tag) => tag.name.toLowerCase() === status.name.toLowerCase()))
     .map((status) => ({ name: status.name, emoji_name: status.emoji }))
+  return changed || missing.length ? [...tags, ...missing] : null
 }

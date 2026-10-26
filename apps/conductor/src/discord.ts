@@ -1,6 +1,6 @@
 export type DiscordRole = { id: string; name: string; permissions: string; position: number; managed: boolean }
 export type DiscordOverwrite = { id: string; type: number; allow: string; deny: string }
-export type DiscordForumTag = { id: string; name: string; emoji_name?: string | null }
+export type DiscordForumTag = { id: string; name: string; emoji_id?: string | null; emoji_name?: string | null }
 export type DiscordChannel = {
   id: string
   guild_id?: string

@@ -1,7 +1,7 @@
 import { guildCommands, registerCommands } from "./commands"
 import { isSnowflake, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole } from "./discord"
-import { FORUM_CHANNEL, missingStatusTags } from "./feedback-status"
+import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
 import { platforms, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
 import { isFlairRole } from "./roles"
@@ -74,17 +74,15 @@ try {
 const feedbackChannelId = config.emailFeedbackChannelId
 if (isSnowflake(feedbackChannelId)) {
   const feedback = await api.call<DiscordChannel>("GET", `/channels/${feedbackChannelId}`)
-  const missing = missingStatusTags(feedback)
+  const tags = syncedStatusTags(feedback)
   if (feedback.type !== FORUM_CHANNEL) {
     console.warn("The email feedback channel is not a forum, so its threads carry no status")
-  } else if (missing.length) {
+  } else if (tags) {
     try {
-      await api.call("PATCH", `/channels/${feedbackChannelId}`, {
-        available_tags: [...(feedback.available_tags ?? []), ...missing],
-      })
-      console.info(`Added status tags: ${missing.map((tag) => tag.name).join(", ")}`)
+      await api.call("PATCH", `/channels/${feedbackChannelId}`, { available_tags: tags })
+      console.info("Synced the status tags")
     } catch (tagErr) {
-      console.warn("Could not add status tags (needs Manage Channels):", (tagErr as Error).message)
+      console.warn("Could not sync status tags (needs Manage Channels):", (tagErr as Error).message)
     }
   }
 }
