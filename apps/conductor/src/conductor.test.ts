@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { createHmac, generateKeyPairSync, sign } from "node:crypto"
 import { limitRequestBody, MAX_REQUEST_BODY_BYTES } from "./body-limit"
+import { guildCommands, registerCommands } from "./commands"
 import { type ConductorConfig, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordOverwrite, type DiscordRole } from "./discord"
 import {
@@ -374,6 +375,13 @@ describe("conductor worker", () => {
     DISCORD_PLATFORM_ROLES: JSON.stringify(config.platformRoles),
   }
   const context = { waitUntil: (work: Promise<unknown>) => void work, passThroughOnException: () => {}, props: {} }
+
+  test("the hourly cron registers /reply and /resolve on the guild", async () => {
+    const discord = new FakeDiscord()
+    await registerCommands(config, discord)
+    expect(discord.mutations).toEqual([{ method: "PUT", path: `/applications/${applicationId}/guilds/${guildId}/commands` }])
+    expect(guildCommands.map((command) => command.name)).toEqual(["reply", "resolve"])
+  })
 
   test("loadConfig reads the Worker env and rejects incomplete settings", () => {
     expect(loadConfig({ ...env, RESEND_API_KEY: "re_key" })).toEqual({ ...config, resendApiKey: "re_key" })

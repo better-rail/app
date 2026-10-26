@@ -1,3 +1,4 @@
+import { guildCommands, registerCommands } from "./commands"
 import { isSnowflake, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole } from "./discord"
 import { FORUM_CHANNEL, missingStatusTags } from "./feedback-status"
@@ -63,31 +64,11 @@ await Bun.write(
 console.info(`Welcome message: https://discord.com/channels/${config.guildId}/${channelId}/${message.id}`)
 console.info("Copy platformRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES.")
 
-const commands = [
-  {
-    name: "reply",
-    description: "Reply directly to the customer via email",
-    options: [
-      {
-        name: "message",
-        description: "The message to send to the customer",
-        type: 3,
-        required: true,
-      },
-    ],
-  },
-  { name: "resolve", description: "Mark this feedback as resolved and close its thread" },
-]
-for (const command of commands) {
-  try {
-    await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
-      ...command,
-      default_member_permissions: "8192",
-    })
-    console.info(`Registered /${command.name} slash command on Discord guild`)
-  } catch (cmdErr) {
-    console.warn(`Could not register /${command.name} command:`, (cmdErr as Error).message)
-  }
+try {
+  await registerCommands(config, api)
+  console.info(`Registered ${guildCommands.map((command) => `/${command.name}`).join(", ")} on the Discord guild`)
+} catch (cmdErr) {
+  console.warn("Could not register the slash commands:", (cmdErr as Error).message)
 }
 
 const feedbackChannelId = config.emailFeedbackChannelId
