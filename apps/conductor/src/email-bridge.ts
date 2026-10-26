@@ -1,7 +1,7 @@
 import { concatBytes } from "./bytes"
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
-import { type FeedbackStatus, FORUM_CHANNEL, statusTags } from "./feedback-status"
+import { type FeedbackStatus, FORUM_CHANNEL, findStatusTag, statusTags } from "./feedback-status"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
 import { enforceRfcLineLength, formatEmailHtml } from "./templates/reply"
 
@@ -354,12 +354,13 @@ export class EmailBridge {
       const threadTitle = subjectClean.slice(0, 100) || "Email Feedback"
       const feedbackChannel = await this.discordApi.call<DiscordChannel>("GET", `/channels/${feedbackChannelId}`)
       const isForum = feedbackChannel.type === FORUM_CHANNEL
+      const openTag = findStatusTag(feedbackChannel, "open")
 
       const newThread = await this.discordApi.call<DiscordChannel>("POST", `/channels/${feedbackChannelId}/threads`, {
         name: threadTitle,
         auto_archive_duration: 10080, // 7 days
         // A forum post is created with its first message and can carry the status tag; elsewhere it's a PUBLIC_THREAD
-        ...(isForum ? { message: messages[0], applied_tags: statusTags(feedbackChannel, [], "open") ?? [] } : { type: 11 }),
+        ...(isForum ? { message: messages[0], applied_tags: openTag ? [openTag.id] : [] } : { type: 11 }),
       })
       targetThreadId = newThread.id
       if (isForum) messages = messages.slice(1)
@@ -498,27 +499,30 @@ export class EmailBridge {
   async handleResolveCommand(interaction: SlashCommandInteraction): Promise<{ success: boolean; message: string }> {
     const channel = await this.feedbackThread(interaction)
     if (typeof channel === "string") return { success: false, message: channel }
-    await this.setStatus(channel, "resolved")
+    try {
+      await this.updateStatus(channel, "resolved")
+    } catch (err) {
+      return { success: false, message: `Could not mark as resolved: ${(err as Error).message}.` }
+    }
     const senderName = interaction.member?.user?.username || "A team member"
     return { success: true, message: `✅ **Resolved** by **${senderName}**.` }
   }
 
-  // Only forum posts carry a status; a failure is logged and never blocks the email flow.
+  // Only forum posts carry a status.
+  private async updateStatus(thread: DiscordChannel, status: FeedbackStatus) {
+    const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`)
+    if (forum.type !== FORUM_CHANNEL) return
+    const applied = thread.applied_tags ?? []
+    const tags = statusTags(forum, applied, status)
+    if (tags.length === applied.length && tags.every((id) => applied.includes(id))) return
+    await this.discordApi.call("PATCH", `/channels/${thread.id}`, { applied_tags: tags })
+  }
+
+  // Emails and replies go through even when the status can't be updated.
   private async setStatus(thread: DiscordChannel, status: FeedbackStatus) {
-    try {
-      const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`)
-      if (forum.type !== FORUM_CHANNEL) return
-      const applied = thread.applied_tags ?? []
-      const tags = statusTags(forum, applied, status)
-      if (!tags) {
-        console.warn(`Conductor: the feedback forum has no "${status}" status tag; run setup to add it`)
-        return
-      }
-      if (tags.length === applied.length && tags.every((id) => applied.includes(id))) return
-      await this.discordApi.call("PATCH", `/channels/${thread.id}`, { applied_tags: tags })
-    } catch (err) {
-      console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, (err as Error).message)
-    }
+    await this.updateStatus(thread, status).catch((err: Error) =>
+      console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, err.message),
+    )
   }
 
   private async findStarterEmail(threadId: string): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {

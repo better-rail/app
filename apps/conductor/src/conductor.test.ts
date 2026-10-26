@@ -991,6 +991,34 @@ describe("resend email bridge", () => {
     expect(thread.applied_tags).toEqual([statusTagIds.open, "1548800000000002000"])
   })
 
+  test("a status never displaces other tags, and /resolve reports a status it could not set", async () => {
+    const { discord, handler, bridge } = createEmailBridge(emailConfig, 15)
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_full",
+      from: "lior@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Tags",
+      text: "Hi",
+    })
+    const thread = discord.channels.get(threadId)!
+    const otherTags = ["1548800000000003001", "1548800000000003002", "1548800000000003003", "1548800000000003004"]
+    thread.applied_tags = [statusTagIds.open, ...otherTags, "1548800000000003005"]
+    const fullTags = [...thread.applied_tags]
+
+    const resolve = { ...replyCommand(threadId, "", "cmd_full_resolve"), data: { name: "resolve" } }
+    await handler(signedRequest(resolve))
+    expect((await waitForResponse(discord)).content).toContain("five other tags")
+    expect(thread.applied_tags).toEqual(fullTags)
+    expect(thread.thread_metadata?.archived).toBeUndefined()
+
+    thread.applied_tags = [statusTagIds.open]
+    discord.channels.get(feedbackChannelId)!.available_tags = [{ id: statusTagIds.open, name: "Open" }]
+    await handler(signedRequest({ ...resolve, id: "cmd_missing_resolve" }))
+    expect((await waitForResponse(discord, 2)).content).toContain('no "resolved" status tag')
+    expect(thread.applied_tags).toEqual([statusTagIds.open])
+    expect(thread.thread_metadata?.archived).toBeUndefined()
+  })
+
   test("text-channel threads get no status, and /resolve needs staff permission", async () => {
     const { discord, handler, bridge } = createEmailBridge()
     const { threadId } = await bridge.handleInboundEmail({
