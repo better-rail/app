@@ -1,5 +1,6 @@
 import { isSnowflake, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole } from "./discord"
+import { FORUM_CHANNEL, missingStatusTags } from "./feedback-status"
 import { platforms, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
 import { isFlairRole } from "./roles"
@@ -62,11 +63,10 @@ await Bun.write(
 console.info(`Welcome message: https://discord.com/channels/${config.guildId}/${channelId}/${message.id}`)
 console.info("Copy platformRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES.")
 
-try {
-  await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
+const commands = [
+  {
     name: "reply",
     description: "Reply directly to the customer via email",
-    default_member_permissions: "8192",
     options: [
       {
         name: "message",
@@ -75,8 +75,35 @@ try {
         required: true,
       },
     ],
-  })
-  console.info("Registered /reply slash command on Discord guild")
-} catch (cmdErr) {
-  console.warn("Could not register /reply command:", (cmdErr as Error).message)
+  },
+  { name: "resolve", description: "Mark this feedback as resolved and close its thread" },
+]
+for (const command of commands) {
+  try {
+    await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
+      ...command,
+      default_member_permissions: "8192",
+    })
+    console.info(`Registered /${command.name} slash command on Discord guild`)
+  } catch (cmdErr) {
+    console.warn(`Could not register /${command.name} command:`, (cmdErr as Error).message)
+  }
+}
+
+const feedbackChannelId = config.emailFeedbackChannelId
+if (isSnowflake(feedbackChannelId)) {
+  const feedback = await api.call<DiscordChannel>("GET", `/channels/${feedbackChannelId}`)
+  const missing = missingStatusTags(feedback)
+  if (feedback.type !== FORUM_CHANNEL) {
+    console.warn("The email feedback channel is not a forum, so its threads carry no status")
+  } else if (missing.length) {
+    try {
+      await api.call("PATCH", `/channels/${feedbackChannelId}`, {
+        available_tags: [...(feedback.available_tags ?? []), ...missing],
+      })
+      console.info(`Added status tags: ${missing.map((tag) => tag.name).join(", ")}`)
+    } catch (tagErr) {
+      console.warn("Could not add status tags (needs Manage Channels):", (tagErr as Error).message)
+    }
+  }
 }
