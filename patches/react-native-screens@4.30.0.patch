@@ -296,11 +296,13 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..a04e519013c88215053005ab70a20cee
  
  /**
 diff --git a/ios/gamma/split/RNSSplitNavigationController.mm b/ios/gamma/split/RNSSplitNavigationController.mm
-index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..c3ea8fe0b153da882f8acc4b48acb5f076632c0b 100644
+index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..7a1b0ba4a72fc83325831aea067531596a87686e 100644
 --- a/ios/gamma/split/RNSSplitNavigationController.mm
 +++ b/ios/gamma/split/RNSSplitNavigationController.mm
-@@ -2,6 +2,9 @@
+@@ -1,7 +1,11 @@
+ #import "RNSSplitNavigationController.h"
  #import "RNSSplitNavigationControllerFrameObserver.h"
++#import "RNSSplitScreenController.h"
  #import "RNSSplitNavigationControllerFrameOriginChangeDelegate.h"
  
 +@interface RNSSplitNavigationController () <UIGestureRecognizerDelegate>
@@ -309,7 +311,7 @@ index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..c3ea8fe0b153da882f8acc4b48acb5f0
  @implementation RNSSplitNavigationController {
    RNSSplitNavigationControllerFrameObserver *_frameObserver;
    id<RNSSplitNavigationControllerFrameOriginChangeDelegate> __weak _frameOriginChangeDelegate;
-@@ -34,6 +37,19 @@ - (void)viewDidLoad
+@@ -34,6 +38,31 @@ - (void)viewDidLoad
                                   delegate:_frameOriginChangeDelegate];
    }
    [_frameObserver registerForViewFrameChanges];
@@ -318,6 +320,18 @@ index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..c3ea8fe0b153da882f8acc4b48acb5f0
 +  // pop gesture off. A collapsed split view pushes the secondary column onto this controller, and that screen should
 +  // still swipe back, so the gesture is kept on whenever there is something to pop.
 +  self.interactivePopGestureRecognizer.delegate = self;
++}
++
++// The column controllers take their size from this controller's view (see RNSSplitScreenController), whose resizes
++// don't reach them on their own: the column's React view has no autoresizing, so it isn't laid out again.
++- (void)viewDidLayoutSubviews
++{
++  [super viewDidLayoutSubviews];
++  for (UIViewController *viewController in self.viewControllers) {
++    if ([viewController isKindOfClass:RNSSplitScreenController.class]) {
++      [viewController.view setNeedsLayout];
++    }
++  }
 +}
 +
 +- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
@@ -330,10 +344,10 @@ index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..c3ea8fe0b153da882f8acc4b48acb5f0
  
  - (void)dealloc
 diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
-index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f519a4fa2a 100644
+index f97140a2ca7f97a50c5f6203106596b9f275080b..1ac60ed932648244acad7185877c1529311c8bb1 100644
 --- a/ios/gamma/split/RNSSplitScreenController.mm
 +++ b/ios/gamma/split/RNSSplitScreenController.mm
-@@ -69,6 +69,48 @@ - (void)viewDidLayoutSubviews
+@@ -69,6 +69,55 @@ - (void)viewDidLayoutSubviews
  {
    [super viewDidLayoutSubviews];
  
@@ -347,8 +361,15 @@ index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f5
 +  // right-to-left text) lands in it and its safe area starts at its own edge.
 +  UIView *container = self.view.superview;
 +  if (container != nil && [self isInSplitHostSubtree]) {
-+    CGRect frame = container.bounds;
 +    RNSSplitHostController *hostController = [self findSplitHostController];
++    // Collapsed, the one column on screen fills the split view. A secondary column that sat off screen while the split
++    // view collapsed is pushed in with its navigation controller still at the expanded size, which UIKit only corrects
++    // later, so the split view's own size is taken instead.
++    CGRect available = container.bounds;
++    if (hostController.isCollapsed && hostController.view != nil) {
++      available.size = hostController.view.bounds.size;
++    }
++    CGRect frame = available;
 +    if (!hostController.isCollapsed && hostController.displayMode == UISplitViewControllerDisplayModeOneBesideSecondary &&
 +        [hostController viewControllerForColumn:UISplitViewControllerColumnSecondary] == self.navigationController) {
 +      UIView *primaryView = [hostController viewControllerForColumn:UISplitViewControllerColumnPrimary].view;
@@ -372,8 +393,8 @@ index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f5
 +    // The covered part reaches the column as a safe-area inset of its own, not through geometry, so it's taken back
 +    // out for the view that no longer spans it.
 +    UIEdgeInsets additional = UIEdgeInsetsZero;
-+    additional.left = CGRectGetMinX(container.bounds) - CGRectGetMinX(frame);
-+    additional.right = CGRectGetMaxX(frame) - CGRectGetMaxX(container.bounds);
++    additional.left = CGRectGetMinX(available) - CGRectGetMinX(frame);
++    additional.right = CGRectGetMaxX(frame) - CGRectGetMaxX(available);
 +    if (!UIEdgeInsetsEqualToEdgeInsets(self.additionalSafeAreaInsets, additional)) {
 +      self.additionalSafeAreaInsets = additional;
 +    }
@@ -382,7 +403,7 @@ index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f5
    [self updateShadowTreeState];
  }
  
-@@ -106,6 +148,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
+@@ -106,6 +155,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
  - (void)viewWillAppear:(BOOL)animated
  {
    [super viewWillAppear:animated];
