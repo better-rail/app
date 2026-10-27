@@ -2,7 +2,7 @@ import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from "rea
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
@@ -157,17 +157,16 @@ function RouteListResults({
   const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
   const { width: windowWidth } = useWindowDimensions()
 
-  // Where there's room, the selected trip's details sit beside the list: in the system split view's details column on
-  // iOS (see AppSplitView), and in a pane here elsewhere (tablets). Phones and the closed iPhone Duo open the route
-  // details screen.
+  // On iOS the selected trip's details live in the system split view's details column (see AppSplitView): beside
+  // the list on wide windows, pushed over it on phones. Elsewhere, wide windows (tablets) lay the details beside the
+  // list here, and phones open the route details screen.
   const isWideWindow = useIsWideLayout()
   const isWide = Platform.OS !== "ios" && isWideWindow
   const listWidth = isWide
     ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
     : windowWidth - sideInsets.start - sideInsets.end
-  const { isSplitCollapsed, selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
+  const { selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
     useShallow((s) => ({
-      isSplitCollapsed: s.isCollapsed,
       selectedRoute: s.selection?.route,
       showDetails: s.showDetails,
       clearSelection: s.clearSelection,
@@ -189,8 +188,8 @@ function RouteListResults({
     }
     const unsubscribe = [
       nav.addListener("transitionStart", (e) => {
-        // On a narrow window the pane is off screen, and the route details screen pushed over the list also starts
-        // a closing transition here; the list isn't leaving.
+        // Collapsing the split view (the device closing) pushes the details column over the list, which also starts
+        // a closing transition here; the window is narrow by then, and the list isn't leaving.
         const isWindowWide = Dimensions.get("window").width >= WIDE_LAYOUT_MIN_WIDTH
         if (!e.data?.closing) setRouteListMounted(true)
         else if (isWindowWide) setRouteListMounted(false)
@@ -210,23 +209,8 @@ function RouteListResults({
     clearSelection()
   }, [originId, destinationId, clearSelection])
 
-  // Closing the device with a trip beside the list carries it over to the route details screen, in place.
-  useEffect(() => {
-    if (Platform.OS !== "ios" || !isSplitCollapsed) return
-    const { selection } = useSplitViewStore.getState()
-    if (!selection) return
-    clearSelection()
-    if (!navigation.isFocused()) return
-    useNavigationParamsStore.getState().setRouteDetails({
-      routeItem: selection.route,
-      originId: selection.originId,
-      destinationId: selection.destinationId,
-    })
-    router.push({ pathname: "/route-details", params: { handoff: "true" } })
-  }, [isSplitCollapsed, clearSelection, navigation, router])
-
   const openRouteDetails = (routeItem: RouteItem) => {
-    if ((Platform.OS === "ios" && !isSplitCollapsed) || isWide) {
+    if (Platform.OS === "ios" || isWide) {
       if (isWide) HapticFeedback.trigger("selection")
       showDetails({ route: routeItem, originId, destinationId })
       return
@@ -294,7 +278,7 @@ function RouteListResults({
     )
     if (!routeItem) return
     const tripItem = { ...routeItem, viaStationId }
-    if (Platform.OS === "ios" && !useSplitViewStore.getState().isCollapsed) {
+    if (Platform.OS === "ios") {
       showDetails({ route: tripItem, originId, destinationId })
       return
     }
@@ -654,17 +638,19 @@ function RouteListResults({
       />
 
       {/* The photo header spans the full width; everything below stays clear of the side bars. */}
-      <View
-        style={[
-          styles.content,
-          isWide && styles.splitContent,
-          // Beside the list the details pane reaches the end edge itself, so its banners can bleed under the inset.
-          { paddingStart: sideInsets.start, paddingEnd: isWide ? 0 : sideInsets.end },
-        ]}
-      >
-        <View style={isWide ? { width: listWidth } : styles.content}>{listContent}</View>
-        {isWide && <RouteDetailsPane />}
-      </View>
+      {isWide ? (
+        // Beside the list the details pane reaches the end edge itself, so its banners can bleed under the inset.
+        <View style={[styles.content, styles.splitContent, { paddingStart: sideInsets.start }]}>
+          <View style={{ width: listWidth }}>{listContent}</View>
+          <RouteDetailsPane />
+        </View>
+      ) : (
+        // Padded natively: as iPhone Duo folds, the list's column moves next to its vertical bar or away from it, and
+        // insets read in JS would arrive a few frames after the column's new layout, with the cards under the bar.
+        <SafeAreaView style={styles.content} edges={["left", "right"]}>
+          {listContent}
+        </SafeAreaView>
+      )}
 
       {warning && <RouteListWarning key={`${warning.requestedTime}-${warning.routesDate}-${warning.warningType}`} {...warning} />}
     </Screen>

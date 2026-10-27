@@ -128,11 +128,75 @@ index 049fd22427b2bde17fd7ca59b8de65d0ee07b4b5..cdac952b372e419af13a95c921705655
  }
  
  - (void)dispatchSafeAreaDidChangeNotification
+diff --git a/ios/RNSScreenStackHeaderConfig.h b/ios/RNSScreenStackHeaderConfig.h
+index 8f99f5b5b9d3f184f36613d51174cb9393d2cdd6..9153b8acd15dd514042f70d645c7ea2bb2b99064 100644
+--- a/ios/RNSScreenStackHeaderConfig.h
++++ b/ios/RNSScreenStackHeaderConfig.h
+@@ -70,6 +70,13 @@ NS_ASSUME_NONNULL_END
+  */
+ + (BOOL)screensExtendUnderOpaqueNavigationBar;
+ 
++/**
++ * Bar button items whose identifier starts with `RNSCollapsedSplitOnlyItemIdentifierPrefix` show only while the split
++ * view they're in is collapsed (or outside one): a back button for a column pushed over another, say. The split view
++ * host calls this as it collapses and expands, in the same layout pass, so the items never lag the new layout.
++ */
+++ (void)updateCollapsedSplitOnlyItemsOfNavigationItem:(nonnull UINavigationItem *)navitem isCollapsed:(BOOL)isCollapsed;
++
+ /**
+  * Returns true iff subview of given `type` is present.
+  *
+diff --git a/ios/RNSScreenStackHeaderConfig.mm b/ios/RNSScreenStackHeaderConfig.mm
+index e217b2411d20c85db3ec84bb87765c1e9407fd3b..e4f05ea9306479d251dff3b9a50edf7149d82938 100644
+--- a/ios/RNSScreenStackHeaderConfig.mm
++++ b/ios/RNSScreenStackHeaderConfig.mm
+@@ -282,6 +282,23 @@ - (BOOL)shouldBackButtonBeVisibleInNavigationBar:(nullable UINavigationBar *)nav
+       !(self.backButtonInCustomView == false && self.hasSubviewLeft);
+ }
+ 
++static NSString *const RNSCollapsedSplitOnlyItemIdentifierPrefix = @"collapsed-split-only";
++
+++ (void)updateCollapsedSplitOnlyItemsOfNavigationItem:(UINavigationItem *)navitem isCollapsed:(BOOL)isCollapsed
++{
++#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
++  if (@available(iOS 26.0, *)) {
++    for (NSArray<UIBarButtonItem *> *items in @[ navitem.leftBarButtonItems ?: @[], navitem.rightBarButtonItems ?: @[] ]) {
++      for (UIBarButtonItem *item in items) {
++        if ([item.identifier hasPrefix:RNSCollapsedSplitOnlyItemIdentifierPrefix] && item.hidden == isCollapsed) {
++          item.hidden = !isCollapsed;
++        }
++      }
++    }
++  }
++#endif
++}
++
+ + (void)setAnimatedConfig:(UIViewController *)vc withConfig:(RNSScreenStackHeaderConfig *)config
+ {
+   UINavigationBar *navbar = ((UINavigationController *)vc.parentViewController).navigationBar;
+@@ -700,6 +717,9 @@ + (void)updateViewController:(UIViewController *)vc
+                                                 withCurrentItems:navitem.leftBarButtonItems];
+   navitem.rightBarButtonItems = [config barButtonItemsFromConfigs:config.headerRightBarButtonItems
+                                                  withCurrentItems:navitem.rightBarButtonItems];
++  [RNSScreenStackHeaderConfig updateCollapsedSplitOnlyItemsOfNavigationItem:navitem
++                                                                 isCollapsed:vc.splitViewController == nil ||
++                                                                             vc.splitViewController.isCollapsed];
+ 
+   // Setting navigation bar visibility is split to mitigate iOS 26 bug with bar button items
+   // (setting nav bar visibility should be done after `navitem.*BarButtonItems`).
 diff --git a/ios/gamma/split/RNSSplitHostController.mm b/ios/gamma/split/RNSSplitHostController.mm
-index c7d2db75965d2cd661d9a56922d4d201a89564c1..ad9fecc2798f1875c7a14d56eab401933c416c20 100644
+index c7d2db75965d2cd661d9a56922d4d201a89564c1..a04e519013c88215053005ab70a20ceed77bbb5d 100644
 --- a/ios/gamma/split/RNSSplitHostController.mm
 +++ b/ios/gamma/split/RNSSplitHostController.mm
-@@ -60,6 +60,42 @@ - (instancetype)initWithSplitHostComponentView:(RNSSplitHostComponentView *)spli
+@@ -2,6 +2,7 @@
+ 
+ #import <React/RCTAssert.h>
+ #import "RNSDefines.h"
++#import "RNSScreenStackHeaderConfig.h"
+ #import "RNSSplitAppearanceApplicator.h"
+ #import "RNSSplitAppearanceCoordinator.h"
+ #import "RNSSplitHostComponentView.h"
+@@ -60,6 +61,42 @@ - (instancetype)initWithSplitHostComponentView:(RNSSplitHostComponentView *)spli
    return self;
  }
  
@@ -175,7 +239,7 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..ad9fecc2798f1875c7a14d56eab40193
  - (RNSSplitHostComponentEventEmitter *)reactEventEmitter
  {
    return [_splitHostComponentView reactEventEmitter];
-@@ -125,8 +161,14 @@ - (void)updateChildViewControllers
+@@ -125,8 +162,14 @@ - (void)updateChildViewControllers
    NSMutableArray<RNSSplitNavigationController *> *currentViewControllers =
        [NSMutableArray arrayWithCapacity:currentColumns.count];
    for (RNSSplitScreenComponentView *column in currentColumns) {
@@ -192,7 +256,7 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..ad9fecc2798f1875c7a14d56eab40193
    }
  
    self.viewControllers = currentViewControllers;
-@@ -158,8 +200,9 @@ - (void)refreshSecondaryNavBar
+@@ -158,8 +201,9 @@ - (void)refreshSecondaryNavBar
    UINavigationController *navigationController = (UINavigationController *)secondaryViewController;
  
    /** The assumption is that it should come in a single batch and it won't cause any delays in rendering the content. */
@@ -203,6 +267,68 @@ index c7d2db75965d2cd661d9a56922d4d201a89564c1..ad9fecc2798f1875c7a14d56eab40193
  }
  
  #pragma mark - Helpers
+@@ -469,14 +513,27 @@ - (void)splitViewController:(UISplitViewController *)svc willHideColumn:(UISplit
+ 
+ - (void)splitViewControllerDidCollapse:(UISplitViewController *)svc
+ {
++  [self updateCollapsedSplitOnlyItemsInViewController:self isCollapsed:YES];
+   [[self reactEventEmitter] emitOnCollapse];
+ }
+ 
+ - (void)splitViewControllerDidExpand:(UISplitViewController *)svc
+ {
++  [self updateCollapsedSplitOnlyItemsInViewController:self isCollapsed:NO];
+   [[self reactEventEmitter] emitOnExpand];
+ }
+ 
++// React learns of a collapse or an expansion only a few frames after the new layout is on screen, so bar items that
++// depend on it (see RNSScreenStackHeaderConfig) are shown or hidden here, in the same pass.
++- (void)updateCollapsedSplitOnlyItemsInViewController:(UIViewController *)viewController isCollapsed:(BOOL)isCollapsed
++{
++  [RNSScreenStackHeaderConfig updateCollapsedSplitOnlyItemsOfNavigationItem:viewController.navigationItem
++                                                                 isCollapsed:isCollapsed];
++  for (UIViewController *child in viewController.childViewControllers) {
++    [self updateCollapsedSplitOnlyItemsInViewController:child isCollapsed:isCollapsed];
++  }
++}
++
+ #if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+ 
+ /**
+diff --git a/ios/gamma/split/RNSSplitNavigationController.mm b/ios/gamma/split/RNSSplitNavigationController.mm
+index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..c3ea8fe0b153da882f8acc4b48acb5f076632c0b 100644
+--- a/ios/gamma/split/RNSSplitNavigationController.mm
++++ b/ios/gamma/split/RNSSplitNavigationController.mm
+@@ -2,6 +2,9 @@
+ #import "RNSSplitNavigationControllerFrameObserver.h"
+ #import "RNSSplitNavigationControllerFrameOriginChangeDelegate.h"
+ 
++@interface RNSSplitNavigationController () <UIGestureRecognizerDelegate>
++@end
++
+ @implementation RNSSplitNavigationController {
+   RNSSplitNavigationControllerFrameObserver *_frameObserver;
+   id<RNSSplitNavigationControllerFrameOriginChangeDelegate> __weak _frameOriginChangeDelegate;
+@@ -34,6 +37,19 @@ - (void)viewDidLoad
+                                  delegate:_frameOriginChangeDelegate];
+   }
+   [_frameObserver registerForViewFrameChanges];
++
++  // The column's own navigation bar is hidden (see RNSSplitHostController), which makes UIKit turn the interactive
++  // pop gesture off. A collapsed split view pushes the secondary column onto this controller, and that screen should
++  // still swipe back, so the gesture is kept on whenever there is something to pop.
++  self.interactivePopGestureRecognizer.delegate = self;
++}
++
++- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
++{
++  if (gestureRecognizer == self.interactivePopGestureRecognizer) {
++    return self.viewControllers.count > 1;
++  }
++  return YES;
+ }
+ 
+ - (void)dealloc
 diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
 index f97140a2ca7f97a50c5f6203106596b9f275080b..fc25ad5551970693d88cf977f00b04f519a4fa2a 100644
 --- a/ios/gamma/split/RNSSplitScreenController.mm

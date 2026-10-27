@@ -39,14 +39,7 @@ export default function MainLayout() {
           }}
         />
         <Stack.Screen name="route-list" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="route-details"
-          // A trip carried over from the split view's details column as the device closes is already on screen.
-          options={({ route }) => ({
-            headerShown: false,
-            ...((route.params as { handoff?: string } | undefined)?.handoff === "true" && { animation: "none" as const }),
-          })}
-        />
+        <Stack.Screen name="route-details" options={{ headerShown: false }} />
         <Stack.Screen name="station-hours" options={formSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />

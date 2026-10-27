@@ -4,7 +4,7 @@ import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
@@ -56,11 +56,16 @@ export interface RouteDetailsHeaderProps {
   eventConfig?: CalendarEventConfig
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
+  /**
+   * Rendered in the split view's details column rather than on a screen of the app's stack: the column's own bar
+   * carries the back button and the trip's actions (see RouteDetailsPane), so none are drawn here.
+   */
+  inSplitColumn?: boolean
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const glassTint = useGlassTint("secondary")
-  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
+  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute, inSplitColumn } = props
   const {
     routes: favoriteRoutesData,
     add: addFavorite,
@@ -89,7 +94,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
   // A native header lets UIKit place the buttons, e.g. in the iPhone Duo's sidebar when unfolded.
-  const useNativeToolbar = (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios"
+  const useNativeToolbar =
+    (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios" && !inSplitColumn
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -356,7 +362,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeToolbar && (
+        {screenName !== "activeRide" && !useNativeToolbar && !inSplitColumn && (
           <View
             style={{
               position: "absolute",
@@ -384,8 +390,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         )}
       </ImageBackground>
 
-      {/* The photo spans the full width, but the station buttons stay clear of the side bars. */}
-      <View style={[{ top: -20, marginBottom: -30, zIndex: 5 }, sideInsetPadding(insets, I18nManager.isRTL)]}>
+      {/* The photo spans the full width, but the station buttons stay clear of the side bars. Padded natively, so
+          they follow the side bar as iPhone Duo folds in the same pass as the layout, not a few frames later. */}
+      <SafeAreaView style={{ top: -20, marginBottom: -30, zIndex: 5 }} edges={["left", "right"]}>
         <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
@@ -427,7 +434,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityHint={translate("plan.selectStation")}
           />
         </View>
-      </View>
+      </SafeAreaView>
     </>
   )
 }

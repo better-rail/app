@@ -102,9 +102,12 @@ interface RouteDetailsBodyProps {
   data: RouteDetailsData
   screenName: "routeDetails" | "activeRide"
   showEntireRoute: boolean
-  /** Logical side insets the content keeps clear of, while banner backgrounds bleed under them. */
+  /** Logical side insets the content keeps clear of. */
   sideInsets: { start: number; end: number }
-  /** Whether banner backgrounds reach under the side insets (the full screen) or stop at them (a pane). */
+  /**
+   * Whether banner backgrounds reach under the side insets. Off by default: they stop at the insets, as wide as the
+   * station cards, rather than run under iPhone Duo's vertical bar.
+   */
   bleedUnderInsets?: boolean
 }
 
@@ -114,7 +117,7 @@ export function RouteDetailsBody({
   screenName,
   showEntireRoute,
   sideInsets,
-  bleedUnderInsets = true,
+  bleedUnderInsets = false,
 }: RouteDetailsBodyProps) {
   const { routeItem, isRideOnThisRoute, progress } = data
   const { stations } = progress

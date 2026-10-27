@@ -6,7 +6,6 @@ import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
 import { color, spacing } from "@/theme"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Chip, Text } from "@/components"
 import { useShallow } from "zustand/react/shallow"
@@ -26,12 +25,13 @@ const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 /**
- * Where the planner fills the window (a phone, iPhone Duo closed or held upright), its actions are native bar items,
- * which the system lays out where the bar goes: a row under the status bar, or the Duo's side bar.
+ * The planner's actions are native bar items, which the system lays out where the bar goes: a row under the status
+ * bar, or iPhone Duo's side bar. They stay native beside the favorites too, so as the Duo folds the system carries them
+ * between the column's top and the side bar in the same pass, instead of the app swapping in its own row a few frames
+ * after the new layout is on screen.
  */
 export function usePlannerNativeToolbar() {
-  const isSplitCollapsed = useSplitViewStore((s) => s.isCollapsed)
-  return Platform.OS === "ios" && isLiquidGlassSupported && isSplitCollapsed
+  return Platform.OS === "ios" && isLiquidGlassSupported
 }
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.
