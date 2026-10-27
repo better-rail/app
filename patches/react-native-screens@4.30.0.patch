@@ -128,6 +128,53 @@ index 049fd22427b2bde17fd7ca59b8de65d0ee07b4b5..cdac952b372e419af13a95c921705655
  }
  
  - (void)dispatchSafeAreaDidChangeNotification
+diff --git a/ios/RNSScreenStack.mm b/ios/RNSScreenStack.mm
+index 5da11964f5932cb44e1131c44a2480803c0a62b5..7510c83d03ed059af19f0dd48a64bcc621bf2c01 100644
+--- a/ios/RNSScreenStack.mm
++++ b/ios/RNSScreenStack.mm
+@@ -476,7 +476,10 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+ 
+   // if view controller is not yet attached to window we skip updates now and run them when view
+   // is attached
+-  if (self.window == nil && _presentedModals.lastObject.view.window == nil) {
++  // (Better Rail) Unless an ancestor is on screen: in a collapsed split view, the secondary column pushed over the
++  // primary takes this stack off screen, and modals are presented from that ancestor instead.
++  UIViewController *onScreenAncestor = [self onScreenAncestorController];
++  if (self.window == nil && _presentedModals.lastObject.view.window == nil && onScreenAncestor == nil) {
+     return;
+   }
+ 
+@@ -492,7 +495,8 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+ 
+   // Last controller that is common for both _presentedModals & controllers or this RNSNavigationController in case
+   // there is no common part.
+-  __block UIViewController *changeRootController = _controller;
++  __block UIViewController *changeRootController =
++      _controller.view.window == nil && onScreenAncestor != nil ? onScreenAncestor : _controller;
+ 
+   // Last common controller index + 1
+   NSUInteger changeRootIndex = 0;
+@@ -662,6 +666,20 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+   finish();
+ }
+ 
++// (Better Rail) The closest ancestor of this stack's controller that's on screen, when the stack itself isn't.
++- (nullable UIViewController *)onScreenAncestorController
++{
++  if (_controller.view.window != nil) {
++    return nil;
++  }
++  for (UIViewController *vc = _controller.parentViewController; vc != nil; vc = vc.parentViewController) {
++    if (vc.view.window != nil) {
++      return vc;
++    }
++  }
++  return nil;
++}
++
+ - (void)setPushViewControllers:(NSArray<UIViewController *> *)controllers
+ {
+   // when there is no change we return immediately
 diff --git a/ios/RNSScreenStackHeaderConfig.h b/ios/RNSScreenStackHeaderConfig.h
 index 8f99f5b5b9d3f184f36613d51174cb9393d2cdd6..9153b8acd15dd514042f70d645c7ea2bb2b99064 100644
 --- a/ios/RNSScreenStackHeaderConfig.h
