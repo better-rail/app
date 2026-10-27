@@ -14,7 +14,6 @@ import type { ColorSchemePreference } from "@/models/settings/settings"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 import { isHourIndexSupported } from "@/utils/hour-index"
-import { isColorSchemeSettingSupported } from "@/utils/color-scheme"
 
 export function UISettingsScreen() {
   const { showRouteCardHeader, setShowRouteCardHeader, showHourIndex, setShowHourIndex, colorScheme, setColorScheme } =
@@ -81,11 +80,9 @@ export function UISettingsScreen() {
       unsafe={true}
       statusBar={Platform.select({ ios: "light-content" })}
     >
-      {isColorSchemeSettingSupported() && (
-        <View style={settingsStyles.group}>
-          <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />
-        </View>
-      )}
+      <View style={settingsStyles.group}>
+        <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />
+      </View>
 
       <Text style={styles.groupTitle} tx="settings.routeCard" />
       <Animated.View style={animatedCardStyle}>
