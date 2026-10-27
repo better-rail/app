@@ -4,6 +4,9 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-na
 import { StyleSheet } from "react-native-unistyles"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
+import { usePathname, useRouter } from "expo-router"
+import { useRoutePlanStore } from "@/models"
+import { donateRouteIntent } from "@/utils/ios-helpers"
 import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
 import { RouteDetailsPane } from "@/screens/route-list/components/route-details-pane"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
@@ -18,6 +21,8 @@ const FADE_DURATION = 300
  */
 export function SidePane() {
   const insets = useSafeAreaInsets()
+  const router = useRouter()
+  const pathname = usePathname()
   // Judged by the stack, not the current path: a filter or fares sheet over the list is no reason to swap the pane.
   const isRouteListMounted = useSplitViewStore((s) => s.isRouteListMounted)
 
@@ -37,6 +42,21 @@ export function SidePane() {
   // after the fade (the ride buttons beside the list).
   const favoritesStyle = useAnimatedStyle(() => ({ opacity: 1 - details.value }))
 
+  // Beside the planner itself, a favorite is a trip to plan, so it opens its route list as Find Routes would. Beside a
+  // screen over the planner (the station picker), it only fills in the stations.
+  const onFavoriteSelect = () => {
+    HapticFeedback.trigger("impactLight")
+    if (pathname !== "/") return
+
+    const { origin, destination, date } = useRoutePlanStore.getState()
+    if (!origin || !destination) return
+    donateRouteIntent(origin.id, destination.id)
+    router.push({
+      pathname: "/route-list",
+      params: { originId: origin.id, destinationId: destination.id, time: String(date.getTime()), enableQuery: "true" },
+    })
+  }
+
   return (
     <View style={styles.pane}>
       {detailsMounted && (
@@ -55,7 +75,7 @@ export function SidePane() {
             sideInsetPadding(insets, I18nManager.isRTL),
           ]}
         >
-          <FavoriteRoutes onSelect={() => HapticFeedback.trigger("impactLight")} />
+          <FavoriteRoutes onSelect={onFavoriteSelect} />
         </ScrollView>
       </Animated.View>
     </View>
