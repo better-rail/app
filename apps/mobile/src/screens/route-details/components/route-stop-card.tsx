@@ -5,6 +5,7 @@ import { Text } from "@/components"
 import { RouteLine } from "./route-line"
 import { RouteStationCircle } from "./route-station-circle"
 import { RouteElementStateType } from "./use-route-colors"
+import { stopNameFontStyle } from "@/theme/theme-fonts"
 
 type RouteStopCardProps = {
   stationName: string
@@ -86,11 +87,16 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: "row",
     alignItems: "center",
   },
-  routeStopTime: {
-    fontSize: 16,
-    fontFamily: "System",
-    fontWeight: "600",
-  },
+  // Passing stops use the theme's time font a step below the station times; every key is set so a theme switch resets it
+  routeStopTime: theme.skin.timeFont
+    ? {
+        fontFamily: theme.skin.timeFont.family,
+        fontWeight: "normal",
+        fontSize: theme.skin.timeFont.size * 0.65,
+        letterSpacing: theme.skin.timeFont.letterSpacing ?? 0,
+        color: theme.colors.label,
+      }
+    : { fontFamily: "System", fontWeight: "600", fontSize: 16, letterSpacing: 0, color: theme.colors.text },
   routeStopTimeDelayed: {
     textDecorationLine: "line-through",
     fontSize: 12,
@@ -106,8 +112,7 @@ const styles = StyleSheet.create((theme) => ({
     opacity: 0.5,
   },
   stationName: {
-    fontWeight: "600",
-    fontSize: 15,
+    ...stopNameFontStyle(theme, 15),
     marginStart: theme.spacing[3],
   },
 }))

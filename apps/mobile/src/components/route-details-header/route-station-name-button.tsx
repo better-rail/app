@@ -5,6 +5,7 @@ import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scal
 import { Text } from "@/components/text/text"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 const AnimatedTouchable = RNAnimated.createAnimatedComponent(TouchableScale)
 
@@ -91,8 +92,7 @@ const styles = StyleSheet.create((theme) => ({
     color: theme.colors.text,
     opacity: 0.8,
     textAlign: "center",
-    fontWeight: "600",
-    fontSize: 14,
+    ...subheadingFontStyle(theme, 14, "600"),
   },
   // Share the row with the other station instead of taking half the window, which overflows
   // once the row is narrowed by side safe-area insets (iPhone Duo's side bar column).

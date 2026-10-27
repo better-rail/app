@@ -7,6 +7,7 @@ import { Stack } from "expo-router/stack"
 import { enableLegacyHeaderAppearance } from "expo-router"
 import { ErrorBoundary as ExpoErrorBoundary } from "expo-router"
 import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-navigation"
+import { useUnistyles } from "react-native-unistyles"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
 import { ActionSheetProvider } from "@expo/react-native-action-sheet"
@@ -72,7 +73,9 @@ Sentry.init({
   integrations: [
     // Replay is pointless while Sentry is disabled, and its native video encoder
     // segfaults in the simulator (SentryOnDemandReplay -> AVAssetWriterInput).
-    ...(!isSentryEnabled ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
+    ...(!isSentryEnabled
+      ? []
+      : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),
@@ -139,12 +142,25 @@ focusManager.setEventListener((handleFocus) => {
 
 function AppStack() {
   const colorScheme = useColorScheme()
+  const { theme } = useUnistyles()
   const { isUpdateRequired } = useForceUpdate()
+
+  // Headers and screen backgrounds follow themes that own their surfaces (hex colors);
+  // the system look keeps React Navigation's defaults
+  const baseNavigationTheme = colorScheme === "dark" ? DarkTheme : DefaultTheme
+  const { background, text, separator } = theme.colors
+  const navigationTheme =
+    typeof background === "string" && typeof text === "string" && typeof separator === "string"
+      ? {
+          ...baseNavigationTheme,
+          colors: { ...baseNavigationTheme.colors, background, card: background, text, border: separator },
+        }
+      : baseNavigationTheme
 
   if (isUpdateRequired) return <ForceUpdateScreen />
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={navigationTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
         <Stack.Screen name="settings" options={{ presentation: "modal" }} />

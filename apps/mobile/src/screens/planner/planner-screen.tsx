@@ -32,6 +32,7 @@ import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
 import { PlannerScreenHeader, usePlannerNativeToolbar } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
+import { ThemeBackground } from "@/components/theme-background/theme-background"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
 export function PlannerScreen() {
@@ -275,6 +276,7 @@ export function PlannerScreen() {
 
   return (
     <Screen testID="planner-screen" style={styles.root} unsafe={useNativeToolbar}>
+      <ThemeBackground />
       <WebsiteHomeHandoff />
       {isWide ? (
         // Wide tablets: the planner keeps its phone layout in a column, and the favorite routes fill the other side —
@@ -314,7 +316,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     // The Screen wrapper already applies the top safe-area inset, so keep the top
     // padding flush to sit the header close to the status bar and reclaim screen space.
     paddingTop: 0,
-    backgroundColor: theme.colors.background,
   },
   screenTitle: {
     marginBottom: 3,

@@ -29,8 +29,12 @@ mock.module("expo-router", () => ({
   Redirect: () => null,
 }))
 mock.module("expo-glass-effect", () => ({ GlassView: "GlassView" }))
+mock.module("@/components/theme-background/theme-background", () => ({ ThemeBackground: () => null }))
 mock.module("@/utils/liquid-glass", () => ({ isLiquidGlassSupported: true }))
-mock.module("react-native-unistyles", () => ({ StyleSheet: { create: () => ({}) } }))
+mock.module("react-native-unistyles", () => ({
+  StyleSheet: { create: () => ({}) },
+  useUnistyles: () => ({ theme: { colors: { primary: "blue" } } }),
+}))
 mock.module("@/theme", () => ({ color: { primary: "blue" }, fontScale: 1, spacing: [2, 4, 8, 12, 16, 24, 32, 48, 64] }))
 mock.module("@/components", () => ({
   Screen: ({ children }: { children: React.ReactNode }) => <>{children}</>,

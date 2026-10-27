@@ -12,6 +12,7 @@ import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import { useSideInsetBleed } from "./side-inset-bleed"
 import { acrossTheIsland } from "@/data/island-platforms"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
@@ -191,8 +192,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   stationName: {
     marginBottom: theme.spacing[1],
-    fontSize: 18,
-    fontWeight: "700",
+    ...subheadingFontStyle(theme, 18),
     textAlign: "left",
   },
   infoDetailWrapper: {

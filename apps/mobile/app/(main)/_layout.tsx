@@ -1,12 +1,14 @@
 import { useMemo } from "react"
 import { Platform } from "react-native"
+import { useUnistyles } from "react-native-unistyles"
 import { Stack } from "expo-router/stack"
 import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
-import { color, typography } from "@/theme"
+import { typography } from "@/theme"
 import { formSheetOptions } from "@/utils/form-sheet-options"
 
 export default function MainLayout() {
+  const { theme: appTheme } = useUnistyles()
   const theme = useTheme()
   const isWideWindow = useIsWideLayout()
   // The route list header sits over a dark photo, so its glass buttons stay dark in light mode too.
@@ -23,7 +25,7 @@ export default function MainLayout() {
             fontFamily: typography.primary,
           },
           headerBackTitleStyle: { fontFamily: typography.primary },
-          headerTintColor: color.primary as unknown as string,
+          headerTintColor: appTheme.colors.primary as unknown as string,
           headerTitle: "",
         }}
       >

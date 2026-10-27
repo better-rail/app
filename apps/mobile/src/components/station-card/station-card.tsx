@@ -17,6 +17,7 @@ import LinearGradient from "react-native-linear-gradient"
 import { color } from "@/theme"
 import { Text } from "@/components/text/text"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { headingFontStyle } from "@/theme/theme-fonts"
 
 const ThemedTouchableScale = withUnistyles(TouchableScale)
 const isDarkMode = Appearance.getColorScheme() === "dark"
@@ -177,9 +178,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginStart: theme.spacing[3],
     marginBottom: theme.spacing[2],
     color: theme.colors.palette.white,
-    fontFamily: theme.typography.primary,
-    fontSize: 22,
-    fontWeight: "700",
+    ...headingFontStyle(theme, 22),
     textAlign: "left",
     textShadowColor: theme.colors.palette.black,
     textShadowOffset: { width: 0, height: 1 },

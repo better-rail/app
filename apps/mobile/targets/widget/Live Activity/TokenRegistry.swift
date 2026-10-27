@@ -71,10 +71,13 @@ actor TokenRegistry {
     endedActivityIds.insert(activityId)
   }
 
-  func deleteRide(rideId: String) {
-    if let activityId = registrations.first(where: { $0.value.rideId == rideId })?.key {
-      delete(activityId: activityId)
-    }
+  func activityId(rideId: String) -> String? {
+    registrations.first(where: { $0.value.rideId == rideId })?.key
+  }
+
+  /// False for an activity requested before the app was relaunched, which this registry never saw.
+  func isKnown(activityId: String) -> Bool {
+    registrations[activityId] != nil || endedActivityIds.contains(activityId)
   }
 
   func awaitRideId(activityId: String, timeout: TimeInterval) async -> RideRegistrationResult {

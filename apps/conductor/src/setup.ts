@@ -1,5 +1,7 @@
+import { guildCommands, registerCommands } from "./commands"
 import { isSnowflake, loadConfig } from "./config"
 import { DiscordApi, type DiscordChannel, type DiscordMember, type DiscordRole } from "./discord"
+import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
 import { platforms, welcomeMessage } from "./messages"
 import { everyoneCanReadWelcome } from "./permissions"
 import { isFlairRole } from "./roles"
@@ -63,20 +65,24 @@ console.info(`Welcome message: https://discord.com/channels/${config.guildId}/${
 console.info("Copy platformRoles from .conductor-setup.json into DISCORD_PLATFORM_ROLES.")
 
 try {
-  await api.call("POST", `/applications/${config.applicationId}/guilds/${config.guildId}/commands`, {
-    name: "reply",
-    description: "Reply directly to the customer via email",
-    default_member_permissions: "8192",
-    options: [
-      {
-        name: "message",
-        description: "The message to send to the customer",
-        type: 3,
-        required: true,
-      },
-    ],
-  })
-  console.info("Registered /reply slash command on Discord guild")
+  await registerCommands(config, api)
+  console.info(`Registered ${guildCommands.map((command) => `/${command.name}`).join(", ")} on the Discord guild`)
 } catch (cmdErr) {
-  console.warn("Could not register /reply command:", (cmdErr as Error).message)
+  console.warn("Could not register the slash commands:", (cmdErr as Error).message)
+}
+
+const feedbackChannelId = config.emailFeedbackChannelId
+if (isSnowflake(feedbackChannelId)) {
+  const feedback = await api.call<DiscordChannel>("GET", `/channels/${feedbackChannelId}`)
+  const tags = syncedStatusTags(feedback)
+  if (feedback.type !== FORUM_CHANNEL) {
+    console.warn("The email feedback channel is not a forum, so its threads carry no status")
+  } else if (tags) {
+    try {
+      await api.call("PATCH", `/channels/${feedbackChannelId}`, { available_tags: tags })
+      console.info("Synced the status tags")
+    } catch (tagErr) {
+      console.warn("Could not sync status tags (needs Manage Channels):", (tagErr as Error).message)
+    }
+  }
 }

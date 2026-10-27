@@ -1,13 +1,16 @@
 import { Stack } from "expo-router/stack"
+import { useUnistyles } from "react-native-unistyles"
 import { Platform } from "react-native"
 import { useNavigation, useRouter } from "expo-router"
 import { translate } from "@/i18n"
 import { CloseButton } from "@/components"
 import { closeVoucherFlow } from "@/screens/voucher/close-voucher-flow"
 import { usePauseReplayWhileTyping } from "@/screens/voucher/use-pause-replay-while-typing"
-import { color, spacing, typography } from "@/theme"
+import { spacing } from "@/theme"
+import { headingFontStyle } from "@/theme/theme-fonts"
 
 export default function VoucherLayout() {
+  const { theme: appTheme } = useUnistyles()
   const router = useRouter()
   // Mounted for the whole sheet, so every keyboard in the flow is covered
   usePauseReplayWhileTyping()
@@ -37,9 +40,9 @@ export default function VoucherLayout() {
       screenOptions={{
         headerShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
-        headerTintColor: color.primary as unknown as string,
-        headerTitleStyle: { fontFamily: typography.primary },
-        contentStyle: { backgroundColor: color.background },
+        headerTintColor: appTheme.colors.primary as unknown as string,
+        headerTitleStyle: headingFontStyle(appTheme, 17, "normal"),
+        contentStyle: { backgroundColor: appTheme.colors.background },
       }}
     >
       <Stack.Screen name="index" options={{ title: translate("voucher.orderTitle") ?? "", ...closeButtonOptions }} />

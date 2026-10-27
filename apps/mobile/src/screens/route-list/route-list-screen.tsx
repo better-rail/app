@@ -20,6 +20,7 @@ import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
 import { retryOnceOnNetworkError } from "@/utils/helpers/network-errors"
 import { Screen, RouteDetailsHeader, RouteCard, RouteCardHeight, RouteCardHeightWithHeader, WebsiteHandoff } from "@/components"
+import { ThemeBackground } from "@/components/theme-background/theme-background"
 import {
   NoTrainsFoundMessage,
   FilteredTrainsMessage,
@@ -551,6 +552,7 @@ function RouteListResults({
 
       {canShowRows && displayData.length > 0 && (
         <View style={styles.listContainer}>
+          <ThemeBackground fade="none" />
           <LegendList
             // The list caches row sizes, so it starts over when the train info prompt changes the card height
             key={`route-list-${showRouteCardHeader}`}
