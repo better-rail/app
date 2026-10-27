@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react"
-import { I18nManager, ScrollView, StyleSheet as RNStyleSheet, View } from "react-native"
+import { I18nManager, Platform, ScrollView, StyleSheet as RNStyleSheet, View } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { ScreenStack, ScreenStackItem } from "react-native-screens"
 import HapticFeedback from "react-native-haptic-feedback"
 import { usePathname, useRouter } from "expo-router"
 import { useRoutePlanStore } from "@/models"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
 import { RouteDetailsPane } from "@/screens/route-list/components/route-details-pane"
+import { usePlannerBarButtonItems } from "@/screens/planner/planner-screen-header"
 import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { useSplitViewStore } from "./split-view-store"
 
@@ -38,6 +40,16 @@ export function SidePane() {
     const timeout = setTimeout(() => setDetailsMounted(false), FADE_DURATION)
     return () => clearTimeout(timeout)
   }, [isRouteListMounted, details])
+  // Likewise the favorites' bar, with the planner's actions, while they're on screen.
+  const [favoritesMounted, setFavoritesMounted] = useState(!isRouteListMounted)
+  useEffect(() => {
+    if (!isRouteListMounted) {
+      setFavoritesMounted(true)
+      return
+    }
+    const timeout = setTimeout(() => setFavoritesMounted(false), FADE_DURATION)
+    return () => clearTimeout(timeout)
+  }, [isRouteListMounted])
   // Only the favorites fade, over the details: a glass view under an ancestor at opacity 0 never renders, even mounted
   // after the fade (the ride buttons beside the list).
   const favoritesStyle = useAnimatedStyle(() => ({ opacity: 1 - details.value }))
@@ -64,25 +76,57 @@ export function SidePane() {
           <RouteDetailsPane />
         </View>
       )}
-      <Animated.View
-        style={[RNStyleSheet.absoluteFill, styles.favorites, favoritesStyle]}
-        pointerEvents={isRouteListMounted ? "none" : "auto"}
-      >
-        <ScrollView
-          contentContainerStyle={[
-            styles.favoritesContent,
-            { paddingTop: insets.top + styles.favoritesContent.paddingTop },
-            sideInsetPadding(insets, I18nManager.isRTL),
-          ]}
-        >
-          <FavoriteRoutes onSelect={onFavoriteSelect} />
-        </ScrollView>
-      </Animated.View>
+      {favoritesMounted && (
+        <View style={RNStyleSheet.absoluteFill} pointerEvents={isRouteListMounted ? "none" : "auto"}>
+          <PlannerActionsBar>
+            <Animated.View style={[RNStyleSheet.absoluteFill, styles.favorites, favoritesStyle]}>
+              <ScrollView
+                contentContainerStyle={[
+                  styles.favoritesContent,
+
+                  sideInsetPadding(insets, I18nManager.isRTL),
+                ]}
+              >
+                <FavoriteRoutes onSelect={onFavoriteSelect} />
+              </ScrollView>
+            </Animated.View>
+          </PlannerActionsBar>
+        </View>
+      )}
     </View>
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+/**
+ * The planner's actions, beside the favorites: in a stack bar of the column's own, which iPhone Duo lays out in its
+ * side bar as it does with the planner's on the closed display (the planner hides its own here, see
+ * PlannerScreenHeader). Outside the fade, as glass under a faded ancestor never renders.
+ */
+function PlannerActionsBar({ children }: { children: React.ReactNode }) {
+  const items = usePlannerBarButtonItems()
+  if (Platform.OS !== "ios") return <>{children}</>
+
+  return (
+    <ScreenStack style={RNStyleSheet.absoluteFill}>
+      <ScreenStackItem
+        screenId="planner-actions-pane"
+        activityState={2}
+        style={RNStyleSheet.absoluteFill}
+        headerConfig={{
+          title: "",
+          translucent: true,
+          backgroundColor: "transparent",
+          hideShadow: true,
+          headerRightBarButtonItems: items,
+        }}
+      >
+        {children}
+      </ScreenStackItem>
+    </ScreenStack>
+  )
+}
+
+const styles = StyleSheet.create((theme, rt) => ({
   pane: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -93,9 +137,9 @@ const styles = StyleSheet.create((theme) => ({
   favorites: {
     backgroundColor: theme.colors.background,
   },
-  // Lines the favorites' heading up with the planner's title, below its header row.
+  // Under the column's empty bar (its items are in iPhone Duo's side bar), level with the planner's title.
   favoritesContent: {
-    paddingTop: 48 + theme.spacing[2],
+    paddingTop: rt.insets.top + theme.spacing[5],
     paddingBottom: theme.spacing[5],
   },
 }))
