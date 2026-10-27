@@ -222,6 +222,13 @@ function RouteListResults({
     router.push("/route-details")
   }
   const listRef = useRef<LegendListRef>(null)
+  // The rows wait a task after the screen mounts: the native push starts only once the JS work of mounting it is done,
+  // and laying out and rendering the cards would hold it back for a noticeable moment.
+  const [canShowRows, setCanShowRows] = useState(false)
+  useEffect(() => {
+    const timeout = setTimeout(() => setCanShowRows(true), 0)
+    return () => clearTimeout(timeout)
+  }, [])
   // LegendList hides rows until it has jumped to the closest train; hide the footer and scroll bar with them
   const [isListReady, setIsListReady] = useState(false)
   const hasRecordedSearch = useRef(false)
@@ -542,7 +549,7 @@ function RouteListResults({
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
-      {displayData.length > 0 && (
+      {canShowRows && displayData.length > 0 && (
         <View style={styles.listContainer}>
           <LegendList
             // The list caches row sizes, so it starts over when the train info prompt changes the card height
