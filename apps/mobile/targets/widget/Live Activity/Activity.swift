@@ -64,6 +64,9 @@ class LiveActivitiesController {
       throw NSError(domain: "live-activity", code: 1002, userInfo: [NSLocalizedDescriptionKey: "Live Activities are disabled."])
     }
 
+    // Only one ride runs at a time, so an activity still on screen lost its ride and no longer gets updates.
+    await end(Activity<BetterRailActivityAttributes>.activities)
+
     let route = trimmedForActivity(route)
 
     do {
@@ -185,13 +188,33 @@ class LiveActivitiesController {
   }
 
   func endLiveActivity(rideId: String) async {
-    // Clear before awaiting `end`, so the `.ended` event it triggers finds nothing left to clean up.
-    let activity = LiveActivitiesController.currentActivity
-    clearCurrentActivity()
+    let registry = LiveActivitiesController.tokenRegistry
+    let rideActivityId = await registry.activityId(rideId: rideId)
 
-    await LiveActivitiesController.tokenRegistry.deleteRide(rideId: rideId)
-    await activity?.end(dismissalPolicy: .immediate)
+    // After a relaunch the registry no longer knows the ride, so also end activities left by an earlier launch.
+    // Otherwise the ride's activity stays on screen after the server stops updating it.
+    var activities: [LiveActivityRoute] = []
+    for activity in Activity<BetterRailActivityAttributes>.activities {
+      let isKnown = await registry.isKnown(activityId: activity.id)
+      if activity.id == rideActivityId || !isKnown {
+        activities.append(activity)
+      }
+    }
+
+    await end(activities)
     print("Ride (\(rideId)) ended.")
+  }
+
+  private func end(_ activities: [LiveActivityRoute]) async {
+    for activity in activities {
+      // Clear before awaiting `end`, so the `.ended` event it triggers finds nothing left to clean up.
+      if activity.id == LiveActivitiesController.currentActivity?.id {
+        clearCurrentActivity()
+      }
+
+      await LiveActivitiesController.tokenRegistry.delete(activityId: activity.id)
+      await activity.end(dismissalPolicy: .immediate)
+    }
   }
 
   /// Ends an activity whose ride never started.

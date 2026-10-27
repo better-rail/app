@@ -2,6 +2,7 @@ import { Image, View, type ImageSourcePropType } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useSettingsStore } from "@/models"
 import type { AccentThemeId } from "@/theme/accent-themes"
+import { isAccentThemeSupported } from "@/utils/accent-theme-support"
 
 // Each theme's doodle is split into two white masks, tinted with the theme's primary and secondary colors
 const backgrounds: Record<AccentThemeId, { primary: ImageSourcePropType; secondary: ImageSourcePropType }> = {
@@ -70,7 +71,7 @@ export function ThemeBackground({ fade = "edges" }: { fade?: ThemeBackgroundFade
   const accentTheme = useSettingsStore((s) => s.accentTheme)
   const showBackground = useSettingsStore((s) => s.showThemeBackground)
 
-  if (!showBackground) return null
+  if (!showBackground || !isAccentThemeSupported()) return null
 
   const source = backgrounds[accentTheme]
 

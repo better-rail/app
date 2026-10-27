@@ -2,7 +2,9 @@
 import * as Sentry from "@sentry/cloudflare"
 
 import { limitRequestBody } from "./body-limit"
+import { registerCommands } from "./commands"
 import { loadConfig } from "./config"
+import { DiscordApi } from "./discord"
 import { createHandler, type HandlerContext } from "./interactions"
 
 /** The Worker's secrets (`wrangler secret put`, see README); every one is read through loadConfig. */
@@ -59,5 +61,10 @@ export default Sentry.withSentry(sentryOptions, {
     const limited = await limitRequestBody(request)
     if (limited instanceof Response) return limited
     return conductor(env)(limited, context)
+  },
+  // The cron in wrangler.jsonc keeps the slash commands registered, so a deploy needs no local setup run.
+  async scheduled(_controller: unknown, env: Env) {
+    const config = loadConfig(env)
+    await registerCommands(config, new DiscordApi(config.botToken))
   },
 })
