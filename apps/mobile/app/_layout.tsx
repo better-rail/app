@@ -57,9 +57,14 @@ enableLegacyHeaderAppearance()
 
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 
+const isSentryEnabled = !__DEV__ && !IS_E2E
+
 Sentry.init({
   dsn: "https://203d8d08bca79bc415c95f41ab496d0b@o4510306230534144.ingest.us.sentry.io/4510307294248960",
-  enabled: !__DEV__ && !IS_E2E,
+  enabled: isSentryEnabled,
+  // `enabled` alone still starts the native SDK, whose session replay then captures the screen from the replay sample
+  // rates below (a ~150ms main-thread stall each time), even in development and E2E runs.
+  enableNative: isSentryEnabled,
   enableTombstone: true,
   anrProfilingSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
@@ -67,7 +72,7 @@ Sentry.init({
   integrations: [
     // Replay is pointless while Sentry is disabled, and its native video encoder
     // segfaults in the simulator (SentryOnDemandReplay -> AVAssetWriterInput).
-    ...(__DEV__ ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
+    ...(!isSentryEnabled ? [] : [Sentry.mobileReplayIntegration({ maskAllText: false, maskAllImages: false, maskAllVectors: false })]),
     // Records navigation breadcrumbs (push/pop, from → to). Needs SDK >= 8.19, since this
     // `init()` runs before the Root Layout mounts and older versions gave up instead of retrying.
     Sentry.expoRouterIntegration(),
