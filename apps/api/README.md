@@ -11,19 +11,20 @@ Wrangler. TypeScript runs directly; there is no build step.
 
 ## What runs where
 
-| Before (Railway)                                | Now (Cloudflare)                                                                            |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Express web service                             | The Worker (`src/app.ts`, Elysia)                                                           |
-| Postgres (GTFS timetable, learned platforms)    | D1 (`src/db/schema.sql`, same tables)                                                       |
-| redis `rides:*` + in-process node-schedule jobs | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm           |
-| `bun run siri` poller service                   | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s         |
-| redis `siri:*` snapshot                         | The poller object's storage, read over RPC with the same 5 s per-isolate cache              |
-| redis `fares:snapshot`                          | KV                                                                                          |
-| Railway cron `bun run ingest`                   | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest` |
-| Railway cron `bun run rail:pull`                | Cron trigger → `src/fares/sync.ts`                                                          |
-| `apns2` / `firebase-admin`                      | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                           |
-| `@sentry/bun` + winston                         | `@sentry/cloudflare` + console (Workers Logs)                                               |
-| The poller's registered egress IP, TLS CA       | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the MOT SIRI API     |
+| Before (Railway)                                | Now (Cloudflare)                                                                                |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Express web service                             | The Worker (`src/app.ts`, Elysia)                                                               |
+| Postgres (GTFS timetable, learned platforms)    | D1 (`src/db/schema.sql`, same tables)                                                           |
+| redis `rides:*` + in-process node-schedule jobs | One Durable Object per ride (`src/rides/ride-do.ts`), its minute cadence an alarm               |
+| `bun run siri` poller service                   | A singleton Durable Object (`src/siri/poller-do.ts`) polling on an alarm every 30 s             |
+| redis `siri:*` snapshot                         | The poller object's storage, read over RPC with the same 5 s per-isolate cache                  |
+| redis `fares:snapshot`                          | KV                                                                                              |
+| Railway cron `bun run ingest`                   | Cron trigger → a one-shot Container (`ingest/`) posts the parsed feed to `/internal/ingest`     |
+| Railway cron `bun run rail:pull`                | Cron trigger → `src/fares/sync.ts`                                                              |
+| `apns2` / `firebase-admin`                      | `src/push/apns.ts` and `src/push/fcm.ts` (fetch + WebCrypto JWTs)                               |
+| apns2's one provider token per process          | A singleton Durable Object (`src/push/apns-token-do.ts`): one token per 50 min for all isolates |
+| `@sentry/bun` + winston                         | `@sentry/cloudflare` + console (Workers Logs)                                                   |
+| The poller's registered egress IP, TLS CA       | [`apps/egress-proxy`](../egress-proxy/README.md): a fixed-IP relay for the MOT SIRI API         |
 
 The one thing that cannot live on Cloudflare is the egress IP: MOT allow-lists a single address for SIRI. The egress
 proxy is a ~100-line Bun relay that runs on any fixed-IP host (the old Railway service's IP is already registered); the
@@ -112,8 +113,10 @@ Continuous deployment is Workers Builds, like the web app (Workers & Pages → t
 | Build command                        | `bun install --filter @better-rail/api && bun run test && bun run compile` |
 | Deploy command                       | `bunx wrangler deploy`                                                     |
 | Non-production branch deploy command | `bunx wrangler preview`                                                    |
-| Build watch paths (include)          | `apps/api/*`, `bun.lock`                                                   |
+| Build watch paths (include)          | `apps/api/*`, `bun.lock`, `package.json`, `bunfig.toml`                    |
 | Build variable                       | `BUN_VERSION` = `1.3.9`                                                    |
+
+Set these watch paths for both **Production** and **Previews Base** in Cloudflare → Settings → Builds.
 
 Workers Builds has Docker, so the ingest container image is built and rolled out with each deploy. Worker secrets and
 the per-deployment variables (`API_BASE_URL`, `RAIL_DATA_SOURCE`) stay on Cloudflare across deploys (`keep_vars`).

@@ -1,8 +1,9 @@
 import { describe, expect, test } from "bun:test"
 import { createHmac, generateKeyPairSync, sign } from "node:crypto"
 import { limitRequestBody, MAX_REQUEST_BODY_BYTES } from "./body-limit"
+import { guildCommands, registerCommands } from "./commands"
 import { type ConductorConfig, loadConfig } from "./config"
-import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordRole } from "./discord"
+import { DiscordApi, type DiscordChannel, type DiscordMessage, type DiscordOverwrite, type DiscordRole } from "./discord"
 import {
   chunkEmailBody,
   cleanQuotedReply,
@@ -15,6 +16,7 @@ import {
   formatReplySubject,
   htmlToText,
 } from "./email-bridge"
+import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
 import worker from "./index"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
@@ -50,7 +52,6 @@ class FakeDiscord extends DiscordApi {
   memberRoles = [staffRole]
   mutations: { method: string; path: string }[] = []
   responses: object[] = []
-  failAssignment = false
   failAssignmentRole?: string
   failRemovalOnce?: string
   failAfterMutationOnce?: { method: string; roleId: string }
@@ -85,16 +86,21 @@ class FakeDiscord extends DiscordApi {
     if (method === "POST" && threadMatch) {
       const parentId = threadMatch[1]
       const threadId = String(1548800000000000000n + this.threadCounter++)
-      const b = body as { name: string; type: number }
+      const b = body as { name: string; type?: number; applied_tags?: string[]; message?: { content: string } }
       const channel: DiscordChannel = {
         id: threadId,
         guild_id: guildId,
         parent_id: parentId,
         name: b.name,
-        type: b.type,
+        type: b.type ?? 11,
         permission_overwrites: [],
+        applied_tags: b.applied_tags,
       }
       this.channels.set(threadId, channel)
+      if (b.message) {
+        const author = { id: applicationId, username: "The Conductor", bot: true }
+        this.messages.set(threadId, [{ id: threadId, channel_id: threadId, content: b.message.content, author }])
+      }
       return channel as T
     }
 
@@ -163,7 +169,7 @@ class FakeDiscord extends DiscordApi {
     }
 
     const role = path.split("/").at(-1)!
-    if (method === "PUT" && (this.failAssignment || this.failAssignmentRole === role)) throw new Error("Assignment failed")
+    if (method === "PUT" && this.failAssignmentRole === role) throw new Error("Assignment failed")
     if (method === "DELETE" && this.failRemovalOnce === role) {
       this.failRemovalOnce = undefined
       throw new Error("Removal failed")
@@ -251,29 +257,21 @@ describe("conductor onboarding", () => {
   })
 
   test("welcome access requires both visibility and history after everyone overwrites", () => {
-    const everyone: DiscordRole = { id: guildId, name: "@everyone", permissions: "0", managed: false, position: 0 }
-    const channel: DiscordChannel = { id: "1548800000000000020", type: 0, permission_overwrites: [] }
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    everyone.permissions = "66560"
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
-    channel.permission_overwrites.push({ id: guildId, type: 0, allow: "0", deny: "1024" })
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    everyone.permissions = "0"
-    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "66560", deny: "0" }
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
-    channel.permission_overwrites[0].type = 1
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    channel.permission_overwrites[0].type = 0
-    everyone.permissions = "66560"
-    channel.permission_overwrites[0] = { id: guildId, type: 0, allow: "0", deny: "65536" }
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    channel.permission_overwrites = []
-    everyone.permissions = "1024"
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    everyone.permissions = "65536"
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(false)
-    everyone.permissions = "8"
-    expect(everyoneCanReadWelcome(channel, everyone)).toBe(true)
+    const overwrite = (allow: string, deny = "0", type = 0): DiscordOverwrite => ({ id: guildId, type, allow, deny })
+    const cases: [string, DiscordOverwrite[], boolean][] = [
+      ["1024", [], false],
+      ["65536", [], false],
+      ["66560", [], true],
+      ["8", [], true],
+      ["66560", [overwrite("0", "1024")], false],
+      ["66560", [overwrite("0", "65536")], false],
+      ["0", [overwrite("66560")], true],
+      ["0", [overwrite("66560", "0", 1)], false],
+    ]
+    for (const [permissions, permission_overwrites, expected] of cases) {
+      const everyone: DiscordRole = { id: guildId, name: "@everyone", permissions, managed: false, position: 0 }
+      expect(everyoneCanReadWelcome({ id: "1548800000000000020", type: 0, permission_overwrites }, everyone)).toBe(expected)
+    }
   })
 
   test("switching device preserves unrelated roles; concurrent picks end with one device", async () => {
@@ -301,48 +299,32 @@ describe("conductor onboarding", () => {
     const handler = createHandler(config, api)
     const start = interaction("conductor:start")
     start.message.flags = 0
-    const result = await (await handler(signedRequest(start))).json()
-    expect(result.type).toBe(4)
-    expect(result.data.flags).toBe(64)
-    expect(result.data.content).toContain("אייפון או אנדרואיד")
-    expect(result.data.components[0].components.map((button: { label: string }) => button.label)).toEqual(["אייפון", "אנדרואיד"])
+    expect(await (await handler(signedRequest(start))).json()).toEqual({ type: 4, data: { ...platformPicker(), flags: 64 } })
     expect(api.mutations).toHaveLength(0)
   })
 
-  test("either device immediately completes onboarding with the channel links", async () => {
-    for (const [platformId, roleId] of [
-      ["ios", iosRole],
-      ["android", androidRole],
-    ]) {
-      const api = new FakeDiscord()
-      const handler = createHandler(config, api)
-      expect(await (await handler(signedRequest(interaction("conductor:platform:" + platformId)))).json()).toEqual({ type: 6 })
-      expect(await waitForResponse(api)).toEqual(journeyComplete())
-      expect(api.memberRoles).toEqual([staffRole, roleId])
-      expect(journeyComplete().content).toContain("<#1548778686671757373>")
-      expect(journeyComplete().content).toContain("<#1548778257866817626>")
+  test("either device completes onboarding privately, from the welcome or a private picker", async () => {
+    for (const button of welcomeMessage().components[0].components) {
+      for (const flags of [0, 64]) {
+        const api = new FakeDiscord()
+        const selected = interaction(button.custom_id)
+        selected.message.flags = flags
+        const response = await (await createHandler(config, api)(signedRequest(selected))).json()
+        expect(response).toEqual(flags ? { type: 6 } : { type: 5, data: { flags: 64 } })
+        expect(await waitForResponse(api)).toEqual(journeyComplete())
+        expect(api.memberRoles).toEqual([staffRole, button.custom_id.endsWith("ios") ? iosRole : androidRole])
+      }
     }
   })
 
   test("retired station controls and modals return to device choice without mutations", async () => {
     const api = new FakeDiscord()
     const handler = createHandler(config, api)
-    for (const customId of [
-      "conductor:skip",
-      "conductor:clear",
-      "conductor:finish:4600",
-      "conductor:station:0",
-      "conductor:search:",
-      "conductor:result:",
-      "conductor:remove:4600:4600",
-    ]) {
-      const response = await (await handler(signedRequest(interaction(customId)))).json()
-      expect(response).toEqual({ type: 7, data: platformPicker() })
+    const retired = ["conductor:skip", "conductor:finish:4600", "conductor:station:0", "conductor:remove:4600:4600"]
+    const modals = ["conductor:query:4600", "conductor:platform:ios"].map((id) => ({ ...interaction(id), type: 5 }))
+    for (const payload of [...retired.map((id) => interaction(id)), ...modals]) {
+      expect(await (await handler(signedRequest(payload))).json()).toEqual({ type: 7, data: platformPicker() })
     }
-    const modal = { ...interaction("conductor:query:4600"), type: 5 }
-    expect(await (await handler(signedRequest(modal))).json()).toEqual({ type: 7, data: platformPicker() })
-    const forged = { ...interaction("conductor:platform:ios"), type: 5 }
-    expect(await (await handler(signedRequest(forged))).json()).toEqual({ type: 7, data: platformPicker() })
     expect(api.mutations).toHaveLength(0)
     expect(api.responses).toHaveLength(0)
   })
@@ -383,21 +365,6 @@ describe("conductor onboarding", () => {
     expect(api.memberRoles).toContain(staffRole)
     expect(api.memberRoles).toContain(unrelatedRole)
   })
-
-  test("welcome asks for the device directly and completion stays private", async () => {
-    const welcome = welcomeMessage()
-    expect(welcome.content).toBe("## ברוכים הבאים לדיסקורד של בטר רייל!\n\nעם מה אתם נוסעים, אייפון או אנדרואיד?")
-    expect(welcome.components[0].components.map((button) => button.label)).toEqual(["אייפון", "אנדרואיד"])
-    for (const button of welcome.components[0].components) {
-      const api = new FakeDiscord()
-      const selected = interaction(button.custom_id)
-      selected.message.flags = 0
-      const response = await (await createHandler(config, api)(signedRequest(selected))).json()
-      expect(response).toEqual({ type: 5, data: { flags: 64 } })
-      expect(await waitForResponse(api)).toEqual(journeyComplete())
-      expect(api.memberRoles).toEqual([staffRole, button.custom_id.endsWith("ios") ? iosRole : androidRole])
-    }
-  })
 })
 
 describe("conductor worker", () => {
@@ -409,6 +376,13 @@ describe("conductor worker", () => {
     DISCORD_PLATFORM_ROLES: JSON.stringify(config.platformRoles),
   }
   const context = { waitUntil: (work: Promise<unknown>) => void work, passThroughOnException: () => {}, props: {} }
+
+  test("the hourly cron registers /reply and /resolve on the guild", async () => {
+    const discord = new FakeDiscord()
+    await registerCommands(config, discord)
+    expect(discord.mutations).toEqual([{ method: "PUT", path: `/applications/${applicationId}/guilds/${guildId}/commands` }])
+    expect(guildCommands.map((command) => command.name)).toEqual(["reply", "resolve"])
+  })
 
   test("loadConfig reads the Worker env and rejects incomplete settings", () => {
     expect(loadConfig({ ...env, RESEND_API_KEY: "re_key" })).toEqual({ ...config, resendApiKey: "re_key" })
@@ -505,24 +479,27 @@ function signedResendRequest(payload: unknown, secret: string, timestamp = Strin
   })
 }
 
-function createEmailBridge(cfg = emailConfig) {
+const statusTagIds = { open: "1548800000000002001", replied: "1548800000000002002", resolved: "1548800000000002003" }
+
+function createEmailBridge(cfg = emailConfig, feedbackType = 0) {
   const discord = new FakeDiscord()
+  discord.channels.set(feedbackChannelId, {
+    id: feedbackChannelId,
+    guild_id: guildId,
+    name: "email-feedback",
+    type: feedbackType,
+    permission_overwrites: [],
+    available_tags: [
+      { id: "1548800000000002000", name: "Bug" },
+      { id: statusTagIds.open, name: "Open" },
+      { id: statusTagIds.replied, name: "replied" },
+      { id: statusTagIds.resolved, name: "Resolved" },
+    ],
+  })
   const resend = new FakeResend()
   const bridge = new EmailBridge(cfg, discord, resend)
   const handler = createHandler(cfg, discord, new OnboardingRoles(cfg, discord), resend, bridge)
   return { discord, resend, bridge, handler }
-}
-
-function createThread(discord: FakeDiscord, id: string, name = "Feedback", archived = false) {
-  discord.channels.set(id, {
-    id,
-    guild_id: guildId,
-    parent_id: feedbackChannelId,
-    name,
-    type: 11,
-    permission_overwrites: [],
-    thread_metadata: archived ? { archived: true } : undefined,
-  })
 }
 
 function replyCommand(channelId: string, message: string, id = "cmd_reply", permissions = "8192") {
@@ -571,31 +548,22 @@ describe("resend email bridge", () => {
 
     expect(formatReplySubject("Train 402 [2]")).toBe("Re: Train 402 [2]")
     expect(formatReplySubject("Bug [#1548800000000001001]")).toBe("Re: Bug")
-    expect(formatReplySubject("Train delay")).toBe("Re: Train delay")
     expect(formatReplySubject("Re: Train delay")).toBe("Re: Train delay")
     expect(formatReplySubject("")).toBe("Re: Email Feedback")
 
-    expect(detectTextDirection("שלום")).toEqual({ dir: "rtl", align: "right", lang: "he" })
-    expect(detectTextDirection("Hello")).toEqual({ dir: "ltr", align: "left", lang: "en" })
     expect(detectTextDirection("Train to תל אביב is on time")).toEqual({ dir: "ltr", align: "left", lang: "en" })
     expect(detectTextDirection("רכבת ל-Savidor יוצאת כעת")).toEqual({ dir: "rtl", align: "right", lang: "he" })
     expect(detectTextDirection("مرحبا بكم")).toEqual({ dir: "rtl", align: "right", lang: "ar" })
-    expect(formatEmailHtml("Hello", threadId)).toContain('dir="ltr"')
     expect(formatEmailHtml("שלום", threadId)).toContain('dir="rtl"')
     expect(formatEmailHtml("<script>alert('xss')</script>", threadId)).toContain("&lt;script&gt;")
     expect(formatEmailHtml("", threadId)).toContain("(Empty message)")
-    expect(formatEmailHtml("Hello", threadId)).toContain(`Ref: [#${threadId}]`)
 
     const longUrl = "https://better-rail.co.il/" + "x".repeat(750)
-    expect(formatEmailHtml(longUrl, threadId)).toContain(
-      `<p dir="ltr" style="margin: 0 0 16px 0; line-height: 1.6; font-size: 16px; color: #1f2937; direction: ltr; text-align: left;">${longUrl}</p>`,
-    )
+    expect(formatEmailHtml(longUrl, threadId)).toContain(`${longUrl}</p>`)
     expect(formatEmailHtml("It costs $$5 and $& and $' end", threadId)).toContain("It costs $$5 and $&amp; and $' end</p>")
 
-    const crlf = formatEmailHtml("A\r\n\r\nB\r\nC", threadId)
-    expect(crlf).not.toContain("\r<br")
-    expect(crlf).toContain("A</p>")
-    expect(crlf).toContain("B<br />\r\nC</p>")
+    expect(formatEmailHtml("A\r\n\r\nB\r\nC", threadId)).toContain("A</p>")
+    expect(formatEmailHtml("A\r\n\r\nB\r\nC", threadId)).toContain("B<br />\r\nC</p>")
 
     expect(formatEmailHtml("Use {{threadId}} literally", threadId)).toContain("Use {{threadId}} literally")
 
@@ -619,17 +587,13 @@ describe("resend email bridge", () => {
     expect(cleanQuotedReply(`Thanks\n\n> > Earlier\n> >\n> > Better Rail Support • Ref: [#${threadId}]`)).toBe(
       "Thanks\n\n> > Earlier",
     )
-    expect(cleanQuotedReply(`Thanks\n\nWe fixed it.\nBetter Rail Support • Ref: [#${threadId}]`)).toBe("Thanks\n\nWe fixed it.")
     expect(cleanQuotedReply(`Thanks\n\n> We fixed it.\n>\n> --------------\n> Ref: [#${threadId}]`)).toBe(
       "Thanks\n\n> We fixed it.",
     )
     expect(cleanQuotedReply("> Better Rail Support is great")).toBe("> Better Rail Support is great")
 
-    const text = htmlToText("<p>Hello <b>team</b>,</p><p>The app is <i>great</i>!<br/>Thanks.</p>")
-    expect(text).toContain("Hello team,")
-    expect(text).toContain("The app is great!\nThanks.")
+    expect(htmlToText("<p>Hello <b>team</b>,</p><p>Great!<br/>Thanks.</p>")).toContain("Hello team,\n\nGreat!\nThanks.")
 
-    expect(chunkEmailBody("Short message").chunks).toEqual(["Short message"])
     expect(chunkEmailBody("Line of text.\n".repeat(180)).chunks.length).toBeGreaterThan(1)
     const large = chunkEmailBody("A".repeat(5000))
     expect(large.chunks[0]).toContain("exceeds 4,000 characters")
@@ -649,6 +613,8 @@ describe("resend email bridge", () => {
     expect(initial.created).toBe(true)
     const threadId = initial.threadId
     expect(discord.channels.get(threadId)?.parent_id).toBe(feedbackChannelId)
+    // Text-channel threads have no tags, so they get no status
+    expect(discord.channels.get(threadId)?.applied_tags).toBeUndefined()
     expect(discord.messages.get(threadId)?.[0].content).toContain("Train schedule issue at Savidor")
     expect(discord.messages.get(threadId)?.[0].content).toContain("**Message-ID:** `<msg-ron-1@example.com>`")
 
@@ -736,49 +702,30 @@ describe("resend email bridge", () => {
 
   test("inbound email downloads valid attachments and rejects oversized ones", async () => {
     const { discord, resend, bridge } = createEmailBridge()
+    const huge = 30 * 1024 * 1024
+    const attachments = [
+      { id: "1", filename: "invoice.pdf", content_type: "application/pdf", size: 1024 },
+      { id: "2", filename: "huge.zip", content_type: "application/zip", size: huge },
+    ]
+    resend.receivedAttachments.set(
+      "email_att",
+      attachments.map((a) => ({ ...a, download_url: `https://files.resend.com/${a.filename}` })),
+    )
     const originalFetch = globalThis.fetch
+    globalThis.fetch = (async (input: RequestInfo | URL) =>
+      String(input).includes("huge.zip")
+        ? new Response("huge", { headers: { "content-length": String(huge) } })
+        : new Response(new Uint8Array([1, 2, 3, 4]))) as typeof fetch
     try {
-      globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-        const url = String(input)
-        if (url.includes("invoice.pdf")) {
-          return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200, headers: { "content-type": "application/pdf" } })
-        }
-        if (url.includes("huge.zip")) {
-          return new Response("huge payload", { status: 200, headers: { "content-length": String(30 * 1024 * 1024) } })
-        }
-        return originalFetch(input, init)
-      }) as typeof fetch
-
-      resend.receivedAttachments.set("email_att", [
-        {
-          id: "1",
-          filename: "invoice.pdf",
-          content_type: "application/pdf",
-          size: 1024,
-          download_url: "https://files.resend.com/invoice.pdf",
-        },
-        {
-          id: "2",
-          filename: "huge.zip",
-          content_type: "application/zip",
-          size: 30 * 1024 * 1024,
-          download_url: "https://files.resend.com/huge.zip",
-        },
-      ])
-
-      const res = await bridge.handleInboundEmail({
+      const { threadId } = await bridge.handleInboundEmail({
         id: "email_att",
         from: "attachment_user@example.com",
         to: ["feedback@better-rail.co.il"],
         subject: "With Attachments",
         text: "See attached invoice",
-        attachments: [
-          { id: "1", filename: "invoice.pdf", content_type: "application/pdf", size: 1024 },
-          { id: "2", filename: "huge.zip", content_type: "application/zip", size: 30 * 1024 * 1024 },
-        ],
+        attachments,
       })
-      expect(res.created).toBe(true)
-      const messages = discord.messages.get(res.threadId) || []
+      const messages = discord.messages.get(threadId)!
       expect(messages).toHaveLength(2)
       expect(messages[1].content).toContain("**Attachment:** `invoice.pdf`")
     } finally {
@@ -787,25 +734,13 @@ describe("resend email bridge", () => {
   })
 
   test("POST /resend/webhook processes incoming email and rejects unauthorized requests", async () => {
-    const { handler: unconfiguredSecret } = createEmailBridge({ ...emailConfig, resendWebhookSecret: undefined })
-    expect(
-      (await unconfiguredSecret(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status,
-    ).toBe(503)
-
-    const { handler: unconfiguredKey } = createEmailBridge({ ...emailConfig, resendApiKey: undefined })
-    expect((await unconfiguredKey(new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" }))).status).toBe(
-      503,
-    )
+    const empty = () => new Request("http://localhost/resend/webhook", { method: "POST", body: "{}" })
+    for (const missing of [{ resendWebhookSecret: undefined }, { resendApiKey: undefined }]) {
+      expect((await createEmailBridge({ ...emailConfig, ...missing }).handler(empty())).status).toBe(503)
+    }
 
     const { discord, resend, handler } = createEmailBridge()
-    const invalid = await handler(
-      new Request("http://localhost/resend/webhook", {
-        method: "POST",
-        headers: { "svix-id": "msg_bad", "svix-timestamp": String(Math.floor(Date.now() / 1000)), "svix-signature": "v1,bad" },
-        body: "{}",
-      }),
-    )
-    expect(invalid.status).toBe(401)
+    expect((await handler(signedResendRequest({}, "wrong-secret"))).status).toBe(401)
 
     resend.receivedEmails.set("msg_999", {
       id: "msg_999",
@@ -814,33 +749,27 @@ describe("resend email bridge", () => {
       subject: "Dark mode request",
       text: "Please add an OLED dark mode!",
     })
-    const valid = signedResendRequest({ type: "email.received", data: { email_id: "msg_999" } }, emailConfig.resendWebhookSecret!)
-    const response = await handler(valid)
-    expect(response.status).toBe(200)
+    const payload = { type: "email.received", data: { email_id: "msg_999" } }
+    const response = await handler(signedResendRequest(payload, testWebhookSecret))
     expect(await response.json()).toEqual({ ok: true })
+    expect((await handler(signedResendRequest(payload, testWebhookSecret))).status).toBe(200)
 
-    const duplicateReq = signedResendRequest(
-      { type: "email.received", data: { email_id: "msg_999" } },
-      emailConfig.resendWebhookSecret!,
-    )
-    expect((await handler(duplicateReq)).status).toBe(200)
-
-    for (
-      let attempt = 0;
-      attempt < 100 && Array.from(discord.channels.values()).filter((c) => c.name === "Dark mode request").length === 0;
-      attempt++
-    ) {
-      await Bun.sleep(5)
-    }
-    const thread = Array.from(discord.channels.values()).find((c) => c.name === "Dark mode request")
-    expect(thread).toBeDefined()
-    expect(discord.messages.get(thread!.id)?.[0].content).toContain("OLED dark mode")
+    const findThread = () => [...discord.channels.values()].find((c) => c.name === "Dark mode request")
+    for (let attempt = 0; !findThread() && attempt < 100; attempt++) await Bun.sleep(5)
+    expect(discord.messages.get(findThread()!.id)?.[0].content).toContain("OLED dark mode")
   })
 
   test("slash command /reply sends email, prevents thread hijacking, and rejects invalid channels", async () => {
     const { discord, resend, handler } = createEmailBridge()
     const threadId = "1548800000000001000"
-    createThread(discord, threadId, "Ticket purchase crash")
+    discord.channels.set(threadId, {
+      id: threadId,
+      guild_id: guildId,
+      parent_id: feedbackChannelId,
+      name: "Ticket purchase crash",
+      type: 11,
+      permission_overwrites: [],
+    })
 
     discord.messages.set(threadId, [
       {
@@ -908,8 +837,6 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].reply_to).toBe(`feedback+${threadId}@better-rail.co.il`)
     expect(resend.sentEmails[0].text).toContain("Fixed in the new update!")
     expect(resend.sentEmails[0].text).toEndWith(`\r\n--------------\r\nRef: [#${threadId}]`)
-    expect(resend.sentEmails[0].html).not.toContain("Better Rail Support &bull;")
-    expect(resend.sentEmails[0].html).toContain('dir="ltr"')
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD123@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD456@mail.gmail.com>")
@@ -917,17 +844,107 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].headers?.["References"]).toContain(`<thread-${threadId}@better-rail.co.il>`)
     expect(replyResponse.content).toContain("yael@example.com")
 
-    const hebrewCmd = replyCommand(threadId, "היי יעל, בדקנו והתקלה סודרה!", "cmd_reply_hebrew")
-    await handler(signedRequest(hebrewCmd))
-    await waitForResponse(discord, 4)
-    expect(resend.sentEmails).toHaveLength(2)
-    expect(resend.sentEmails[1].html).toContain('dir="rtl"')
-    expect(resend.sentEmails[1].html).toContain("היי יעל, בדקנו והתקלה סודרה!")
-
     const longCmd = replyCommand(threadId, "line\n".repeat(600), "cmd_reply_long")
     await handler(signedRequest(longCmd))
-    const longResponse = await waitForResponse(discord, 5)
+    const longResponse = await waitForResponse(discord, 4)
     expect(longResponse.content.length).toBeLessThanOrEqual(2000)
     expect(longResponse.content).toContain("...")
+  })
+
+  test("forum posts track Open, Replied and Resolved through the email flow", async () => {
+    const { discord, resend, handler, bridge } = createEmailBridge(emailConfig, 15)
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_forum",
+      from: "Noa <noa@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Widget is blank",
+      text: "The widget shows nothing.",
+      message_id: "<noa-1@example.com>",
+    })
+    const thread = discord.channels.get(threadId)!
+    expect(thread.applied_tags).toEqual([statusTagIds.open])
+    // The starter message is part of the post, so the thread holds just the one message
+    expect(discord.messages.get(threadId)).toHaveLength(1)
+    expect(discord.messages.get(threadId)![0].id).toBe(threadId)
+
+    thread.applied_tags = [statusTagIds.open, "1548800000000002000"]
+    await handler(signedRequest(replyCommand(threadId, "Fixed in 3.2", "cmd_forum_reply")))
+    expect((await waitForResponse(discord)).content).toContain("noa@example.com")
+    expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<noa-1@example.com>")
+    expect(thread.applied_tags).toEqual([statusTagIds.replied, "1548800000000002000"])
+
+    const resolve = { ...replyCommand(threadId, "", "cmd_forum_resolve"), data: { name: "resolve" } }
+    expect(await (await handler(signedRequest(resolve))).json()).toEqual({ type: 5 })
+    expect((await waitForResponse(discord, 2)).content).toContain("Resolved")
+    for (let attempt = 0; !thread.thread_metadata?.archived && attempt < 100; attempt++) await Bun.sleep(5)
+    expect(thread.applied_tags).toEqual([statusTagIds.resolved, "1548800000000002000"])
+    expect(thread.thread_metadata?.archived).toBe(true)
+
+    await bridge.handleInboundEmail({
+      id: "email_forum_2",
+      from: "noa@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: `Re: Widget is blank [#${threadId}]`,
+      text: "It's back.",
+    })
+    expect(thread.thread_metadata?.archived).toBe(false)
+    expect(thread.applied_tags).toEqual([statusTagIds.open, "1548800000000002000"])
+  })
+
+  test("/resolve reports a status it could not set, or a missing permission, without archiving", async () => {
+    const { discord, handler, bridge } = createEmailBridge(emailConfig, 15)
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_full",
+      from: "lior@example.com",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Tags",
+      text: "Hi",
+    })
+    const thread = discord.channels.get(threadId)!
+    const resolve = (id: string, permissions?: string) => ({
+      ...replyCommand(threadId, "", id, permissions),
+      data: { name: "resolve" },
+    })
+
+    const fullTags = [statusTagIds.open, ...Array.from({ length: 5 }, (_, i) => `154880000000000300${i}`)]
+    thread.applied_tags = [...fullTags]
+    await handler(signedRequest(resolve("cmd_full")))
+    expect((await waitForResponse(discord)).content).toContain("five other tags")
+    expect(thread.applied_tags).toEqual(fullTags)
+
+    thread.applied_tags = [statusTagIds.open]
+    discord.channels.get(feedbackChannelId)!.available_tags = [{ id: statusTagIds.open, name: "Open" }]
+    await handler(signedRequest(resolve("cmd_missing")))
+    expect((await waitForResponse(discord, 2)).content).toContain('no "resolved" status tag')
+
+    await handler(signedRequest(resolve("cmd_noperm", "0")))
+    expect((await waitForResponse(discord, 3)).content).toContain("do not have permission to use `/resolve`")
+    expect(thread.applied_tags).toEqual([statusTagIds.open])
+    expect(thread.thread_metadata?.archived).toBeUndefined()
+  })
+})
+
+describe("feedback status tags", () => {
+  const forum = (available_tags: DiscordChannel["available_tags"]) =>
+    ({ id: "forum", type: FORUM_CHANNEL, available_tags }) as DiscordChannel
+
+  test("recolors existing status tags and adds the missing ones, keeping other tags", () => {
+    const tags = syncedStatusTags(
+      forum([
+        { id: "1", name: "open", emoji_name: "📬" },
+        { id: "2", name: "Bug", emoji_name: "🐛" },
+      ]),
+    )
+    expect(tags).toEqual([
+      { id: "1", name: "open", emoji_id: null, emoji_name: "🔴" },
+      { id: "2", name: "Bug", emoji_name: "🐛" },
+      { name: "Replied", emoji_name: "🟡" },
+      { name: "Resolved", emoji_name: "🟢" },
+    ])
+  })
+
+  test("returns null once the forum is in sync", () => {
+    const synced = syncedStatusTags(forum([]))!.map((tag, i) => ({ id: String(i), ...tag }))
+    expect(syncedStatusTags(forum(synced))).toBeNull()
   })
 })

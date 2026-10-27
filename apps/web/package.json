@@ -14,6 +14,8 @@
   "dependencies": {
     "@better-rail/stations": "workspace:*",
     "@resvg/resvg-wasm": "2.6.2",
+    "@sentry/cloudflare": "11.8.0",
+    "@sentry/tanstackstart-react": "11.8.0",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-router": "^1.170.32",
     "@tanstack/react-router-ssr-query": "^1.167.2",

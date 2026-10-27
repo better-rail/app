@@ -1,4 +1,6 @@
+import * as Sentry from "@sentry/cloudflare"
 import handler, { createServerEntry } from "@tanstack/react-start/server-entry"
+import { SENTRY_DSN, sentryEnvironment } from "@/lib/sentry"
 import { fetchWithEdgeCache, withHeaders, type EdgeCache, type ExecutionContext } from "@/lib/edge-cache"
 
 /**
@@ -25,8 +27,20 @@ const BUILD_ID = typeof __BUILD_ID__ === "string" ? __BUILD_ID__ : undefined
 const edgeCache = (): EdgeCache | undefined =>
   import.meta.env.DEV || typeof caches === "undefined" ? undefined : (caches as unknown as { default?: EdgeCache }).default
 
-export default createServerEntry({
+const serverEntry = createServerEntry({
   // Workers call `fetch(request, env, ctx)`; `ctx.waitUntil` keeps cache writes alive after the response is sent.
   fetch: (request: Request, _env?: unknown, ctx?: ExecutionContext) =>
     fetchWithEdgeCache(request, render, { cache: edgeCache(), ctx, build: BUILD_ID }),
 })
+
+export default Sentry.withSentry(
+  () => ({
+    dsn: SENTRY_DSN,
+    enabled: !import.meta.env.DEV,
+    beforeSend: (event) => {
+      event.environment = sentryEnvironment(event.request?.url ? new URL(event.request.url).hostname : undefined)
+      return event
+    },
+  }),
+  serverEntry,
+)

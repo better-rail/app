@@ -1,18 +1,12 @@
 import { useMemo } from "react"
+import { useUnistyles } from "react-native-unistyles"
 import { Stack } from "expo-router/stack"
 import { ThemeProvider, useTheme } from "expo-router/react-navigation"
 import { color, typography } from "@/theme"
-import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-
-const formSheetOptions = {
-  presentation: "formSheet" as const,
-  headerShown: false,
-  sheetAllowedDetents: "fitToContents" as const,
-  contentStyle: { backgroundColor: isLiquidGlassSupported ? "transparent" : color.background },
-  sheetGrabberVisible: true,
-}
+import { formSheetOptions } from "@/utils/form-sheet-options"
 
 export default function MainLayout() {
+  const { theme: appTheme } = useUnistyles()
   const theme = useTheme()
   // The route list header sits over a dark photo, so its glass buttons stay dark in light mode too.
   const darkHeaderTheme = useMemo(() => ({ ...theme, dark: true }), [theme])
@@ -28,7 +22,7 @@ export default function MainLayout() {
             fontFamily: typography.primary,
           },
           headerBackTitleStyle: { fontFamily: typography.primary },
-          headerTintColor: color.primary as unknown as string,
+          headerTintColor: appTheme.colors.primary as unknown as string,
           headerTitle: "",
         }}
       >
@@ -45,7 +39,6 @@ export default function MainLayout() {
         <Stack.Screen name="station-hours" options={formSheetOptions} />
         <Stack.Screen name="filter" options={formSheetOptions} />
         <Stack.Screen name="fares" options={formSheetOptions} />
-        <Stack.Screen name="train-info" options={formSheetOptions} />
         <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
         <Stack.Screen name="live-permissions" options={formSheetOptions} />
       </Stack>
