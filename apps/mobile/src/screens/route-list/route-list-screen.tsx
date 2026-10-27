@@ -65,6 +65,9 @@ import {
 
 // Report the top row as soon as it scrolls in, so the hour index highlight keeps up
 const VIEWABILITY_CONFIG = { minimumViewTime: 0, itemVisiblePercentThreshold: 50 }
+const LIST_TOP_PADDING = spacing[4]
+// Room above the train the list jumps to, kept under the gap between cards so the card before it stays out of view
+const SCROLL_TARGET_TOP_GAP = spacing[2]
 
 export function RouteListScreen() {
   const params = useLocalSearchParams<{
@@ -360,7 +363,7 @@ function RouteListResults({
     // Keep the date header in view when jumping to the first train of the day
     const target = typeof displayData[index - 1] === "string" ? index - 1 : index
     listRef.current?.scrollToIndex({
-      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, todayDate),
+      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, SCROLL_TARGET_TOP_GAP, todayDate),
       animated: false,
     })
   }
@@ -374,7 +377,9 @@ function RouteListResults({
 
   const closestIndex = getInitialScrollIndex(displayData, time, dateType)
   const initialScrollTarget =
-    closestIndex === undefined ? undefined : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, todayDate)
+    closestIndex === undefined
+      ? undefined
+      : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, SCROLL_TARGET_TOP_GAP, todayDate)
 
   // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
   const reanchorList = useEffectEvent(() => {
@@ -566,7 +571,7 @@ function RouteListResults({
             // The native scroll indicator would sit on top of the hour index
             showsVerticalScrollIndicator={isListReady && !showHourIndex}
             contentContainerStyle={{
-              paddingTop: spacing[4],
+              paddingTop: LIST_TOP_PADDING,
               paddingStart: spacing[3],
               paddingEnd: showHourIndex ? spacing[5] + spacing[1] : spacing[3],
               paddingBottom: warning && isLiquidGlassSupported ? spacing[8] + spacing[5] : spacing[3],

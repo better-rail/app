@@ -69,12 +69,15 @@ describe("getScrollTarget", () => {
   const list = [today.toDateString(), departingAt(today), tomorrow.toDateString(), departingAt(tomorrow)]
 
   test("leaves room for a later day's pinned date header", () => {
-    expect(getScrollTarget(list, 3, 40, today.toDateString())).toEqual({ index: 3, viewOffset: 40 })
+    expect(getScrollTarget(list, 3, 40, 8, today.toDateString())).toEqual({ index: 3, viewOffset: 40 })
   })
 
-  test("needs no room under today's header, which isn't pinned, or when targeting a header", () => {
-    expect(getScrollTarget(list, 1, 40, today.toDateString())).toEqual({ index: 1, viewOffset: 0 })
-    expect(getScrollTarget(list, 2, 40, today.toDateString())).toEqual({ index: 2 })
+  test("leaves a small gap above today's routes, whose header isn't pinned", () => {
+    expect(getScrollTarget(list, 1, 40, 8, today.toDateString())).toEqual({ index: 1, viewOffset: 8 })
+  })
+
+  test("needs no offset when targeting a header", () => {
+    expect(getScrollTarget(list, 2, 40, 8, today.toDateString())).toEqual({ index: 2 })
   })
 })
 
