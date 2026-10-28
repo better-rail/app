@@ -11,6 +11,7 @@ export function applyAccentTheme(id: AccentThemeId, useAlternateTimeFont = false
     const themed = definition?.[appearance]
     return {
       ...base,
+      hasOwnColors: definition !== undefined,
       colors: {
         ...base.colors,
         ...(themed?.accents as Record<string, ColorValue> | undefined),

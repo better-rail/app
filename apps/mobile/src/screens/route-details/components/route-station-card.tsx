@@ -181,6 +181,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: 42.5,
     height: 42.5,
     // The icon's own grey for the system look; themes with their own colors tint it
-    tintColor: typeof theme.colors.primary === "string" ? theme.colors.primary : "#555555",
+    tintColor: theme.hasOwnColors ? theme.colors.primary : "#555555",
   },
 }))

@@ -18,6 +18,7 @@ import { getAlternateTimeFont, type AccentThemeId } from "@/theme/accent-themes"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated"
 import { setAnalyticsUserProperty, trackEvent } from "@/services/analytics"
 import { isHourIndexSupported } from "@/utils/hour-index"
+import { isAccentThemeSupported } from "@/utils/accent-theme-support"
 import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 export function UISettingsScreen() {
@@ -144,20 +145,24 @@ export function UISettingsScreen() {
         />
       </View>
 
-      <Text style={styles.groupTitle} tx="settings.accentTheme" />
+      {isAccentThemeSupported() && <Text style={styles.groupTitle} tx="settings.accentTheme" />}
       <View style={settingsStyles.group}>
-        <AccentThemePicker value={accentTheme} onChange={onAccentThemeChange} />
-        <SettingBox
-          testID="settings-show-theme-background"
-          title={translate("settings.themeBackground") ?? ""}
-          toggle
-          toggleValue={showThemeBackground}
-          onToggle={onThemeBackgroundToggle}
-        />
-        {alternateTimeFont && (
-          <TimeFontPicker alternate={alternateTimeFont} useAlternate={useAlternateTimeFont} onChange={onTimeFontChange} />
+        {isAccentThemeSupported() && (
+          <>
+            <AccentThemePicker value={accentTheme} onChange={onAccentThemeChange} />
+            <SettingBox
+              testID="settings-show-theme-background"
+              title={translate("settings.themeBackground") ?? ""}
+              toggle
+              toggleValue={showThemeBackground}
+              onToggle={onThemeBackgroundToggle}
+            />
+            {alternateTimeFont && (
+              <TimeFontPicker alternate={alternateTimeFont} useAlternate={useAlternateTimeFont} onChange={onTimeFontChange} />
+            )}
+            <View style={styles.divider} />
+          </>
         )}
-        <View style={styles.divider} />
         <ColorSchemePicker value={colorScheme} onChange={onColorSchemeChange} />
       </View>
 

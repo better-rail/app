@@ -34,7 +34,7 @@ export function useRouteColors(state: RouteElementStateType, element: "line" | "
 
   // Themes with their own colors (hex strings) tint the idle line and match the dots to the page;
   // passed and in-progress keep their ride status colors
-  if (state === "idle" && typeof primary === "string" && typeof background === "string") {
+  if (state === "idle" && theme.hasOwnColors && typeof primary === "string" && typeof background === "string") {
     return element === "line" ? `${primary}73` : background
   }
 

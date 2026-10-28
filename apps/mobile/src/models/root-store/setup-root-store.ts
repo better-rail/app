@@ -3,6 +3,7 @@ import { Appearance } from "react-native"
 import { UnistylesRuntime } from "react-native-unistyles"
 import { syncAnalyticsUserProperties } from "@/services/analytics"
 import { applyAccentTheme } from "@/theme/apply-accent-theme"
+import { isAccentThemeSupported } from "@/utils/accent-theme-support"
 import {
   useRoutePlanStore,
   getRoutePlanSnapshot,
@@ -113,9 +114,11 @@ export async function setupRootStore() {
     })
   }
   applyColorScheme(useSettingsStore.getState().colorScheme)
+  // Binaries before v3 have no themes, so they keep the classic look
   const applyTheme = () => {
     const { accentTheme, useAlternateTimeFont } = useSettingsStore.getState()
-    applyAccentTheme(accentTheme, useAlternateTimeFont)
+    if (isAccentThemeSupported()) applyAccentTheme(accentTheme, useAlternateTimeFont)
+    else applyAccentTheme("default")
   }
   applyTheme()
 
