@@ -33,6 +33,7 @@ jobs:
         run: eas build --platform all --profile production --auto-submit --non-interactive --no-wait
 
   draft-release:
+    needs: eas-build
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -54,13 +55,13 @@ jobs:
           PREV=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-*' "$TAG^")
 
           # Group the PRs merged since the last version by their Conventional Commit type.
-          # Scoped web/server/conductor changes stay out of the app's release notes.
+          # Non-app scopes stay out; ios/android/widget/watch etc. are app changes.
           features="" improvements="" fixes=""
           for pr in $(git log --format=%s "$PREV..$TAG" | grep -oE '\(#[0-9]+\)$' | tr -dc '0-9\n'); do
             read -r author title < <(gh pr view "$pr" --json author,title -q '.author.login + " " + .title')
             [[ "$title" =~ ^([a-z]+)(\(([a-z-]+)\))?!?:\ (.*)$ ]] || continue
             type="${BASH_REMATCH[1]}" scope="${BASH_REMATCH[3]}" desc="${BASH_REMATCH[4]}"
-            [[ -z "$scope" || "$scope" == "mobile" ]] || continue
+            [[ "$scope" =~ ^(server|conductor|web|website|ops|gtfs)$ ]] && continue
             line="- ${desc^} by @$author in $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/pull/$pr"$'\n'
             case "$type" in
               feat) features+="$line" ;;
