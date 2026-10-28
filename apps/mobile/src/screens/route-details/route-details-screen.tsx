@@ -340,7 +340,7 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
           </Animated.View>
         )}
 
-        {!isRideOnThisRoute && (Platform.OS === "android" || canRunLiveActivities || voucherTrain) && (
+        {!isRideOnThisRoute && (canRunLiveActivities || voucherTrain) && (
           <Animated.View
             entering={shouldFadeRideButton && FadeInDown.delay(100)}
             exiting={FadeOutDown}
@@ -362,7 +362,7 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
               <TrainInfoButton route={routeItem} style={styles.infoButton} />
             )}
 
-            {(Platform.OS === "android" || canRunLiveActivities) && <StartRideButton route={routeItem} screenName={screenName} />}
+            {canRunLiveActivities && <StartRideButton route={routeItem} screenName={screenName} />}
           </Animated.View>
         )}
       </View>

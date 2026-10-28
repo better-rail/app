@@ -1,4 +1,4 @@
-import { Alert, PermissionsAndroid, View } from "react-native"
+import { Alert, Linking, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Button, Column, FilledTonalButton, Host, Icon, ListItem, Text as ComposeText } from "@expo/ui/jetpack-compose"
 import { clip, fillMaxWidth, height, Shapes } from "@expo/ui/jetpack-compose/modifiers"
@@ -7,7 +7,8 @@ import { primaryFont } from "@/theme"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import notifee, { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
+import { liveRideNotifications } from "@/modules/live-ride"
+import { openArrivalAlarmSettings } from "@/utils/arrival-alarm-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
@@ -21,7 +22,7 @@ export function LivePermissionsScreen() {
   const router = useRouter()
   const routeItem = useNavigationParamsStore((s) => s.routeItem)
   const {
-    notifeeSettings,
+    notificationPermissionState,
     checkLiveRideAuthorization,
     startRide,
     stopRide,
@@ -29,7 +30,7 @@ export function LivePermissionsScreen() {
     rideCount,
   } = useRideStore(
     useShallow((s) => ({
-      notifeeSettings: s.notifeeSettings,
+      notificationPermissionState: s.notificationPermissionState,
       checkLiveRideAuthorization: s.checkLiveRideAuthorization,
       startRide: s.startRide,
       stopRide: s.stopRide,
@@ -39,12 +40,16 @@ export function LivePermissionsScreen() {
   )
 
   const grantNotifications = async () => {
-    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS)
+    await liveRideNotifications.requestPermissions()
     return checkLiveRideAuthorization()
   }
 
   const grantAlarms = () => {
-    notifee.openAlarmPermissionSettings()
+    openArrivalAlarmSettings("permissions")
+  }
+
+  const grantPromoted = () => {
+    Linking.openSettings()
   }
 
   const beginRide = () => {
@@ -64,13 +69,13 @@ export function LivePermissionsScreen() {
 
   const onStartRide = () => {
     if (rideId) {
-      Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
+      Alert.alert(translate("ride.rideExistsTitle") ?? "", translate("ride.rideExistsMessage") ?? "", [
         {
           style: "cancel",
-          text: translate("common.cancel"),
+          text: translate("common.cancel") ?? undefined,
         },
         {
-          text: translate("ride.startNewRide"),
+          text: translate("ride.startNewRide") ?? undefined,
           onPress: async () => {
             await stopRide(rideId)
             beginRide()
@@ -83,13 +88,22 @@ export function LivePermissionsScreen() {
     beginRide()
   }
 
-  const notificationsGranted = notifeeSettings?.notifications === AuthorizationStatus.AUTHORIZED
-  const alarmsGranted = notifeeSettings?.alarms === AndroidNotificationSetting.ENABLED
+  const notificationsGranted = Boolean(notificationPermissionState?.granted)
+  const alarmsGranted = Boolean(notificationPermissionState?.canScheduleExactAlarms)
+  const promotedGranted = Boolean(notificationPermissionState?.canPromoteOngoing)
 
   const permissions = [
     { label: translate("ride.notificationPermission3") ?? "", permitted: notificationsGranted, onPress: grantNotifications },
     { label: translate("ride.notificationPermission4") ?? "", permitted: alarmsGranted, onPress: grantAlarms },
   ]
+
+  if (notificationPermissionState?.canPromoteOngoing !== undefined) {
+    permissions.push({
+      label: translate("ride.notificationPermissionLiveUpdates") ?? "",
+      permitted: promotedGranted,
+      onPress: grantPromoted,
+    })
+  }
 
   const canStartRide = notificationsGranted && alarmsGranted
 
