@@ -4,6 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Stack, useIsFocused } from "expo-router"
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Text } from "@/components"
 import { format } from "date-fns"
 import { dateFnsLocalization, translate } from "@/i18n"
@@ -22,6 +23,10 @@ export function RouteListWarning({ requestedTime, routesDate, warningType }: Rou
   const useNativeToolbar = Platform.OS === "ios" && isLiquidGlassSupported
   const isFocused = useIsFocused()
   const hasPresentedPopup = useRef(false)
+  // The toolbar host has no intrinsic size, so the notice is given the width of the list's own frame: its column of
+  // the split view, or the window.
+  const frame = useSafeAreaFrame()
+  const insets = useSafeAreaInsets()
   const [warningVisible, setWarningVisible] = useState(false)
   const formattedRequestedDate = format(requestedTime, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
   const formattedRoutesDate = format(routesDate, "eeee, dd/MM/yyyy", { locale: dateFnsLocalization })
@@ -74,7 +79,10 @@ export function RouteListWarning({ requestedTime, routesDate, warningType }: Rou
       {useNativeToolbar ? (
         <Stack.Toolbar>
           <Stack.Toolbar.View hidesSharedBackground>
-            <GlassView style={styles.toolbarContent} tintColor="rgba(255, 159, 10, 0.55)">
+            <GlassView
+              style={[styles.toolbarContent, { width: frame.width - insets.left - insets.right - 32 }]}
+              tintColor="rgba(255, 159, 10, 0.55)"
+            >
               <View testID="route-list-warning" accessible accessibilityRole="alert" accessibilityLabel={`${title}. ${message}`}>
                 {warningContent}
               </View>
@@ -92,8 +100,6 @@ export function RouteListWarning({ requestedTime, routesDate, warningType }: Rou
 
 const styles = StyleSheet.create((theme, rt) => ({
   toolbarContent: {
-    // The native toolbar host needs an explicit width for its custom content.
-    width: rt.screen.width - 32,
     minHeight: 64,
     justifyContent: "center",
     paddingHorizontal: 18,

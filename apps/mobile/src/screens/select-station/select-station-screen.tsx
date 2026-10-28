@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { View, Pressable, Platform, Alert, Image } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { View, Pressable, Platform, Alert, Image, I18nManager } from "react-native"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Screen, Text, StationCard, FavoriteRoutes } from "@/components"
 import type { StationCardBadge } from "@/components/station-card/station-card"
 import { useShallow } from "zustand/react/shallow"
 import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/models"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
+import { spacing } from "@/theme"
 import { NormalizedStation, useStations } from "@/data/stations"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
@@ -16,6 +18,12 @@ import { fetchChangeStationRoute, prefetchChangeStations } from "@/screens/route
 import { useQueryClient } from "react-query"
 import * as Burnt from "burnt"
 import { translate } from "@/i18n"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
+import { GlassView } from "expo-glass-effect"
+import { isLiquidGlassSupported } from "@/utils/liquid-glass"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Host, Image as SymbolImage } from "@expo/ui/swift-ui"
+import { font, frame } from "@expo/ui/swift-ui/modifiers"
 
 const STAR_ICON = require("../../../assets/star-fill.png")
 const CHECKMARK_ICON = require("../../../assets/checkmark.png")
@@ -49,6 +57,9 @@ export function SelectStationScreen() {
   const saveRecentSearch = useRecentSearchesStore((s) => s.save)
   const recentSearchEntries = useRecentSearchesStore((s) => s.entries)
   const favoriteRoutesData = useFavoritesStore((s) => s.routes)
+  // Over the planner on iPhone Duo's open display or an iPad, the favorite routes are already in the pane beside it
+  // (see SidePane); over the route list, the pane shows the trip instead.
+  const isFavoritesBeside = useSplitViewStore((s) => Platform.OS === "ios" && !s.isCollapsed && !s.isRouteListMounted)
   const [searchTerm, setSearchTerm] = useState("")
   const [replacingStationId, setReplacingStationId] = useState<string>()
   const queryClient = useQueryClient()
@@ -144,14 +155,43 @@ export function SelectStationScreen() {
     />
   )
 
+  const insets = useSafeAreaInsets()
+  const { theme } = useUnistyles()
+  const closeColor = theme.colors.text
+
   return (
-    <Screen testID="select-station-screen" style={styles.root} preset="fixed" unsafe={true}>
-      <View style={styles.searchBarWrapper}>
+    <Screen testID="select-station-screen" style={styles.root} preset="fixed" unsafe={true} edgeToEdge>
+      {/* The bar's background spans the full width; its search field and close button stay clear of the side bars. */}
+      <View style={[styles.searchBarWrapper, sideInsetPadding(insets, I18nManager.isRTL, spacing[3])]}>
         {!allowedStations && (
-          <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} autoFocus={favoriteRoutesData.length < 2} />
+          <SearchInput
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            autoFocus={isFavoritesBeside || favoriteRoutesData.length < 2}
+          />
         )}
-        <Pressable testID="cancel-station-selection" onPress={() => router.back()}>
-          <Text style={styles.cancelLink} tx="common.cancel" />
+        <Pressable
+          testID="cancel-station-selection"
+          style={styles.closeButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={translate("common.cancel") ?? ""}
+        >
+          {isLiquidGlassSupported ? (
+            <GlassView isInteractive style={styles.closeGlass}>
+              {/* The symbol is drawn by SwiftUI; the press is the Pressable's, so the host takes no touches. */}
+              <Host style={styles.closeSymbol} pointerEvents="none">
+                <SymbolImage
+                  systemName="xmark"
+                  size={17}
+                  color={closeColor}
+                  modifiers={[font({ weight: "semibold" }), frame({ maxWidth: Infinity, maxHeight: Infinity })]}
+                />
+              </Host>
+            </GlassView>
+          ) : (
+            <Text style={styles.cancelLink} tx="common.cancel" />
+          )}
         </Pressable>
         {hasTrainStart && (
           <Pressable
@@ -175,14 +215,14 @@ export function SelectStationScreen() {
           keyExtractor={(item) => item.id}
           recycleItems
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, sideInsetPadding(insets, I18nManager.isRTL)]}
           ListFooterComponent={<View style={styles.listFooter} />}
           extraData={replacingStationId}
           ListEmptyComponent={() =>
             allowedStations ? null : (
               <View>
                 <RecentSearchesBox selectionType={selectionType} />
-                {recentSearchEntries.length > 1 && <FavoriteRoutes />}
+                {!isFavoritesBeside && recentSearchEntries.length > 1 && <FavoriteRoutes />}
               </View>
             )
           }
@@ -202,6 +242,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
     paddingBottom: Platform.OS === "android" && rt.insets.ime > 0 ? rt.insets.ime + rt.insets.bottom : 0,
   },
+  // Side insets come from the screen's own safe area (see the render): a sheet doesn't reach the bars.
   listContent: {
     paddingBottom: theme.spacing[0],
   },
@@ -227,9 +268,23 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginHorizontal: theme.spacing[3],
     marginBottom: theme.spacing[3],
   },
-  cancelLink: {
+  closeButton: {
     marginStart: theme.spacing[3],
+  },
+  cancelLink: {
     color: theme.colors.link,
+  },
+  // Sized like the header back button, with the system's own close symbol.
+  closeGlass: {
+    width: 45,
+    height: 45,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeSymbol: {
+    width: 45,
+    height: 45,
   },
   infoButton: {
     marginStart: "auto",

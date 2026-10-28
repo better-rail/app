@@ -40,6 +40,7 @@ mock.module("react-native", () => {
     ActivityIndicator: "ActivityIndicator",
     Modal: "Modal",
     useColorScheme: () => "light",
+    useWindowDimensions: () => ({ width: 375, height: 812, scale: 3, fontScale: 1 }),
     Text: "Text",
     ScrollView: "ScrollView",
     TouchableOpacity: "TouchableOpacity",

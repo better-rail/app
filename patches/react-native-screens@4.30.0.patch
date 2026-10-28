@@ -1,8 +1,8 @@
 diff --git a/android/src/main/java/com/swmansion/rnscreens/Screen.kt b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-index 2f2133bf28c8e7e0fe0d63f71ba34c6b070ae06e..4eb0287592816546ff306b9a105d46d9a0d8fc0f 100644
+index 2f2133bf28c8e7e0fe0d63f71ba34c6b070ae06e..0abe0105d9c081997eff1decd51e8736716fa25e 100644
 --- a/android/src/main/java/com/swmansion/rnscreens/Screen.kt
 +++ b/android/src/main/java/com/swmansion/rnscreens/Screen.kt
-@@ -466,24 +466,18 @@ class Screen(
+@@ -466,28 +466,22 @@ class Screen(
          if (isRemovalTransitionStarted) {
              isRemovalTransitionStarted = false
              isBeingRemoved = false
@@ -33,16 +33,26 @@ index 2f2133bf28c8e7e0fe0d63f71ba34c6b070ae06e..4eb0287592816546ff306b9a105d46d9
 +     * would instantly disappear from the screen).
 +     */
      private fun startTransitionRecursive(parent: ViewGroup?) {
-         parent?.let {
-             for (i in 0 until it.childCount) {
-@@ -500,7 +494,10 @@ class Screen(
+-        parent?.let {
+-            for (i in 0 until it.childCount) {
+-                val child = it.getChildAt(i)
++        parent?.let { parentView ->
++            for (i in 0 until parentView.childCount) {
++                val child = parentView.getChildAt(i)
+ 
+                 if (parent is SwipeRefreshLayout && child is ImageView) {
+                     // SwipeRefreshLayout class which has CircleImageView as a child,
+@@ -498,9 +492,12 @@ class Screen(
+                     // Appended, not inserted at `i`: a filler before the circle inflates the
+                     // index `onMeasure` caches for it, which then outlives the child it points at.
                      // TODO: find a better way to handle this scenario
-                     it.addView(View(context))
+-                    it.addView(View(context))
++                    parentView.addView(View(context))
                  } else {
 -                    child?.let { view -> it.startViewTransition(view) }
-+                    child?.let { view ->
-+                        it.startViewTransition(view)
-+                        transitioningViews.add(Pair(it, view))
++                    child?.let { childView ->
++                        parentView.startViewTransition(childView)
++                        transitioningViews.add(Pair(parentView, childView))
 +                    }
                  }
  
@@ -82,3 +92,402 @@ index 2372cac68d83deeb0a384d56c69b814c3bed9673..e95f200dbda5b5c1cdd1350b3dd47b24
          super.endViewTransition(view)
  
          disappearingTransitioningChildren.remove(view)
+diff --git a/ios/RNSScreen.mm b/ios/RNSScreen.mm
+index 049fd22427b2bde17fd7ca59b8de65d0ee07b4b5..cdac952b372e419af13a95c921705655a2d66ecd 100644
+--- a/ios/RNSScreen.mm
++++ b/ios/RNSScreen.mm
+@@ -167,6 +167,9 @@ - (void)updateBounds
+     // TODO: Requesting layout on every layout is wrong. We should look for a way to get rid of this.
+     UINavigationController *navctr = _controller.navigationController;
+     [navctr.view setNeedsLayout];
++    // The navigation bar's bottom edge is part of the provided insets (see providerSafeAreaInsets) and moves with
++    // layouts the safe area doesn't notice, e.g. the title row on iPhone Duo.
++    [self dispatchSafeAreaDidChangeNotification];
+   }
+ 
+   if (_stackPresentation == RNSScreenStackPresentationFormSheet) {
+@@ -1161,7 +1164,20 @@ - (void)updateContentScrollViewEdgeEffectsIfExists
+ 
+ - (UIEdgeInsets)providerSafeAreaInsets
+ {
+-  return self.safeAreaInsets;
++  UIEdgeInsets insets = self.safeAreaInsets;
++  // On iPhone Duo (iOS 27) a navigation bar whose items sit in the vertical bar keeps its title row at the top of the
++  // screen without extending the safe area over it, so a screen laid out under the bar (iOS 26+) would start under
++  // the title. The bar's bottom edge is the floor of the top inset.
++  UINavigationController *navctr = _controller.navigationController;
++  UINavigationBar *bar = navctr.navigationBar;
++  if (bar != nil && !navctr.isNavigationBarHidden && !bar.isHidden && bar.window != nil &&
++      [self isDescendantOfView:navctr.view]) {
++    CGFloat barBottom = CGRectGetMaxY([bar convertRect:bar.bounds toView:self]);
++    if (barBottom > insets.top && barBottom < CGRectGetHeight(self.bounds) / 2) {
++      insets.top = barBottom;
++    }
++  }
++  return insets;
+ }
+ 
+ - (void)dispatchSafeAreaDidChangeNotification
+diff --git a/ios/RNSScreenStack.mm b/ios/RNSScreenStack.mm
+index 5da11964f5932cb44e1131c44a2480803c0a62b5..7510c83d03ed059af19f0dd48a64bcc621bf2c01 100644
+--- a/ios/RNSScreenStack.mm
++++ b/ios/RNSScreenStack.mm
+@@ -476,7 +476,10 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+ 
+   // if view controller is not yet attached to window we skip updates now and run them when view
+   // is attached
+-  if (self.window == nil && _presentedModals.lastObject.view.window == nil) {
++  // (Better Rail) Unless an ancestor is on screen: in a collapsed split view, the secondary column pushed over the
++  // primary takes this stack off screen, and modals are presented from that ancestor instead.
++  UIViewController *onScreenAncestor = [self onScreenAncestorController];
++  if (self.window == nil && _presentedModals.lastObject.view.window == nil && onScreenAncestor == nil) {
+     return;
+   }
+ 
+@@ -492,7 +495,8 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+ 
+   // Last controller that is common for both _presentedModals & controllers or this RNSNavigationController in case
+   // there is no common part.
+-  __block UIViewController *changeRootController = _controller;
++  __block UIViewController *changeRootController =
++      _controller.view.window == nil && onScreenAncestor != nil ? onScreenAncestor : _controller;
+ 
+   // Last common controller index + 1
+   NSUInteger changeRootIndex = 0;
+@@ -662,6 +666,20 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+   finish();
+ }
+ 
++// (Better Rail) The closest ancestor of this stack's controller that's on screen, when the stack itself isn't.
++- (nullable UIViewController *)onScreenAncestorController
++{
++  if (_controller.view.window != nil) {
++    return nil;
++  }
++  for (UIViewController *vc = _controller.parentViewController; vc != nil; vc = vc.parentViewController) {
++    if (vc.view.window != nil) {
++      return vc;
++    }
++  }
++  return nil;
++}
++
+ - (void)setPushViewControllers:(NSArray<UIViewController *> *)controllers
+ {
+   // when there is no change we return immediately
+diff --git a/ios/RNSScreenStackHeaderConfig.h b/ios/RNSScreenStackHeaderConfig.h
+index 8f99f5b5b9d3f184f36613d51174cb9393d2cdd6..9153b8acd15dd514042f70d645c7ea2bb2b99064 100644
+--- a/ios/RNSScreenStackHeaderConfig.h
++++ b/ios/RNSScreenStackHeaderConfig.h
+@@ -70,6 +70,13 @@ NS_ASSUME_NONNULL_END
+  */
+ + (BOOL)screensExtendUnderOpaqueNavigationBar;
+ 
++/**
++ * Bar button items whose identifier starts with `RNSCollapsedSplitOnlyItemIdentifierPrefix` show only while the split
++ * view they're in is collapsed (or outside one): a back button for a column pushed over another, say. The split view
++ * host calls this as it collapses and expands, in the same layout pass, so the items never lag the new layout.
++ */
+++ (void)updateCollapsedSplitOnlyItemsOfNavigationItem:(nonnull UINavigationItem *)navitem isCollapsed:(BOOL)isCollapsed;
++
+ /**
+  * Returns true iff subview of given `type` is present.
+  *
+diff --git a/ios/RNSScreenStackHeaderConfig.mm b/ios/RNSScreenStackHeaderConfig.mm
+index e217b2411d20c85db3ec84bb87765c1e9407fd3b..e4f05ea9306479d251dff3b9a50edf7149d82938 100644
+--- a/ios/RNSScreenStackHeaderConfig.mm
++++ b/ios/RNSScreenStackHeaderConfig.mm
+@@ -282,6 +282,23 @@ - (BOOL)shouldBackButtonBeVisibleInNavigationBar:(nullable UINavigationBar *)nav
+       !(self.backButtonInCustomView == false && self.hasSubviewLeft);
+ }
+ 
++static NSString *const RNSCollapsedSplitOnlyItemIdentifierPrefix = @"collapsed-split-only";
++
+++ (void)updateCollapsedSplitOnlyItemsOfNavigationItem:(UINavigationItem *)navitem isCollapsed:(BOOL)isCollapsed
++{
++#if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
++  if (@available(iOS 26.0, *)) {
++    for (NSArray<UIBarButtonItem *> *items in @[ navitem.leftBarButtonItems ?: @[], navitem.rightBarButtonItems ?: @[] ]) {
++      for (UIBarButtonItem *item in items) {
++        if ([item.identifier hasPrefix:RNSCollapsedSplitOnlyItemIdentifierPrefix] && item.hidden == isCollapsed) {
++          item.hidden = !isCollapsed;
++        }
++      }
++    }
++  }
++#endif
++}
++
+ + (void)setAnimatedConfig:(UIViewController *)vc withConfig:(RNSScreenStackHeaderConfig *)config
+ {
+   UINavigationBar *navbar = ((UINavigationController *)vc.parentViewController).navigationBar;
+@@ -700,6 +717,9 @@ + (void)updateViewController:(UIViewController *)vc
+                                                 withCurrentItems:navitem.leftBarButtonItems];
+   navitem.rightBarButtonItems = [config barButtonItemsFromConfigs:config.headerRightBarButtonItems
+                                                  withCurrentItems:navitem.rightBarButtonItems];
++  [RNSScreenStackHeaderConfig updateCollapsedSplitOnlyItemsOfNavigationItem:navitem
++                                                                 isCollapsed:vc.splitViewController == nil ||
++                                                                             vc.splitViewController.isCollapsed];
+ 
+   // Setting navigation bar visibility is split to mitigate iOS 26 bug with bar button items
+   // (setting nav bar visibility should be done after `navitem.*BarButtonItems`).
+diff --git a/ios/gamma/split/RNSSplitHostController.mm b/ios/gamma/split/RNSSplitHostController.mm
+index c7d2db75965d2cd661d9a56922d4d201a89564c1..a04e519013c88215053005ab70a20ceed77bbb5d 100644
+--- a/ios/gamma/split/RNSSplitHostController.mm
++++ b/ios/gamma/split/RNSSplitHostController.mm
+@@ -2,6 +2,7 @@
+ 
+ #import <React/RCTAssert.h>
+ #import "RNSDefines.h"
++#import "RNSScreenStackHeaderConfig.h"
+ #import "RNSSplitAppearanceApplicator.h"
+ #import "RNSSplitAppearanceCoordinator.h"
+ #import "RNSSplitHostComponentView.h"
+@@ -60,6 +61,42 @@ - (instancetype)initWithSplitHostComponentView:(RNSSplitHostComponentView *)spli
+   return self;
+ }
+ 
++#pragma mark - Size class
++
++// Below this width the columns don't fit side by side (iPhone Duo's open display held upright is 669pt wide), so the
++// split view is told its width is compact and collapses to a single, full-screen column as it does on a phone.
++static const CGFloat RNSSplitHostMinimumExpandedWidth = 700;
++
++- (void)updateHorizontalSizeClassForWidth:(CGFloat)width
++{
++  if (@available(iOS 17.0, *)) {
++    if (width <= 0) {
++      return;
++    }
++    BOOL isOverridden = [self.traitOverrides containsTrait:UITraitHorizontalSizeClass.class];
++    if (width < RNSSplitHostMinimumExpandedWidth) {
++      if (!isOverridden) {
++        self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
++      }
++    } else if (isOverridden) {
++      [self.traitOverrides removeTrait:UITraitHorizontalSizeClass.class];
++    }
++  }
++}
++
++- (void)viewWillLayoutSubviews
++{
++  [self updateHorizontalSizeClassForWidth:self.view.bounds.size.width];
++  [super viewWillLayoutSubviews];
++}
++
++- (void)viewWillTransitionToSize:(CGSize)size
++       withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
++{
++  [self updateHorizontalSizeClassForWidth:size.width];
++  [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
++}
++
+ - (RNSSplitHostComponentEventEmitter *)reactEventEmitter
+ {
+   return [_splitHostComponentView reactEventEmitter];
+@@ -125,8 +162,14 @@ - (void)updateChildViewControllers
+   NSMutableArray<RNSSplitNavigationController *> *currentViewControllers =
+       [NSMutableArray arrayWithCapacity:currentColumns.count];
+   for (RNSSplitScreenComponentView *column in currentColumns) {
+-    [currentViewControllers addObject:[[RNSSplitNavigationController alloc] initWithRootViewController:column.controller
+-                                                                             frameOriginChangeDelegate:self]];
++    RNSSplitNavigationController *navigationController =
++        [[RNSSplitNavigationController alloc] initWithRootViewController:column.controller
++                                                 frameOriginChangeDelegate:self];
++    // The columns' own bars are never used: a column's content brings its own stack, whose bar would otherwise be
++    // laid out below the column's (58pt down on iOS 26, and after its pocket in iPhone Duo's vertical bar). The
++    // navigation controller keeps its pop gesture, so a column pushed in the collapsed split view still swipes back.
++    [navigationController setNavigationBarHidden:YES animated:NO];
++    [currentViewControllers addObject:navigationController];
+   }
+ 
+   self.viewControllers = currentViewControllers;
+@@ -158,8 +201,9 @@ - (void)refreshSecondaryNavBar
+   UINavigationController *navigationController = (UINavigationController *)secondaryViewController;
+ 
+   /** The assumption is that it should come in a single batch and it won't cause any delays in rendering the content. */
+-  [navigationController setNavigationBarHidden:YES animated:NO];
++  // The columns' bars stay hidden (see updateChildViewControllers); toggling the other way refreshes it all the same.
+   [navigationController setNavigationBarHidden:NO animated:NO];
++  [navigationController setNavigationBarHidden:YES animated:NO];
+ }
+ 
+ #pragma mark - Helpers
+@@ -469,14 +513,27 @@ - (void)splitViewController:(UISplitViewController *)svc willHideColumn:(UISplit
+ 
+ - (void)splitViewControllerDidCollapse:(UISplitViewController *)svc
+ {
++  [self updateCollapsedSplitOnlyItemsInViewController:self isCollapsed:YES];
+   [[self reactEventEmitter] emitOnCollapse];
+ }
+ 
+ - (void)splitViewControllerDidExpand:(UISplitViewController *)svc
+ {
++  [self updateCollapsedSplitOnlyItemsInViewController:self isCollapsed:NO];
+   [[self reactEventEmitter] emitOnExpand];
+ }
+ 
++// React learns of a collapse or an expansion only a few frames after the new layout is on screen, so bar items that
++// depend on it (see RNSScreenStackHeaderConfig) are shown or hidden here, in the same pass.
++- (void)updateCollapsedSplitOnlyItemsInViewController:(UIViewController *)viewController isCollapsed:(BOOL)isCollapsed
++{
++  [RNSScreenStackHeaderConfig updateCollapsedSplitOnlyItemsOfNavigationItem:viewController.navigationItem
++                                                                 isCollapsed:isCollapsed];
++  for (UIViewController *child in viewController.childViewControllers) {
++    [self updateCollapsedSplitOnlyItemsInViewController:child isCollapsed:isCollapsed];
++  }
++}
++
+ #if RNS_IPHONE_OS_VERSION_AVAILABLE(26_0)
+ 
+ /**
+diff --git a/ios/gamma/split/RNSSplitNavigationController.mm b/ios/gamma/split/RNSSplitNavigationController.mm
+index b884a59a2ee5ce9bc37ae8b075e9efe645bf5c7e..7a1b0ba4a72fc83325831aea067531596a87686e 100644
+--- a/ios/gamma/split/RNSSplitNavigationController.mm
++++ b/ios/gamma/split/RNSSplitNavigationController.mm
+@@ -1,7 +1,11 @@
+ #import "RNSSplitNavigationController.h"
+ #import "RNSSplitNavigationControllerFrameObserver.h"
++#import "RNSSplitScreenController.h"
+ #import "RNSSplitNavigationControllerFrameOriginChangeDelegate.h"
+ 
++@interface RNSSplitNavigationController () <UIGestureRecognizerDelegate>
++@end
++
+ @implementation RNSSplitNavigationController {
+   RNSSplitNavigationControllerFrameObserver *_frameObserver;
+   id<RNSSplitNavigationControllerFrameOriginChangeDelegate> __weak _frameOriginChangeDelegate;
+@@ -34,6 +38,31 @@ - (void)viewDidLoad
+                                  delegate:_frameOriginChangeDelegate];
+   }
+   [_frameObserver registerForViewFrameChanges];
++
++  // The column's own navigation bar is hidden (see RNSSplitHostController), which makes UIKit turn the interactive
++  // pop gesture off. A collapsed split view pushes the secondary column onto this controller, and that screen should
++  // still swipe back, so the gesture is kept on whenever there is something to pop.
++  self.interactivePopGestureRecognizer.delegate = self;
++}
++
++// The column controllers take their size from this controller's view (see RNSSplitScreenController), whose resizes
++// don't reach them on their own: the column's React view has no autoresizing, so it isn't laid out again.
++- (void)viewDidLayoutSubviews
++{
++  [super viewDidLayoutSubviews];
++  for (UIViewController *viewController in self.viewControllers) {
++    if ([viewController isKindOfClass:RNSSplitScreenController.class]) {
++      [viewController.view setNeedsLayout];
++    }
++  }
++}
++
++- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
++{
++  if (gestureRecognizer == self.interactivePopGestureRecognizer) {
++    return self.viewControllers.count > 1;
++  }
++  return YES;
+ }
+ 
+ - (void)dealloc
+diff --git a/ios/gamma/split/RNSSplitScreenController.mm b/ios/gamma/split/RNSSplitScreenController.mm
+index f97140a2ca7f97a50c5f6203106596b9f275080b..1ac60ed932648244acad7185877c1529311c8bb1 100644
+--- a/ios/gamma/split/RNSSplitScreenController.mm
++++ b/ios/gamma/split/RNSSplitScreenController.mm
+@@ -69,6 +69,55 @@ - (void)viewDidLayoutSubviews
+ {
+   [super viewDidLayoutSubviews];
+ 
++  // The column's view is a React component view, so React also sets its frame, from the last size this controller
++  // reported. A size UIKit gave the column while it was off screen (a collapsed split view's secondary column keeps
++  // the bounds of the display it was last expanded on) then comes back from React once the column is pushed into
++  // the primary's navigation controller, and the stale size is reported again. The container UIKit put the column
++  // in is the authority on its size — less the part a primary column covers: beside one, UIKit (iOS 27) lays the
++  // secondary column out over the whole split view and draws the primary on top, with the covered part as a
++  // safe-area inset. The column takes only its visible part instead, so full-width content (bottom bars,
++  // right-to-left text) lands in it and its safe area starts at its own edge.
++  UIView *container = self.view.superview;
++  if (container != nil && [self isInSplitHostSubtree]) {
++    RNSSplitHostController *hostController = [self findSplitHostController];
++    // Collapsed, the one column on screen fills the split view. A secondary column that sat off screen while the split
++    // view collapsed is pushed in with its navigation controller still at the expanded size, which UIKit only corrects
++    // later, so the split view's own size is taken instead.
++    CGRect available = container.bounds;
++    if (hostController.isCollapsed && hostController.view != nil) {
++      available.size = hostController.view.bounds.size;
++    }
++    CGRect frame = available;
++    if (!hostController.isCollapsed && hostController.displayMode == UISplitViewControllerDisplayModeOneBesideSecondary &&
++        [hostController viewControllerForColumn:UISplitViewControllerColumnSecondary] == self.navigationController) {
++      UIView *primaryView = [hostController viewControllerForColumn:UISplitViewControllerColumnPrimary].view;
++      if (primaryView.window != nil) {
++        CGRect primaryFrame = [primaryView convertRect:primaryView.bounds toView:container];
++        CGRect overlap = CGRectIntersection(frame, primaryFrame);
++        if (!CGRectIsNull(overlap) && overlap.size.width > 0 && overlap.size.width < frame.size.width) {
++          if (CGRectGetMinX(primaryFrame) > CGRectGetMinX(frame)) {
++            frame.size.width = CGRectGetMinX(primaryFrame) - CGRectGetMinX(frame);
++          } else {
++            CGFloat maxX = CGRectGetMaxX(frame);
++            frame.origin.x = CGRectGetMaxX(primaryFrame);
++            frame.size.width = maxX - frame.origin.x;
++          }
++        }
++      }
++    }
++    if (!CGRectEqualToRect(self.view.frame, frame)) {
++      self.view.frame = frame;
++    }
++    // The covered part reaches the column as a safe-area inset of its own, not through geometry, so it's taken back
++    // out for the view that no longer spans it.
++    UIEdgeInsets additional = UIEdgeInsetsZero;
++    additional.left = CGRectGetMinX(available) - CGRectGetMinX(frame);
++    additional.right = CGRectGetMaxX(frame) - CGRectGetMaxX(available);
++    if (!UIEdgeInsetsEqualToEdgeInsets(self.additionalSafeAreaInsets, additional)) {
++      self.additionalSafeAreaInsets = additional;
++    }
++  }
++
+   [self updateShadowTreeState];
+ }
+ 
+@@ -106,6 +155,10 @@ - (void)columnPositioningDidChangeInSplitViewController:(UISplitViewController *
+ - (void)viewWillAppear:(BOOL)animated
+ {
+   [super viewWillAppear:animated];
++  // A column that was laid out while off screen (a collapsed split view's secondary, pushed in only now) may hold a
++  // frame in the shadow tree that its last scheduled update doesn't tell from the current one; schedule it afresh.
++  [[self shadowStateProxy] invalidateLastScheduledFrame];
++  [self updateShadowTreeState];
+   [[self reactEventEmitter] emitOnWillAppear];
+ }
+ 
+diff --git a/ios/gamma/split/RNSSplitScreenShadowStateProxy.h b/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
+index 6aa8756207575b5eaa37c90e8abcf19788ea5f3f..561c8c3d8315903859c86428939202d8a5ce5ed4 100644
+--- a/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
++++ b/ios/gamma/split/RNSSplitScreenShadowStateProxy.h
+@@ -68,6 +68,9 @@ NS_ASSUME_NONNULL_BEGIN
+  */
+ - (void)updateShadowStateWithFrame:(CGRect)frame;
+ 
++/// Forgets the last frame scheduled, so the next update reaches the shadow tree even for a frame scheduled before.
++- (void)invalidateLastScheduledFrame;
++
+ @end
+ 
+ #pragma mark - Hidden from Swift
+diff --git a/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm b/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
+index 03470e1daeb63283198215999743655980d68597..a2b8cc4f126b283b2bdd4fe3bcc53f503e329323 100644
+--- a/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
++++ b/ios/gamma/split/RNSSplitScreenShadowStateProxy.mm
+@@ -59,6 +59,11 @@ - (void)updateShadowStateOfComponent:(RNSSplitScreenComponentView *)screenCompon
+   [self updateShadowStateWithFrame:convertedFrame];
+ }
+ 
++- (void)invalidateLastScheduledFrame
++{
++  _lastScheduledFrame = CGRectNull;
++}
++
+ - (void)updateState:(react::State::Shared const &)state oldState:(react::State::Shared const &)oldState
+ {
+   _state = std::static_pointer_cast<const react::RNSSplitScreenShadowNode::ConcreteState>(state);

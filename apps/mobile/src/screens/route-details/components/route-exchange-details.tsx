@@ -10,6 +10,7 @@ import { useRouter } from "expo-router"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
+import { useSideInsetBleed } from "./side-inset-bleed"
 import { acrossTheIsland } from "@/data/island-platforms"
 import { subheadingFontStyle } from "@/theme/theme-fonts"
 
@@ -34,6 +35,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   const { stationName, arrivalPlatform, departurePlatform, firstTrain, secondTrain, isRideOnThisRoute, style } = props
   const router = useRouter()
   const alternatives = alternativeChangeStations(firstTrain, secondTrain)
+  const bleed = useSideInsetBleed({ start: spacing[4], end: spacing[4] })
 
   const onChangeStationPress = () => {
     const currentStationId = String(firstTrain.destinationStationId)
@@ -99,7 +101,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   })()
 
   return (
-    <View style={[styles.wrapper, style]}>
+    <View style={[styles.wrapper, bleed, style]}>
       {alternatives.length === 0 && (
         <ChangeDirectionButton
           buttonStyle={styles.icon}
@@ -165,13 +167,13 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
+  // Stretches to the list's width; horizontal padding comes from useSideInsetBleed.
   wrapper: {
-    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    padding: theme.spacing[4],
+    paddingVertical: theme.spacing[4],
     backgroundColor: theme.colors.secondaryLighter,
   },
   icon: {
