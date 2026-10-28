@@ -155,7 +155,15 @@ export interface ThemeSkin {
   }
 }
 
-const sharedTokens = { spacing, typography, timing, skin: {} as ThemeSkin }
+const sharedTokens = {
+  spacing,
+  typography,
+  timing,
+  skin: {} as ThemeSkin,
+  // Set while a theme with its own colors is applied. Android's system colors are hex strings too,
+  // so a color's type can't tell a themed accent from the default one.
+  hasOwnColors: false,
+}
 
 export const lightTheme = { colors: createColors("light"), ...sharedTokens }
 export const darkTheme: typeof lightTheme = { colors: createColors("dark"), ...sharedTokens }
