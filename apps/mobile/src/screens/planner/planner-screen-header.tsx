@@ -3,6 +3,7 @@ import { Image, Platform, TouchableOpacity, View, useColorScheme, type ColorValu
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, Stack, type NativeStackHeaderItem } from "expo-router"
 import type { HeaderBarButtonItem } from "react-native-screens"
+import { addHingeListener, getHinge } from "expo-hinge"
 import * as storage from "@/utils/storage"
 import { trackEvent } from "@/services/analytics"
 import { color, spacing } from "@/theme"
@@ -27,13 +28,32 @@ const UPDATES_ICON = require("../../../assets/updates.png")
 const SETTINGS_ICON = require("../../../assets/settings.png")
 
 /**
- * The planner's actions are native bar items, which the system lays out where the bar goes: a row under the status
- * bar, or iPhone Duo's side bar. They stay native beside the favorites too, so as the Duo folds the system carries them
- * between the column's top and the side bar in the same pass, instead of the app swapping in its own row a few frames
- * after the new layout is on screen.
+ * On iPhone Duo the planner's actions are native bar items, which the system lays out where the bar goes: a row under
+ * the status bar, or the Duo's side bar. They stay native beside the favorites too, so as the Duo folds the system
+ * carries them between the column's top and the side bar in the same pass, instead of the app swapping in its own row a
+ * few frames after the new layout is on screen. Phones that don't fold keep the app's own row.
  */
 export function usePlannerNativeToolbar() {
-  return Platform.OS === "ios" && isLiquidGlassSupported
+  const hasHinge = useHasHinge()
+  return Platform.OS === "ios" && isLiquidGlassSupported && hasHinge
+}
+
+/**
+ * Whether the device folds. The answer can only arrive once the window reports its hinge, and a hinge seen once stays:
+ * the window also reports none while it's away from the screen.
+ */
+function useHasHinge() {
+  const [hasHinge, setHasHinge] = useState(() => getHinge() !== null)
+
+  useEffect(() => {
+    if (hasHinge) return
+    const subscription = addHingeListener(({ hinge }) => {
+      if (hinge) setHasHinge(true)
+    })
+    return () => subscription.remove()
+  }, [hasHinge])
+
+  return hasHinge
 }
 
 // DEBUG: force-show the "new" badge regardless of its normal display conditions. Set back to false before shipping.

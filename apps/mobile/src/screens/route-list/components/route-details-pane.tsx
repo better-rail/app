@@ -187,11 +187,11 @@ function SelectedRouteDetails({
 
 /**
  * The photo header, shown while the column is pushed over the list: beside it the header would double the list's own,
- * and the rows only start below the top inset, where the status bar is on an open display. It comes and goes with the
- * display the column is laid out for, so as the device closes it has to be in place by the closed display's first
- * frame. The header stays mounted, its photo loaded, and beside the list it's only clipped to no height (`display:
- * "none"` would take its native views away, to be made and the photo loaded again as it shows), in a component of its
- * own that alone re-renders.
+ * and on iOS the rows only start below the top inset, where the status bar is on an open display (elsewhere the pane
+ * sits below the list's photo header, which already clears it). It comes and goes with the display the column is laid
+ * out for, so as the device closes it has to be in place by the closed display's first frame. The header stays mounted,
+ * its photo loaded, and beside the list it's only clipped to no height (`display: "none"` would take its native views
+ * away, to be made and the photo loaded again as it shows), in a component of its own that alone re-renders.
  */
 function CollapsedSplitHeader({ children }: { children: React.ReactNode }) {
   const isCollapsed = useSplitViewStore((s) => s.isCollapsed)
@@ -199,7 +199,7 @@ function CollapsedSplitHeader({ children }: { children: React.ReactNode }) {
   return (
     <>
       <View style={!isCollapsed && styles.clipped}>{children}</View>
-      {!isCollapsed && <View style={{ height: insets.top + spacing[3] }} />}
+      {!isCollapsed && Platform.OS === "ios" && <View style={{ height: insets.top + spacing[3] }} />}
     </>
   )
 }
