@@ -1,10 +1,11 @@
-import React from "react"
-import { View, Platform, Image } from "react-native"
+import React, { useState } from "react"
+import { View, Platform, Image, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
+import Sortable from "react-native-sortables"
 import { useRouter } from "expo-router"
 import { useShallow } from "zustand/react/shallow"
-import { useRoutePlanStore, useFavoritesStore } from "@/models"
+import { useRoutePlanStore, useFavoritesStore, type FavoriteRoute } from "@/models"
 import { trackEvent } from "@/services/analytics"
 import { Text } from "@/components/text/text"
 import { useStations } from "@/data/stations"
@@ -22,6 +23,11 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
     useShallow((s) => ({ setOrigin: s.setOrigin, setDestination: s.setDestination })),
   )
   const favoriteRoutesData = useFavoritesStore((s) => s.routes)
+  const reorder = useFavoritesStore((s) => s.reorder)
+  const { theme } = useUnistyles()
+  const [isEditing, setIsEditing] = useState(false)
+  const canReorder = favoriteRoutesData.length > 1
+  const editing = isEditing && canReorder
 
   const onFavoritePress = (originId: string, destinationId: string) => {
     trackEvent("favorite_route_selected")
@@ -40,15 +46,43 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
       return <EmptyState />
     }
 
-    return favoriteRoutesData.map((route) => (
-      <FavoriteRouteBox {...route} onPress={() => onFavoritePress(route.originId, route.destinationId)} key={route.id} />
-    ))
+    return (
+      <Sortable.Grid
+        data={favoriteRoutesData}
+        keyExtractor={(route) => route.id}
+        renderItem={({ item: route }: { item: FavoriteRoute }) => (
+          <FavoriteRouteBox
+            {...route}
+            isEditing={editing}
+            onReorder={canReorder ? () => setIsEditing(true) : undefined}
+            onPress={() => onFavoritePress(route.originId, route.destinationId)}
+          />
+        )}
+        columns={1}
+        rowGap={theme.spacing[4]}
+        sortEnabled={editing}
+        customHandle
+        hapticsEnabled
+        activeItemScale={1.03}
+        inactiveItemOpacity={1}
+        onDragEnd={({ data, fromIndex, toIndex }) => {
+          if (fromIndex === toIndex) return
+          trackEvent("favorite_routes_reordered")
+          reorder(data.map((route) => route.id))
+        }}
+      />
+    )
   })()
 
   return (
     <View style={[styles.container, style]}>
       <View style={styles.favoriteRoutesHeader}>
         <Text tx="favorites.title" style={styles.favoriteRoutesTitle} />
+        {editing && (
+          <Pressable testID="favorites-done-button" onPress={() => setIsEditing(false)} hitSlop={12} accessibilityRole="button">
+            <Text tx="common.done" style={styles.doneButton} />
+          </Pressable>
+        )}
       </View>
       <View style={styles.routesContainer}>{favorites}</View>
     </View>
@@ -83,8 +117,13 @@ const styles = StyleSheet.create((theme, rt) => ({
       android: rt.themeName === "dark" ? "#3a3a3c" : "lightgrey",
     }),
   },
+  doneButton: {
+    color: theme.colors.link,
+    fontWeight: "600",
+  },
   routesContainer: {
     marginTop: theme.spacing[3],
+    marginBottom: theme.spacing[4],
     marginHorizontal: theme.spacing[3],
   },
   emptyStateWrapper: {
