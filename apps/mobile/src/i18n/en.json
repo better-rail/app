@@ -224,6 +224,8 @@
   },
   "favorites": {
     "title": "Favorite Routes",
+    "reorderHandle": "Drag to reorder",
+    "reorder": "Reorder",
     "empty": "No Favorites",
     "emptyDescription": "You can add a favorite from the routes screen",
     "added": "Added to Favorites",

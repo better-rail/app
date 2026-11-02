@@ -178,7 +178,8 @@ export function SelectStationScreen() {
           contentContainerStyle={styles.listContent}
           ListFooterComponent={<View style={styles.listFooter} />}
           extraData={replacingStationId}
-          ListEmptyComponent={() =>
+          // An element rather than a component: an inline component remounts on every render and resets the favorites' edit mode
+          ListEmptyComponent={
             allowedStations ? null : (
               <View>
                 <RecentSearchesBox selectionType={selectionType} />

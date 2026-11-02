@@ -2,6 +2,7 @@ import React from "react"
 import { View, ViewStyle, ImageBackground, Platform, Alert, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale from "react-native-touchable-scale"
+import Sortable from "react-native-sortables"
 import { Text } from "@/components/text/text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { translate } from "@/i18n"
@@ -10,22 +11,25 @@ import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers
 import prompt from "react-native-prompt-android"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "@/models"
-import { ContextMenu } from "@/components/context-menu/context-menu"
+import { ContextMenu, type ContextMenuAction } from "@/components/context-menu/context-menu"
 import { IS_E2E } from "@/config/e2e"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })
 
 type FavoriteRouteBoxProps = {
   id: string
-  label: string
+  label?: string
   originId: string
   destinationId: string
   onPress: () => void
+  // Enters reorder mode; omitted when there's nothing to reorder
+  onReorder?: () => void
+  isEditing?: boolean
   style?: ViewStyle
 }
 
 export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
-  const { originId, destinationId, onPress, style, id, label } = props
+  const { originId, destinationId, onPress, onReorder, isEditing = false, style, id, label } = props
   const { rename, remove } = useFavoritesStore(useShallow((s) => ({ rename: s.rename, remove: s.remove })))
 
   const renamePrompt = () => {
@@ -52,7 +56,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
     ])
   }
 
-  const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute)
+  const { onLongPress } = useOnLongPress(label, renamePrompt, deleteRoute, onReorder)
 
   const [originName, destinationName, stationImage] = (() => {
     const origin = stationsObject[originId][stationLocale]
@@ -62,24 +66,28 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
     return [origin, destination, image]
   })()
 
+  const reorderActions: ContextMenuAction[] = onReorder
+    ? [{ title: translate("favorites.reorder") ?? "", systemIcon: "arrow.up.arrow.down", onPress: onReorder }]
+    : []
+
   return (
     <ContextMenu
-      disabled={IS_E2E}
+      disabled={IS_E2E || isEditing}
       actions={[
         {
           title: label ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
           systemIcon: "pencil",
           onPress: renamePrompt,
         },
+        ...reorderActions,
         {
-          title: translate("favorites.delete"),
+          title: translate("favorites.delete") ?? "",
           systemIcon: "star.slash",
           destructive: true,
           onPress: deleteRoute,
         },
       ]}
       previewBorderRadius={12}
-      style={styles.contextMenu}
       fillWidth
     >
       <TouchableScale
@@ -88,6 +96,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
         activeScale={0.96}
         friction={8}
         tension={Platform.select({ ios: 8, android: undefined })}
+        disabled={isEditing}
         onPress={onPress}
         onLongPress={Platform.OS === "android" ? onLongPress : undefined}
       >
@@ -108,24 +117,45 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
               <Text style={styles.stationName}>{destinationName}</Text>
             </View>
           </View>
+
+          {isEditing && (
+            <Sortable.Handle style={styles.handle}>
+              <View
+                testID={`favorite-route-handle-${id}`}
+                style={styles.handleLines}
+                hitSlop={8}
+                accessibilityLabel={translate("favorites.reorderHandle") ?? ""}
+              >
+                <View style={styles.handleLine} />
+                <View style={styles.handleLine} />
+                <View style={styles.handleLine} />
+              </View>
+            </Sortable.Handle>
+          )}
         </View>
       </TouchableScale>
     </ContextMenu>
   )
 }
 
-function useOnLongPress(currentLabel: string, renamePrompt: () => void, deleteRoute: () => void) {
+function useOnLongPress(
+  currentLabel: string | undefined,
+  renamePrompt: () => void,
+  deleteRoute: () => void,
+  onReorder?: () => void,
+) {
   const actionSheet = useActionSheet()
   const colorScheme = useColorScheme()
 
   const onLongPress = () => {
-    const options = [
-      currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"),
-      translate("common.delete"),
-      translate("common.cancel"),
+    const actions = [
+      { title: currentLabel ? translate("favorites.changeLabel") : translate("favorites.addLabel"), onPress: renamePrompt },
+      ...(onReorder ? [{ title: translate("favorites.reorder"), onPress: onReorder }] : []),
+      { title: translate("common.delete"), onPress: deleteRoute },
     ]
-    const destructiveButtonIndex = 1
-    const cancelButtonIndex = 2
+    const options = [...actions.map((action) => action.title), translate("common.cancel")]
+    const destructiveButtonIndex = actions.length - 1
+    const cancelButtonIndex = actions.length
 
     actionSheet.showActionSheetWithOptions(
       {
@@ -135,13 +165,8 @@ function useOnLongPress(currentLabel: string, renamePrompt: () => void, deleteRo
         ...getActionSheetStyleOptions(colorScheme),
       },
       (buttonIndex) => {
-        if (buttonIndex === cancelButtonIndex) return
-
-        if (buttonIndex === 0) {
-          renamePrompt()
-        } else if (buttonIndex === 1) {
-          deleteRoute()
-        }
+        if (buttonIndex === undefined || buttonIndex === cancelButtonIndex) return
+        actions[buttonIndex]?.onPress()
       },
     )
   }
@@ -154,9 +179,6 @@ const styles = StyleSheet.create((theme, rt) => {
   const lineWidth = 2.5 * rt.fontScale
 
   return {
-    contextMenu: {
-      marginBottom: theme.spacing[4],
-    },
     container: {
       padding: theme.spacing[3],
     },
@@ -217,6 +239,26 @@ const styles = StyleSheet.create((theme, rt) => {
       shadowRadius: 4,
       elevation: 2,
       zIndex: 0,
+    },
+    handle: {
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      end: 0,
+      width: 56,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    handleLines: {
+      gap: 4,
+      padding: theme.spacing[2],
+    },
+    handleLine: {
+      width: 20,
+      height: 2.5,
+      borderRadius: 2,
+      backgroundColor: theme.colors.whiteText,
+      opacity: 0.85,
     },
     routeLabel: {
       color: theme.colors.whiteText,

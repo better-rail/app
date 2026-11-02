@@ -83,6 +83,7 @@
     "react-native-safe-area-context": "~5.10.1",
     "react-native-screens": "4.30.0",
     "react-native-share": "11.0.3",
+    "react-native-sortables": "1.10.1",
     "react-native-svg": "15.16.0",
     "react-native-touchable-scale": "2.2.0",
     "react-native-unistyles": "3.5.3",
