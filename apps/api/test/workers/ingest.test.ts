@@ -22,8 +22,8 @@ type PayloadOptions = {
   extraTrips?: number
 }
 
-// Far enough out that the load never warns about the validity window closing (a fixed date eventually would).
-const FEED_END_DATE = new Date(Date.now() + 30 * 86_400 * 1000).toISOString().slice(0, 10)
+// Far enough out that the 2-day "validity window is closing" warning never fires.
+const DEFAULT_FEED_END_DATE = new Date(Date.now() + 60 * 86_400 * 1000).toISOString().slice(0, 10)
 
 // Two trains (100, 200) between Tel Aviv (3700) and Herzliya (3500).
 const makePayload = (checksum: string, options: PayloadOptions = {}): RailFeedPayload => {
@@ -41,7 +41,7 @@ const makePayload = (checksum: string, options: PayloadOptions = {}): RailFeedPa
     checksum,
     feedInfo: {
       feedStartDate: "2026-10-22",
-      feedEndDate: options.feedEndDate === undefined ? FEED_END_DATE : options.feedEndDate,
+      feedEndDate: options.feedEndDate === undefined ? DEFAULT_FEED_END_DATE : options.feedEndDate,
       feedVersion: "2.0",
     },
     stops: [
@@ -156,7 +156,7 @@ describe("loadFeed", () => {
     expect(result.counts).toEqual({ stops: 4, station_map: 2, routes: 2, trips: 2, calendar_dates: 2, stop_times: 4 })
 
     const active = await activeFeedSummary(env.DB)
-    expect(active).toEqual({ feedId: result.feedId, checksum: "sha-1", feedEndDate: FEED_END_DATE })
+    expect(active).toEqual({ feedId: result.feedId, checksum: "sha-1", feedEndDate: DEFAULT_FEED_END_DATE })
 
     for (const [table, n] of Object.entries(result.counts)) expect(await count(table, result.feedId)).toBe(n)
     const { rows: feeds } = await query<{ is_active: number }>(`SELECT is_active FROM feeds`, [], env.DB)
