@@ -4,13 +4,16 @@
 import { runtime } from "../runtime"
 import { Ride, RideAlarmRequest } from "../types/ride"
 import { logNames, logger } from "../logs"
+import { retryDurableObjectCall } from "../utils/durable-object-retry"
 import type { StartRideResult } from "./ride-do"
 
+// Every ride call below is safe to repeat (a repeated start keeps the ride it already started), so a transient
+// platform failure is retried, each attempt on a fresh stub.
 const rideObject = (rideId: string) => runtime().RIDES.getByName(rideId)
 
 export const startRideNotifications = async (ride: Ride): Promise<StartRideResult> => {
   try {
-    return await rideObject(ride.rideId).start(ride)
+    return await retryDurableObjectCall(() => rideObject(ride.rideId).start(ride))
   } catch (error) {
     logger.error(logNames.scheduler.scheduleRide.failed, { error, reason: "internal_error", ...ride })
     return { success: false, reason: "internal_error" }
@@ -19,7 +22,7 @@ export const startRideNotifications = async (ride: Ride): Promise<StartRideResul
 
 export const updateRideToken = async (rideId: string, token: string) => {
   try {
-    return await rideObject(rideId).updateToken(token)
+    return await retryDurableObjectCall(() => rideObject(rideId).updateToken(token))
   } catch (error) {
     logger.error(logNames.scheduler.updateRideToken.failed, { error, rideId, token })
     return false
@@ -29,7 +32,7 @@ export const updateRideToken = async (rideId: string, token: string) => {
 /** Returns when each stop's alarm should ring, or undefined when the ride isn't tracked */
 export const setRideAlarm = async (rideId: string, alarm: RideAlarmRequest) => {
   try {
-    return await rideObject(rideId).setAlarm(alarm)
+    return await retryDurableObjectCall(() => rideObject(rideId).setAlarm(alarm))
   } catch (error) {
     logger.error(logNames.scheduler.setAlarm.failed, { error, rideId })
     return undefined
@@ -38,7 +41,7 @@ export const setRideAlarm = async (rideId: string, alarm: RideAlarmRequest) => {
 
 export const removeRideAlarm = async (rideId: string) => {
   try {
-    return await rideObject(rideId).removeAlarm()
+    return await retryDurableObjectCall(() => rideObject(rideId).removeAlarm())
   } catch (error) {
     logger.error(logNames.scheduler.removeAlarm.failed, { error, rideId })
     return false
@@ -47,7 +50,7 @@ export const removeRideAlarm = async (rideId: string) => {
 
 export const endRideNotifications = async (rideId: string) => {
   try {
-    return await rideObject(rideId).end()
+    return await retryDurableObjectCall(() => rideObject(rideId).end())
   } catch (error) {
     logger.error(logNames.scheduler.cancelRide.failed, { error, rideId })
     return false
