@@ -1,3 +1,5 @@
+// Pulls the FCM `data` map out of whatever expo-notifications hands us. The wrapper shape
+// differs between the background task and the foreground listener, so probe the known locations.
 export const extractFcmData = (raw: unknown): Record<string, string> | null => {
   const obj = raw as Record<string, any> | null | undefined
   const data =

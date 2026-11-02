@@ -69,13 +69,13 @@ export function LivePermissionsScreen() {
 
   const onStartRide = () => {
     if (rideId) {
-      Alert.alert(translate("ride.rideExistsTitle") ?? "", translate("ride.rideExistsMessage") ?? "", [
+      Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
         {
           style: "cancel",
-          text: translate("common.cancel") ?? undefined,
+          text: translate("common.cancel"),
         },
         {
-          text: translate("ride.startNewRide") ?? undefined,
+          text: translate("ride.startNewRide"),
           onPress: async () => {
             await stopRide(rideId)
             beginRide()

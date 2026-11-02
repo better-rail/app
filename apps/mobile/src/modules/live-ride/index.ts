@@ -30,8 +30,8 @@ class AndroidNativeBridge implements LiveRideNativeBridge {
     return this.nativeModule.cancelLiveRide()
   }
 
-  async canPostPromoted(): Promise<boolean> {
-    return this.nativeModule?.canPostPromoted() ?? false
+  async canPostPromoted(): Promise<boolean | undefined> {
+    return (await this.nativeModule?.canPostPromoted()) ?? undefined
   }
 
   async canScheduleExactAlarms(): Promise<boolean> {

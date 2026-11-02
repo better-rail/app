@@ -19,6 +19,10 @@ class LiveRideActionReceiver : BroadcastReceiver() {
         val pendingResult = goAsync()
         val prefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
         val rideId = prefs.getString("rideId", null)
+        val baseUrl = prefs.getString("apiBaseUrl", null)
+            ?.trim()
+            ?.takeUnless { it.isEmpty() }
+            ?: DEFAULT_API_BASE_URL
         prefs.edit()
             .remove("rideRoute")
             .remove("rideId")
@@ -30,7 +34,7 @@ class LiveRideActionReceiver : BroadcastReceiver() {
         if (!rideId.isNullOrBlank()) {
             Thread {
                 try {
-                    deleteRideOnServer(context, rideId)
+                    deleteRideOnServer(baseUrl, rideId)
                 } finally {
                     pendingResult.finish()
                 }
@@ -40,13 +44,8 @@ class LiveRideActionReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun deleteRideOnServer(context: Context, rideId: String) {
+    private fun deleteRideOnServer(baseUrl: String, rideId: String) {
         runCatching {
-            val prefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
-            val baseUrl = prefs.getString("apiBaseUrl", null)
-                ?.trim()
-                ?.takeUnless { it.isEmpty() }
-                ?: DEFAULT_API_BASE_URL
             val conn = (URL("$baseUrl/ride").openConnection() as HttpURLConnection).apply {
                 requestMethod = "DELETE"
                 doOutput = true
@@ -54,11 +53,14 @@ class LiveRideActionReceiver : BroadcastReceiver() {
                 connectTimeout = 10_000
                 readTimeout = 10_000
             }
-            conn.outputStream.use { os ->
-                os.write(JSONObject().put("rideId", rideId).toString().toByteArray(Charsets.UTF_8))
+            try {
+                conn.outputStream.use { os ->
+                    os.write(JSONObject().put("rideId", rideId).toString().toByteArray(Charsets.UTF_8))
+                }
+                conn.responseCode
+            } finally {
+                conn.disconnect()
             }
-            conn.responseCode
-            conn.disconnect()
         }
     }
 

@@ -1,14 +1,7 @@
-import type { RouteItem } from "@/services/api/rail-api.types"
-
 export interface NotificationPermissionState {
   granted: boolean
-  canPromoteOngoing: boolean
+  canPromoteOngoing?: boolean
   canScheduleExactAlarms: boolean
-}
-
-export interface LiveRideSession {
-  rideId: string
-  route: RouteItem
 }
 
 export const SemanticColor = {
@@ -59,15 +52,7 @@ export interface AndroidAlert {
 export interface LiveRideNativeBridge {
   updateLiveRide(payload: LiveRideUpdatePayload): Promise<boolean>
   cancelLiveRide(): Promise<boolean>
-  canPostPromoted(): Promise<boolean>
+  canPostPromoted(): Promise<boolean | undefined>
   canScheduleExactAlarms(): Promise<boolean>
   postAlert(alert: AndroidAlert): Promise<boolean>
-}
-
-export interface LiveRideNotificationModule {
-  checkPermissions(): Promise<NotificationPermissionState>
-  requestPermissions(): Promise<NotificationPermissionState>
-  start(route: RouteItem, rideId?: string): Promise<LiveRideSession>
-  processIncomingPush(rawPayload: unknown): Promise<void>
-  stop(): Promise<void>
 }

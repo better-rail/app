@@ -2,16 +2,13 @@ package com.betterrail.liveride
 
 import android.app.Notification
 import android.os.Build
-import android.text.Annotation
 import android.text.SpannableStringBuilder
 
 /**
- * Compatibility helper for Android 17 (API 37) notification semantic coloring.
- * Applies semantic styles matching iOS Live Activity states:
- * - SAFE (Green): On-time transit, arrival, disembarking
- * - CAUTION (Orange): Waiting for train, exchange/transfer, connection issues
- * - DANGER (Red): Train delay
- * - INFO (Blue): General informational markers & route track
+ * Compatibility helper for notification semantic coloring.
+ * - Android 16+ (API 36): Maps semantic states to explicit ARGB segment colors via [resolveColor].
+ * - Android 17+ (API 37): Also applies system semantic styles ([Notification.SEMANTIC_STYLE_*])
+ *   to segments, points, and text annotations.
  */
 object SemanticColorCompat {
     const val BRAND_COLOR = 0xFF0C83FF.toInt()
@@ -20,13 +17,11 @@ object SemanticColorCompat {
     const val COLOR_ON_TIME_GREEN = 0xFF34C759.toInt()
     const val COLOR_STATION_POINT = 0xFFC8E1FF.toInt()
 
-    const val SEMANTIC_STYLE_UNSPECIFIED = 0
-    const val SEMANTIC_STYLE_INFO = 1
-    const val SEMANTIC_STYLE_SAFE = 2
-    const val SEMANTIC_STYLE_CAUTION = 3
-    const val SEMANTIC_STYLE_DANGER = 4
-
-    private const val ANNOTATION_KEY = "android.app.notification.semanticStyle"
+    const val SEMANTIC_STYLE_UNSPECIFIED = Notification.SEMANTIC_STYLE_UNSPECIFIED
+    const val SEMANTIC_STYLE_INFO = Notification.SEMANTIC_STYLE_INFO
+    const val SEMANTIC_STYLE_SAFE = Notification.SEMANTIC_STYLE_SAFE
+    const val SEMANTIC_STYLE_CAUTION = Notification.SEMANTIC_STYLE_CAUTION
+    const val SEMANTIC_STYLE_DANGER = Notification.SEMANTIC_STYLE_DANGER
 
     /** Maps a semantic style to its ARGB color representation. Defaults to BRAND_COLOR. */
     fun resolveColor(semanticStyle: Int?): Int = when (semanticStyle) {
@@ -36,41 +31,32 @@ object SemanticColorCompat {
         else -> BRAND_COLOR
     }
 
-    /** Applies semantic styling to Notification, ProgressStyle.Segment, or ProgressStyle.Point via reflection. */
-    fun applySemanticStyle(target: Any, style: Int): Boolean {
-        if (Build.VERSION.SDK_INT < 37) return false
-        return runCatching {
-            val method = target.javaClass.getMethod("setSemanticStyle", Int::class.javaPrimitiveType)
-            method.invoke(target, style)
-            true
-        }.getOrDefault(false)
+    /** Applies semantic styling to a ProgressStyle.Segment on Android 17+. */
+    fun applySemanticStyle(segment: Notification.ProgressStyle.Segment, style: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            segment.setSemanticStyle(style)
+        }
     }
 
-    /** Creates an Annotation for text semantic style. */
-    fun createAnnotation(style: Int): Any? {
-        if (Build.VERSION.SDK_INT < 37) return null
-        val reflected = runCatching {
-            Notification::class.java
-                .getMethod("createSemanticStyleAnnotation", Int::class.javaPrimitiveType)
-                .invoke(null, style)
-        }.getOrNull()
-        return reflected ?: Annotation(ANNOTATION_KEY, style.toString())
+    /** Applies semantic styling to a ProgressStyle.Point on Android 17+. */
+    fun applySemanticStyle(point: Notification.ProgressStyle.Point, style: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            point.setSemanticStyle(style)
+        }
     }
 
-    /** Wraps a text in a semantic style annotation. */
-    fun annotate(text: CharSequence, style: Int, start: Int = 0, end: Int = text.length): CharSequence {
-        if (Build.VERSION.SDK_INT < 37 || start < 0 || end <= start || end > text.length) return text
-        val annotation = createAnnotation(style) ?: return text
-        val ssb = if (text is SpannableStringBuilder) text else SpannableStringBuilder(text)
-        ssb.setSpan(annotation, start, end, 0)
-        return ssb
-    }
-
-    /** Annotates text with the matching semantic style. */
+    /** Annotates text with the matching semantic style on Android 17+. */
     fun formatText(text: String, semanticStyle: Int?): CharSequence {
-        if (Build.VERSION.SDK_INT < 37 || semanticStyle == null || semanticStyle == SEMANTIC_STYLE_UNSPECIFIED) {
+        if (
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN ||
+            semanticStyle == null ||
+            semanticStyle == SEMANTIC_STYLE_UNSPECIFIED ||
+            text.isEmpty()
+        ) {
             return text
         }
-        return annotate(text, semanticStyle)
+        return SpannableStringBuilder(text).apply {
+            setSpan(Notification.createSemanticStyleAnnotation(semanticStyle), 0, text.length, 0)
+        }
     }
 }

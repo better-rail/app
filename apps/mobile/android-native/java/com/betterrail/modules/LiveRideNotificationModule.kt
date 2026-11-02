@@ -12,6 +12,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.module.annotations.ReactModule
+import com.facebook.react.modules.core.DeviceEventManagerModule
 
 @ReactModule(name = LiveRideNotificationModule.NAME)
 class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -20,8 +21,8 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
 
     @ReactMethod
     fun canPostPromoted(promise: Promise) {
-        if (Build.VERSION.SDK_INT < 36) {
-            promise.resolve(false)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.BAKLAVA) {
+            promise.resolve(null)
             return
         }
         val manager = reactApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -113,7 +114,7 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
     fun emitStopRequested() {
         if (reactApplicationContext.hasActiveReactInstance()) {
             reactApplicationContext
-                .getJSModule(com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
                 ?.emit("onLiveRideStopRequested", null)
         }
     }

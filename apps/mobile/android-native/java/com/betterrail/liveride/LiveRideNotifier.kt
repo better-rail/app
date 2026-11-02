@@ -33,12 +33,13 @@ object LiveRideNotifier {
     private const val NOTIFICATION_ID = 42001
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
     private const val SEGMENT_RESOLUTION = 100
+    @Volatile
+    private var channelCreated = false
 
     fun showProgress(context: Context, content: LiveRideContent, staleUntil: Long? = null) {
         ensureChannel(context)
-        dismissAlerts(context)
         val remainingMs = staleUntil?.let { (it - System.currentTimeMillis()).coerceAtLeast(0L) }
-        val notification = if (Build.VERSION.SDK_INT >= 36) {
+        val notification = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
             runCatching { buildLiveUpdate(context, content, remainingMs) }
                 .onFailure { Log.e(TAG, "Live update build failed, using compat progress", it) }
                 .getOrNull()
@@ -52,7 +53,6 @@ object LiveRideNotifier {
     fun showArrived(context: Context, title: String, body: String) {
         cancelStale(context)
         ensureChannel(context)
-        dismissAlerts(context)
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
             .setColor(SemanticColorCompat.BRAND_COLOR)
@@ -68,24 +68,14 @@ object LiveRideNotifier {
 
     fun cancel(context: Context) {
         cancelStale(context)
-        dismissAlerts(context)
         notificationManager(context).cancel(NOTIFICATION_ID)
-    }
-
-    fun dismissAlerts(context: Context) {
-        runCatching {
-            notificationManager(context).activeNotifications.forEach { sbn ->
-                if (sbn.tag?.startsWith("live-ride-alert") == true) {
-                    notificationManager(context).cancel(sbn.tag, sbn.id)
-                }
-            }
-        }
     }
 
     fun isShowing(context: Context): Boolean =
         notificationManager(context).activeNotifications.any { it.id == NOTIFICATION_ID }
 
     fun ensureChannel(context: Context) {
+        if (channelCreated) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nm = notificationManager(context)
             val existing = nm.getNotificationChannel(CHANNEL_ID)
@@ -104,6 +94,7 @@ object LiveRideNotifier {
                 nm.createNotificationChannel(channel)
             }
         }
+        channelCreated = true
     }
 
     fun scheduleStale(context: Context, stale: LiveRideContent, delayMs: Long, staleUntil: Long) {
@@ -191,7 +182,6 @@ object LiveRideNotifier {
         if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
             builder.setRequestPromotedOngoing(true)
         }
-        SemanticColorCompat.applySemanticStyle(builder, semanticStyle)
 
         content.shortCriticalText?.takeIf { it.isNotBlank() }?.let { chipText ->
             builder.setShortCriticalText(chipText)

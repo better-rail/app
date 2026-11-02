@@ -39,8 +39,17 @@ export function StartRideButton(props: StartRideButtonProps) {
 
   const { route, screenName } = props
 
+  /*
+   * Check that the device isn't a tablet.
+   * The user can only initiate a ride from the route details screen.
+   */
   if (deviceWidth > 768 && screenName !== "routeDetails") return null
 
+  /**
+   * Check if the ride is 60 minutes away or less from now, and not after the arrival time.
+   * We are also correcting the user's timezone to Asia/Jerusalem, so if foreign users are playing with the
+   * feature, it'll allow them to start a ride as if they were at Israel at the moment.
+   */
   const isRouteInPast = isRouteInThePast(route.arrivalTime, route.delay)
   const isRouteInFuture =
     differenceInMinutes(route.departureTime + route.delay * 60000, timezoneCorrection(new Date()).getTime()) > 60
@@ -57,6 +66,9 @@ export function StartRideButton(props: StartRideButtonProps) {
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
 
   const startRide = async () => {
+    // Read the id from the store rather than the render snapshot: after stopRide
+    // clears it, the recursive call below must see the fresh value or it will
+    // re-show this alert in a loop.
     const activeRideId = useRideStore.getState().id
     if (activeRideId) {
       return Alert.alert(translate("ride.rideExistsTitle"), translate("ride.rideExistsMessage"), [
@@ -78,6 +90,8 @@ export function StartRideButton(props: StartRideButtonProps) {
     ride.startRide(route)
     trackEvent("start_live_ride")
 
+    // in reality the prompt would be shown on the 4th ride and not the 3rd, since the count
+    // will be increased only after the ride has been started successfully.
     if (ride.rideCount === 3) {
       requestStoreReview().then(() => {
         trackEvent("start_live_ride_in_app_review_prompt")

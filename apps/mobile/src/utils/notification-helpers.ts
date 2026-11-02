@@ -14,6 +14,9 @@ import { consumeNativeStopHandled, setApiBaseUrl, setRideId } from "./storage/ba
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
 
+// expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
+// data-only FCM messages; LiveRideNotificationModule owns all display, so suppress
+// expo-notifications from rendering anything itself (prevents an empty/duplicate notification).
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: false,
@@ -55,6 +58,8 @@ const handleFcmData = async (data: Record<string, string> | null): Promise<void>
   }
 }
 
+// Defined at module scope so it registers when index.js loads this file — including when
+// the app is woken from a killed/background state to process a live-ride data message.
 TaskManager.defineTask(BACKGROUND_LIVE_RIDE_TASK, async ({ data, error }) => {
   if (error) return
   await handleFcmData(extractFcmData(data))
@@ -111,6 +116,8 @@ const findArrivalAlarmPush = (raw: unknown, depth = 0): ArrivalAlarmPush | null 
   return null
 }
 
+// iOS: the arrival-alarm push also wakes a suspended app, a fallback for when the notification
+// service extension couldn't move the alarm. Moving it twice to the same time is harmless.
 TaskManager.defineTask(BACKGROUND_ARRIVAL_ALARM_TASK, async ({ data, error }) => {
   if (error || Platform.OS !== "ios") return
   const push = findArrivalAlarmPush(data)
@@ -130,6 +137,7 @@ export const configureNotifications = async () => {
       importance: Notifications.AndroidImportance.HIGH,
     })
 
+    // Background / killed: expo-notifications wakes the JS task defined at module scope.
     if (isLiveRideSupported()) {
       await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
     }
@@ -143,6 +151,7 @@ export const configureNotifications = async () => {
       })
     }
 
+    // Foreground: data messages are delivered to this listener rather than the task.
     Notifications.addNotificationReceivedListener((notification) => {
       handleFcmData(extractFcmData(notification))?.catch(() => {})
     })
@@ -156,6 +165,7 @@ export const startRideNotifications = async (route: RouteItem): Promise<string> 
     throw new RideStartError("unsupported", "Live notifications are only supported on Android")
   }
 
+  // Getting a push token can fail on its own (no Play Services, FCM unreachable), so mark it as its own stage.
   let token: string
   try {
     const pushToken = await getDevicePushTokenWithAuthRetry(Notifications.getDevicePushTokenAsync, (outcome) =>
@@ -177,8 +187,10 @@ export const startRideNotifications = async (route: RouteItem): Promise<string> 
 
   try {
     await setRideId(rideId)
-    await liveRideNotifications.start(route, rideId)
+    await liveRideNotifications.start(route)
   } catch (error) {
+    // The server already created the ride, so end it and drop everything we stored for it. Settle
+    // both: one failing must not skip the other, nor replace the tagged error the reporter needs.
     await Promise.allSettled([cancelNotifications(), rideApi.endRide(rideId)])
     throw new RideStartError("notification", "Couldn't display the live ride notification", { cause: error })
   }

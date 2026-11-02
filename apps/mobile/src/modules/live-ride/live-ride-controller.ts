@@ -6,11 +6,8 @@ import { getInitialLanguage, type LanguageCode, resolveUse12HourClock, type TxKe
 import type { RouteItem, Train } from "@/services/api/rail-api.types"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { findClosestStationInRoute, getRideStatus, getTrainFromStationId } from "@/utils/helpers/ride-helpers"
-import { extractFcmData } from "./fcm-payload"
 import {
-  type AndroidAlert,
   type LiveRideNativeBridge,
-  type LiveRideSession,
   type LiveRideUpdatePayload,
   type NotificationPermissionState,
   SemanticColor,
@@ -37,8 +34,6 @@ export interface LiveRideDependencies {
   requestNotifications?: () => Promise<void>
   getUserLanguage?: () => Promise<string | null>
   now?: () => number
-  setTimeout?: (fn: () => void, ms: number) => ReturnType<typeof setTimeout>
-  clearTimeout?: (id: ReturnType<typeof setTimeout>) => void
 }
 
 const VALID_STATUSES = new Set<LiveRideStatus>([
@@ -59,12 +54,13 @@ export const getLiveRideSemanticStyle = (state: LiveRideState): SemanticColorTyp
   if (state.delay > 0) {
     return SemanticColor.DANGER
   }
-  if (state.status === "waitForTrain" || state.status === "inExchange") {
+  if (state.status === "waitForTrain" || state.status === "inExchange" || state.status === "stale") {
     return SemanticColor.CAUTION
   }
   return SemanticColor.SAFE
 }
 
+/// The route destination, used as a fallback when we can't resolve the ride's current position
 const getRideDestination = (route: RouteItem) => route.trains[route.trains.length - 1].destinationStationName
 
 const getArrivalTime = (route: RouteItem) => route.arrivalTime ?? last(route.trains)?.arrivalTime
@@ -167,26 +163,17 @@ interface StationProgress {
 export class LiveRideController {
   private readonly deps: LiveRideDependencies
   private readonly now: () => number
-  private readonly setTimeoutFn: (fn: () => void, ms: number) => ReturnType<typeof setTimeout>
-  private readonly clearTimeoutFn: (id: ReturnType<typeof setTimeout>) => void
-  private watchdogTimer?: ReturnType<typeof setTimeout>
 
   constructor(deps: LiveRideDependencies) {
     this.deps = deps
     this.now = deps.now ?? Date.now
-    this.setTimeoutFn = deps.setTimeout ?? setTimeout
-    this.clearTimeoutFn = deps.clearTimeout ?? clearTimeout
-  }
-
-  async postAlert(alert: AndroidAlert): Promise<boolean> {
-    return this.deps.bridge.postAlert(alert)
   }
 
   async checkPermissions(): Promise<NotificationPermissionState> {
     const { bridge } = this.deps
     const [granted, canPromoteOngoing, canScheduleExactAlarms] = await Promise.all([
       this.deps.getNotificationsGranted().catch(() => false),
-      bridge.canPostPromoted().catch(() => false),
+      bridge.canPostPromoted().catch(() => undefined),
       bridge.canScheduleExactAlarms().catch(() => false),
     ])
     return { granted, canPromoteOngoing, canScheduleExactAlarms }
@@ -199,8 +186,7 @@ export class LiveRideController {
     return this.checkPermissions()
   }
 
-  async start(route: RouteItem, rideId?: string): Promise<LiveRideSession> {
-    const actualRideId = rideId ?? `ride-${this.now()}`
+  async start(route: RouteItem): Promise<void> {
     await this.deps.storage.saveRoute(route)
 
     const nextStationId = findClosestStationInRoute(route)
@@ -212,13 +198,10 @@ export class LiveRideController {
     }
 
     await this.render(route, state)
-    this.resetWatchdog(route, state)
-    return { rideId: actualRideId, route }
   }
 
-  async processIncomingPush(payload: unknown): Promise<void> {
-    const data = extractFcmData(payload)
-    if (!data || data.type !== "live-ride") return
+  async processIncomingPush(data: Record<string, string>): Promise<void> {
+    if (data.type !== "live-ride") return
 
     const route = await this.deps.storage.getRoute()
     if (!route) return
@@ -246,34 +229,11 @@ export class LiveRideController {
     }
 
     await this.render(route, state, alert)
-    this.resetWatchdog(route, state)
   }
 
   async stop(): Promise<void> {
-    if (this.watchdogTimer) {
-      this.clearTimeoutFn(this.watchdogTimer)
-      this.watchdogTimer = undefined
-    }
     await this.deps.storage.clear()
     await this.deps.bridge.cancelLiveRide().catch(() => false)
-  }
-
-  private resetWatchdog(route: RouteItem, state: LiveRideState) {
-    if (this.watchdogTimer) {
-      this.clearTimeoutFn(this.watchdogTimer)
-      this.watchdogTimer = undefined
-    }
-    if (state.status === "arrived") return
-
-    this.watchdogTimer = this.setTimeoutFn(async () => {
-      const currentRoute = await this.deps.storage.getRoute()
-      if (!currentRoute) return
-      await this.render(currentRoute, {
-        status: "stale",
-        delay: state.delay,
-        nextStationId: last(currentRoute.trains)?.destinationStationId ?? state.nextStationId,
-      })
-    }, STALE_AFTER_MS)
   }
 
   private async render(route: RouteItem, state: LiveRideState, alert?: { title?: string; body?: string }) {
@@ -451,10 +411,13 @@ export class LiveRideController {
 
     if (isBoarding(state.status)) {
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
+      // the status comes from the server while the lookup runs against the locally cached route,
+      // so the two can disagree - fall back rather than reading a missing train's details.
       const body = train ? formatTrainInfo(train, locale) : (translate("ride.activatingRide", options) ?? "")
       if (!targetDate) return { title: translate("plan.rideTo", { destination, ...options }) ?? "", body }
 
       const minutes = getMinutesUntil(targetDate, this.now()) ?? 0
+      // a background wake never runs setUserLanguage, so resolve the clock style here
       const time = formatTime(targetDate, resolveUse12HourClock(activeLocale))
       const timeText = `(${time})`
       const title =
@@ -462,6 +425,8 @@ export class LiveRideController {
       return { title, body }
     }
 
+    // the next station couldn't be matched to a train, so there's no time to show.
+    // fall back to the ride destination instead of rendering an invalid date.
     if (!targetDate) {
       return {
         title: translate("plan.rideTo", { destination, ...options }) ?? "",
@@ -478,6 +443,8 @@ export class LiveRideController {
     if (state.status === "getOff" || state.rawStatus === "getOff") {
       body = translate("ride.getOff", options) ?? ""
     } else if (stopsLeft <= 0) {
+      // rideProgress reports [0, 0] when the station isn't in the route, which would render
+      // "get off in 0 stops" - fall back rather than showing a nonsense count
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
       body = train ? formatTrainInfo(train, locale) : (translate("plan.rideTo", { destination, ...options }) ?? "")
     } else if (stopsLeft === 1) {

@@ -7,6 +7,7 @@ import { RideApi } from "@/services/api/ride-api"
 import { RouteApi } from "@/services/api/route-api"
 import { cancelArrivalAlarm } from "@/utils/arrival-alarm-native"
 import { addStopRideListener, isLiveRideSupported, type NotificationPermissionState } from "@/modules/live-ride"
+import { getRideRoute } from "@/utils/storage/background-storage"
 import { head, last } from "lodash"
 import { formatDateForAPI } from "@/utils/helpers/date-helpers"
 import { addMinutes } from "date-fns"
@@ -33,6 +34,7 @@ const reportRideStartFailure = (error: unknown, route: RouteItem) => {
       departureDate: route.departureTimeString,
       delay: route.delay,
     })
+    // Group these in Sentry by stage + reason. Without it they'd group by the axios message, which includes the URL.
     scope.setFingerprint(["live-ride-start-failed", tags.ride_start_stage, tags.ride_start_reason])
     Sentry.captureException(error)
   })
@@ -40,6 +42,8 @@ const reportRideStartFailure = (error: unknown, route: RouteItem) => {
   trackEvent("start_live_ride_failed", tags)
 }
 
+// Loaded lazily to avoid a require cycle (notification-helpers imports back into the ride hooks/models).
+// The Android helpers are only used at runtime on Android, so a deferred require is safe here.
 const androidHelpers = () => (require("@/utils/notification-helpers") as { default: typeof AndroidHelpersModule }).default
 
 const startRideHandler = (route: RouteItem): Promise<string> =>
@@ -71,6 +75,7 @@ export interface RideState {
   arrivalAlarmRangStops: number[]
   /** A ride whose server-side alarm couldn't be removed yet, so it doesn't keep pushing moves */
   pendingArrivalAlarmRemoval: string | undefined
+  /** Android: the rider was already asked to let the alarm take over the lock screen */
   arrivalAlarmFullScreenPrompted: boolean
 }
 
@@ -111,6 +116,7 @@ const initialRideState: RideState = {
 
 export const resetRideStore = () => {
   const { id, arrivalAlarm } = useRideStore.getState()
+  // Deleting all data mustn't leave an alarm that rings, or that the server keeps moving.
   if (arrivalAlarm) {
     cancelArrivalAlarm()
     if (id) new RideApi().removeRideAlarm(id)
@@ -188,6 +194,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities } = get()
     if (!canRunLiveActivities) return
 
+    // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
       cancelArrivalAlarm()
     }
@@ -234,7 +241,6 @@ export const useRideStore = create<RideStore>((set, get) => ({
     } else if (Platform.OS === "android") {
       if (!route || !id) return
 
-      const { getRideRoute } = require("@/utils/storage/background-storage")
       const backgroundRoute = await getRideRoute().catch(() => null)
       if (!backgroundRoute) {
         get().stopRide(rideId)
@@ -261,7 +267,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
             get().stopRide(rideId)
           }
         })
-        .catch(() => {})
+        .catch((error) => console.error("Failed to check ride arrival", error))
     }
   },
 
@@ -283,6 +289,7 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 }))
 
+// Exclude loading from persistence (transient state)
 export function getRideSnapshot(state: RideState) {
   const { loading, ...rest } = state
   return rest
@@ -308,6 +315,10 @@ export function hydrateRideStore(data: any) {
 
 let stopSubscription: (() => void) | undefined
 
+/**
+ * Run afterCreate logic - checks if ride is still active and authorization.
+ * Should be called after hydration.
+ */
 export function initializeRideStore() {
   const state = useRideStore.getState()
   if (state.id) {
