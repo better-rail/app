@@ -80,7 +80,8 @@ fi
 echo "🚀 Releasing EAS update ($PLATFORM): \"$MESSAGE\""
 echo ""
 
-eas update "${EAS_ARGS[@]}"
+# Same variant as the production build profile, so Metro refuses to bundle Heebo for missing licensed fonts
+APP_VARIANT=production eas update "${EAS_ARGS[@]}"
 
 echo ""
 echo "🗺️  Uploading source maps to Sentry..."
