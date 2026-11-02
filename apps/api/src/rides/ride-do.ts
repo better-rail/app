@@ -57,14 +57,20 @@ export class RideDO extends DurableObject<Env> {
     const registerRideLog = logNames.scheduler.scheduleRide
 
     try {
+      // Every POST /ride gets a fresh ride id, so a tracked ride here means the Worker retried this same
+      // start after a platform error. Its startup push already went out: finish what that attempt may not
+      // have (saving, arming the tick) rather than send the rider that alert twice.
+      if (this.tracker) {
+        await this.save()
+        await this.armAlarm()
+        rideLogger.info(registerRideLog.success, { ...ride })
+        return { success: true, rideId: ride.rideId }
+      }
+
       const tracker = await RideTracker.create(ride, rideLogger)
-
-      // Starting the same ride twice ends the first schedule, like before.
-      if (this.tracker) await this.clear()
-
-      this.tracker = tracker
-      await this.save()
+      // Kept only once startup's push is out, so a tracked ride is always one whose rider was already told.
       await tracker.startup()
+      this.tracker = tracker
       await this.save()
       await this.armAlarm()
 
