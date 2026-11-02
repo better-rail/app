@@ -7,7 +7,7 @@ import { logNames, logger } from "../logs"
 import { retryDurableObjectCall } from "../utils/durable-object-retry"
 import type { StartRideResult } from "./ride-do"
 
-// Every ride call below is safe to repeat (starting a ride again restarts it), so a transient
+// Every ride call below is safe to repeat (a repeated start keeps the ride it already started), so a transient
 // platform failure is retried, each attempt on a fresh stub.
 const rideObject = (rideId: string) => runtime().RIDES.getByName(rideId)
 
