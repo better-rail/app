@@ -206,6 +206,8 @@
   },
   "favorites": {
     "title": "طرق مفضلة",
+    "reorderHandle": "اسحب لإعادة الترتيب",
+    "reorder": "إعادة ترتيب",
     "empty": "لا مفضلات",
     "emptyDescription": "",
     "added": "أضيفت إلى المفضلة",
