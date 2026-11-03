@@ -125,17 +125,11 @@ object LiveRideNotifier {
         notificationManager(context).notify(tag, 0, notification)
     }
 
-    private data class ProgressBounds(val numSegments: Int, val max: Int, val progress: Int)
-
-    private fun computeProgressBounds(content: LiveRideContent): ProgressBounds {
+    private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val numSegments = content.totalStops.coerceAtLeast(1)
         val max = (content.maxProgress ?: (numSegments * SEGMENT_RESOLUTION)).coerceAtLeast(1)
         val currentProgress = content.progress ?: (content.currentStop * SEGMENT_RESOLUTION)
-        return ProgressBounds(numSegments, max, currentProgress.coerceIn(0, max))
-    }
-
-    private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
-        val (numSegments, max, clampedProgress) = computeProgressBounds(content)
+        val clampedProgress = currentProgress.coerceIn(0, max)
 
         val style = Notification.ProgressStyle()
             .setStyledByProgress(true)
@@ -178,9 +172,10 @@ object LiveRideNotifier {
             .setVisibility(Notification.VISIBILITY_PUBLIC)
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
 
-        // setRequestPromotedOngoing is 36.1+; 36.0 devices still get the ProgressStyle, just unpromoted
         if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
             builder.setRequestPromotedOngoing(true)
+        } else {
+            builder.extras.putBoolean(Notification.EXTRA_REQUEST_PROMOTED_ONGOING, true)
         }
 
         content.shortCriticalText?.takeIf { it.isNotBlank() }?.let { chipText ->
@@ -205,8 +200,6 @@ object LiveRideNotifier {
     }
 
     private fun buildCompatProgress(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
-        val (_, max, clampedProgress) = computeProgressBounds(content)
-
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
             .setColor(SemanticColorCompat.BRAND_COLOR)
@@ -217,7 +210,6 @@ object LiveRideNotifier {
             .setOnlyAlertOnce(content.alertOnce)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setShowWhen(false)
-            .setProgress(max, clampedProgress, false)
             .setContentIntent(ArrivalAlarmScheduler.openAppIntent(context))
 
         if (timeoutMs != null && timeoutMs > 0) {
