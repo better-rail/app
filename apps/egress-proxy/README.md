@@ -59,6 +59,10 @@ A VPS works the same way: `docker build -t egress-proxy apps/egress-proxy && doc
 egress-proxy`, or just `bun install && bun start` with the variables in the environment. Put it behind TLS; the bearer
 token is the only thing between the internet and your upstream credentials.
 
+Every push to `main` that touches this service publishes `ghcr.io/better-rail/egress-proxy` for amd64 and arm64, tagged
+`latest` and with the commit SHA (`.github/workflows/egress-proxy-image.yml`). A host can pull `latest` on a schedule to
+deploy, or pin a SHA tag to roll back.
+
 ## Pointing the Worker at it
 
 Set two secrets on the API Worker (`apps/api`):

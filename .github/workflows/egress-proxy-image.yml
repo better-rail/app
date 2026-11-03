@@ -1,0 +1,56 @@
+name: Egress proxy image
+
+# Publishes apps/egress-proxy to GHCR. The host pulls `latest` on its own schedule, so a merge to main is a deploy and
+# nothing here needs access to the host. Pull requests only build the image, to prove the Dockerfile still works.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/egress-proxy/**
+      - .github/workflows/egress-proxy-image.yml
+  pull_request:
+    paths:
+      - apps/egress-proxy/**
+      - .github/workflows/egress-proxy-image.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/better-rail/egress-proxy
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun test && bun run check
+        working-directory: apps/egress-proxy
+
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v7
+        with:
+          context: apps/egress-proxy
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
