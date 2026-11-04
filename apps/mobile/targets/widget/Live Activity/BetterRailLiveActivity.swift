@@ -47,30 +47,74 @@ struct BetterRailLiveActivity: Widget {
             RideInformationBar(vm: vm, placement: .dynamicIsland)
           }
         } compactLeading: {
-          CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
-            .frame(width: 20, height: 20)
-            // Include edge clearance in the measured size, including in RTL layouts.
-            .padding(.horizontal, 6)
+          CompactLeadingView(vm: vm, tintColor: tintColor(context: context))
         } compactTrailing: {
-          let endDate = getStatusEndDate(context: context)
-
-          Group {
-            if (vm.isStale) {
-              Text(formatDateHour(endDate))
-                .foregroundColor(tintColor(context: context))
-            } else {
-              Text("\(String(getMinutesLeft(targetDate: endDate))) min")
-                .foregroundColor(tintColor(context: context))
-                .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
-                .contentTransition(.numericText())
-            }
-          }
-          .padding(.horizontal, 6)
+          CompactTrailingView(vm: vm, tintColor: tintColor(context: context))
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))
+    }
+  }
+}
+
+// The compact slots beside the camera cutout are only as wide as the system proposes, and
+// the iPhone 18 Pro's narrower island (and any island limited in width, e.g. landscape on
+// iOS 27) proposes far less than older models. Content that overflows the slot gets
+// truncated to "…" and pushed against the rounded ends, so each compact view offers
+// progressively narrower layouts and lets the system pick the first one that fits.
+// The padding is part of the measured size, so it also holds in RTL layouts.
+
+struct CompactLeadingView: View {
+  var vm: ActivityViewModel
+  var tintColor: Color
+
+  var body: some View {
+    ViewThatFits(in: .horizontal) {
+      ring(size: 20).padding(.horizontal, 6)
+      ring(size: 18).padding(.horizontal, 4)
+      ring(size: 16).padding(.horizontal, 2)
+    }
+  }
+
+  private func ring(size: CGFloat) -> some View {
+    CircularProgressView(vm: vm, content: .icon, tintColor: tintColor)
+      .frame(width: size, height: size)
+  }
+}
+
+struct CompactTrailingView: View {
+  var vm: ActivityViewModel
+  var tintColor: Color
+
+  private var endDate: Date { getStatusEndDate(context: vm.context) }
+
+  var body: some View {
+    ViewThatFits(in: .horizontal) {
+      label(showUnit: true).padding(.horizontal, 6)
+      label(showUnit: true).padding(.horizontal, 3)
+      label(showUnit: false).padding(.horizontal, 3)
+    }
+    .lineLimit(1)
+    .foregroundColor(tintColor)
+  }
+
+  @ViewBuilder
+  private func label(showUnit: Bool) -> some View {
+    if vm.isStale {
+      Text(formatDateHour(endDate))
+    } else {
+      let minutes = String(getMinutesLeft(targetDate: endDate))
+      Group {
+        if showUnit {
+          Text("\(minutes) min")
+        } else {
+          Text(minutes)
+        }
+      }
+      .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+      .contentTransition(.numericText())
     }
   }
 }
