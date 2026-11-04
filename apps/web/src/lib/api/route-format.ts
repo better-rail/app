@@ -188,10 +188,14 @@ export function summarizeRoutes(routes: RouteItem[]): RouteSummary | null {
   }
 }
 
+/**
+ * Minutes between the first train's expected arrival and the second train's expected departure,
+ * delays included. Zero or less means the delays leave no time to make the change.
+ */
 export function exchangeWaitMinutes(first: Train, second: Train): number {
   const arrival = first.arrivalTime + first.delay * MINUTE_MS
   const departure = second.departureTime + second.delay * MINUTE_MS
-  return Math.max(1, minutesBetween(arrival, departure))
+  return minutesBetween(arrival, departure)
 }
 
 export { HOUR_MS, MINUTE_MS }

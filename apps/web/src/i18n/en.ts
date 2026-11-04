@@ -109,6 +109,7 @@ export const en: Record<TranslationKey, string> = {
   "details.platformChange": "Switch to platform {platform}",
   "details.waitingTime": "Wait around {duration}",
   "details.unsafeChange": "This change isn't guaranteed",
+  "details.missedChange": "With current delays, the next train is expected to leave before you arrive",
   "details.trainCancelled": "Train cancelled",
   "details.trainCancelledText": "According to Israel Railways, this train has been cancelled. Please choose a different route.",
   "details.routeChanged": "Route changed",

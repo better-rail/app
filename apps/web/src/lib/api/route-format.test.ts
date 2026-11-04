@@ -7,9 +7,10 @@ import {
   summarizeRoutes,
   isRouteInThePast,
   isDifferentHour,
+  exchangeWaitMinutes,
 } from "./route-format"
 import { parseNaive } from "@/lib/time"
-import type { ApiTravel } from "./types"
+import type { ApiTravel, Train } from "./types"
 
 const train = (
   number: number,
@@ -170,5 +171,22 @@ describe("helpers", () => {
     expect(summary.directCount).toBe(3)
     expect(summary.medianDurationMs).toBe(40 * 60_000)
     expect(summarizeRoutes([])).toBeNull()
+  })
+})
+
+describe("exchangeWaitMinutes", () => {
+  const leg = (fields: Partial<Train>) => fields as Train
+  const at = (time: string) => parseNaive(`2026-10-26T${time}:00`)
+
+  test("includes the delays of both trains", () => {
+    const first = leg({ arrivalTime: at("22:50"), delay: 1 })
+    const second = leg({ departureTime: at("22:52"), delay: 3 })
+    expect(exchangeWaitMinutes(first, second)).toBe(4)
+  })
+
+  test("goes negative when the delays leave no time to make the change", () => {
+    const first = leg({ arrivalTime: at("22:50"), delay: 4 })
+    const second = leg({ departureTime: at("22:52"), delay: 0 })
+    expect(exchangeWaitMinutes(first, second)).toBe(-2)
   })
 })

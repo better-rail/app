@@ -76,16 +76,14 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   // Both platforms share one island, so there's no bridge or underpass to cross
   const isAcrossTheIsland = acrossTheIsland(String(firstTrain.destinationStationId), arrivalPlatform, departurePlatform)
 
-  const exchangeDuration = (() => {
-    const arrivalTime = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
-    const departureTime = addMinutes(secondTrain.departureTime, secondTrain.delay)
+  const expectedArrival = addMinutes(firstTrain.arrivalTime, firstTrain.delay)
+  const expectedDeparture = addMinutes(secondTrain.departureTime, secondTrain.delay)
+  // The delays put the connecting train's departure at or before our arrival
+  const isExchangeMissed = expectedArrival >= expectedDeparture
 
-    if (arrivalTime >= departureTime) {
-      return intervalToDuration({ start: 0, end: 1000 * 60 })
-    }
-
-    return intervalToDuration({ start: arrivalTime, end: departureTime })
-  })()
+  const exchangeDuration = isExchangeMissed
+    ? intervalToDuration({ start: 0, end: 0 })
+    : intervalToDuration({ start: expectedArrival, end: expectedDeparture })
 
   const formattedDuration = formatDuration(exchangeDuration, {
     locale: dateFnsLocalization,
@@ -138,24 +136,26 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
               </Text>
             </View>
           )}
-          <View
-            style={[
-              styles.infoDetailWrapper,
-              {
-                marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1],
-              },
-            ]}
-          >
-            <Image style={styles.infoIcon} source={clockIcon} />
-            <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
-              {translate("routeDetails.waitingTime", { duration: exchangeDurationText })}
-            </Text>
-          </View>
+          {!isExchangeMissed && (
+            <View
+              style={[
+                styles.infoDetailWrapper,
+                {
+                  marginBottom: isExchangeSafe ? (fontScale > 1 ? spacing[3] : 0) : spacing[1],
+                },
+              ]}
+            >
+              <Image style={styles.infoIcon} source={clockIcon} />
+              <Text style={styles.infoText} maxFontSizeMultiplier={1.2}>
+                {translate("routeDetails.waitingTime", { duration: exchangeDurationText })}
+              </Text>
+            </View>
+          )}
           {!isExchangeSafe && (
             <View style={[styles.infoDetailWrapper, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
               <Image style={[styles.infoIcon, { tintColor: color.error }]} source={infoIcon} />
               <Text style={[styles.infoText, { color: color.error }]} preset="bold" maxFontSizeMultiplier={1.2}>
-                {translate("routeDetails.unsafeChange")}
+                {translate(isExchangeMissed ? "routeDetails.missedChange" : "routeDetails.unsafeChange")}
               </Text>
             </View>
           )}

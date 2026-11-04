@@ -15,6 +15,7 @@
     "exchange": {
       "waitTime": "انتظر لمدة %{waitTime}.",
       "unsafeChange": "هذا التغيير غير مضمون.",
+      "missedChange": "بحسب التأخيرات الحالية، من المتوقع أن يغادر القطار التالي قبل وصولك.",
       "stayOnPlatform": "ابق في المنصة %{platform}.",
       "changePlatform": "انتقل إلى المنصة %{platform}."
     },
