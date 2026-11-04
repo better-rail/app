@@ -1,0 +1,30 @@
+diff --git a/android/src/main/java/expo/modules/localization/LocalizationModule.kt b/android/src/main/java/expo/modules/localization/LocalizationModule.kt
+index f5dc590..ba414ee 100644
+--- a/android/src/main/java/expo/modules/localization/LocalizationModule.kt
++++ b/android/src/main/java/expo/modules/localization/LocalizationModule.kt
+@@ -66,7 +66,9 @@ class LocalizationModule : Module() {
+   // The config plugin writes only non-default values. When an option is removed, apply the default once,
+   // then leave the value to the app's own I18nManager calls.
+   private fun SharedPreferences.resolveRTL(key: String, configValue: Boolean?, defaultValue: Boolean): Boolean? {
+-    val wasSetByConfig = getBoolean(key, true)
++    // Patched: a missing key means config never set the option, so the app's runtime RTL is kept on the first
++    // launch after an update (upstream defaults to true and resets forceRTL once).
++    val wasSetByConfig = getBoolean(key, false)
+     edit { putBoolean(key, configValue != null) }
+     return configValue ?: defaultValue.takeIf { wasSetByConfig }
+   }
+diff --git a/ios/LocalizationModule.swift b/ios/LocalizationModule.swift
+index 3962c06..793f5e3 100644
+--- a/ios/LocalizationModule.swift
++++ b/ios/LocalizationModule.swift
+@@ -68,7 +68,9 @@ public class LocalizationModule: Module {
+   // The config plugin writes only non-default values. When an option is removed, apply the default once,
+   // then leave the value to the app's own I18nManager calls.
+   private func resolveRTL(_ key: String, _ configValue: Bool?, _ defaultValue: Bool) -> Bool? {
+-    let wasSetByConfig = UserDefaults.standard.object(forKey: key) as? Bool ?? true
++    // Patched: a missing key means config never set the option, so the app's runtime RTL is kept on the first
++    // launch after an update (upstream defaults to true and resets forceRTL once).
++    let wasSetByConfig = UserDefaults.standard.object(forKey: key) as? Bool ?? false
+     UserDefaults.standard.set(configValue != nil, forKey: key)
+     return configValue ?? (wasSetByConfig ? defaultValue : nil)
+   }
