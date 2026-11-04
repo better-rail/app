@@ -46,10 +46,14 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
   const arrivalTime = addMinutes(previous.arrivalTime, previous.delay).getTime()
   const departureTime = addMinutes(next.departureTime, next.delay).getTime()
 
-  const changeDurationInMinutes = arrivalTime >= departureTime ? 0 : millisecondsToMinutes(departureTime - arrivalTime)
+  // The delays put the connecting train's departure at or before our arrival
+  const isMissedChange = arrivalTime >= departureTime
+  const changeDurationInMinutes = isMissedChange ? 0 : millisecondsToMinutes(departureTime - arrivalTime)
   const isSafeChange = changeDurationInMinutes >= SAFE_DURATION_MINS
 
-  if (!isSafeChange) {
+  if (isMissedChange) {
+    texts.push(translate("notifications.exchange.missedChange", locale))
+  } else if (!isSafeChange) {
     const unsafeChangeText = translate("notifications.exchange.unsafeChange", locale)
     texts.push(unsafeChangeText)
   }
@@ -60,6 +64,8 @@ export const exchangeTrainPrompt = (trains: RouteTrain[], gotOffTrain: number, l
     platform: next.originPlatform,
   })
   texts.push(platformText)
+
+  if (isMissedChange) return texts.join(" ")
 
   const waitTime = localizedDifference(arrivalTime, departureTime, locale)
   const waitTimeText = translate("notifications.exchange.waitTime", locale, { waitTime })

@@ -3,7 +3,7 @@ import dayjs from "dayjs"
 import { minutesInMs } from "../helpers/utils"
 import { Status } from "../../../src/types/notification"
 import { exchangeTrainPrompt } from "../../../src/utils/ride-utils"
-import { exchangeRoute, now, exchangeDuration, ride, getOffInExchangeTime, unsafeChangeTrains } from "./mocks"
+import { exchangeRoute, now, exchangeDuration, ride, getOffInExchangeTime, unsafeChangeTrains, missedChangeTrains } from "./mocks"
 import {
   buildGetOnTrainNotifications,
   buildNextStationNotifications,
@@ -202,4 +202,12 @@ test("build exchange notification for unsafe change", () => {
   const exchangeTrainText = exchangeTrainPrompt(unsafeChangeTrains, 0, ride.locale)
 
   expect(exchangeTrainText).toBe("This change isn't guaranteed. Change to Platform 4. Wait 1 minute for your next train.")
+})
+
+test("build exchange notification for a change the delays make impossible", () => {
+  const exchangeTrainText = exchangeTrainPrompt(missedChangeTrains, 0, ride.locale)
+
+  expect(exchangeTrainText).toBe(
+    "With current delays, the next train is expected to leave before you arrive. Stay on Platform 3.",
+  )
 })

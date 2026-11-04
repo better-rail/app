@@ -396,6 +396,8 @@ function ExchangeBlock({ first, second }: { first: Train; second: Train }) {
   const locale = useLocale()
   const wait = exchangeWaitMinutes(first, second)
   const safe = wait >= SAFE_CHANGE_MINUTES
+  // The delays put the connecting train's departure at or before our arrival
+  const missed = wait <= 0
   const samePlatform = first.destinationPlatform === second.originPlatform
   return (
     <div className="flex items-center gap-3 rounded-xl bg-secondary-soft px-4 py-3">
@@ -411,8 +413,14 @@ function ExchangeBlock({ first, second }: { first: Train; second: Train }) {
             ? t("details.platformStay", { platform: second.originPlatform })
             : t("details.platformChange", { platform: second.originPlatform })}
         </p>
-        <p>{t("details.waitingTime", { duration: formatDuration(wait * 60_000, locale) })}</p>
-        {!safe && <p className="font-bold text-danger-text">{t("details.unsafeChange")}</p>}
+        {missed ? (
+          <p className="font-bold text-danger-text">{t("details.missedChange")}</p>
+        ) : (
+          <>
+            <p>{t("details.waitingTime", { duration: formatDuration(wait * 60_000, locale) })}</p>
+            {!safe && <p className="font-bold text-danger-text">{t("details.unsafeChange")}</p>}
+          </>
+        )}
       </div>
     </div>
   )

@@ -15,6 +15,7 @@
     "exchange": {
       "waitTime": "Подождите %{waitTime}.",
       "unsafeChange": "Это изменение не гарантировано.",
+      "missedChange": "С учётом задержек следующий поезд, скорее всего, уйдёт до вашего прибытия.",
       "stayOnPlatform": "Оставайтесь на платформе %{platform}.",
       "changePlatform": "Перейдите на платформу %{platform}."
     },

@@ -113,6 +113,7 @@
     "waitingTime": "זמן המתנה כ%{duration}",
     "minutes": "דק'",
     "unsafeChange": "החלפה זו אינה בטוחה",
+    "missedChange": "בעקבות העיכובים, רכבת ההמשך צפויה לצאת לפני ההגעה לתחנה",
     "lastStop": "יעד סופי",
     "trainCancelled": "הרכבת בוטלה",
     "trainCancelledText": "על פי עדכון רכבת ישראל, רכבת זו בוטלה. מומלץ לבחור מסלול אחר.",

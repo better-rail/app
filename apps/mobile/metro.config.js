@@ -15,6 +15,20 @@ const licensedFonts = path.join(__dirname, "assets/fonts/licensed")
 const licensedFontFallback = path.join(__dirname, "assets/fonts/Heebo-Bold.otf")
 const resolveRequest = config.resolver.resolveRequest
 
+// Release bundles (store/preview builds, scripts/eas-update.sh) must not ship Heebo instead. This checks up front:
+// the font requires sit in a try block, so Metro would swallow a resolver error and bundle them as null.
+if (process.env.APP_VARIANT === "production") {
+  const fontsSource = fs.readFileSync(path.join(__dirname, "src/theme/fonts/index.ts"), "utf8")
+  const missing = [...fontsSource.matchAll(/assets\/fonts\/licensed\/([^"]+)/g)]
+    .map(([, file]) => file)
+    .filter((file) => !fs.existsSync(path.join(licensedFonts, file)))
+  if (missing.length > 0) {
+    throw new Error(
+      `Licensed fonts missing from assets/fonts/licensed: ${missing.join(", ")}. Copy them from the private better-rail/licensed-fonts repository.`,
+    )
+  }
+}
+
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const resolve = resolveRequest ?? context.resolveRequest
   // Only relative font imports: the font asset's own bare imports (its asset registry) resolve normally
