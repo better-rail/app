@@ -11,13 +11,14 @@ import type { ContextMenuProps } from "./types"
 export type { ContextMenuAction, ContextMenuProps } from "./types"
 
 export function ContextMenu(props: ContextMenuProps) {
-  const { children, actions, style, fillWidth = false, disabled = false } = props
+  const { children, actions, style, fillWidth = false, mode = "longPress", disabled = false } = props
 
   if (disabled || actions.length === 0) {
     return style ? <View style={style}>{children}</View> : <>{children}</>
   }
 
-  if (fillWidth) {
+  // The tap menu's host always sizes its content to itself, so the content gets the container's measured width.
+  if (fillWidth && mode === "tap") {
     return (
       <FillWidth style={style}>
         {(width) => (
@@ -33,7 +34,11 @@ export function ContextMenu(props: ContextMenuProps) {
 }
 
 function NativeMenu(props: ContextMenuProps) {
-  const { children, actions, mode = "longPress", title, previewBorderRadius, style, onPressAction } = props
+  const { children, actions, mode = "longPress", title, previewBorderRadius, style, fillWidth = false, onPressAction } = props
+  // Filling the width, the content takes its width from the container and only its height from itself. Both come
+  // through native layout, so the content follows the container in the same pass (iPhone Duo's columns resizing as
+  // it folds) rather than a measurement handed back through React a few frames later.
+  const matchContents = fillWidth ? { vertical: true } : true
 
   if (mode === "tap") {
     const menuActions: MenuAction[] = actions.map((action, index) => ({
@@ -80,11 +85,11 @@ function NativeMenu(props: ContextMenuProps) {
       : undefined
 
   return (
-    <Host matchContents style={style} ignoreSafeArea="all">
+    <Host matchContents={matchContents} style={style} ignoreSafeArea="all">
       <SwiftUIContextMenu>
         <SwiftUIContextMenu.Trigger>
           <Group modifiers={triggerModifiers}>
-            <RNHostView matchContents>
+            <RNHostView matchContents={matchContents}>
               <>{children}</>
             </RNHostView>
           </Group>

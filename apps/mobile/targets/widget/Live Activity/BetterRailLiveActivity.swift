@@ -47,31 +47,81 @@ struct BetterRailLiveActivity: Widget {
             RideInformationBar(vm: vm, placement: .dynamicIsland)
           }
         } compactLeading: {
-          CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
-            .frame(width: 20, height: 20)
-            // Include edge clearance in the measured size, including in RTL layouts.
-            .padding(.horizontal, 6)
-        } compactTrailing: {
-          let endDate = getStatusEndDate(context: context)
-
-          Group {
-            if (vm.isStale) {
-              Text(formatDateHour(endDate))
-                .foregroundColor(tintColor(context: context))
-            } else {
-              Text("\(String(getMinutesLeft(targetDate: endDate))) min")
-                .foregroundColor(tintColor(context: context))
-                .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
-                .contentTransition(.numericText())
-            }
+          DynamicIslandWidthReader { limitedInWidth in
+            CircularProgressView(vm: vm, content: .icon, tintColor: tintColor(context: context))
+              .frame(width: 20, height: 20)
+              // Include edge clearance in the measured size, including in RTL layouts.
+              .padding(.horizontal, limitedInWidth ? 0 : 6)
           }
-          .padding(.horizontal, 6)
+        } compactTrailing: {
+          DynamicIslandWidthReader { limitedInWidth in
+            CompactTrailingView(vm: vm, tintColor: tintColor(context: context), limitedInWidth: limitedInWidth)
+          }
         } minimal: {
           CircularProgressView(vm: vm, content: .time, tintColor: tintColor(context: context))
         }
         .widgetURL(deepLinkURL(context.attributes.trainNumbers))
         .keylineTint(tintColor(context: context))
     }
+  }
+}
+
+struct CompactTrailingView: View {
+  var vm: ActivityViewModel
+  var tintColor: Color
+  var limitedInWidth: Bool
+
+  var body: some View {
+    let endDate = getStatusEndDate(context: vm.context)
+
+    Group {
+      if (vm.isStale) {
+        Text(formatDateHour(endDate))
+          .minimumScaleFactor(limitedInWidth ? 0.5 : 1)
+      } else if (limitedInWidth) {
+        // The narrow, vertical island (iPhone Duo) can't fit "12 min" on one line.
+        VStack(spacing: -2) {
+          Text(String(getMinutesLeft(targetDate: endDate)))
+            .font(.system(size: 15, weight: .semibold))
+            .contentTransition(.numericText())
+          Text("min")
+            .font(.system(size: 10, weight: .medium))
+        }
+        .lineLimit(1)
+        .minimumScaleFactor(0.6)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+      } else {
+        Text("\(String(getMinutesLeft(targetDate: endDate))) min")
+          .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
+          .contentTransition(.numericText())
+      }
+    }
+    .foregroundColor(tintColor)
+    .padding(.horizontal, limitedInWidth ? 0 : 6)
+  }
+}
+
+/// Passes whether the Dynamic Island is narrower than usual (the vertical island on iPhone Duo).
+struct DynamicIslandWidthReader<Content: View>: View {
+  @ViewBuilder var content: (Bool) -> Content
+
+  var body: some View {
+    if #available(iOS 27.0, *) {
+      LimitedWidthEnvironmentReader(content: content)
+    } else {
+      content(false)
+    }
+  }
+}
+
+@available(iOS 27.0, *)
+private struct LimitedWidthEnvironmentReader<Content: View>: View {
+  @Environment(\.isDynamicIslandLimitedInWidth) private var isLimitedInWidth
+  var content: (Bool) -> Content
+
+  var body: some View {
+    content(isLimitedInWidth)
   }
 }
 

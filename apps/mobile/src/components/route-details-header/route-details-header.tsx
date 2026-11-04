@@ -1,10 +1,10 @@
 import { useRef, useEffect } from "react"
-import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
+import { I18nManager, Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter, useNavigation, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
 import { color, spacing } from "@/theme"
 import { StarIcon } from "@/components/star-icon/star-icon"
@@ -22,9 +22,13 @@ import { createContextMenuActions } from "@/components/route-card/route-context-
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
+import { sideInsetPadding } from "@/utils/helpers/safe-area-helpers"
 import { RouteStationNameButton } from "./route-station-name-button"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
+const ARROW_SIZE = 34
+// The gap between the station buttons, which the arrow overlaps.
+const BUTTON_GAP = spacing[5]
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
 
 /** A plain Image, not `MenuIcon`: a Touchable child would swallow the menu's tap. */
@@ -52,11 +56,16 @@ export interface RouteDetailsHeaderProps {
   eventConfig?: CalendarEventConfig
   showEntireRoute?: boolean
   setShowEntireRoute?: React.Dispatch<React.SetStateAction<boolean>>
+  /**
+   * Rendered in the split view's details column rather than on a screen of the app's stack: the column's own bar
+   * carries the back button and the trip's actions (see RouteDetailsPane), so none are drawn here.
+   */
+  inSplitColumn?: boolean
 }
 
 export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const glassTint = useGlassTint("secondary")
-  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute } = props
+  const { routeItem, originId, destinationId, screenName, style, showEntireRoute, setShowEntireRoute, inSplitColumn } = props
   const {
     routes: favoriteRoutesData,
     add: addFavorite,
@@ -85,7 +94,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const routeId = `${originId}${destinationId}`
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
   // A native header lets UIKit place the buttons, e.g. in the iPhone Duo's sidebar when unfolded.
-  const useNativeToolbar = (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios"
+  const useNativeToolbar =
+    (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios" && !inSplitColumn
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -194,7 +204,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     {
       title: translate(showEntireRoute ? "routeDetails.hideAllStations" : "routeDetails.showAllStations"),
       systemIcon: showEntireRoute ? ("rectangle.compress.vertical" as const) : ("rectangle.expand.vertical" as const),
-      onPress: () => setShowEntireRoute((prev) => !prev),
+      onPress: () => setShowEntireRoute?.((prev) => !prev),
     },
     {
       title: translate("fares.title"),
@@ -252,7 +262,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 ? [
                     {
                       type: "menu",
-                      label: "",
+                      label: translate("routes.routeActions") ?? "",
                       sharesBackground: false,
                       icon: { type: "sfSymbol", name: "ellipsis" },
                       accessibilityLabel: translate("routes.routeActions") ?? undefined,
@@ -269,16 +279,29 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                 : [
                     {
                       type: "button",
-                      label: "",
+                      // Titles don't show beside the symbol, but the system uses them in overflow menus.
+                      label: translate("favorites.title") ?? "",
                       sharesBackground: false,
                       tintColor: isFavorite ? color.palette.orangeMuted : undefined,
                       icon: { type: "sfSymbol", name: "star" },
                       accessibilityLabel: translate("favorites.title") ?? undefined,
                       onPress: handleFavoritePress,
                     },
+                    // A trip selected in the split view's details pane (wide layouts only).
+                    ...(routeItem
+                      ? [
+                          {
+                            type: "button" as const,
+                            label: translate("routes.share") ?? "",
+                            sharesBackground: false,
+                            icon: { type: "sfSymbol" as const, name: "square.and.arrow.up" as const },
+                            onPress: handleShare,
+                          },
+                        ]
+                      : []),
                     {
                       type: "menu",
-                      label: "",
+                      label: translate("routes.routeActions") ?? "",
                       sharesBackground: false,
                       // Badges need iOS 26, so older versions tint the glyph instead.
                       tintColor: isFilterActive && !isLiquidGlassSupported ? color.palette.orange : undefined,
@@ -299,6 +322,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
                       accessibilityLabel: translate("routes.routeActions") ?? undefined,
                       menu: {
                         items: [
+                          // The selected trip's own actions, minus share (a bar button) and fares (below).
+                          ...(routeItem ? routeDetailsActions.slice(1, 3) : []).map((action) => ({
+                            type: "action" as const,
+                            label: action.title ?? "",
+                            icon: { type: "sfSymbol" as const, name: action.systemIcon },
+                            onPress: action.onPress,
+                          })),
                           {
                             type: "action",
                             label: translate("fares.title") ?? "",
@@ -332,7 +362,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       >
         <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
 
-        {screenName !== "activeRide" && !useNativeToolbar && (
+        {screenName !== "activeRide" && !useNativeToolbar && !inSplitColumn && (
           <View
             style={{
               position: "absolute",
@@ -342,7 +372,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              paddingHorizontal: spacing[4],
+              ...sideInsetPadding(insets, I18nManager.isRTL, spacing[4]),
               zIndex: 1000,
             }}
             accessibilityRole="header"
@@ -360,7 +390,9 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         )}
       </ImageBackground>
 
-      <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
+      {/* The photo spans the full width, but the station buttons stay clear of the side bars. Padded natively, so
+          they follow the side bar as iPhone Duo folds in the same pass as the layout, not a few frames later. */}
+      <SafeAreaView style={{ top: -20, marginBottom: -30, zIndex: 5 }} edges={["left", "right"]}>
         <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
@@ -402,7 +434,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityHint={translate("plan.selectStation")}
           />
         </View>
-      </View>
+      </SafeAreaView>
     </>
   )
 }
@@ -424,7 +456,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: theme.spacing[5],
+    gap: BUTTON_GAP,
   },
   routeDetailsStation: {
     flex: 1,
@@ -443,8 +475,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     zIndex: 5,
   },
   routeInfoCircle: {
-    width: 34,
-    height: 34,
+    width: ARROW_SIZE,
+    height: ARROW_SIZE,
     alignItems: "center",
     justifyContent: "center",
     // Glass takes its color from `tintColor`; a fill would show as a solid disc behind it.

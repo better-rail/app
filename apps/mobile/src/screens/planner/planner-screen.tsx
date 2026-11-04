@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react"
-import { View, Animated, AppState, Platform, Alert } from "react-native"
+import { View, Animated, AppState, Platform, Alert, ScrollView, I18nManager, useWindowDimensions } from "react-native"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import {
@@ -27,7 +28,9 @@ import { trackEvent } from "@/services/analytics"
 import { useRouter, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
-import { PlannerScreenHeader } from "./planner-screen-header"
+import { useIsWideLayout } from "@/hooks/use-is-wide-layout"
+import { FavoriteRoutes } from "@/components/favorite-routes/favorite-routes"
+import { PlannerScreenHeader, usePlannerNativeToolbar } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { ThemeBackground } from "@/components/theme-background/theme-background"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
@@ -55,6 +58,17 @@ export function PlannerScreen() {
   const now = new Date()
 
   const stations = useStations()
+  // On iOS the favorite routes sit beside the planner in the system split view's second column (see AppSplitView),
+  // on iPhone Duo's open inner display and iPads; this screen is the first column, capped so it never stretches into
+  // a desktop-like form. Elsewhere, wide windows (tablets) lay the two out here, meeting on the display's centre line.
+  const isWideWindow = useIsWideLayout()
+  const isWide = Platform.OS !== "ios" && isWideWindow
+  const { width: windowWidth } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  // The header pads the top itself when its actions are bar items (see PlannerScreenHeader).
+  const useNativeToolbar = usePlannerNativeToolbar()
+  // The row starts after the start inset: the left one, or the right one in right-to-left layouts.
+  const centreSplitWidth = windowWidth / 2 - (I18nManager.isRTL ? insets.right : insets.left)
 
   // The datetimepicker docs says the first argument is an event, but we get a date instead
   // https://github.com/react-native-datetimepicker/datetimepicker#onchange-optional
@@ -171,75 +185,123 @@ export function PlannerScreen() {
     enabled: !!origin && !!destination && isFocused,
   })
 
+  const originField = (
+    <>
+      <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
+      <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
+        <StationCard
+          testID="planner-origin-card"
+          name={originData?.name}
+          image={originData?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
+        />
+      </Animated.View>
+    </>
+  )
+
+  const destinationField = (
+    <>
+      <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
+      <Animated.View
+        testID={`planner-destination-${destination?.id ?? "empty"}`}
+        style={{ transform: [{ scale: stationCardScale }] }}
+      >
+        <StationCard
+          testID="planner-destination-card"
+          name={destinationData?.name}
+          image={destinationData?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
+        />
+      </Animated.View>
+    </>
+  )
+
+  const swapButton = (
+    <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
+  )
+
+  const timeField = (
+    <>
+      <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
+      <DummyInput
+        placeholder={translate("plan.now")}
+        value={formattedDate}
+        style={{ marginBottom: spacing[5] }}
+        onPress={() => setDatePickerVisibility(true)}
+        endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
+      />
+    </>
+  )
+
+  const findButton = (
+    <Button
+      testID="find-routes-button"
+      title={translate("plan.find")}
+      onPress={onGetRoutePress}
+      disabled={!origin || !destination || origin.id === destination.id}
+      onDisabledPress={() => {
+        if (origin?.id === destination?.id) {
+          Alert.alert(translate("routes.sameStationsMessage"))
+        }
+      }}
+    />
+  )
+
+  const plannerForm = (
+    <>
+      <PlannerScreenHeader />
+
+      <Text preset="header" tx="plan.title" style={styles.screenTitle} />
+
+      {originField}
+      <View style={styles.changeDirectionWrapper}>{swapButton}</View>
+      {destinationField}
+      {timeField}
+      {findButton}
+    </>
+  )
+
+  const favoritesSidebar = (
+    <ScrollView style={styles.savedRoutesSidebar} contentContainerStyle={styles.savedRoutesContent}>
+      <FavoriteRoutes
+        onSelect={() => {
+          scaleStationCards()
+          HapticFeedback.trigger("impactLight")
+        }}
+      />
+    </ScrollView>
+  )
+
   return (
-    <Screen testID="planner-screen" style={styles.root}>
+    <Screen testID="planner-screen" style={styles.root} unsafe={useNativeToolbar}>
       <ThemeBackground />
       <WebsiteHomeHandoff />
-      <FlingGestureWrapper onFling={onSwitchPress}>
-        <View style={styles.contentWrapper}>
-          <PlannerScreenHeader />
-
-          <Text preset="header" tx="plan.title" style={styles.screenTitle} />
-
-          <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-          <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              testID="planner-origin-card"
-              name={originData?.name}
-              image={originData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
-            />
-          </Animated.View>
-
-          <View style={styles.changeDirectionWrapper}>
-            <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
+      {isWide ? (
+        // Wide tablets: the planner keeps its phone layout in a column, and the favorite routes fill the other side —
+        // one tap from planning a trip.
+        <View style={styles.wideRow}>
+          <View style={{ width: centreSplitWidth }}>
+            <FlingGestureWrapper onFling={onSwitchPress}>
+              <View style={[styles.contentWrapper, styles.widePlanner]}>{plannerForm}</View>
+            </FlingGestureWrapper>
           </View>
-
-          <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-          <Animated.View
-            testID={`planner-destination-${destination?.id ?? "empty"}`}
-            style={{ transform: [{ scale: stationCardScale }] }}
-          >
-            <StationCard
-              testID="planner-destination-card"
-              name={destinationData?.name}
-              image={destinationData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
-            />
-          </Animated.View>
-
-          <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
-
-          <DummyInput
-            placeholder={translate("plan.now")}
-            value={formattedDate}
-            style={{ marginBottom: spacing[5] }}
-            onPress={() => setDatePickerVisibility(true)}
-            endSection={formattedDate !== translate("plan.now") && <ResetTimeButton onPress={onDateReset} />}
-          />
-
-          <DatePickerModal
-            isVisible={isDatePickerVisible}
-            onConfirm={handleConfirm}
-            onCancel={() => setDatePickerVisibility(false)}
-            minimumDate={now}
-          />
-
-          <Button
-            testID="find-routes-button"
-            title={translate("plan.find")}
-            onPress={onGetRoutePress}
-            disabled={!origin || !destination || origin.id === destination.id}
-            onDisabledPress={() => {
-              if (origin?.id === destination?.id) {
-                Alert.alert(translate("routes.sameStationsMessage"))
-              }
-            }}
-          />
+          {favoritesSidebar}
         </View>
-      </FlingGestureWrapper>
+      ) : (
+        <FlingGestureWrapper onFling={onSwitchPress}>
+          {/* In the split view's column the cap only matters once the column is wider than a phone. */}
+          <View style={[styles.contentWrapper, Platform.OS === "ios" && styles.widePlanner]}>{plannerForm}</View>
+        </FlingGestureWrapper>
+      )}
+
+      <DatePickerModal
+        isVisible={isDatePickerVisible}
+        onConfirm={handleConfirm}
+        onCancel={() => setDatePickerVisibility(false)}
+        minimumDate={now}
+      />
     </Screen>
   )
 }
@@ -257,6 +319,25 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   screenTitle: {
     marginBottom: 3,
+  },
+  wideRow: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  widePlanner: {
+    width: "100%",
+    maxWidth: 560,
+    alignSelf: "center",
+  },
+  savedRoutesSidebar: {
+    flex: 1,
+    borderStartWidth: StyleSheet.hairlineWidth,
+    borderStartColor: theme.colors.dimmer,
+  },
+  // Lines the favorites' heading up with the planner's title, below the header row.
+  savedRoutesContent: {
+    paddingTop: 48 + theme.spacing[2],
+    paddingBottom: theme.spacing[5],
   },
   changeDirectionWrapper: {
     width: 65,

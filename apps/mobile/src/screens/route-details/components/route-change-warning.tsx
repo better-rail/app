@@ -5,6 +5,7 @@ import { Text } from "@/components"
 import { translate, TxKeyPath } from "@/i18n"
 import { spacing } from "@/theme"
 import type { Train } from "@/services/api"
+import { useSideInsetBleed } from "./side-inset-bleed"
 
 const t = (key: TxKeyPath, options?: object): string => translate(key, options) ?? ""
 
@@ -12,7 +13,6 @@ const WARNING_WRAPPER: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   marginBottom: spacing[4],
-  width: "100%",
 }
 
 const WARNING_TITLE: TextStyle = {
@@ -28,9 +28,10 @@ const WARNING_TEXT: TextStyle = {
 
 const Warning = ({ emoji, title, text }: { emoji: string; title: string; text: string }) => {
   const { theme } = useUnistyles()
+  const bleed = useSideInsetBleed()
 
   return (
-    <View style={[WARNING_WRAPPER, { backgroundColor: theme.colors.secondary }]}>
+    <View style={[WARNING_WRAPPER, { backgroundColor: theme.colors.secondary }, bleed]}>
       <Text style={{ fontSize: 48 }}>{emoji}</Text>
       <Text style={WARNING_TITLE}>{title}</Text>
       <Text style={WARNING_TEXT}>{text}</Text>

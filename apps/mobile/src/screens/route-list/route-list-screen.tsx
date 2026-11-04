@@ -1,13 +1,14 @@
 import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import HapticFeedback from "react-native-haptic-feedback"
 import * as Burnt from "burnt"
-import { View, ActivityIndicator, Dimensions, Platform, useColorScheme } from "react-native"
+import { View, ActivityIndicator, Dimensions, I18nManager, Platform, useColorScheme, useWindowDimensions } from "react-native"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { StyleSheet } from "react-native-unistyles"
 import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
 import { useNetworkState } from "expo-network"
 import { useQuery } from "react-query"
 import { addDays } from "date-fns"
-import { useRouter, useLocalSearchParams, useIsFocused, Redirect } from "expo-router"
+import { useRouter, useLocalSearchParams, useNavigation, useIsFocused, Redirect } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useSharedValue } from "react-native-reanimated"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -28,6 +29,8 @@ import {
   ResultDateCard,
   RESULT_DATE_CARD_HEIGHT,
   DateScroll,
+  RouteDetailsPane,
+  routeKey,
   HourIndexBar,
   HOUR_INDEX_MAX_FONT_SCALE,
   type HourIndexEntry,
@@ -35,6 +38,9 @@ import {
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
 import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
+import { logicalSideInsets } from "@/utils/helpers/safe-area-helpers"
+import { useIsWideLayout, WIDE_LAYOUT_MIN_WIDTH } from "@/hooks/use-is-wide-layout"
+import { useSplitViewStore } from "@/components/split-view/split-view-store"
 import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
 import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers"
@@ -60,6 +66,9 @@ import {
 
 // Report the top row as soon as it scrolls in, so the hour index highlight keeps up
 const VIEWABILITY_CONFIG = { minimumViewTime: 0, itemVisiblePercentThreshold: 50 }
+const LIST_TOP_PADDING = spacing[4]
+// Room above the train the list jumps to, kept under the gap between cards so the card before it stays out of view
+const SCROLL_TARGET_TOP_GAP = spacing[2]
 
 export function RouteListScreen() {
   const params = useLocalSearchParams<{
@@ -148,7 +157,79 @@ function RouteListResults({
     [originId, destinationId],
   )
 
+  const insets = useSafeAreaInsets()
+  const sideInsets = logicalSideInsets(insets, I18nManager.isRTL)
+  const { width: windowWidth } = useWindowDimensions()
+
+  // On iOS the selected trip's details live in the system split view's details column (see AppSplitView): beside
+  // the list on wide windows, pushed over it on phones. Elsewhere, wide windows (tablets) lay the details beside the
+  // list here, and phones open the route details screen.
+  const isWideWindow = useIsWideLayout()
+  const isWide = Platform.OS !== "ios" && isWideWindow
+  const listWidth = isWide
+    ? Math.min(Math.max((windowWidth - sideInsets.start - sideInsets.end) * 0.45, 340), 440)
+    : windowWidth - sideInsets.start - sideInsets.end
+  const { selectedRoute, showDetails, clearSelection, setRouteListMounted } = useSplitViewStore(
+    useShallow((s) => ({
+      selectedRoute: s.selection?.route,
+      showDetails: s.showDetails,
+      clearSelection: s.clearSelection,
+      setRouteListMounted: s.setRouteListMounted,
+    })),
+  )
+  const selectedRouteKey = selectedRoute ? routeKey(selectedRoute) : undefined
+
+  // The pane beside the app follows this screen: the trip's details while the list is up, the favorites otherwise.
+  // A native pop reaches the navigation state only once its animation is over, so the swap is taken from the
+  // screen's own transition events: `transitionStart` with `closing` as the list starts to leave (also when a
+  // full-screen modal covers it), `gestureCancel` for a back swipe let go halfway, and `focus` as it's back. On a
+  // phone the pane is off screen, so the swap waits for the list's removal there.
+  const navigation = useNavigation()
+  useEffect(() => {
+    setRouteListMounted(true)
+    const nav = navigation as unknown as {
+      addListener: (event: string, cb: (e: { data?: { closing?: boolean } }) => void) => () => void
+    }
+    const unsubscribe = [
+      nav.addListener("transitionStart", (e) => {
+        // Collapsing the split view (the device closing) pushes the details column over the list, which also starts
+        // a closing transition here; the window is narrow by then, and the list isn't leaving.
+        const isWindowWide = Dimensions.get("window").width >= WIDE_LAYOUT_MIN_WIDTH
+        if (!e.data?.closing) setRouteListMounted(true)
+        else if (isWindowWide) setRouteListMounted(false)
+      }),
+      // A back swipe let go halfway brings the screen back with no transition of its own, only this.
+      nav.addListener("gestureCancel", () => setRouteListMounted(true)),
+      nav.addListener("focus", () => setRouteListMounted(true)),
+      nav.addListener("beforeRemove", () => setRouteListMounted(false)),
+    ]
+    return () => {
+      unsubscribe.forEach((off) => off())
+      setRouteListMounted(false)
+    }
+  }, [navigation, setRouteListMounted])
+
+  useEffect(() => {
+    clearSelection()
+  }, [originId, destinationId, clearSelection])
+
+  const openRouteDetails = (routeItem: RouteItem) => {
+    if (Platform.OS === "ios" || isWide) {
+      if (isWide) HapticFeedback.trigger("selection")
+      showDetails({ route: routeItem, originId, destinationId })
+      return
+    }
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem, originId, destinationId })
+    router.push("/route-details")
+  }
   const listRef = useRef<LegendListRef>(null)
+  // The rows wait a task after the screen mounts: the native push starts only once the JS work of mounting it is done,
+  // and laying out and rendering the cards would hold it back for a noticeable moment.
+  const [canShowRows, setCanShowRows] = useState(false)
+  useEffect(() => {
+    const timeout = setTimeout(() => setCanShowRows(true), 0)
+    return () => clearTimeout(timeout)
+  }, [])
   // LegendList hides rows until it has jumped to the closest train; hide the footer and scroll bar with them
   const [isListReady, setIsListReady] = useState(false)
   const hasRecordedSearch = useRef(false)
@@ -207,13 +288,25 @@ function RouteListResults({
         route.trains.map((train) => train.trainNumber).join("-") === trip,
     )
     if (!routeItem) return
-    useNavigationParamsStore.getState().setRouteDetails({
-      routeItem: { ...routeItem, viaStationId },
-      originId,
-      destinationId,
-    })
+    const tripItem = { ...routeItem, viaStationId }
+    if (Platform.OS === "ios") {
+      showDetails({ route: tripItem, originId, destinationId })
+      return
+    }
+    useNavigationParamsStore.getState().setRouteDetails({ routeItem: tripItem, originId, destinationId })
     router.push("/route-details")
-  }, [isFocused, trip, websiteTripRoutes.isSuccess, websiteTripRoutes.data, originId, destinationId, time, viaStationId, router])
+  }, [
+    isFocused,
+    trip,
+    websiteTripRoutes.isSuccess,
+    websiteTripRoutes.data,
+    originId,
+    destinationId,
+    time,
+    viaStationId,
+    router,
+    showDetails,
+  ])
 
   // This also handles cached results, for which onSuccess is not called on initial display.
   useEffect(() => {
@@ -278,7 +371,7 @@ function RouteListResults({
     // Keep the date header in view when jumping to the first train of the day
     const target = typeof displayData[index - 1] === "string" ? index - 1 : index
     listRef.current?.scrollToIndex({
-      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, todayDate),
+      ...getScrollTarget(displayData, target, RESULT_DATE_CARD_HEIGHT, SCROLL_TARGET_TOP_GAP, todayDate),
       animated: false,
     })
   }
@@ -292,7 +385,9 @@ function RouteListResults({
 
   const closestIndex = getInitialScrollIndex(displayData, time, dateType)
   const initialScrollTarget =
-    closestIndex === undefined ? undefined : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, todayDate)
+    closestIndex === undefined
+      ? undefined
+      : getScrollTarget(displayData, closestIndex, RESULT_DATE_CARD_HEIGHT, SCROLL_TARGET_TOP_GAP, todayDate)
 
   // The list stays mounted across filter changes, so re-anchor it on the closest train ourselves
   const reanchorList = useEffectEvent(() => {
@@ -308,8 +403,6 @@ function RouteListResults({
   }, [hideSlowTrains, maxChanges])
 
   const shouldShowDashedLine = (() => {
-    const { width: deviceWidth } = Dimensions.get("screen")
-
     // Get the longest text for duration and delay that will be in the list
     const allTexts = flatMap(trains.data?.routes ?? [], ({ delay, duration }) => [
       delay > 0 ? (delay + " " + translate("routes.delayTime")).length : 0,
@@ -318,7 +411,7 @@ function RouteListResults({
     const maxTextLength = max(allTexts)
 
     // Check if there's enough space for the dashed line with that text
-    const shouldShowDashedLineByTextLength = round(deviceWidth / fontScale / 30) >= maxTextLength
+    const shouldShowDashedLineByTextLength = round(listWidth / fontScale / 30) >= maxTextLength
 
     /**
      * Show the dashed line only when all these conditions are matched:
@@ -326,7 +419,7 @@ function RouteListResults({
      * - Font Scale is 1.2 or less
      * - There's enough space for the dashed line with the longest duration/delay text
      */
-    return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
+    return fontScale <= 1.2 && listWidth >= 360 && shouldShowDashedLineByTextLength
   })()
 
   const handleRouteLongPress = async (routeItem: RouteItem) => {
@@ -426,16 +519,14 @@ function RouteListResults({
         isActiveRide={isOnRideTrains(rideRoute, item)}
         hasVoucher={!!findRouteVoucher(vouchers, item)}
         isRouteInThePast={isRouteInThePast(arrivalTime, item.delay)}
-        onPress={() => {
-          useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, originId, destinationId })
-          router.push("/route-details")
-        }}
+        onPress={() => openRouteDetails(item)}
         onLongPress={() => handleRouteLongPress(item)}
         routeItem={item}
         originId={originId}
         destinationId={destinationId}
         shouldShowDashedLine={shouldShowDashedLine}
         style={{ marginBottom: spacing[3] }}
+        cardStyle={selectedRouteKey === routeKey(item) ? styles.selectedCard : undefined}
       />
     )
   }
@@ -444,16 +535,8 @@ function RouteListResults({
   const isNextDayLoading = loadingDate === nextDayDate.toDateString()
   const noTrainsFound = trains.error instanceof RoutesNotFoundError
 
-  return (
-    <Screen testID="route-list-screen" style={styles.root} preset="fixed" unsafe={true} statusBar="light-content">
-      <WebsiteHandoff originId={originId} destinationId={destinationId} time={handoffDate.getTime()} />
-      <RouteDetailsHeader
-        screenName="routeList"
-        originId={originId}
-        destinationId={destinationId}
-        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
-      />
-
+  const listContent = (
+    <>
       {/* Only show the no internet error if we're not loading and there's no data */}
       {!isInternetReachable && !trains.isLoading && routeData.length === 0 && <RouteListError errorType="no-internet" />}
 
@@ -467,7 +550,7 @@ function RouteListResults({
         <ActivityIndicator size="large" style={{ marginTop: spacing[6] }} color="grey" />
       )}
 
-      {displayData.length > 0 && (
+      {canShowRows && displayData.length > 0 && (
         <View style={styles.listContainer}>
           <ThemeBackground fade="none" />
           <LegendList
@@ -497,7 +580,7 @@ function RouteListResults({
             // The native scroll indicator would sit on top of the hour index
             showsVerticalScrollIndicator={isListReady && !showHourIndex}
             contentContainerStyle={{
-              paddingTop: spacing[4],
+              paddingTop: LIST_TOP_PADDING,
               paddingStart: spacing[3],
               paddingEnd: showHourIndex ? spacing[5] + spacing[1] : spacing[3],
               paddingBottom: warning && isLiquidGlassSupported ? spacing[8] + spacing[5] : spacing[3],
@@ -516,6 +599,7 @@ function RouteListResults({
               vouchers,
               shouldShowDashedLine,
               colorScheme,
+              selectedRouteKey,
             ]}
             ListFooterComponent={
               <DateScroll
@@ -554,6 +638,33 @@ function RouteListResults({
           onShowAll={() => (onlySlowTrainsHidden ? setHideSlowTrains(false) : setMaxChanges(null))}
         />
       )}
+    </>
+  )
+
+  return (
+    <Screen testID="route-list-screen" style={styles.root} preset="fixed" unsafe={true} edgeToEdge statusBar="light-content">
+      <WebsiteHandoff originId={originId} destinationId={destinationId} time={handoffDate.getTime()} />
+      <RouteDetailsHeader
+        screenName="routeList"
+        originId={originId}
+        destinationId={destinationId}
+        style={{ paddingHorizontal: spacing[3], marginBottom: spacing[3] }}
+      />
+
+      {/* The photo header spans the full width; everything below stays clear of the side bars. */}
+      {isWide ? (
+        // Beside the list the details pane reaches the end edge itself, so its banners can bleed under the inset.
+        <View style={[styles.content, styles.splitContent, { paddingStart: sideInsets.start }]}>
+          <View style={{ width: listWidth }}>{listContent}</View>
+          <RouteDetailsPane />
+        </View>
+      ) : (
+        // Padded natively: as iPhone Duo folds, the list's column moves next to its vertical bar or away from it, and
+        // insets read in JS would arrive a few frames after the column's new layout, with the cards under the bar.
+        <SafeAreaView style={styles.content} edges={["left", "right"]}>
+          {listContent}
+        </SafeAreaView>
+      )}
 
       {warning && <RouteListWarning key={`${warning.requestedTime}-${warning.routesDate}-${warning.warningType}`} {...warning} />}
     </Screen>
@@ -564,6 +675,16 @@ const styles = StyleSheet.create((theme) => ({
   root: {
     backgroundColor: theme.colors.background,
     flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+  splitContent: {
+    flexDirection: "row",
+  },
+  selectedCard: {
+    outlineWidth: 2,
+    outlineColor: theme.colors.primary,
   },
   listContainer: {
     flex: 1,

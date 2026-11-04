@@ -9,7 +9,7 @@
       "node": "20.18.0",
       "ios": {
         "resourceClass": "m-medium",
-        "image": "macos-tahoe-26.6-xcode-27.0"
+        "image": "latest"
       }
     },
     "development": {

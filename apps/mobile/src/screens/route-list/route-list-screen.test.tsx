@@ -22,6 +22,7 @@ mock.module("@/services/api/rail-api", () => ({ railApi: { axiosInstance: { post
 mock.module("burnt", () => ({ alert }))
 mock.module("expo-router", () => ({
   useIsFocused: () => true,
+  useNavigation: () => ({ addListener: () => () => undefined }),
   useRouter: () => ({ push: mock() }),
   useLocalSearchParams: () => ({ originId: "1600", destinationId: "3100", time: String(friday.getTime()), enableQuery: "true" }),
   Stack: { Toolbar: Object.assign(({ children }: { children: React.ReactNode }) => <>{children}</>, { View: "ToolbarView" }) },
@@ -57,6 +58,12 @@ mock.module("@/utils/helpers/route-share-helpers", () => ({ shareRouteAction: mo
 mock.module("@/utils/helpers/calendar-helpers", () => ({ addRouteToCalendar: mock() }))
 mock.module("@/utils/helpers/action-sheet-helpers", () => ({ getActionSheetStyleOptions: () => ({}) }))
 mock.module("@/utils/hour-index", () => ({ isHourIndexSupported: () => false }))
+mock.module("react-native-safe-area-context", () => ({
+  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  useSafeAreaFrame: () => ({ x: 0, y: 0, width: 375, height: 812 }),
+  SafeAreaView: View,
+  SafeAreaProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}))
 
 const { RouteApi }: typeof import("@/services/api/route-api") = require("@/services/api/route-api")
 const {
@@ -93,6 +100,9 @@ mock.module("./components", () => ({
   DateScroll: () => null,
   HourIndexBar: () => null,
   HOUR_INDEX_MAX_FONT_SCALE: 1.5,
+  RouteDetailsPane: () => null,
+  routeKey: (route: { trains: { trainNumber: number; departureTimeString: string }[] }) =>
+    route.trains.map((train) => `${train.trainNumber}-${train.departureTimeString}`).join(),
 }))
 function TestLegendList(props: {
   data: RouteData[]

@@ -7,8 +7,11 @@ const { mergeContents } = require("@expo/config-plugins/build/utils/generateCode
  * pod is importable as the `react_native_actions_shortcuts` module, exposing the Swift class
  * `RNShortcuts` and its `performActionForShortcutItem(_:completionHandler:)` class func.
  *
- * (URL-scheme + universal-link handling is already in Expo's AppDelegate template via
- * RCTLinkingManager, so we don't touch those.)
+ * Under the scene-based life cycle (SDK 58 template, required by the iOS 27 SDK) UIKit delivers
+ * quick actions to the scene delegate; Expo's ExpoAppSceneDelegate forwards them back to this
+ * AppDelegate override, so the handler stays here. The template no longer has a "Linking API"
+ * section, so anchor on the end of didFinishLaunchingWithOptions instead (present in both the
+ * SDK 57 and SDK 58 templates).
  */
 const withAppDelegateShortcuts = (config) =>
   withAppDelegate(config, (cfg) => {

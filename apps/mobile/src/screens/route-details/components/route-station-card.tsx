@@ -112,9 +112,10 @@ const styles = StyleSheet.create((theme, rt) => ({
   routeStationWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: theme.spacing[3],
-    paddingHorizontal: theme.spacing[6] + 8,
+    // Stops at the side insets (iPhone Duo's toolbar column) rather than running under them like the banners do.
+    paddingStart: theme.spacing[6] + 8,
     paddingEnd: theme.spacing[2],
+    paddingVertical: theme.spacing[3],
     backgroundColor: theme.colors.secondaryBackground,
     zIndex: 100,
   },

@@ -9,7 +9,7 @@ interface FillWidthProps {
 // Since @expo/ui 57.0.15 a matchContents RNHostView lays its RN child out at the child's own width, with no
 // parent width to stretch to, so auto-width content shrinks to its content and sits at the leading edge.
 // We measure the container and hand the hosted child an explicit width, as upstream does for bottom-sheet.
-// Drop this once RNHostView supports per-axis matchContents (Host already does).
+// The long-press menu now takes per-axis matchContents instead; the tap menu (MenuView) and Android still need this.
 export function FillWidth({ style, children }: FillWidthProps) {
   const ref = useRef<ViewInstance>(null)
   const [width, setWidth] = useState<number>()

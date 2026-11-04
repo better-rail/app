@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Pressable, View, Animated as RNAnimated } from "react-native"
+import { Pressable, View, Animated as RNAnimated, type ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
 import { Text } from "@/components/text/text"
@@ -16,10 +16,12 @@ interface RouteStationNameButtonProps extends TouchableScaleProps {
   /** Shown instead of `name` when the full name would wrap to a second line. */
   shortName?: string
   buttonScale: RNAnimated.Value
+  /** Sizes the button within its row, e.g. to line it up with a column below. */
+  wrapperStyle?: ViewStyle
 }
 
 export function RouteStationNameButton(props: RouteStationNameButtonProps) {
-  const { disabled, onPress, name, shortName, style, buttonScale, ...rest } = props
+  const { disabled, onPress, name, shortName, style, buttonScale, wrapperStyle, ...rest } = props
   const glassTint = useGlassTint("secondaryLighter")
 
   if (isLiquidGlassSupported) {
@@ -27,6 +29,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       <Pressable
         onPress={onPress}
         disabled={disabled}
+        style={[styles.liquidGlassWrapper, wrapperStyle]}
         accessibilityLabel={props.accessibilityLabel}
         accessibilityHint={props.accessibilityHint}
       >
@@ -43,7 +46,7 @@ export function RouteStationNameButton(props: RouteStationNameButtonProps) {
       activeScale={0.95}
       disabled={disabled}
       onPress={onPress}
-      style={[style, { transform: [{ scale: buttonScale }] }]}
+      style={[style, wrapperStyle, { transform: [{ scale: buttonScale }] }]}
       {...rest}
     >
       <StationName key={name} name={name} shortName={shortName} />
@@ -84,12 +87,17 @@ function StationName({ name, shortName }: { name: string; shortName?: string }) 
   )
 }
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   routeDetailsStationText: {
     color: theme.colors.text,
     opacity: 0.8,
     textAlign: "center",
     ...subheadingFontStyle(theme, 14, "600"),
+  },
+  // Share the row with the other station instead of taking half the window, which overflows
+  // once the row is narrowed by side safe-area insets (iPhone Duo's side bar column).
+  liquidGlassWrapper: {
+    flex: 1,
   },
   hiddenText: {
     opacity: 0,
@@ -100,7 +108,6 @@ const styles = StyleSheet.create((theme, rt) => ({
     right: 0,
   },
   liquidGlass: {
-    width: rt.screen.width / 2 - theme.spacing[2] * 2,
     padding: theme.spacing[2],
     borderRadius: 25,
   },
