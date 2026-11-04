@@ -24,7 +24,7 @@ if (process.env.APP_VARIANT === "production") {
     .filter((file) => !fs.existsSync(path.join(licensedFonts, file)))
   if (missing.length > 0) {
     throw new Error(
-      `Licensed fonts missing from assets/fonts/licensed: ${missing.join(", ")}. Add them locally, or set the LICENSED_FONTS_ZIP EAS file variable (see scripts/licensed-fonts.mjs).`,
+      `Licensed fonts missing from assets/fonts/licensed: ${missing.join(", ")}. Copy them from the private better-rail/licensed-fonts repository.`,
     )
   }
 }
