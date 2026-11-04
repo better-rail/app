@@ -184,8 +184,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "expo-iap",
-    // Patched: SDK 58 resets the app's forceRTL on every launch. Built from source on Android (package.json
-    // expo.autolinking) so the patch applies. Drop both once an expo-localization release keeps runtime RTL.
+    // Patched: 58.0.5 keeps the app's forceRTL, except once on the first launch after updating from a version
+    // that reset it. Built from source on Android (package.json expo.autolinking) so the patch applies. The patch
+    // can go once most installs have launched a build with 58.0.5+.
     ["expo-localization", { supportedLocales: { ios: IOS_SUPPORTED_LOCALES } }],
     // Required by react-native-unistyles on Android (edge-to-edge insets via the mini runtime).
     "react-native-edge-to-edge",
