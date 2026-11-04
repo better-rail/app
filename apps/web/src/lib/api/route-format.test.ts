@@ -172,21 +172,16 @@ describe("helpers", () => {
     expect(summary.medianDurationMs).toBe(40 * 60_000)
     expect(summarizeRoutes([])).toBeNull()
   })
-})
 
-describe("exchangeWaitMinutes", () => {
-  const leg = (fields: Partial<Train>) => fields as Train
-  const at = (time: string) => parseNaive(`2026-10-26T${time}:00`)
-
-  test("includes the delays of both trains", () => {
-    const first = leg({ arrivalTime: at("22:50"), delay: 1 })
-    const second = leg({ departureTime: at("22:52"), delay: 3 })
-    expect(exchangeWaitMinutes(first, second)).toBe(4)
-  })
-
-  test("goes negative when the delays leave no time to make the change", () => {
-    const first = leg({ arrivalTime: at("22:50"), delay: 4 })
-    const second = leg({ departureTime: at("22:52"), delay: 0 })
-    expect(exchangeWaitMinutes(first, second)).toBe(-2)
+  test("exchangeWaitMinutes counts both delays and goes negative when the change is missed", () => {
+    const arrival = parseNaive("2026-10-26T22:50:00")
+    const departure = parseNaive("2026-10-26T22:52:00")
+    const wait = (arrivalDelay: number, departureDelay: number) =>
+      exchangeWaitMinutes(
+        { arrivalTime: arrival, delay: arrivalDelay } as Train,
+        { departureTime: departure, delay: departureDelay } as Train,
+      )
+    expect(wait(1, 3)).toBe(4)
+    expect(wait(4, 0)).toBe(-2)
   })
 })
