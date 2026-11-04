@@ -113,6 +113,7 @@
     "waitingTime": "Wait around %{duration}",
     "minutes": "min",
     "unsafeChange": "This change isn't guaranteed",
+    "missedChange": "With current delays, the next train is expected to leave before you arrive",
     "lastStop": "Last Stop",
     "trainCancelled": "Train Cancelled",
     "trainCancelledText": "According to Israel Railways, this train has been cancelled. Please choose a different route.",

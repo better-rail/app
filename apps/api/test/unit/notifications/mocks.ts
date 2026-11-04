@@ -126,3 +126,16 @@ export const unsafeChangeTrains = partiallyMock<RouteTrain[]>([
     originPlatform: 4,
   },
 ])
+
+export const missedChangeTrains = partiallyMock<RouteTrain[]>([
+  {
+    arrivalTime: now + minutesInMs(10),
+    delay: 4,
+    destinationPlatform: 3,
+  },
+  {
+    departureTime: now + minutesInMs(12),
+    delay: 0,
+    originPlatform: 3,
+  },
+])
