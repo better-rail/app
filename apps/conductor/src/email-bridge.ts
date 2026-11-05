@@ -91,8 +91,9 @@ function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
 /** Whether a message is the header the bridge posts for each inbound email. */
 export const isEmailHeader = (content?: string) => !!content && /^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)
 
-// Starts the message /reply leaves in the thread once the email is sent.
+// Start the messages /reply and /resolve leave in the thread.
 export const REPLY_SENT_PREFIX = "**Email reply sent to**"
+export const RESOLVED_PREFIX = "✅ **Resolved** by"
 
 function extractHeaderMessageId(content?: string): string | undefined {
   if (!content || !isEmailHeader(content)) return undefined
@@ -510,7 +511,7 @@ export class EmailBridge {
       return { success: false, message: `Could not mark as resolved: ${(err as Error).message}.` }
     }
     const senderName = interaction.member?.user?.username || "A team member"
-    return { success: true, message: `✅ **Resolved** by **${senderName}**.` }
+    return { success: true, message: `${RESOLVED_PREFIX} **${senderName}**.` }
   }
 
   // Only forum posts carry a status.

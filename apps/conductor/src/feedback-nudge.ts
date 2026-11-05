@@ -1,6 +1,6 @@
 import type { ConductorConfig } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
-import { isEmailHeader, REPLY_SENT_PREFIX } from "./email-bridge"
+import { isEmailHeader, REPLY_SENT_PREFIX, RESOLVED_PREFIX } from "./email-bridge"
 import { FORUM_CHANNEL, findStatusTag } from "./feedback-status"
 
 const NUDGE_AFTER_MS = 48 * 60 * 60 * 1000
@@ -8,14 +8,14 @@ const NUDGE_MESSAGE = "@here This email has been waiting 48 hours for a reply."
 
 const snowflakeTime = (id: string) => Number((BigInt(id) >> 22n) + 1420070400000n)
 
-/** When the oldest email since our last reply arrived, or undefined when there is none or it was already nudged. */
+/** When the oldest email since our last reply or resolve arrived, or undefined when there is none or it was already nudged. */
 function waitingSince(messages: DiscordMessage[], applicationId: string) {
   let since: number | undefined
   // Discord lists messages newest first.
   for (const message of messages) {
     if (!message.author?.bot || message.author.id !== applicationId) continue
     if (message.content.startsWith(NUDGE_MESSAGE)) return undefined
-    if (message.content.startsWith(REPLY_SENT_PREFIX)) break
+    if (message.content.startsWith(REPLY_SENT_PREFIX) || message.content.startsWith(RESOLVED_PREFIX)) break
     if (isEmailHeader(message.content)) since = snowflakeTime(message.id)
   }
   return since
