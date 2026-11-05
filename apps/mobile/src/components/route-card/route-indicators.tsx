@@ -3,6 +3,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
 import { CancelledBadge, DelayBadge } from "./delay-badge"
 import { userLocale } from "@/i18n"
+import { labelFontStyle } from "@/theme/theme-fonts"
 
 /**
  * Displays route indicators (stops count, delay, cancellation, short route badge) in the route card.
@@ -79,11 +80,11 @@ const styles = StyleSheet.create((theme) => ({
     backgroundColor: theme.colors.contrastedGreenBackground,
   },
   shortRouteBadgeText: {
-    fontSize: 14,
+    ...labelFontStyle(theme, 14),
     color: theme.colors.greenText,
   },
   stopsText: {
-    fontSize: 14,
+    ...labelFontStyle(theme, 14),
     color: theme.skin.routeCard?.text ?? theme.colors.text,
   },
 }))

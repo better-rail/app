@@ -148,6 +148,8 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
         link: "#1F3FA6",
       },
       surfaces: surfaces("#F3F1EC", "#FFFFFF", "#F3F1EC", "#E4E1D9", "#111111", "#55534E", "#A3A099", "#DEDBD3", "#77746D"),
+      // The red of the arrow circles on the city's street signs
+      skin: { delay: "#E2442F" },
     },
     dark: {
       accents: {
@@ -159,6 +161,7 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
         link: "#8EA4FF",
       },
       surfaces: surfaces("#161512", "#22201C", "#2A2823", "#33302A", "#F3F1EC", "#B3AFA6", "#747068", "#38352E", "#A39F96"),
+      skin: { delay: "#D23B27" },
     },
   },
   // Jerusalem stone gold and pomegranate

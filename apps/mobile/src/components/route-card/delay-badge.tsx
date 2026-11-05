@@ -3,6 +3,7 @@ import { View, Platform } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
 import { translate } from "@/i18n"
+import { labelFontStyle } from "@/theme/theme-fonts"
 
 interface DelayBadgeProps {
   delay: number
@@ -37,11 +38,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     paddingVertical: 1,
     paddingHorizontal: theme.spacing[2],
     borderRadius: 6,
-    backgroundColor: rt.themeName === "light" ? "#EE6958" : "#B22E4D",
+    backgroundColor: theme.skin.delay ?? (rt.themeName === "light" ? "#EE6958" : "#B22E4D"),
   },
   badgeText: {
-    fontSize: 14,
-    fontWeight: Platform.select({ ios: "500", android: "bold" }),
+    ...labelFontStyle(theme, 14, Platform.select({ ios: "500", android: "bold" })),
     color: theme.colors.whiteText,
   },
 }))

@@ -11,7 +11,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import { acrossTheIsland } from "@/data/island-platforms"
-import { subheadingFontStyle } from "@/theme/theme-fonts"
+import { labelFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 
 const importantIcon = require("../../../../assets/important.png")
 const clockIcon = require("../../../../assets/clock.png")
@@ -154,7 +154,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
           {!isExchangeSafe && (
             <View style={[styles.infoDetailWrapper, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
               <Image style={[styles.infoIcon, { tintColor: color.error }]} source={infoIcon} />
-              <Text style={[styles.infoText, { color: color.error }]} preset="bold" maxFontSizeMultiplier={1.2}>
+              <Text style={[styles.infoText, styles.warningText]} maxFontSizeMultiplier={1.2}>
                 {translate(isExchangeMissed ? "routeDetails.missedChange" : "routeDetails.unsafeChange")}
               </Text>
             </View>
@@ -198,8 +198,13 @@ const styles = StyleSheet.create((theme) => ({
     alignItems: "center",
   },
   infoText: {
-    fontSize: 16,
+    ...labelFontStyle(theme, 16),
     flexShrink: 1,
+  },
+  // Its own style, since the bold preset would lose to the theme font's weight
+  warningText: {
+    ...labelFontStyle(theme, 16, "bold"),
+    color: theme.colors.error,
   },
   infoIcon: {
     width: 25,

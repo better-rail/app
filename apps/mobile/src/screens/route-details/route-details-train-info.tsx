@@ -7,6 +7,7 @@ import { useNavigationParamsStore } from "@/models/navigation-params/navigation-
 import type { Train, Wagon } from "@/services/api/rail-api.types"
 import { translate } from "@/i18n"
 import { palette } from "@/theme/palette"
+import { labelFontStyle, stopNameFontStyle } from "@/theme/theme-fonts"
 import { getTrainHeading } from "@/utils/helpers/direction-helpers"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import HapticFeedback from "react-native-haptic-feedback"
@@ -255,9 +256,9 @@ const styles = StyleSheet.create((theme) => ({
     paddingTop: theme.spacing[4],
     paddingStart: theme.spacing[5],
   },
+  // Sized like the route details' passing stops when the theme has its own font
   headerText: {
-    fontSize: 14,
-    fontWeight: "600",
+    ...stopNameFontStyle(theme, theme.skin.stopNameFont ? 19 : 14, "600"),
     color: theme.colors.text,
     textAlign: "center",
   },
@@ -266,9 +267,8 @@ const styles = StyleSheet.create((theme) => ({
     marginRight: theme.spacing[1],
   },
   wagonNumberText: {
-    fontSize: 12,
+    ...labelFontStyle(theme, 12, "600"),
     color: theme.colors.primary,
-    fontWeight: "600",
     width: 50,
     textAlign: "center",
     marginBottom: theme.spacing[1],
@@ -310,7 +310,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing[1],
   },
   legendText: {
-    fontSize: 13,
+    ...labelFontStyle(theme, 13),
     color: theme.colors.label,
   },
   metadataContainer: {
@@ -326,7 +326,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing[1],
   },
   metadataText: {
-    fontSize: 14,
+    ...labelFontStyle(theme, 14),
     color: theme.colors.text,
   },
   wagonBox: {
@@ -398,7 +398,7 @@ const styles = StyleSheet.create((theme) => ({
     paddingVertical: theme.spacing[6],
   },
   emptyStateText: {
-    fontSize: 15,
+    ...labelFontStyle(theme, 15),
     color: theme.colors.label,
     textAlign: "center",
     lineHeight: 22,

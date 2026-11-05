@@ -3,7 +3,7 @@ import { View, ViewStyle, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
-import { subheadingFontStyle } from "@/theme/theme-fonts"
+import { labelFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 
 const railwayStationIcon = require("../../../../assets/railway-station.png")
 
@@ -153,8 +153,8 @@ const styles = StyleSheet.create((theme, rt) => ({
   routeDelayTime: {
     width: 70 * rt.fontScale,
     marginEnd: rt.rtl ? 0 : theme.spacing[3] * rt.fontScale,
-    color: theme.colors.destroy,
-    fontWeight: "bold",
+    color: theme.skin.delay ?? theme.colors.destroy,
+    ...labelFontStyle(theme, 16, "bold"),
   },
   // Wide theme fonts have short caps, so they get more size and room to head the details
   routeStationName: {
@@ -163,13 +163,11 @@ const styles = StyleSheet.create((theme, rt) => ({
     ...subheadingFontStyle(theme, theme.skin.subheadingFont ? 19 : 17),
   },
   routeStationDetailsText: {
-    fontSize: theme.skin.subheadingFont ? 13 : 14,
-    fontWeight: "400",
+    ...labelFontStyle(theme, theme.skin.subheadingFont ? 13 : 14, "400"),
   },
   // One tone for the whole line; nested Text resets to the default size, so it's repeated here
   lastDestinationText: {
-    fontSize: theme.skin.subheadingFont ? 13 : 14,
-    fontWeight: "400",
+    ...labelFontStyle(theme, theme.skin.subheadingFont ? 13 : 14, "400"),
     color: theme.colors.label,
   },
   realtimeChangeText: {
