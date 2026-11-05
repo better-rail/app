@@ -88,9 +88,14 @@ function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
   return undefined
 }
 
+/** Whether a message is the header the bridge posts for each inbound email. */
+export const isEmailHeader = (content?: string) => !!content && /^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)
+
+// Starts the message /reply leaves in the thread once the email is sent.
+export const REPLY_SENT_PREFIX = "**Email reply sent to**"
+
 function extractHeaderMessageId(content?: string): string | undefined {
-  if (!content) return undefined
-  if (!/^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)) return undefined
+  if (!content || !isEmailHeader(content)) return undefined
   const separatorIdx = content.search(HEADER_SEPARATOR_RE)
   if (separatorIdx === -1) return undefined
   const headerPart = content.slice(0, separatorIdx)
@@ -488,7 +493,7 @@ export class EmailBridge {
 
     const senderName = interaction.member?.user?.username || "A team member"
     const quoted = replyText.replace(/\n/g, "\n> ")
-    const fullMessage = `**Email reply sent to** \`${recipientEmail}\` by **${senderName}**:\n> ${quoted}`
+    const fullMessage = `${REPLY_SENT_PREFIX} \`${recipientEmail}\` by **${senderName}**:\n> ${quoted}`
     const finalMessage = fullMessage.length > 2000 ? `${fullMessage.slice(0, 1997)}...` : fullMessage
     return {
       success: true,

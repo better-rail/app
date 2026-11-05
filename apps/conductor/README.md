@@ -19,6 +19,9 @@ Tags are matched by name (`Open`, `Replied`, `Resolved`), and other tags on a po
 any that are missing, which needs Manage Channels; otherwise add them in the forum's settings. Threads in a plain text
 channel work as before, without a status.
 
+An Open post whose email has gone 48 hours without a `/reply` gets one `@here` nudge from the hourly cron. For it to
+ping, Conductor needs **Mention @everyone, @here, and All Roles** in the forum.
+
 ## Setup
 
 1. Fill `.env` from `.env.example` and run `bun run setup` (provisions flair roles, posts welcome picker, registers the `/reply` and `/resolve` commands, and adds the forum's status tags).
