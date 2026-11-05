@@ -1,6 +1,6 @@
 import axios from "axios"
 
-export type RideStartStage = "push_token" | "api" | "notification" | "live_activity"
+export type RideStartStage = "push_token" | "api" | "notification" | "live_activity" | "unsupported"
 
 export type RideStartServerReason = "route_not_found" | "ride_in_past" | "ride_in_future" | "internal_error"
 
@@ -49,6 +49,7 @@ const BENIGN_SERVER_REASONS: RideStartServerReason[] = ["ride_in_past", "ride_in
 // The user was offline, or the train already left / is still too far away. Worth counting, but nothing we can fix in code.
 export function rideStartErrorLevel(error: unknown): "warning" | "error" {
   if (!(error instanceof RideStartError)) return "error"
+  if (error.stage === "unsupported") return "warning"
   if (BENIGN_SERVER_REASONS.includes(error.serverReason as RideStartServerReason)) return "warning"
   if (error.stage === "api" && error.status === undefined) return "warning"
 

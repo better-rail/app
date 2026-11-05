@@ -10,7 +10,6 @@ import { isRouteInThePast, timezoneCorrection } from "@/utils/helpers/date-helpe
 import { fontScale } from "@/theme"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import { AndroidNotificationSetting, AuthorizationStatus } from "@notifee/react-native"
 import { trackEvent } from "@/services/analytics"
 import { requestStoreReview } from "@/utils/helpers/store-review-helpers"
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
@@ -30,7 +29,7 @@ export function StartRideButton(props: StartRideButtonProps) {
       id: s.id,
       canRunLiveActivities: s.canRunLiveActivities,
       activityAuthorizationInfo: s.activityAuthorizationInfo,
-      notifeeSettings: s.notifeeSettings,
+      notificationPermissionState: s.notificationPermissionState,
       loading: s.loading,
       rideCount: s.rideCount,
       startRide: s.startRide,
@@ -58,8 +57,10 @@ export function StartRideButton(props: StartRideButtonProps) {
   const areActivitiesDisabled = Platform.select({
     ios: () => !ride.canRunLiveActivities || !(ride?.activityAuthorizationInfo?.areActivitiesEnabled ?? true),
     android: () =>
-      ride.notifeeSettings?.notifications !== AuthorizationStatus.AUTHORIZED ||
-      ride.notifeeSettings?.alarms !== AndroidNotificationSetting.ENABLED,
+      !ride.canRunLiveActivities ||
+      !ride.notificationPermissionState?.granted ||
+      !ride.notificationPermissionState?.canScheduleExactAlarms,
+    default: () => false,
   })
 
   const isStartRideButtonDisabled = isRouteInFuture || isRouteInPast || areActivitiesDisabled()
@@ -120,7 +121,7 @@ export function StartRideButton(props: StartRideButtonProps) {
           HapticFeedback.trigger("notificationError")
           let disabledReason = ""
           if (areActivitiesDisabled()) {
-            disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disbled"
+            disabledReason = Platform.OS === "ios" ? "Live Activities disabled" : "Notifications disabled"
 
             if (Platform.OS === "ios") {
               const alertTitle = translate("ride.liveActivitiesDisabledTitle")

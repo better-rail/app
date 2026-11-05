@@ -28,6 +28,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import com.betterrail.R
+import com.betterrail.liveride.SemanticColorCompat
 import java.util.concurrent.CopyOnWriteArraySet
 
 /**
@@ -265,7 +266,7 @@ class ArrivalAlarmService : Service() {
         private const val NOTIFICATION_ID = 7301
         private const val RING_DURATION_MS = 2 * 60 * 1000L
         // The app's primary blue, matching the full-screen alarm.
-        private const val BRAND_COLOR = 0xFF0C83FF.toInt()
+        private const val BRAND_COLOR = SemanticColorCompat.BRAND_COLOR
         private val VIBRATION_PATTERN = longArrayOf(0, 800, 600)
 
         private val ALARM_AUDIO: AudioAttributes = AudioAttributes.Builder()

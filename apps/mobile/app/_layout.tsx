@@ -182,7 +182,7 @@ function RootLayout() {
       .getState()
       .checkLiveActivitiesSupported()
       .then((canRunLiveActivities) => {
-        if (canRunLiveActivities === true) {
+        if (Platform.OS === "ios" && canRunLiveActivities === true) {
           monitorLiveActivities()
         }
       })

@@ -62,7 +62,9 @@ export function LiveRideSheet(props: { progress; screenName: "routeDetails" | "a
         <StopButton
           loading={!id}
           onPress={() => {
-            stopRide(id)
+            if (id) {
+              stopRide(id)
+            }
             trackEvent("stop_live_ride")
 
             if (screenName === "activeRide") {

@@ -131,6 +131,10 @@ const withAndroidManifestMods = (config) =>
         },
       ],
     })
+    app.receiver.push(
+      { $: { "android:name": ".liveride.LiveRideStaleReceiver", "android:exported": "false" } },
+      { $: { "android:name": ".liveride.LiveRideActionReceiver", "android:exported": "false" } },
+    )
     app.service.push({
       $: {
         "android:name": ".alarm.ArrivalAlarmService",

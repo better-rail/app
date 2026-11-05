@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Swap arrows on the transfer orange, like the transfer point on the track -->
+    <path
+        android:fillColor="#FF9500"
+        android:pathData="M12,0A12,12 0 1,0 12,24A12,12 0 1,0 12,0Z" />
+
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M6.5,9H17M14,6L17,9L14,12M17.5,15H7M10,12L7,15L10,18" />
+
+</vector>
