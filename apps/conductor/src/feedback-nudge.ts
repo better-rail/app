@@ -32,16 +32,14 @@ export async function nudgeUnansweredEmails(config: ConductorConfig, api: Discor
 
   // Closed posts drop out; Discord archives an idle post only after 7 days.
   const { threads } = await api.call<{ threads: DiscordChannel[] }>("GET", `/guilds/${config.guildId}/threads/active`)
-  const candidates = threads.filter(
-    (thread) =>
-      thread.parent_id === forumId &&
-      thread.applied_tags?.includes(openTag.id) &&
-      now - snowflakeTime(thread.id) >= NUDGE_AFTER_MS,
-  )
+  const candidates = threads.filter((thread) => thread.parent_id === forumId && now - snowflakeTime(thread.id) >= NUDGE_AFTER_MS)
 
   let failure: unknown
-  for (const thread of candidates) {
+  for (const listed of candidates) {
     try {
+      // The list may leave out a post's tags, so read them from the post itself then.
+      const thread = listed.applied_tags ? listed : await api.call<DiscordChannel>("GET", `/channels/${listed.id}`)
+      if (!thread.applied_tags?.includes(openTag.id)) continue
       const messages = await api.call<DiscordMessage[]>("GET", `/channels/${thread.id}/messages?limit=100`)
       const since = waitingSince(messages, config.applicationId)
       if (since === undefined || now - since < NUDGE_AFTER_MS) continue
@@ -50,7 +48,7 @@ export async function nudgeUnansweredEmails(config: ConductorConfig, api: Discor
         allowed_mentions: { parse: ["everyone"] },
       })
     } catch (error) {
-      console.warn(`Conductor: could not nudge thread ${thread.id}:`, (error as Error).message)
+      console.warn(`Conductor: could not nudge thread ${listed.id}:`, (error as Error).message)
       failure ??= error
     }
   }
