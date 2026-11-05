@@ -170,8 +170,8 @@ interface BarProgress {
   transferPoints: number[]
 }
 
-const stationTime = (station: { departureTime?: number; arrivalTime?: number }, preferArrival: boolean) =>
-  (preferArrival ? station.arrivalTime || station.departureTime : station.departureTime || station.arrivalTime) ?? 0
+const stationTime = (station: { departureTime?: number; arrivalTime?: number }, preferArrival: boolean, fallback: number) =>
+  (preferArrival ? station.arrivalTime || station.departureTime : station.departureTime || station.arrivalTime) || fallback
 
 /** The train the ride is on, or waiting for. A transfer station ends one train and starts the next. */
 const findCurrentTrainIndex = (route: RouteItem, state: LiveRideState): number => {
@@ -324,11 +324,15 @@ export class LiveRideController {
 
     // The whole plan shows from the start, faded ahead of the tracker
     if (state.status === "waitForTrain") return bar(0)
-    if (state.status === "arrived" || state.status === "getOff" || state.rawStatus === "getOff") return bar(maxProgress)
+    if (state.status === "arrived") return bar(maxProgress)
 
     const trainIndex = findCurrentTrainIndex(route, state)
     // At a transfer the tracker waits at the transfer point, keeping the progress made so far
     if (state.status === "inExchange") return bar(offsets[trainIndex] * SEGMENT_SCALE)
+    // The server sends getOff before every train's last stop, including a transfer
+    if (state.status === "getOff" || state.rawStatus === "getOff") {
+      return bar((offsets[trainIndex] + legCounts[trainIndex]) * SEGMENT_SCALE)
+    }
 
     const train = route.trains[trainIndex]
     const stops = train.stopStations ?? []
@@ -336,8 +340,10 @@ export class LiveRideController {
     const legIndex = stopIndex >= 0 ? stopIndex : stops.length
 
     const delayMs = (state.delay || 0) * 60 * 1000
-    const legStart = (legIndex === 0 ? train.departureTime : stationTime(stops[legIndex - 1], false)) + delayMs
-    const legEnd = (legIndex === stops.length ? train.arrivalTime : stationTime(stops[legIndex], true)) + delayMs
+    const legStart =
+      (legIndex === 0 ? train.departureTime : stationTime(stops[legIndex - 1], false, train.departureTime)) + delayMs
+    const legEnd =
+      (legIndex === stops.length ? train.arrivalTime : stationTime(stops[legIndex], true, train.arrivalTime)) + delayMs
     const fraction =
       legEnd > legStart && Number.isFinite(legStart) ? Math.min(Math.max((this.now() - legStart) / (legEnd - legStart), 0), 1) : 0
 
