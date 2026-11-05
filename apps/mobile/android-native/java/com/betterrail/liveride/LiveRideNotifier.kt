@@ -1,6 +1,7 @@
 package com.betterrail.liveride
 
 import android.app.AlarmManager
+import android.app.LocaleManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,10 +14,13 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import androidx.core.app.NotificationCompat
 import com.betterrail.R
 import com.betterrail.alarm.ArrivalAlarmScheduler
+import java.util.Locale
 
 data class LiveRideContent(
     val title: String,
@@ -218,20 +222,32 @@ object LiveRideNotifier {
         return when {
             content.tracker == "transfer" -> Icon.createWithResource(context, R.drawable.progress_tracker_transfer)
             content.tracker == "platform" && label != null -> Icon.createWithBitmap(
-                platformBitmap(label, if (content.delayed) SemanticColorCompat.COLOR_DELAY_RED else SemanticColorCompat.BRAND_COLOR),
+                platformBitmap(
+                    label,
+                    if (content.delayed) SemanticColorCompat.COLOR_DELAY_RED else SemanticColorCompat.BRAND_COLOR,
+                    mirrored = isSystemRtl(context),
+                ),
             )
             content.delayed -> Icon.createWithResource(context, R.drawable.progress_tracker_dot_delayed)
             else -> Icon.createWithResource(context, R.drawable.progress_tracker_dot)
         }
     }
 
+    /** The progress bar runs in the system's direction, not the app's language */
+    private fun isSystemRtl(context: Context): Boolean {
+        val locale = context.getSystemService(LocaleManager::class.java)?.systemLocales?.get(0) ?: Locale.getDefault()
+        return TextUtils.getLayoutDirectionFromLocale(locale) == View.LAYOUT_DIRECTION_RTL
+    }
+
     /** The platform number on a colored disc, drawn at runtime since it changes per ride */
-    private fun platformBitmap(platform: String, color: Int): Bitmap {
+    private fun platformBitmap(platform: String, color: Int, mirrored: Boolean): Bitmap {
         val size = PLATFORM_ICON_PX
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
         canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
+        // In RTL the progress bar flips its tracker icon, so pre-flip the number to have it read the right way
+        if (mirrored) canvas.scale(-1f, 1f, size / 2f, size / 2f)
         paint.apply {
             this.color = 0xFFFFFFFF.toInt()
             textSize = size * if (platform.length > 1) 0.52f else 0.62f
