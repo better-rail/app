@@ -65,16 +65,29 @@ struct BetterRailLiveActivity: Widget {
 // truncated to "…" and pushed against the rounded ends, so each compact view offers
 // progressively narrower layouts and lets the system pick the first one that fits.
 // The padding is part of the measured size, so it also holds in RTL layouts.
+//
+// When the island is limited in width (landscape, iPhone Duo, or an iPhone 18 Pro showing
+// two or more Live Activities), the system proposes a 28 × 28 pt slot per compact view and
+// Apple asks for content that fits a 28 pt circle. On an iPhone 18 Pro showing three
+// activities, the narrow layouts above sat against the rounded ends and were clipped by
+// the curve, so in this mode each view fills that circle itself and centres its content
+// (see `limitedWidthCompactSlot()`).
 
 struct CompactLeadingView: View {
   var vm: ActivityViewModel
   var tintColor: Color
 
   var body: some View {
-    ViewThatFits(in: .horizontal) {
-      ring(size: 20).padding(.horizontal, 6)
-      ring(size: 18).padding(.horizontal, 4)
-      ring(size: 16).padding(.horizontal, 2)
+    DynamicIslandWidthReader { isLimitedInWidth in
+      if isLimitedInWidth {
+        ring(size: 18).limitedWidthCompactSlot()
+      } else {
+        ViewThatFits(in: .horizontal) {
+          ring(size: 20).padding(.horizontal, 6)
+          ring(size: 18).padding(.horizontal, 4)
+          ring(size: 16).padding(.horizontal, 2)
+        }
+      }
     }
   }
 
@@ -91,19 +104,30 @@ struct CompactTrailingView: View {
   private var endDate: Date { getStatusEndDate(context: vm.context) }
 
   var body: some View {
-    ViewThatFits(in: .horizontal) {
-      label(showUnit: true).padding(.horizontal, 6)
-      label(showUnit: true).padding(.horizontal, 3)
-      label(showUnit: false).padding(.horizontal, 3)
+    DynamicIslandWidthReader { isLimitedInWidth in
+      if isLimitedInWidth {
+        // Just the number, shrunk if needed to stay inside the circle (e.g. "120").
+        label(showUnit: false)
+          .minimumScaleFactor(0.5)
+          .padding(.horizontal, 3)
+          .limitedWidthCompactSlot()
+      } else {
+        ViewThatFits(in: .horizontal) {
+          label(showUnit: true).padding(.horizontal, 6)
+          label(showUnit: true).padding(.horizontal, 3)
+          label(showUnit: false).padding(.horizontal, 3)
+        }
+      }
     }
     .lineLimit(1)
     .foregroundColor(tintColor)
   }
 
+  /// - Parameter showUnit: Adds "min" to the minutes, and AM/PM to a stale arrival time.
   @ViewBuilder
   private func label(showUnit: Bool) -> some View {
     if vm.isStale {
-      Text(formatDateHour(endDate))
+      Text(formatDateHour(endDate, showPeriod: showUnit))
     } else {
       let minutes = String(getMinutesLeft(targetDate: endDate))
       Group {
@@ -116,6 +140,39 @@ struct CompactTrailingView: View {
       .accessibilityLabel(vm.status == .waitForTrain ? "time left depart" : "time left arrival")
       .contentTransition(.numericText())
     }
+  }
+}
+
+private extension View {
+  /// Apple sizes each compact view of a limited-width island to fit a 28 pt circle. Taking
+  /// up that whole circle (or less, if the system offers less) centres the content in it,
+  /// instead of leaving a narrower view for the system to place against the rounded end.
+  func limitedWidthCompactSlot() -> some View {
+    frame(idealWidth: 28, maxWidth: 28, idealHeight: 28, maxHeight: 28)
+  }
+}
+
+/// Passes `isDynamicIslandLimitedInWidth` to its content. The value only exists on iOS 27+,
+/// where the island can render compact views with a reduced width.
+struct DynamicIslandWidthReader<Content: View>: View {
+  @ViewBuilder var content: (_ isLimitedInWidth: Bool) -> Content
+
+  var body: some View {
+    if #available(iOS 27.0, *) {
+      LimitedWidthEnvironmentReader(content: content)
+    } else {
+      content(false)
+    }
+  }
+}
+
+@available(iOS 27.0, *)
+private struct LimitedWidthEnvironmentReader<Content: View>: View {
+  @Environment(\.isDynamicIslandLimitedInWidth) private var isLimitedInWidth
+  var content: (Bool) -> Content
+
+  var body: some View {
+    content(isLimitedInWidth)
   }
 }
 

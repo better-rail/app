@@ -59,10 +59,11 @@ func use12HourClock() -> Bool {
   return getUserLocale() == .english && template.contains("a")
 }
 
-func formatDateHour(_ date: Date) -> String {
+/// - Parameter showPeriod: Set to false to drop the AM/PM suffix where space is tight.
+func formatDateHour(_ date: Date, showPeriod: Bool = true) -> String {
   let formatter = DateFormatter()
   formatter.locale = Locale(identifier: use12HourClock() ? "en_US" : "he_IL")
-  formatter.dateFormat = use12HourClock() ? "h:mm a" : "HH:mm"
+  formatter.dateFormat = use12HourClock() ? (showPeriod ? "h:mm a" : "h:mm") : "HH:mm"
   
   return formatter.string(from: date)
 }
