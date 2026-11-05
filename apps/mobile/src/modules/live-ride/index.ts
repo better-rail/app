@@ -61,3 +61,7 @@ export const liveRideNotifications = new LiveRideController({
 })
 
 export const postAndroidAlert = (alert: AndroidAlert) => bridge.postAlert(alert)
+
+export const openLiveUpdatesSettings = () => {
+  if (isLiveRideSupported()) NativeModules.LiveRideNotificationModule.openLiveUpdatesSettings()
+}

@@ -312,7 +312,7 @@
     "hoursOne": "1 س",
     "hoursTwo": "2 س",
     "hoursCount": "%{count} س",
-    "trainInfo": "قطار %{trainNumber} إلى %{lastStop}، يغادر من رصيف %{platform}",
+    "trainInfo": "قطار %{trainNumber} إلى %{lastStop} · رصيف %{platform}",
     "getOffNextStop": "انزل في المحطة التالية",
     "getOffInStops": "انزل بعد %{stopsLeft} محطات",
     "getOff": "انزل هنا",

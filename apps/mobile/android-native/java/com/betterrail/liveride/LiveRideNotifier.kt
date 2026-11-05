@@ -21,10 +21,14 @@ data class LiveRideContent(
     val totalStops: Int,
     val progress: Int? = null,
     val maxProgress: Int? = null,
+    /** Progress values where the rider changes trains */
+    val transferPoints: List<Int> = emptyList(),
     val shortCriticalText: String? = null,
     val stopActionText: String? = null,
     val alertOnce: Boolean = true,
-    val titleSemanticStyle: Int? = null,
+    val highlights: List<TextHighlight> = emptyList(),
+    /** Paints the rest of the track red */
+    val delayed: Boolean = false,
 )
 
 object LiveRideNotifier {
@@ -127,38 +131,40 @@ object LiveRideNotifier {
 
     private fun buildLiveUpdate(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {
         val numSegments = content.totalStops.coerceAtLeast(1)
-        val max = (content.maxProgress ?: (numSegments * SEGMENT_RESOLUTION)).coerceAtLeast(1)
+        val max = (content.maxProgress ?: (numSegments * SEGMENT_RESOLUTION)).coerceAtLeast(numSegments)
         val currentProgress = content.progress ?: (content.currentStop * SEGMENT_RESOLUTION)
         val clampedProgress = currentProgress.coerceIn(0, max)
+        val currentLeg = (clampedProgress.toLong() * numSegments / max).toInt().coerceAtMost(numSegments - 1)
 
+        // One segment per leg, so the gaps between them mark the stations. Progress styling fades what's ahead.
         val style = Notification.ProgressStyle()
             .setStyledByProgress(true)
             .setProgress(clampedProgress)
+            .setProgressTrackerIcon(Icon.createWithResource(context, R.drawable.progress_tracker_icon))
+            .setProgressEndIcon(Icon.createWithResource(context, R.drawable.progress_end_icon))
 
-        val trackColor = SemanticColorCompat.resolveColor(content.titleSemanticStyle)
-        val semanticStyle = content.titleSemanticStyle ?: SemanticColorCompat.SEMANTIC_STYLE_INFO
-
-        val trackSegment = Notification.ProgressStyle.Segment(max)
-        trackSegment.setColor(trackColor)
-        trackSegment.setId(0)
-        SemanticColorCompat.applySemanticStyle(trackSegment, semanticStyle)
-        style.addProgressSegment(trackSegment)
-
-        val intermediateStops = numSegments - 1
-        for (step in 1..intermediateStops) {
-            val position = (max.toLong() * step / numSegments).toInt()
-            val point = Notification.ProgressStyle.Point(position)
-            point.setColor(SemanticColorCompat.COLOR_STATION_POINT)
-            point.setId(step)
-            val pointStyle = if (step == intermediateStops) semanticStyle else SemanticColorCompat.SEMANTIC_STYLE_INFO
-            SemanticColorCompat.applySemanticStyle(point, pointStyle)
-            style.addProgressPoint(point)
+        for (leg in 0 until numSegments) {
+            val start = (max.toLong() * leg / numSegments).toInt()
+            val end = (max.toLong() * (leg + 1) / numSegments).toInt()
+            when {
+                !content.delayed || leg < currentLeg -> style.addProgressSegment(trackSegment(end - start, delayed = false))
+                // Split the leg the train is on, so only the track ahead of it turns red
+                leg == currentLeg && clampedProgress > start -> {
+                    style.addProgressSegment(trackSegment(clampedProgress - start, delayed = false))
+                    if (end > clampedProgress) style.addProgressSegment(trackSegment(end - clampedProgress, delayed = true))
+                }
+                else -> style.addProgressSegment(trackSegment(end - start, delayed = true))
+            }
         }
 
-        style.setProgressTrackerIcon(Icon.createWithResource(context, R.drawable.progress_tracker_icon))
+        for (position in content.transferPoints) {
+            if (position in 1 until max) {
+                style.addProgressPoint(Notification.ProgressStyle.Point(position).setColor(SemanticColorCompat.COLOR_TRANSFER))
+            }
+        }
 
-        val titleText = SemanticColorCompat.formatText(content.title, content.titleSemanticStyle)
-        val bodyText = SemanticColorCompat.formatText(content.body, content.titleSemanticStyle)
+        val titleText = SemanticColorCompat.highlight(content.title, content.highlights)
+        val bodyText = SemanticColorCompat.highlight(content.body, content.highlights)
 
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon)
@@ -197,6 +203,11 @@ object LiveRideNotifier {
         }
 
         return builder.build()
+    }
+
+    private fun trackSegment(length: Int, delayed: Boolean) = Notification.ProgressStyle.Segment(length).apply {
+        setColor(if (delayed) SemanticColorCompat.COLOR_DELAY_RED else SemanticColorCompat.BRAND_COLOR)
+        if (delayed) SemanticColorCompat.applySemanticStyle(this, SemanticColorCompat.SEMANTIC_STYLE_DANGER)
     }
 
     private fun buildCompatProgress(context: Context, content: LiveRideContent, timeoutMs: Long? = null): Notification {

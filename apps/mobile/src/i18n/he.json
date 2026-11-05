@@ -369,7 +369,7 @@
     "hoursCount": "%{count} שע'",
     "chipInHours": "%{hours} ש׳",
     "chipInHoursAndMinutes": "%{hours} ש׳ %{minutes} דק׳",
-    "trainInfo": "רכבת %{trainNumber} ל%{lastStop} תצא מרציף %{platform}",
+    "trainInfo": "רכבת %{trainNumber} ל%{lastStop} · רציף %{platform}",
     "getOffNextStop": "הגעה ליעד בתחנה הבאה",
     "getOffInStops": "הגעה ליעד בעוד %{stopsLeft} תחנות",
     "greeting": "תודה שנסעתם עם בטר רייל!",

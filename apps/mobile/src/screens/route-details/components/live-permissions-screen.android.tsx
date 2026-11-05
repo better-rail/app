@@ -1,4 +1,4 @@
-import { Alert, Linking, View } from "react-native"
+import { Alert, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Button, Column, FilledTonalButton, Host, Icon, ListItem, Text as ComposeText } from "@expo/ui/jetpack-compose"
 import { clip, fillMaxWidth, height, Shapes } from "@expo/ui/jetpack-compose/modifiers"
@@ -7,7 +7,7 @@ import { primaryFont } from "@/theme"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import { liveRideNotifications } from "@/modules/live-ride"
+import { liveRideNotifications, openLiveUpdatesSettings } from "@/modules/live-ride"
 import { openArrivalAlarmSettings } from "@/utils/arrival-alarm-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
@@ -49,7 +49,7 @@ export function LivePermissionsScreen() {
   }
 
   const grantPromoted = () => {
-    Linking.openSettings()
+    openLiveUpdatesSettings()
   }
 
   const beginRide = () => {

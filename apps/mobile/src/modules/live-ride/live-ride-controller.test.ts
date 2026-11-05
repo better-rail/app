@@ -313,6 +313,8 @@ describe("LiveRideController", () => {
     expect(getOffUpdate.currentStop).toBe(1)
     expect(getOffUpdate.progress).toBe(100)
     expect(getOffUpdate.maxProgress).toBe(100)
+    // The server re-sends the state every minute; only the push carrying the alert should buzz
+    expect(getOffUpdate.alertOnce).toBe(true)
 
     await controller.processIncomingPush({
       type: "live-ride",
@@ -338,43 +340,63 @@ describe("LiveRideController", () => {
     expect(formatHours(3)).toBe("ride.hoursCount.test")
   })
 
-  it("assigns state-driven semantic styles for delays, upcoming exits, and arrivals matching iOS", async () => {
+  it("colors only significant delays and connection issues", async () => {
     const route = buildRoute(10 * MINUTE)
     await controller.start(route)
 
-    expect(bridge.updates[0].titleSemanticStyle).toBe(SemanticColor.CAUTION)
+    // On time: no color anywhere, and the stale fallback flags only the connection issue
+    expect(bridge.updates[0].highlights).toEqual([])
+    expect(bridge.updates[0].delayed).toBe(false)
+    expect(bridge.updates[0].stale?.highlights).toEqual([{ text: "ride.connectionIssues.test", style: SemanticColor.CAUTION }])
 
-    await controller.processIncomingPush({
-      type: "live-ride",
-      status: "inTransit",
-      delay: "4",
-      nextStationId: "11",
-    })
-    expect(bridge.updates[1].titleSemanticStyle).toBe(SemanticColor.DANGER)
+    // A routine delay is mentioned but not colored
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "3", nextStationId: "11" })
+    expect(bridge.updates[1].body).toContain("3 routes.delayTime.test")
+    expect(bridge.updates[1].highlights).toEqual([])
+    expect(bridge.updates[1].delayed).toBe(false)
 
-    await controller.processIncomingPush({
-      type: "live-ride",
-      status: "inTransit",
-      delay: "0",
-      nextStationId: "11",
-    })
-    expect(bridge.updates[2].titleSemanticStyle).toBe(SemanticColor.SAFE)
+    // A significant delay colors just its own fragment, and the track ahead
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "7", nextStationId: "11" })
+    const delayed = bridge.updates[2]
+    expect(delayed.highlights).toEqual([{ text: "7 routes.delayTime.test", style: SemanticColor.DANGER }])
+    expect(delayed.body).toContain("7 routes.delayTime.test")
+    expect(delayed.title).not.toContain("routes.delayTime")
+    expect(delayed.delayed).toBe(true)
+    expect(delayed.stale?.delayed).toBe(true)
+  })
 
-    await controller.processIncomingPush({
-      type: "live-ride",
-      status: "prepareToExit",
-      delay: "0",
-      nextStationId: "3",
-    })
-    expect(bridge.updates[3].titleSemanticStyle).toBe(SemanticColor.SAFE)
+  // The fixture has train 100 (1 -> 10, 11 -> 2) and train 200 (2 -> 20 -> 3): 3 + 2 legs, transfer after leg 3
+  it("shows the trip plan with the tracker at the start before boarding", async () => {
+    await controller.start(buildRoute(10 * MINUTE))
+    const waiting = bridge.updates[0]
+    expect(waiting.totalStops).toBe(5)
+    expect(waiting.progress).toBe(0)
+    expect(waiting.maxProgress).toBe(500)
+    expect(waiting.transferPoints).toEqual([300])
+  })
 
-    await controller.processIncomingPush({
-      type: "live-ride",
-      status: "arrived",
-      delay: "0",
-      nextStationId: "3",
-    })
-    expect(bridge.updates[4].titleSemanticStyle).toBe(SemanticColor.SAFE)
+  it("keeps the progress made so far while waiting at a transfer", async () => {
+    // the first train reached the transfer 5 minutes ago; the next one leaves in 5
+    await controller.start(buildRoute(-35 * MINUTE))
+    await controller.processIncomingPush({ type: "live-ride", status: "inExchange", delay: "0", nextStationId: "2" })
+    const exchange = bridge.updates[1]
+    expect(exchange.totalStops).toBe(5)
+    expect(exchange.progress).toBe(300)
+    expect(exchange.transferPoints).toEqual([300])
+  })
+
+  it("places the tracker on the right train around a transfer", async () => {
+    // 25 minutes in: on train 100's last leg (11 -> 2), heading to the transfer
+    await controller.start(buildRoute(-25 * MINUTE))
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "0", nextStationId: "2" })
+    expect(bridge.updates[1].progress).toBeGreaterThan(200)
+    expect(bridge.updates[1].progress).toBeLessThan(300)
+
+    // 45 minutes in: on train 200's first leg (2 -> 20)
+    await controller.start(buildRoute(-45 * MINUTE))
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "0", nextStationId: "20" })
+    expect(bridge.updates[3].progress).toBeGreaterThan(300)
+    expect(bridge.updates[3].progress).toBeLessThan(400)
   })
 })
 

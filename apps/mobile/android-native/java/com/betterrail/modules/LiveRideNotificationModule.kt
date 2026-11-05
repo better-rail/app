@@ -2,10 +2,14 @@ package com.betterrail.modules
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import com.betterrail.alarm.ArrivalAlarmScheduler
 import com.betterrail.liveride.LiveRideContent
 import com.betterrail.liveride.LiveRideNotifier
+import com.betterrail.liveride.TextHighlight
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -27,6 +31,25 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
         }
         val manager = reactApplicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         promise.resolve(runCatching { manager.canPostPromotedNotifications() }.getOrDefault(false))
+    }
+
+    @ReactMethod
+    fun openLiveUpdatesSettings() {
+        val context = reactApplicationContext
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS)
+        } else {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+        }.putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+
+        try {
+            context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } catch (e: Exception) {
+            context.startActivity(
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+            )
+        }
     }
 
     @ReactMethod
@@ -132,7 +155,6 @@ class LiveRideNotificationModule(reactContext: ReactApplicationContext) : ReactC
 
 private fun ReadableMap.optString(key: String): String? = if (hasKey(key)) getString(key) else null
 private fun ReadableMap.optInt(key: String, default: Int): Int = if (hasKey(key)) getInt(key) else default
-private fun ReadableMap.optIntOrNull(key: String): Int? = if (hasKey(key) && !isNull(key)) getInt(key) else null
 
 private fun parseLiveRideContent(
     map: ReadableMap,
@@ -150,5 +172,21 @@ private fun parseLiveRideContent(
     shortCriticalText = map.optString("shortCriticalText"),
     stopActionText = map.optString("stopActionText"),
     alertOnce = if (map.hasKey("alertOnce")) map.getBoolean("alertOnce") else true,
-    titleSemanticStyle = map.optIntOrNull("titleSemanticStyle"),
+    transferPoints = map.intList("transferPoints"),
+    highlights = map.highlights(),
+    delayed = map.hasKey("delayed") && map.getBoolean("delayed"),
 )
+
+private fun ReadableMap.intList(key: String): List<Int> {
+    val array = if (hasKey(key)) getArray(key) else null
+    return (0 until (array?.size() ?: 0)).map { array!!.getInt(it) }
+}
+
+private fun ReadableMap.highlights(): List<TextHighlight> {
+    val array = if (hasKey("highlights")) getArray("highlights") else null
+    return (0 until (array?.size() ?: 0)).mapNotNull { index ->
+        val item = array?.getMap(index) ?: return@mapNotNull null
+        val text = item.optString("text") ?: return@mapNotNull null
+        TextHighlight(text, item.optInt("style", 0))
+    }
+}

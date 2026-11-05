@@ -11,7 +11,7 @@ import {
   type LiveRideUpdatePayload,
   type NotificationPermissionState,
   SemanticColor,
-  type SemanticColorType,
+  type TextHighlight,
 } from "./types"
 
 export const STALE_AFTER_MS = 135_000
@@ -50,14 +50,19 @@ const VALID_STATUSES = new Set<LiveRideStatus>([
 const toRideStatus = (status: string): LiveRideStatus =>
   VALID_STATUSES.has(status as LiveRideStatus) ? (status as LiveRideStatus) : "inTransit"
 
-export const getLiveRideSemanticStyle = (state: LiveRideState): SemanticColorType => {
-  if (state.delay > 0) {
-    return SemanticColor.DANGER
-  }
-  if (state.status === "waitForTrain" || state.status === "inExchange" || state.status === "stale") {
-    return SemanticColor.CAUTION
-  }
-  return SemanticColor.SAFE
+/** Delays shorter than this are routine, so they're shown without color */
+export const SIGNIFICANT_DELAY_MINUTES = 5
+
+const isSignificantDelay = (delay: number) => delay >= SIGNIFICANT_DELAY_MINUTES
+
+const SEPARATOR = " · "
+
+const joinParts = (...parts: (string | null | undefined)[]) => parts.filter(Boolean).join(SEPARATOR)
+
+interface NotificationText {
+  title: string
+  body: string
+  highlights: TextHighlight[]
 }
 
 /// The route destination, used as a fallback when we can't resolve the ride's current position
@@ -155,6 +160,31 @@ const getChipText = (state: LiveRideState, minutes: number | null, locale?: stri
   return text ?? ""
 }
 
+const SEGMENT_SCALE = 100
+
+interface BarProgress {
+  currentStop: number
+  totalStops: number
+  progress: number
+  maxProgress: number
+  transferPoints: number[]
+}
+
+const stationTime = (station: { departureTime?: number; arrivalTime?: number }, preferArrival: boolean) =>
+  (preferArrival ? station.arrivalTime || station.departureTime : station.departureTime || station.arrivalTime) ?? 0
+
+/** The train the ride is on, or waiting for. A transfer station ends one train and starts the next. */
+const findCurrentTrainIndex = (route: RouteItem, state: LiveRideState): number => {
+  const id = state.nextStationId
+  const byStop = route.trains.findIndex((train) => train.stopStations?.some((stop) => stop.stationId === id))
+  if (byStop >= 0) return byStop
+
+  const byOrigin = route.trains.findIndex((train) => train.originStationId === id)
+  const byDestination = route.trains.findIndex((train) => train.destinationStationId === id)
+  const preferred = state.status === "inExchange" ? [byOrigin, byDestination] : [byDestination, byOrigin]
+  return preferred.find((index) => index >= 0) ?? 0
+}
+
 interface StationProgress {
   currentIndex: number
   totalStations: number
@@ -220,7 +250,6 @@ export class LiveRideController {
       } catch {}
     }
 
-
     const state: LiveRideState = {
       status: toRideStatus(data.status),
       delay: Number(data.delay) || 0,
@@ -248,13 +277,7 @@ export class LiveRideController {
 
     const title = alert?.title || defaultTexts.title
     const body = alert?.body || defaultTexts.body
-    const barProgress = this.getBarProgress(route, state, stations)
-
-    const isMilestone = Boolean(
-      alert || state.status === "prepareToExit" || state.status === "getOff" || state.status === "arrived",
-    )
-
-    const titleSemanticStyle = getLiveRideSemanticStyle(state)
+    const barProgress = this.getBarProgress(route, state)
 
     const payload: LiveRideUpdatePayload = {
       title,
@@ -265,8 +288,10 @@ export class LiveRideController {
       stopActionText: isArrived ? undefined : (translate("ride.stopRide", { locale }) ?? undefined),
       stale: isArrived ? undefined : this.getStaleContent(route, state, barProgress, locale),
       staleAfterMs: STALE_AFTER_MS,
-      alertOnce: !isMilestone,
-      titleSemanticStyle,
+      // The server attaches an alert once per milestone, and re-sends the state every minute without it
+      alertOnce: !alert,
+      highlights: defaultTexts.highlights,
+      delayed: isSignificantDelay(state.delay),
     }
 
     const success = await this.deps.bridge.updateLiveRide(payload)
@@ -275,96 +300,59 @@ export class LiveRideController {
     }
   }
 
-  private getBarProgress(route: RouteItem, state: LiveRideState, stations: StationProgress) {
-    const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
-    const stopStations = train?.stopStations ?? []
-    const numSegments = Math.max(stopStations.length + 1, stations.totalStations > 0 ? stations.totalStations : 1)
-    const SEGMENT_SCALE = 100
-    const maxProgress = numSegments * SEGMENT_SCALE
+  /**
+   * One bar for the whole trip: a segment per leg between stops, across every train, with each
+   * transfer marked as a point. The tracker only moves while a train does.
+   */
+  private getBarProgress(route: RouteItem, state: LiveRideState): BarProgress {
+    const legCounts = route.trains.map((train) => (train.stopStations?.length ?? 0) + 1)
+    const offsets = legCounts.map((_, index) => legCounts.slice(0, index).reduce((sum, count) => sum + count, 0))
+    const totalLegs = Math.max(
+      legCounts.reduce((sum, count) => sum + count, 0),
+      1,
+    )
+    const maxProgress = totalLegs * SEGMENT_SCALE
+    const transferPoints = offsets.slice(1).map((offset) => offset * SEGMENT_SCALE)
 
-    if (state.status === "waitForTrain") {
-      return {
-        currentStop: 0,
-        totalStops: numSegments,
-        progress: 0,
-        maxProgress,
-      }
-    }
-
-    if (state.status === "arrived" || state.status === "getOff" || state.rawStatus === "getOff") {
-      return {
-        currentStop: numSegments,
-        totalStops: numSegments,
-        progress: maxProgress,
-        maxProgress,
-      }
-    }
-
-    const nextIndex = stopStations.findIndex((s: { stationId: number }) => s.stationId === state.nextStationId)
-    const legIndex = nextIndex >= 0 ? nextIndex : numSegments - 1
-
-    const delayMs = (state.delay || 0) * 60 * 1000
-    const trainDep = train ? train.departureTime + delayMs : 0
-    const trainArr = train ? train.arrivalTime + delayMs : 0
-
-    const getStationTime = (
-      station: { departureTime?: number; arrivalTime?: number } | undefined,
-      preferArrival: boolean,
-      fallback: number,
-    ) => {
-      const primary = preferArrival ? station?.arrivalTime : station?.departureTime
-      const secondary = preferArrival ? station?.departureTime : station?.arrivalTime
-      return (primary || secondary || fallback) + delayMs
-    }
-
-    let legStartMs = 0
-    let legEndMs = 0
-
-    if (legIndex === 0) {
-      legStartMs = trainDep
-      legEndMs = getStationTime(stopStations[0], true, trainArr)
-    } else if (legIndex < stopStations.length) {
-      legStartMs = getStationTime(stopStations[legIndex - 1], false, trainDep)
-      legEndMs = getStationTime(stopStations[legIndex], true, trainArr)
-    } else {
-      legStartMs = getStationTime(stopStations[stopStations.length - 1], false, trainDep)
-      legEndMs = trainArr
-    }
-
-    const now = this.now()
-    let fraction = 0
-
-    if (legEndMs > legStartMs && Number.isFinite(legEndMs) && Number.isFinite(legStartMs)) {
-      fraction = Math.min(Math.max((now - legStartMs) / (legEndMs - legStartMs), 0), 1)
-    } else if (trainArr > trainDep && Number.isFinite(trainArr) && Number.isFinite(trainDep)) {
-      fraction = Math.min(Math.max((now - trainDep) / (trainArr - trainDep), 0), 1)
-    }
-
-    const progress = Math.min(Math.max(Math.round((legIndex + fraction) * SEGMENT_SCALE), 0), maxProgress)
-    const effectiveStop =
-      stations.currentIndex > 0 ? stations.currentIndex : Math.min(legIndex + (fraction >= 0.5 ? 1 : 0), numSegments)
-
-    return {
-      currentStop: effectiveStop,
-      totalStops: numSegments,
+    const bar = (progress: number): BarProgress => ({
+      currentStop: Math.floor(progress / SEGMENT_SCALE),
+      totalStops: totalLegs,
       progress,
       maxProgress,
-    }
+      transferPoints,
+    })
+
+    // The whole plan shows from the start, faded ahead of the tracker
+    if (state.status === "waitForTrain") return bar(0)
+    if (state.status === "arrived" || state.status === "getOff" || state.rawStatus === "getOff") return bar(maxProgress)
+
+    const trainIndex = findCurrentTrainIndex(route, state)
+    // At a transfer the tracker waits at the transfer point, keeping the progress made so far
+    if (state.status === "inExchange") return bar(offsets[trainIndex] * SEGMENT_SCALE)
+
+    const train = route.trains[trainIndex]
+    const stops = train.stopStations ?? []
+    const stopIndex = stops.findIndex((stop) => stop.stationId === state.nextStationId)
+    const legIndex = stopIndex >= 0 ? stopIndex : stops.length
+
+    const delayMs = (state.delay || 0) * 60 * 1000
+    const legStart = (legIndex === 0 ? train.departureTime : stationTime(stops[legIndex - 1], false)) + delayMs
+    const legEnd = (legIndex === stops.length ? train.arrivalTime : stationTime(stops[legIndex], true)) + delayMs
+    const fraction =
+      legEnd > legStart && Number.isFinite(legStart) ? Math.min(Math.max((this.now() - legStart) / (legEnd - legStart), 0), 1) : 0
+
+    const progress = Math.round((offsets[trainIndex] + legIndex + fraction) * SEGMENT_SCALE)
+    return bar(Math.min(Math.max(progress, 0), maxProgress))
   }
 
-  private getStaleContent(
-    route: RouteItem,
-    state: LiveRideState,
-    barProgress?: { progress: number; maxProgress: number },
-    locale?: string,
-  ) {
+  private getStaleContent(route: RouteItem, state: LiveRideState, barProgress?: BarProgress, locale?: string) {
     const arrivalTime = getArrivalTime(route)
     const lastTrain = last(route.trains)
     if (!arrivalTime || !lastTrain) return undefined
 
     const stale: LiveRideState = { status: "stale", delay: state.delay, nextStationId: lastTrain.destinationStationId }
     const untilMs = addMinutes(arrivalTime, state.delay).getTime()
-    const { title, body } = this.getNotificationText(route, stale, undefined, locale)
+    const { title, body, highlights } = this.getNotificationText(route, stale, undefined, locale)
     return {
       title,
       body,
@@ -373,7 +361,9 @@ export class LiveRideController {
       stopActionText: translate("ride.stopRide", { locale }) ?? undefined,
       progress: barProgress?.progress,
       maxProgress: barProgress?.maxProgress,
-      titleSemanticStyle: state.delay > 0 ? SemanticColor.DANGER : SemanticColor.CAUTION,
+      transferPoints: barProgress?.transferPoints,
+      highlights,
+      delayed: isSignificantDelay(state.delay),
     }
   }
 
@@ -382,23 +372,27 @@ export class LiveRideController {
     state: LiveRideState,
     stations?: StationProgress,
     locale?: string,
-  ): { title: string; body: string } {
+  ): NotificationText {
     const currentIndex = stations?.currentIndex ?? 0
     const totalStations = stations?.totalStations ?? 0
     const targetDate = getTargetDate(route, state)
     const destination = getRideDestination(route)
     const options = locale ? { locale } : undefined
     const activeLocale = (locale || getInitialLanguage()) as LanguageCode
+    const rideTo = translate("plan.rideTo", { destination, ...options }) ?? ""
+
+    // The new time already includes the delay; the fragment says why it moved, in red once it's significant
+    const delayText = state.delay > 0 ? `${state.delay} ${translate("routes.delayTime", options) ?? ""}` : undefined
+    const highlights: TextHighlight[] =
+      delayText && isSignificantDelay(state.delay) ? [{ text: delayText, style: SemanticColor.DANGER }] : []
 
     if (state.status === "stale") {
+      const connectionIssues = translate("ride.connectionIssues", options) ?? ""
       const time = targetDate ? formatTime(targetDate, resolveUse12HourClock(activeLocale)) : ""
-      const delayText = state.delay > 0 ? ` (${state.delay} ${translate("routes.delayTime", options)})` : ""
-      const titlePrefix = targetDate
-        ? (translate("ride.arrivingAt", { time, ...options }) ?? "")
-        : (translate("plan.rideTo", { destination, ...options }) ?? "")
       return {
-        title: `${titlePrefix}${delayText}`,
-        body: `${translate("plan.rideTo", { destination, ...options }) ?? ""} | ${translate("ride.connectionIssues", options) ?? ""}`,
+        title: targetDate ? (translate("ride.arrivingAt", { time, ...options }) ?? "") : rideTo,
+        body: joinParts(delayText, rideTo, connectionIssues),
+        highlights: [...highlights, { text: connectionIssues, style: SemanticColor.CAUTION }],
       }
     }
 
@@ -406,6 +400,7 @@ export class LiveRideController {
       return {
         title: translate("ride.arrived", options) ?? "",
         body: translate("ride.greeting", options) ?? "",
+        highlights: [],
       }
     }
 
@@ -413,46 +408,41 @@ export class LiveRideController {
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
       // the status comes from the server while the lookup runs against the locally cached route,
       // so the two can disagree - fall back rather than reading a missing train's details.
-      const body = train ? formatTrainInfo(train, locale) : (translate("ride.activatingRide", options) ?? "")
-      if (!targetDate) return { title: translate("plan.rideTo", { destination, ...options }) ?? "", body }
+      const trainInfo = train ? formatTrainInfo(train, locale) : (translate("ride.activatingRide", options) ?? "")
+      const body = joinParts(delayText, trainInfo)
+      if (!targetDate) return { title: rideTo, body, highlights }
 
       const minutes = getMinutesUntil(targetDate, this.now()) ?? 0
       // a background wake never runs setUserLanguage, so resolve the clock style here
       const time = formatTime(targetDate, resolveUse12HourClock(activeLocale))
-      const timeText = `(${time})`
-      const title =
-        minutes < 2 ? `${translate("ride.departsNow", options) ?? ""} ${timeText}` : `${formatDepartsIn(minutes, locale)} ${timeText}`
-      return { title, body }
+      const countdown = minutes < 2 ? (translate("ride.departsNow", options) ?? "") : formatDepartsIn(minutes, locale)
+      return { title: joinParts(countdown, time), body, highlights }
     }
 
     // the next station couldn't be matched to a train, so there's no time to show.
     // fall back to the ride destination instead of rendering an invalid date.
     if (!targetDate) {
-      return {
-        title: translate("plan.rideTo", { destination, ...options }) ?? "",
-        body: translate("plan.rideTo", { destination, ...options }) ?? "",
-      }
+      return { title: rideTo, body: joinParts(delayText, rideTo), highlights }
     }
     const minutes = getMinutesUntil(targetDate, this.now()) ?? 0
     const time = formatTime(targetDate, resolveUse12HourClock(activeLocale))
-    const timeText = `(${time})`
-    const title = `${formatArrivingIn(minutes, locale)} ${timeText}`
+    const title = joinParts(formatArrivingIn(minutes, locale), time)
 
     const stopsLeft = totalStations - currentIndex
-    let body: string
+    let progressText: string
     if (state.status === "getOff" || state.rawStatus === "getOff") {
-      body = translate("ride.getOff", options) ?? ""
+      progressText = translate("ride.getOff", options) ?? ""
     } else if (stopsLeft <= 0) {
       // rideProgress reports [0, 0] when the station isn't in the route, which would render
       // "get off in 0 stops" - fall back rather than showing a nonsense count
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
-      body = train ? formatTrainInfo(train, locale) : (translate("plan.rideTo", { destination, ...options }) ?? "")
+      progressText = train ? formatTrainInfo(train, locale) : rideTo
     } else if (stopsLeft === 1) {
-      body = translate("ride.getOffNextStop", options) ?? ""
+      progressText = translate("ride.getOffNextStop", options) ?? ""
     } else {
-      body = translate("ride.getOffInStops", { stopsLeft, ...options }) ?? ""
+      progressText = translate("ride.getOffInStops", { stopsLeft, ...options }) ?? ""
     }
 
-    return { title, body }
+    return { title, body: joinParts(delayText, progressText), highlights }
   }
 }

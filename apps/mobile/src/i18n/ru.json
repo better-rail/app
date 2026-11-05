@@ -316,7 +316,7 @@
     "hoursOne": "1 ч",
     "hoursTwo": "2 ч",
     "hoursCount": "%{count} ч",
-    "trainInfo": "Поезд %{trainNumber} до %{lastStop}, отправление с платформы %{platform}",
+    "trainInfo": "Поезд %{trainNumber} до %{lastStop} · платформа %{platform}",
     "getOffNextStop": "Выходите на следующей остановке",
     "getOffInStops": "Выходите через %{stopsLeft} ост.",
     "getOff": "Выходить",

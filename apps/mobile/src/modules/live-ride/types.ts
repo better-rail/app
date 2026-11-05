@@ -14,6 +14,12 @@ export const SemanticColor = {
 
 export type SemanticColorType = (typeof SemanticColor)[keyof typeof SemanticColor]
 
+/** A fragment of the title or body to color, e.g. a significant delay */
+export interface TextHighlight {
+  text: string
+  style: SemanticColorType
+}
+
 export interface LiveRideStaleContent {
   title: string
   body: string
@@ -22,7 +28,9 @@ export interface LiveRideStaleContent {
   stopActionText?: string
   progress?: number
   maxProgress?: number
-  titleSemanticStyle?: SemanticColorType
+  transferPoints?: number[]
+  highlights?: TextHighlight[]
+  delayed?: boolean
 }
 
 export interface LiveRideUpdatePayload {
@@ -32,13 +40,17 @@ export interface LiveRideUpdatePayload {
   totalStops: number
   progress?: number
   maxProgress?: number
+  /** Progress values where the rider changes trains */
+  transferPoints?: number[]
   isArrived: boolean
   shortCriticalText: string
   stopActionText?: string
   stale?: LiveRideStaleContent
   staleAfterMs: number
   alertOnce?: boolean
-  titleSemanticStyle?: SemanticColorType
+  highlights?: TextHighlight[]
+  /** Paints the rest of the track red */
+  delayed?: boolean
 }
 
 export interface AndroidAlert {

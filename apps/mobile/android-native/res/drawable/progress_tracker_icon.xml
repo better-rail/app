@@ -4,22 +4,27 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
+    <!-- Brand-blue disc with a white train, front view -->
     <path
-        android:fillColor="#007AE7"
-        android:fillAlpha="0.25"
-        android:pathData="M 12,2 A 10,10 0 1,0 12,22 A 10,10 0 1,0 12,2 Z" />
-
-    <path
-        android:fillColor="#007AE7"
-        android:fillAlpha="0.50"
-        android:pathData="M 12,5 A 7,7 0 1,0 12,19 A 7,7 0 1,0 12,5 Z" />
-
-    <path
-        android:fillColor="#007AE7"
-        android:pathData="M 12,6.5 A 5.5,5.5 0 1,0 12,17.5 A 5.5,5.5 0 1,0 12,6.5 Z" />
+        android:fillColor="#0C83FF"
+        android:pathData="M12,0A12,12 0 1,0 12,24A12,12 0 1,0 12,0Z" />
 
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M 12,9.2 A 2.8,2.8 0 1,0 12,14.8 A 2.8,2.8 0 1,0 12,9.2 Z" />
+        android:pathData="M9.5,5h5a2.5,2.5 0 0 1 2.5,2.5v6a2.5,2.5 0 0 1 -2.5,2.5h-5a2.5,2.5 0 0 1 -2.5,-2.5v-6a2.5,2.5 0 0 1 2.5,-2.5z" />
+
+    <path
+        android:fillColor="#0C83FF"
+        android:pathData="M9,7.5h6v3h-6z" />
+
+    <path
+        android:fillColor="#0C83FF"
+        android:pathData="M10,12.2a1,1 0 1,0 0,2a1,1 0 1,0 0,-2zM14,12.2a1,1 0 1,0 0,2a1,1 0 1,0 0,-2z" />
+
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M9.5,16.5L8,19M14.5,16.5L16,19" />
 
 </vector>

@@ -20,7 +20,9 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
             maxProgress = if (intent.hasExtra(EXTRA_MAX_PROGRESS)) intent.getIntExtra(EXTRA_MAX_PROGRESS, 1) else null,
             shortCriticalText = intent.getStringExtra(EXTRA_SHORT_CRITICAL_TEXT),
             stopActionText = intent.getStringExtra(EXTRA_STOP_ACTION_TEXT),
-            titleSemanticStyle = if (intent.hasExtra(EXTRA_TITLE_SEMANTIC_STYLE)) intent.getIntExtra(EXTRA_TITLE_SEMANTIC_STYLE, 0) else null,
+            transferPoints = intent.getIntArrayExtra(EXTRA_TRANSFER_POINTS)?.toList().orEmpty(),
+            highlights = readHighlights(intent),
+            delayed = intent.getBooleanExtra(EXTRA_DELAYED, false),
         )
         LiveRideNotifier.showProgress(context, content, staleUntil)
     }
@@ -36,7 +38,16 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
         private const val EXTRA_SHORT_CRITICAL_TEXT = "shortCriticalText"
         private const val EXTRA_STOP_ACTION_TEXT = "stopActionText"
         private const val EXTRA_UNTIL = "staleUntil"
-        private const val EXTRA_TITLE_SEMANTIC_STYLE = "titleSemanticStyle"
+        private const val EXTRA_HIGHLIGHT_TEXTS = "highlightTexts"
+        private const val EXTRA_HIGHLIGHT_STYLES = "highlightStyles"
+        private const val EXTRA_DELAYED = "delayed"
+        private const val EXTRA_TRANSFER_POINTS = "transferPoints"
+
+        private fun readHighlights(intent: Intent): List<TextHighlight> {
+            val texts = intent.getStringArrayExtra(EXTRA_HIGHLIGHT_TEXTS) ?: return emptyList()
+            val styles = intent.getIntArrayExtra(EXTRA_HIGHLIGHT_STYLES) ?: return emptyList()
+            return texts.zip(styles.toList()) { text, style -> TextHighlight(text, style) }
+        }
 
         fun toIntent(context: Context, content: LiveRideContent, staleUntil: Long): Intent =
             Intent(context, LiveRideStaleReceiver::class.java)
@@ -49,7 +60,10 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
                     content.maxProgress?.let { putExtra(EXTRA_MAX_PROGRESS, it) }
                     content.shortCriticalText?.let { putExtra(EXTRA_SHORT_CRITICAL_TEXT, it) }
                     content.stopActionText?.let { putExtra(EXTRA_STOP_ACTION_TEXT, it) }
-                    content.titleSemanticStyle?.let { putExtra(EXTRA_TITLE_SEMANTIC_STYLE, it) }
+                    putExtra(EXTRA_HIGHLIGHT_TEXTS, content.highlights.map { it.text }.toTypedArray())
+                    putExtra(EXTRA_HIGHLIGHT_STYLES, content.highlights.map { it.style }.toIntArray())
+                    putExtra(EXTRA_DELAYED, content.delayed)
+                    putExtra(EXTRA_TRANSFER_POINTS, content.transferPoints.toIntArray())
                 }
                 .putExtra(EXTRA_UNTIL, staleUntil)
     }

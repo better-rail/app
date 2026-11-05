@@ -367,7 +367,7 @@
     "hoursCount": "%{count}h",
     "chipInHours": "%{hours}h",
     "chipInHoursAndMinutes": "%{hours}h %{minutes}m",
-    "trainInfo": "Train %{trainNumber} to %{lastStop}, departs from Platform %{platform}",
+    "trainInfo": "Train %{trainNumber} to %{lastStop} · Platform %{platform}",
     "getOffNextStop": "Get off at the next stop",
     "getOffInStops": "Get off in %{stopsLeft} stops",
     "greeting": "Thanks for riding with Better Rail",
