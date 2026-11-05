@@ -137,6 +137,8 @@ export interface ThemeSkin {
   labelFont?: ThemeFont
   /** Button titles */
   buttonFont?: ThemeFont
+  /** Delay badges and delayed times, in place of the standard red */
+  delay?: string
   /** Departure times shown on the page surface (route details), with an optional glow */
   stationTime?: { color: string; glow?: string }
   /** The route card restyled as the theme's signature object */

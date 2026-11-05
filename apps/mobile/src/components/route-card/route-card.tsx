@@ -420,7 +420,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   },
   durationText: {
     marginBottom: -2,
-    fontSize: 16,
+    ...labelFontStyle(theme, 16),
     color: theme.skin.routeCard?.text ?? theme.colors.text,
   },
 }))
