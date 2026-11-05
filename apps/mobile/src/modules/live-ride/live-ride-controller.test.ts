@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from "bun:test"
-import { LiveRideController } from "./live-ride-controller"
+import { LiveRideController, STALE_AFTER_MS, formatArrivingIn, formatDepartsIn, formatHours } from "./live-ride-controller"
 import { extractFcmData } from "./fcm-payload"
 import type { AndroidAlert, LiveRideNativeBridge, LiveRideUpdatePayload } from "./types"
+import { SemanticColor } from "./types"
 import type { RouteItem, Train } from "@/services/api/rail-api.types"
 import { buildRoute, MINUTE } from "../../../test/fixtures/ride-route"
 
@@ -62,6 +63,77 @@ describe("LiveRideController", () => {
     })
   })
 
+  it("starts a ride and sends initial progress with precomputed stale fallback to bridge", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    expect(storedRoute).toEqual(route)
+    expect(bridge.updates.length).toBe(1)
+
+    const initial = bridge.updates[0]
+    expect(initial.isArrived).toBe(false)
+    expect(initial.currentStop).toBe(0)
+    expect(initial.totalStops).toBeGreaterThanOrEqual(1)
+    expect(initial.staleAfterMs).toBe(STALE_AFTER_MS)
+    expect(initial.stale).toBeDefined()
+    expect(initial.stale?.body).toContain("ride.connectionIssues")
+    expect(initial.body).toContain("ride.trainInfo")
+    expect(initial.title).toContain("ride.departsIn")
+    expect(initial.stopActionText).toContain("ride.stopRide")
+    expect(initial.stale?.stopActionText).toContain("ride.stopRide")
+  })
+
+  it("aligns start ride / loading text to train info and departure countdown", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    await controller.processIncomingPush({
+      type: "live-ride",
+      status: "loading",
+      delay: "0",
+      nextStationId: "10",
+    })
+
+    const loadingUpdate = bridge.updates[1]
+    expect(loadingUpdate.body).toContain("ride.trainInfo")
+    expect(loadingUpdate.title).toContain("ride.departsIn")
+  })
+
+  it("processes incoming FCM push, advances progress, and updates stale deadline", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    const fcmData = {
+      type: "live-ride",
+      status: "inTransit",
+      delay: "3",
+      nextStationId: "11",
+    }
+
+    await controller.processIncomingPush(fcmData)
+
+    expect(bridge.updates.length).toBe(2)
+    const update = bridge.updates[1]
+    expect(update.currentStop).toBe(1)
+    expect(update.stale).toBeDefined()
+    expect(update.stale?.untilMs).toBeGreaterThan(Date.now())
+  })
+
+  it("sends translated status bar chip text, prioritizing countdown over delay", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    expect(bridge.updates[0].shortCriticalText).toContain("ride.chipInMinutes")
+    expect(bridge.updates[0].stale?.shortCriticalText).toContain("ride.chipNoSignal")
+
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "3", nextStationId: "11" })
+    expect(bridge.updates[1].shortCriticalText).toContain("ride.chipInMinutes")
+
+    const longRoute = buildRoute(90 * MINUTE)
+    await controller.start(longRoute)
+    expect(bridge.updates[2].shortCriticalText).toContain("ride.chipInHoursAndMinutes")
+  })
+
   it("folds milestone alerts into the live ride notification without double-posting an alert", async () => {
     const route = buildRoute(10 * MINUTE)
     await controller.start(route)
@@ -119,6 +191,16 @@ describe("LiveRideController", () => {
     expect(arrivalUpdate.stopActionText).toBeUndefined()
   })
 
+  it("stops tracking, cancels on bridge, and cleans up stored state", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    await controller.stop()
+
+    expect(bridge.cancelled).toBe(true)
+    expect(storedRoute).toBeNull()
+  })
+
   it("ignores server alerts and pushes if the ride has already been stopped", async () => {
     const route = buildRoute(10 * MINUTE)
     await controller.start(route)
@@ -137,10 +219,64 @@ describe("LiveRideController", () => {
     }
 
     await controller.processIncomingPush(fcmData)
-    expect(bridge.cancelled).toBe(true)
-    expect(storedRoute).toBeNull()
     expect(bridge.alerts.length).toBe(0)
     expect(bridge.updates.length).toBe(1)
+  })
+
+  it("omits stale fallback gracefully when route has no arrival time", async () => {
+    const base = buildRoute(10 * MINUTE)
+    const route: RouteItem = {
+      ...base,
+      arrivalTime: undefined,
+      trains: base.trains.map((t) => ({ ...t, arrivalTime: undefined }) as unknown as Train),
+    } as unknown as RouteItem
+    await controller.start(route)
+
+    expect(bridge.updates[0].stale).toBeUndefined()
+  })
+
+  it("checks permissions via system notification status and bridge", async () => {
+    notificationsGranted = true
+    bridge.canPromote = true
+    bridge.canAlarm = true
+
+    const perms = await controller.checkPermissions()
+    expect(perms.granted).toBe(true)
+    expect(perms.canPromoteOngoing).toBe(true)
+    expect(perms.canScheduleExactAlarms).toBe(true)
+
+    notificationsGranted = false
+    bridge.canPromote = false
+    bridge.canAlarm = false
+
+    const denied = await controller.checkPermissions()
+    expect(denied.granted).toBe(false)
+    expect(denied.canPromoteOngoing).toBe(false)
+    expect(denied.canScheduleExactAlarms).toBe(false)
+
+    bridge.canPromote = undefined
+    const preBaklava = await controller.checkPermissions()
+    expect(preBaklava.canPromoteOngoing).toBeUndefined()
+  })
+
+  it("requests permissions through the module interface", async () => {
+    let requestCalled = false
+    const permController = new LiveRideController({
+      bridge,
+      storage: {
+        getRoute: async () => storedRoute,
+        saveRoute: async () => {},
+        clear: async () => {},
+      },
+      getNotificationsGranted: async () => true,
+      requestNotifications: async () => {
+        requestCalled = true
+      },
+    })
+
+    const state = await permController.requestPermissions()
+    expect(requestCalled).toBe(true)
+    expect(state.granted).toBe(true)
   })
 
   it("calculates progress for direct routes with no intermediate stops and completes at 100%", async () => {
@@ -192,7 +328,53 @@ describe("LiveRideController", () => {
     expect(arrivedUpdate.maxProgress).toBe(100)
   })
 
+  it("formats arrival and departure times into hours and minutes when duration >= 60 minutes", () => {
+    expect(formatArrivingIn(98)).toBe("ride.arrivingInHoursAndMinutes.test")
+    expect(formatArrivingIn(60)).toBe("ride.arrivingInHours.test")
+    expect(formatArrivingIn(30)).toBe("ride.arrivingIn.test")
+    expect(formatDepartsIn(98)).toBe("ride.departsInHoursAndMinutes.test")
+    expect(formatDepartsIn(60)).toBe("ride.departsInHours.test")
+    expect(formatDepartsIn(30)).toBe("ride.departsIn.test")
+    expect(formatHours(1)).toBe("ride.hoursOne.test")
+    expect(formatHours(2)).toBe("ride.hoursTwo.test")
+    expect(formatHours(3)).toBe("ride.hoursCount.test")
+  })
+
+  it("colors only significant delays and connection issues", async () => {
+    const route = buildRoute(10 * MINUTE)
+    await controller.start(route)
+
+    // On time: no color anywhere, and the stale fallback flags only the connection issue
+    expect(bridge.updates[0].highlights).toEqual([])
+    expect(bridge.updates[0].delayed).toBe(false)
+    expect(bridge.updates[0].stale?.highlights).toEqual([{ text: "ride.connectionIssues.test", style: SemanticColor.CAUTION }])
+
+    // A routine delay is mentioned but not colored
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "3", nextStationId: "11" })
+    expect(bridge.updates[1].body).toContain("3 routes.delayTime.test")
+    expect(bridge.updates[1].highlights).toEqual([])
+    expect(bridge.updates[1].delayed).toBe(false)
+
+    // A significant delay colors just its own fragment, and the track ahead
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "7", nextStationId: "11" })
+    const delayed = bridge.updates[2]
+    expect(delayed.highlights).toEqual([{ text: "7 routes.delayTime.test", style: SemanticColor.DANGER }])
+    expect(delayed.body).toContain("7 routes.delayTime.test")
+    expect(delayed.title).not.toContain("routes.delayTime")
+    expect(delayed.delayed).toBe(true)
+    expect(delayed.stale?.delayed).toBe(true)
+  })
+
   // The fixture has train 100 (1 -> 10, 11 -> 2) and train 200 (2 -> 20 -> 3): 3 + 2 legs, transfer after leg 3
+  it("shows the trip plan with the tracker at the start before boarding", async () => {
+    await controller.start(buildRoute(10 * MINUTE))
+    const waiting = bridge.updates[0]
+    expect(waiting.totalStops).toBe(5)
+    expect(waiting.progress).toBe(0)
+    expect(waiting.maxProgress).toBe(500)
+    expect(waiting.transferPoints).toEqual([300])
+  })
+
   it("keeps the progress made so far while waiting at a transfer", async () => {
     // the first train reached the transfer 5 minutes ago; the next one leaves in 5
     await controller.start(buildRoute(-35 * MINUTE))
