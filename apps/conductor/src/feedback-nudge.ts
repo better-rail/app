@@ -3,10 +3,10 @@ import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
 import { isEmailHeader, REPLY_SENT_PREFIX } from "./email-bridge"
 import { FORUM_CHANNEL, findStatusTag } from "./feedback-status"
 
-export const NUDGE_AFTER_MS = 48 * 60 * 60 * 1000
-export const NUDGE_MESSAGE = "@here This email has been waiting 48 hours for a reply."
+const NUDGE_AFTER_MS = 48 * 60 * 60 * 1000
+const NUDGE_MESSAGE = "@here This email has been waiting 48 hours for a reply."
 
-export const snowflakeTime = (id: string) => Number((BigInt(id) >> 22n) + 1420070400000n)
+const snowflakeTime = (id: string) => Number((BigInt(id) >> 22n) + 1420070400000n)
 
 /** When the oldest email since our last reply arrived, or undefined when there is none or it was already nudged. */
 function waitingSince(messages: DiscordMessage[], applicationId: string) {
@@ -22,7 +22,8 @@ function waitingSince(messages: DiscordMessage[], applicationId: string) {
 }
 
 /** Pings `@here` once in every Open forum post whose email has gone 48 hours without a reply. */
-export async function nudgeUnansweredEmails(config: ConductorConfig, api: DiscordApi, now = Date.now()) {
+export async function nudgeUnansweredEmails(config: ConductorConfig, api: DiscordApi) {
+  const now = Date.now()
   const forumId = config.emailFeedbackChannelId
   if (!forumId) return
   const forum = await api.call<DiscordChannel>("GET", `/channels/${forumId}`)

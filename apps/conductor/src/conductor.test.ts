@@ -17,7 +17,6 @@ import {
   htmlToText,
 } from "./email-bridge"
 import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
-import { NUDGE_MESSAGE, nudgeUnansweredEmails, snowflakeTime } from "./feedback-nudge"
 import worker from "./index"
 import { createHandler } from "./interactions"
 import { journeyComplete, platformPicker, welcomeMessage } from "./messages"
@@ -70,7 +69,6 @@ class FakeDiscord extends DiscordApi {
   messages = new Map<string, DiscordMessage[]>()
   threadCounter = 1000n
   uploads: Blob[] = []
-  posts: { channelId: string; body: unknown }[] = []
 
   constructor() {
     super("test-only")
@@ -79,9 +77,6 @@ class FakeDiscord extends DiscordApi {
     if (path === `/guilds/${guildId}/roles`) return this.roleList as T
     if (path === `/guilds/${guildId}/members/${applicationId}`) return { roles: [botRole] } as T
     if (path === `/guilds/${guildId}/members/${userId}`) return { roles: [...this.memberRoles] } as T
-    if (path === `/guilds/${guildId}/threads/active`) {
-      return { threads: [...this.channels.values()].filter((c) => c.parent_id && !c.thread_metadata?.archived) } as T
-    }
     if (path.startsWith("/webhooks/")) {
       this.responses.push(body as object)
       return undefined as T
@@ -160,7 +155,6 @@ class FakeDiscord extends DiscordApi {
         } else if (body && typeof body === "object" && "content" in body) {
           content = (body as { content: string }).content
         }
-        this.posts.push({ channelId, body })
         const msg: DiscordMessage = {
           id: String(1548800000000000000n + this.threadCounter++),
           channel_id: channelId,
@@ -927,78 +921,6 @@ describe("resend email bridge", () => {
     expect((await waitForResponse(discord, 3)).content).toContain("do not have permission to use `/resolve`")
     expect(thread.applied_tags).toEqual([statusTagIds.open])
     expect(thread.thread_metadata?.archived).toBeUndefined()
-  })
-})
-
-describe("unanswered email nudges", () => {
-  const hours = (n: number) => n * 60 * 60 * 1000
-  const idAt = (ms: number) => String((BigInt(ms) - 1420070400000n) << 22n)
-  const bot = { id: applicationId, username: "The Conductor", bot: true }
-
-  test("pings @here once, 48 hours after the oldest email still waiting for a reply", async () => {
-    const { discord, bridge } = createEmailBridge(emailConfig, 15)
-    const { threadId } = await bridge.handleInboundEmail({
-      id: "email_nudge",
-      from: "maya@example.com",
-      to: ["feedback@better-rail.co.il"],
-      subject: "Missing train",
-      text: "Where is the 08:12?",
-    })
-    const thread = discord.channels.get(threadId)!
-    const messages = discord.messages.get(threadId)!
-    const sentAt = snowflakeTime(threadId)
-    const nudges = () => discord.posts.filter((post) => (post.body as { content: string }).content === NUDGE_MESSAGE)
-    const nudge = (afterHours: number) => nudgeUnansweredEmails(emailConfig, discord, sentAt + hours(afterHours))
-
-    await nudge(47)
-    expect(nudges()).toHaveLength(0)
-    await nudge(48)
-    expect(nudges()).toEqual([
-      { channelId: threadId, body: { content: NUDGE_MESSAGE, allowed_mentions: { parse: ["everyone"] } } },
-    ])
-    await nudge(72)
-    expect(nudges()).toHaveLength(1)
-
-    // Replied, or still Open because the tag update failed after /reply
-    messages.push({ id: idAt(sentAt + hours(80)), channel_id: threadId, content: "**Email reply sent to** `maya`", author: bot })
-    thread.applied_tags = [statusTagIds.replied]
-    await nudge(200)
-    thread.applied_tags = [statusTagIds.open]
-    await nudge(200)
-    expect(nudges()).toHaveLength(1)
-
-    const followUpAt = sentAt + hours(100)
-    messages.push(
-      { id: idAt(followUpAt), channel_id: threadId, content: "**Follow-up Email from:** `maya@example.com`", author: bot },
-      { id: idAt(followUpAt + 1), channel_id: threadId, content: "On it", author: { id: userId, username: "danny" } },
-    )
-    await nudgeUnansweredEmails(emailConfig, discord, followUpAt + hours(47))
-    expect(nudges()).toHaveLength(1)
-    await nudgeUnansweredEmails(emailConfig, discord, followUpAt + hours(48))
-    expect(nudges()).toHaveLength(2)
-
-    // Another email before anyone replies waits under the same nudge
-    messages.push({
-      id: idAt(followUpAt + hours(50)),
-      channel_id: threadId,
-      content: "**Follow-up Email from:** `maya@example.com`",
-      author: bot,
-    })
-    await nudgeUnansweredEmails(emailConfig, discord, followUpAt + hours(200))
-    expect(nudges()).toHaveLength(2)
-  })
-
-  test("skips threads outside a forum", async () => {
-    const { discord, bridge } = createEmailBridge(emailConfig, 0)
-    const { threadId } = await bridge.handleInboundEmail({
-      id: "email_text_channel",
-      from: "maya@example.com",
-      to: ["feedback@better-rail.co.il"],
-      subject: "Old channel",
-      text: "Hi",
-    })
-    await nudgeUnansweredEmails(emailConfig, discord, snowflakeTime(threadId) + hours(100))
-    expect(discord.posts.filter((post) => (post.body as { content: string }).content === NUDGE_MESSAGE)).toHaveLength(0)
   })
 })
 
