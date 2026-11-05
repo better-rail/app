@@ -22,5 +22,8 @@ module.exports = {
     "**/.DS_Store",
     "targets/**/generated.entitlements",
     "targets/watch/Assets.xcassets/AppIcon.appiconset/**",
+    // The prod google-services.json is gitignored and is an EAS file secret on EAS, so it's missing in CI
+    "google-services.json",
+    "**/eas-environment-secrets/**",
   ],
 }
