@@ -12,6 +12,7 @@ import {
   type NotificationPermissionState,
   SemanticColor,
   type TextHighlight,
+  type TrackerIcon,
 } from "./types"
 
 export const STALE_AFTER_MS = 135_000
@@ -185,6 +186,16 @@ const findCurrentTrainIndex = (route: RouteItem, state: LiveRideState): number =
   return preferred.find((index) => index >= 0) ?? 0
 }
 
+/** Shows the platform while waiting for the first train, ⇄ at a transfer, and a dot while riding */
+const getTracker = (route: RouteItem, state: LiveRideState): { tracker: TrackerIcon; trackerLabel?: string } => {
+  if (state.status === "inExchange") return { tracker: "transfer" }
+  if (state.status === "waitForTrain") {
+    const platform = route.trains[findCurrentTrainIndex(route, state)]?.originPlatform
+    if (platform) return { tracker: "platform", trackerLabel: String(platform) }
+  }
+  return { tracker: "dot" }
+}
+
 interface StationProgress {
   currentIndex: number
   totalStations: number
@@ -292,6 +303,7 @@ export class LiveRideController {
       alertOnce: !alert,
       highlights: defaultTexts.highlights,
       delayed: isSignificantDelay(state.delay),
+      ...getTracker(route, state),
     }
 
     const success = await this.deps.bridge.updateLiveRide(payload)
@@ -370,6 +382,7 @@ export class LiveRideController {
       transferPoints: barProgress?.transferPoints,
       highlights,
       delayed: isSignificantDelay(state.delay),
+      tracker: "dot" as const,
     }
   }
 

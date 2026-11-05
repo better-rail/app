@@ -175,6 +175,8 @@ private fun parseLiveRideContent(
     transferPoints = map.intList("transferPoints"),
     highlights = map.highlights(),
     delayed = map.hasKey("delayed") && map.getBoolean("delayed"),
+    tracker = map.optString("tracker") ?: "dot",
+    trackerLabel = map.optString("trackerLabel"),
 )
 
 private fun ReadableMap.intList(key: String): List<Int> {

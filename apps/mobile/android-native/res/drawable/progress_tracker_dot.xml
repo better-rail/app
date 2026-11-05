@@ -4,27 +4,18 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <!-- Brand-blue disc with a white train, front view -->
+    <!-- "You are here": brand-blue dot in a white ring with a soft halo -->
     <path
         android:fillColor="#0C83FF"
+        android:fillAlpha="0.25"
         android:pathData="M12,0A12,12 0 1,0 12,24A12,12 0 1,0 12,0Z" />
 
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M9.5,5h5a2.5,2.5 0 0 1 2.5,2.5v6a2.5,2.5 0 0 1 -2.5,2.5h-5a2.5,2.5 0 0 1 -2.5,-2.5v-6a2.5,2.5 0 0 1 2.5,-2.5z" />
+        android:pathData="M12,4A8,8 0 1,0 12,20A8,8 0 1,0 12,4Z" />
 
     <path
         android:fillColor="#0C83FF"
-        android:pathData="M9,7.5h6v3h-6z" />
-
-    <path
-        android:fillColor="#0C83FF"
-        android:pathData="M10,12.2a1,1 0 1,0 0,2a1,1 0 1,0 0,-2zM14,12.2a1,1 0 1,0 0,2a1,1 0 1,0 0,-2z" />
-
-    <path
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="1.5"
-        android:strokeLineCap="round"
-        android:pathData="M9.5,16.5L8,19M14.5,16.5L16,19" />
+        android:pathData="M12,6A6,6 0 1,0 12,18A6,6 0 1,0 12,6Z" />
 
 </vector>

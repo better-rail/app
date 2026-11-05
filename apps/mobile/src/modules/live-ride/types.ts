@@ -14,6 +14,9 @@ export const SemanticColor = {
 
 export type SemanticColorType = (typeof SemanticColor)[keyof typeof SemanticColor]
 
+/** The progress marker: platform number while waiting, ⇄ at a transfer, a dot while riding */
+export type TrackerIcon = "dot" | "transfer" | "platform"
+
 /** A fragment of the title or body to color, e.g. a significant delay */
 export interface TextHighlight {
   text: string
@@ -31,6 +34,7 @@ export interface LiveRideStaleContent {
   transferPoints?: number[]
   highlights?: TextHighlight[]
   delayed?: boolean
+  tracker?: TrackerIcon
 }
 
 export interface LiveRideUpdatePayload {
@@ -49,8 +53,11 @@ export interface LiveRideUpdatePayload {
   staleAfterMs: number
   alertOnce?: boolean
   highlights?: TextHighlight[]
-  /** Paints the rest of the track red */
+  /** Paints the rest of the track red, and the marker */
   delayed?: boolean
+  tracker?: TrackerIcon
+  /** The platform number, for the "platform" tracker */
+  trackerLabel?: string
 }
 
 export interface AndroidAlert {

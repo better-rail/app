@@ -23,6 +23,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
             transferPoints = intent.getIntArrayExtra(EXTRA_TRANSFER_POINTS)?.toList().orEmpty(),
             highlights = readHighlights(intent),
             delayed = intent.getBooleanExtra(EXTRA_DELAYED, false),
+            tracker = intent.getStringExtra(EXTRA_TRACKER) ?: "dot",
+            trackerLabel = intent.getStringExtra(EXTRA_TRACKER_LABEL),
         )
         LiveRideNotifier.showProgress(context, content, staleUntil)
     }
@@ -42,6 +44,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
         private const val EXTRA_HIGHLIGHT_STYLES = "highlightStyles"
         private const val EXTRA_DELAYED = "delayed"
         private const val EXTRA_TRANSFER_POINTS = "transferPoints"
+        private const val EXTRA_TRACKER = "tracker"
+        private const val EXTRA_TRACKER_LABEL = "trackerLabel"
 
         private fun readHighlights(intent: Intent): List<TextHighlight> {
             val texts = intent.getStringArrayExtra(EXTRA_HIGHLIGHT_TEXTS) ?: return emptyList()
@@ -64,6 +68,8 @@ class LiveRideStaleReceiver : BroadcastReceiver() {
                     putExtra(EXTRA_HIGHLIGHT_STYLES, content.highlights.map { it.style }.toIntArray())
                     putExtra(EXTRA_DELAYED, content.delayed)
                     putExtra(EXTRA_TRANSFER_POINTS, content.transferPoints.toIntArray())
+                    putExtra(EXTRA_TRACKER, content.tracker)
+                    content.trackerLabel?.let { putExtra(EXTRA_TRACKER_LABEL, it) }
                 }
                 .putExtra(EXTRA_UNTIL, staleUntil)
     }

@@ -7,6 +7,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
@@ -27,8 +31,11 @@ data class LiveRideContent(
     val stopActionText: String? = null,
     val alertOnce: Boolean = true,
     val highlights: List<TextHighlight> = emptyList(),
-    /** Paints the rest of the track red */
+    /** Paints the rest of the track red, and the marker */
     val delayed: Boolean = false,
+    /** "dot", "transfer", or "platform" (with the platform number as [trackerLabel]) */
+    val tracker: String = "dot",
+    val trackerLabel: String? = null,
 )
 
 object LiveRideNotifier {
@@ -37,6 +44,7 @@ object LiveRideNotifier {
     private const val NOTIFICATION_ID = 42001
     private const val ARRIVED_TIMEOUT_MS = 3 * 60 * 1000L
     private const val SEGMENT_RESOLUTION = 100
+    private const val PLATFORM_ICON_PX = 96
     @Volatile
     private var channelCreated = false
 
@@ -140,7 +148,7 @@ object LiveRideNotifier {
         val style = Notification.ProgressStyle()
             .setStyledByProgress(true)
             .setProgress(clampedProgress)
-            .setProgressTrackerIcon(Icon.createWithResource(context, R.drawable.progress_tracker_icon))
+            .setProgressTrackerIcon(trackerIcon(context, content))
             .setProgressEndIcon(Icon.createWithResource(context, R.drawable.progress_end_icon))
 
         for (leg in 0 until numSegments) {
@@ -203,6 +211,35 @@ object LiveRideNotifier {
         }
 
         return builder.build()
+    }
+
+    private fun trackerIcon(context: Context, content: LiveRideContent): Icon {
+        val label = content.trackerLabel?.takeIf { it.isNotBlank() }
+        return when {
+            content.tracker == "transfer" -> Icon.createWithResource(context, R.drawable.progress_tracker_transfer)
+            content.tracker == "platform" && label != null -> Icon.createWithBitmap(
+                platformBitmap(label, if (content.delayed) SemanticColorCompat.COLOR_DELAY_RED else SemanticColorCompat.BRAND_COLOR),
+            )
+            content.delayed -> Icon.createWithResource(context, R.drawable.progress_tracker_dot_delayed)
+            else -> Icon.createWithResource(context, R.drawable.progress_tracker_dot)
+        }
+    }
+
+    /** The platform number on a colored disc, drawn at runtime since it changes per ride */
+    private fun platformBitmap(platform: String, color: Int): Bitmap {
+        val size = PLATFORM_ICON_PX
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
+        canvas.drawCircle(size / 2f, size / 2f, size / 2f, paint)
+        paint.apply {
+            this.color = 0xFFFFFFFF.toInt()
+            textSize = size * if (platform.length > 1) 0.52f else 0.62f
+            typeface = Typeface.DEFAULT_BOLD
+            textAlign = Paint.Align.CENTER
+        }
+        canvas.drawText(platform, size / 2f, size / 2f - (paint.descent() + paint.ascent()) / 2, paint)
+        return bitmap
     }
 
     private fun trackSegment(length: Int, delayed: Boolean) = Notification.ProgressStyle.Segment(length).apply {

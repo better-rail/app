@@ -391,6 +391,22 @@ describe("LiveRideController", () => {
     expect(bridge.updates[1].progress).toBe(300)
   })
 
+  it("shows the platform while waiting, ⇄ at a transfer, and a dot while riding", async () => {
+    const route = buildRoute(10 * MINUTE)
+    route.trains[0].originPlatform = 3
+    await controller.start(route)
+    expect(bridge.updates[0].tracker).toBe("platform")
+    expect(bridge.updates[0].trackerLabel).toBe("3")
+    expect(bridge.updates[0].stale?.tracker).toBe("dot")
+
+    await controller.start(buildRoute(-35 * MINUTE))
+    await controller.processIncomingPush({ type: "live-ride", status: "inExchange", delay: "0", nextStationId: "2" })
+    expect(bridge.updates[2].tracker).toBe("transfer")
+
+    await controller.processIncomingPush({ type: "live-ride", status: "inTransit", delay: "0", nextStationId: "20" })
+    expect(bridge.updates[3].tracker).toBe("dot")
+  })
+
   it("places the tracker on the right train around a transfer", async () => {
     // 25 minutes in: on train 100's last leg (11 -> 2), heading to the transfer
     await controller.start(buildRoute(-25 * MINUTE))
