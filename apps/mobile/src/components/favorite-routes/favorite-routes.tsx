@@ -62,6 +62,9 @@ export function FavoriteRoutes(props: FavoriteRoutesProps) {
         rowGap={theme.spacing[4]}
         sortEnabled={editing}
         customHandle
+        // Single column, so lock drag to the vertical axis. The library positions items
+        // with physical x coordinates and has no RTL support, so horizontal drag is mirrored in Hebrew.
+        overDrag="vertical"
         hapticsEnabled
         activeItemScale={1.03}
         inactiveItemOpacity={1}
