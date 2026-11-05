@@ -5,9 +5,6 @@ import android.content.Context
 import android.content.Intent
 import com.betterrail.alarm.ArrivalAlarmScheduler
 import com.betterrail.modules.LiveRideNotificationModule
-import org.json.JSONObject
-import java.net.HttpURLConnection
-import java.net.URL
 
 class LiveRideActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -16,7 +13,6 @@ class LiveRideActionReceiver : BroadcastReceiver() {
         LiveRideNotifier.cancel(context)
         ArrivalAlarmScheduler.cancel(context)
 
-        val pendingResult = goAsync()
         val prefs = context.getSharedPreferences(context.packageName + "_preferences", Context.MODE_PRIVATE)
         val rideId = prefs.getString("rideId", null)
         val baseUrl = prefs.getString("apiBaseUrl", null)
@@ -32,35 +28,7 @@ class LiveRideActionReceiver : BroadcastReceiver() {
         LiveRideNotificationModule.notifyStopRequested()
 
         if (!rideId.isNullOrBlank()) {
-            Thread {
-                try {
-                    deleteRideOnServer(baseUrl, rideId)
-                } finally {
-                    pendingResult.finish()
-                }
-            }.start()
-        } else {
-            pendingResult.finish()
-        }
-    }
-
-    private fun deleteRideOnServer(baseUrl: String, rideId: String) {
-        runCatching {
-            val conn = (URL("$baseUrl/ride").openConnection() as HttpURLConnection).apply {
-                requestMethod = "DELETE"
-                doOutput = true
-                setRequestProperty("Content-Type", "application/json")
-                connectTimeout = 10_000
-                readTimeout = 10_000
-            }
-            try {
-                conn.outputStream.use { os ->
-                    os.write(JSONObject().put("rideId", rideId).toString().toByteArray(Charsets.UTF_8))
-                }
-                conn.responseCode
-            } finally {
-                conn.disconnect()
-            }
+            EndRideWorker.enqueue(context, baseUrl, rideId)
         }
     }
 
