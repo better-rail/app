@@ -37,7 +37,7 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
-import { isNetworkError } from "@/utils/helpers/network-errors"
+import { isNetworkError, isSuspendedNetworkError } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -105,6 +105,8 @@ export const queryClient = new QueryClient({
         (error instanceof Error && (error.name === "RoutesNotFoundError" || error.message === "Not found"))
       )
         return
+      // Most network errors come from requests the OS cut off while the app was suspended.
+      if (isSuspendedNetworkError(error)) return
 
       Sentry.captureException(error, {
         tags: { source: "react-query" },
@@ -115,6 +117,7 @@ export const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (error, _variables, _context, mutation) => {
+      if (isSuspendedNetworkError(error)) return
       Sentry.captureException(error, {
         tags: { source: "react-query-mutation" },
         extra: { mutationKey: mutation.options.mutationKey },
