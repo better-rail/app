@@ -5,13 +5,14 @@ import { AppState } from "react-native"
 // ECONNABORTED / ETIMEDOUT: the request timed out, usually on a slow mobile connection.
 const NETWORK_ERROR_CODES = new Set(["ERR_NETWORK", "ECONNABORTED", "ETIMEDOUT"])
 
-// Longest axios timeout across the API clients: a request that failed within this window
-// of the app leaving the foreground may have been in flight when the OS suspended it.
+// Longest axios timeout across the API clients: a request that failed within this window of
+// the app leaving or returning to the foreground may have been in flight while it was suspended.
+// Resumes count too, since the OS delivers the failure only once the app is active again.
 const MAX_REQUEST_MS = 30_000
 
-let lastSuspendedAt = 0
-AppState.addEventListener("change", (state) => {
-  if (state !== "active") lastSuspendedAt = Date.now()
+let lastStateChangeAt = 0
+AppState.addEventListener("change", () => {
+  lastStateChangeAt = Date.now()
 })
 
 export function isNetworkError(error: unknown): boolean {
@@ -22,7 +23,7 @@ export function isNetworkError(error: unknown): boolean {
 // says nothing about connectivity or the API. Used to skip reporting those to Sentry.
 export function isSuspendedNetworkError(error: unknown): boolean {
   if (!isNetworkError(error)) return false
-  return AppState.currentState !== "active" || Date.now() - lastSuspendedAt < MAX_REQUEST_MS
+  return AppState.currentState !== "active" || Date.now() - lastStateChangeAt < MAX_REQUEST_MS
 }
 
 // react-query `retry`: send the request once more when it got no response, since a dropped
