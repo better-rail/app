@@ -10,7 +10,6 @@ import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router/react-naviga
 import { useUnistyles } from "react-native-unistyles"
 import { QueryClient, QueryClientProvider, QueryCache, MutationCache, focusManager } from "react-query"
 import { SafeAreaProvider, initialWindowMetrics } from "react-native-safe-area-context"
-import { ActionSheetProvider } from "@expo/react-native-action-sheet"
 import * as Sentry from "@sentry/react-native"
 import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
@@ -263,15 +262,13 @@ function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <ActionSheetProvider>
-          <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-            <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
-              <TipIAPProvider>
-                <AppStack />
-              </TipIAPProvider>
-            </PostHogProvider>
-          </SafeAreaProvider>
-        </ActionSheetProvider>
+        <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+          <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
+            <TipIAPProvider>
+              <AppStack />
+            </TipIAPProvider>
+          </PostHogProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   )

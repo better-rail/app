@@ -1,6 +1,4 @@
 import React, { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
-import HapticFeedback from "react-native-haptic-feedback"
-import * as Burnt from "burnt"
 import { View, ActivityIndicator, Dimensions, Platform, useColorScheme } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { LegendList, type LegendListRef, type ViewToken } from "@legendapp/list/react-native"
@@ -34,16 +32,12 @@ import {
 } from "./components"
 import { flatMap, max, round } from "lodash"
 import { translate } from "@/i18n"
-import { shareRouteAction } from "@/utils/helpers/route-share-helpers"
-import { addRouteToCalendar } from "@/utils/helpers/calendar-helpers"
-import { getActionSheetStyleOptions } from "@/utils/helpers/action-sheet-helpers"
 import { formatDateForAPI, isRouteInThePast } from "@/utils/helpers/date-helpers"
 import { isHourIndexSupported } from "@/utils/hour-index"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
 import { findRouteVoucher } from "@/utils/helpers/voucher-helpers"
 import { isOnRideTrains } from "@/utils/helpers/ride-helpers"
 import { useVouchersStore } from "@/models/vouchers/vouchers"
-import { useActionSheet } from "@expo/react-native-action-sheet"
 import { useFeatureFlag } from "posthog-react-native"
 import { RoutesNotFoundError, type RouteSearchResult } from "@/models/train-routes/search-routes"
 import {
@@ -121,7 +115,6 @@ function RouteListResults({
       setSeenTrainInfoPrompt: s.setSeenTrainInfoPrompt,
     })),
   )
-  const { showActionSheetWithOptions } = useActionSheet()
   const colorScheme = useColorScheme()
   const { markInteractive } = useObserve()
 
@@ -329,57 +322,6 @@ function RouteListResults({
     return fontScale <= 1.2 && deviceWidth >= 360 && shouldShowDashedLineByTextLength
   })()
 
-  const handleRouteLongPress = async (routeItem: RouteItem) => {
-    HapticFeedback.trigger("impactMedium")
-
-    const options = [translate("routeDetails.addToCalendar"), translate("routes.share"), translate("common.cancel")]
-    const cancelButtonIndex = 2
-
-    showActionSheetWithOptions(
-      {
-        options,
-        cancelButtonIndex,
-        title: translate("routes.routeActions"),
-        ...getActionSheetStyleOptions(colorScheme),
-      },
-      async (selectedIndex) => {
-        if (selectedIndex === cancelButtonIndex) return
-
-        try {
-          switch (selectedIndex) {
-            case 0: // Add to Calendar
-              const wasAdded = await addRouteToCalendar(routeItem)
-              if (wasAdded) {
-                Burnt.alert({
-                  title: translate("routes.addedToCalendar"),
-                  preset: "done",
-                  message: translate("routes.addedToCalendar"),
-                })
-              }
-              break
-
-            case 1: // Share
-              await shareRouteAction(routeItem, originId, destinationId)
-              break
-
-            default:
-              // Should never happen since we check for cancelButtonIndex above
-              break
-          }
-        } catch (error) {
-          if (selectedIndex === 0) {
-            console.error("Failed to add to calendar:", error)
-            Burnt.alert({
-              title: translate("common.error"),
-              preset: "error",
-              message: "Failed to add to calendar",
-            })
-          }
-        }
-      },
-    )
-  }
-
   const renderRouteCard = ({ item, index }: { item: RouteData; index: number }) => {
     if (typeof item === "string") {
       // If this date is currently loading, show the loading indicator
@@ -430,7 +372,6 @@ function RouteListResults({
           useNavigationParamsStore.getState().setRouteDetails({ routeItem: item, originId, destinationId })
           router.push("/route-details")
         }}
-        onLongPress={() => handleRouteLongPress(item)}
         routeItem={item}
         originId={originId}
         destinationId={destinationId}
