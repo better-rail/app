@@ -114,7 +114,6 @@
         "react-native-linear-gradient": "2.5.6",
         "react-native-modal-datetime-picker": "18.0.0",
         "react-native-nitro-modules": "0.37.1",
-        "react-native-prompt-android": "1.1.0",
         "react-native-push-notification": "8.1.1",
         "react-native-quick-actions-shortcuts": "1.0.2",
         "react-native-reanimated": "4.7.1",
@@ -194,7 +193,6 @@
     "react-native-push-notification@8.1.1": "patches/react-native-push-notification@8.1.1.patch",
     "@expo/ui@58.0.27": "patches/@expo%2Fui@58.0.27.patch",
     "react-native-screens@4.30.0": "patches/react-native-screens@4.30.0.patch",
-    "react-native-prompt-android@1.1.0": "patches/react-native-prompt-android@1.1.0.patch",
     "react-native-watch-connectivity@1.1.0": "patches/react-native-watch-connectivity@1.1.0.patch",
     "react-native-quick-actions-shortcuts@1.0.2": "patches/react-native-quick-actions-shortcuts@1.0.2.patch",
     "react-native-date-picker@5.0.12": "patches/react-native-date-picker@5.0.12.patch",
@@ -2055,8 +2053,6 @@
     "react-native-modal-datetime-picker": ["react-native-modal-datetime-picker@18.0.0", "", { "dependencies": { "prop-types": "^15.7.2" }, "peerDependencies": { "@react-native-community/datetimepicker": ">=6.7.0", "react-native": ">=0.65.0" } }, "sha512-0jdvhhraZQlRACwr7pM6vmZ2kxgzJ4CpnmV6J3TVA6MrXMXK6Zo/upRBKkRp0+fTOiKuNblzesA2U59rYo6SGA=="],
 
     "react-native-nitro-modules": ["react-native-nitro-modules@0.37.1", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-KpW6EQVQ/bfegpCGxN9Be+ndvsfj56t4IESEvCASu9gWpJa/NDfHpIeIwCOvZQ3eXmLEj6YD4wCLqcC1FJPr2w=="],
-
-    "react-native-prompt-android": ["react-native-prompt-android@1.1.0", "", {}, "sha512-4JoyEaT2ZnK9IH+tDFpbTiQBgva8UIFGQf4/Uw/tnEVWBERlVlzcs5B82T9BkeEhEqXhp89JaiSBnLWj30lciw=="],
 
     "react-native-push-notification": ["react-native-push-notification@8.1.1", "", { "peerDependencies": { "@react-native-community/push-notification-ios": "^1.10.1", "react-native": ">=0.33" } }, "sha512-XpBtG/w+a6WXTxu6l1dNYyTiHnbgnvjoc3KxPTxYkaIABRmvuJZkFxqruyGvfCw7ELAlZEAJO+dthdTabCe1XA=="],
 

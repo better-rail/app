@@ -73,7 +73,6 @@
     "react-native-linear-gradient": "2.5.6",
     "react-native-modal-datetime-picker": "18.0.0",
     "react-native-nitro-modules": "0.37.1",
-    "react-native-prompt-android": "1.1.0",
     "react-native-push-notification": "8.1.1",
     "react-native-quick-actions-shortcuts": "1.0.2",
     "react-native-reanimated": "4.7.1",
@@ -130,7 +129,6 @@
           "@sentry/react-native",
           "react-native-push-notification",
           "react-native-default-preference",
-          "react-native-prompt-android",
           "react-native-quick-actions-shortcuts"
         ]
       }

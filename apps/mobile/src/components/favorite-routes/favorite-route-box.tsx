@@ -6,11 +6,11 @@ import Sortable from "react-native-sortables"
 import { Text } from "@/components/text/text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { translate } from "@/i18n"
-import prompt from "react-native-prompt-android"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "@/models"
 import { ContextMenu, type ContextMenuAction, type ContextMenuRef } from "@/components/context-menu/context-menu"
 import { IS_E2E } from "@/config/e2e"
+import { useRenameFavoritePrompt } from "./rename-favorite-prompt"
 
 const borderRadius = Platform.select({ ios: 10, android: 6 })
 
@@ -30,22 +30,7 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
   const { originId, destinationId, onPress, onReorder, isEditing = false, style, id, label } = props
   const { rename, remove } = useFavoritesStore(useShallow((s) => ({ rename: s.rename, remove: s.remove })))
 
-  const renamePrompt = () => {
-    prompt(
-      translate("favorites.renamePromptTitle"),
-      undefined,
-      [
-        { text: translate("common.cancel"), style: "cancel" },
-        {
-          text: translate("common.save"),
-          onPress: (newLabel) => {
-            rename(id, newLabel)
-          },
-        },
-      ],
-      { defaultValue: label, placeholder: translate("favorites.renamePromptPlaceholder") },
-    )
-  }
+  const { open: renamePrompt, dialog: renameDialog } = useRenameFavoritePrompt(label, (newLabel) => rename(id, newLabel))
 
   const deleteRoute = () => {
     Alert.alert(translate("favorites.delete"), translate("common.areYouSure"), [
@@ -131,6 +116,8 @@ export function FavoriteRouteBox(props: FavoriteRouteBoxProps) {
               </View>
             </Sortable.Handle>
           )}
+
+          {renameDialog}
         </View>
       </TouchableScale>
     </ContextMenu>
