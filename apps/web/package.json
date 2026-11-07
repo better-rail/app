@@ -17,9 +17,9 @@
     "@sentry/cloudflare": "11.8.0",
     "@sentry/tanstackstart-react": "11.8.0",
     "@tanstack/react-query": "^5.102.8",
-    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-router": "^1.170.46",
     "@tanstack/react-router-ssr-query": "^1.167.2",
-    "@tanstack/react-start": "^1.168.49",
+    "@tanstack/react-start": "^1.169.4",
     "jpeg-js": "0.4.4",
     "lucide-react": "^1.0.0",
     "react": "19.3.0",
@@ -32,10 +32,10 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.0.1",
-    "sharp": "^0.34.0",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vite": "^8.2.2",
+    "vite": "^8.3.6",
     "wrangler": "4.128.0"
   }
 }

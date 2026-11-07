@@ -28,4 +28,16 @@ describe("ride validation", () => {
     expect(SetRideAlarmBody.safeParse({ ...alarm, stops: [] }).success).toBe(false)
     expect(SetRideAlarmBody.safeParse({ ...alarm, stops: [-1] }).success).toBe(false)
   })
+
+  it("rejects oversized arrays with one issue, before checking their elements", () => {
+    const trains = RideRequestSchema.shape.trains
+    expect(trains.safeParse([1234, 5678]).success).toBe(true)
+
+    const oversized = Array(100_000).fill("not-a-number")
+    const tooManyTrains = trains.safeParse(oversized)
+    expect(tooManyTrains.error?.issues.map((issue) => issue.code)).toEqual(["too_big"])
+
+    const tooManyStops = SetRideAlarmBody.shape.stops.safeParse(oversized)
+    expect(tooManyStops.error?.issues.map((issue) => issue.code)).toEqual(["too_big"])
+  })
 })
