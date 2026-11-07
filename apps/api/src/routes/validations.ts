@@ -1,8 +1,8 @@
-import { ZodSchema, z } from "zod"
+import { ZodType, z } from "zod"
 import { RideAlarmRequestSchema } from "../types/ride"
 
 /** Zod-validated JSON body; `{ error: Response }` carries the 400 the Express validator sent. */
-export const validateBody = <TBody>(schema: ZodSchema<TBody>, body: unknown): { data: TBody } | { error: Response } => {
+export const validateBody = <TBody>(schema: ZodType<TBody>, body: unknown): { data: TBody } | { error: Response } => {
   const result = schema.safeParse(body)
   if (!result.success) return { error: new Response("Body doesn't match schema", { status: 400 }) }
   return { data: result.data }

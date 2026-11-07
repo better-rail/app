@@ -5,17 +5,21 @@ import { Provider } from "./notification"
 import { LanguageCode } from "../locales/i18n"
 import { stationsObject } from "../data/stations"
 
+// Client arrays need an upper bound: zod only rejects an oversized array before walking its elements when it has
+// one, so an unbounded array of bad values builds an issue per element (GHSA-mrhx-c7xc-m3w5).
+const MAX_ROUTE_TRAINS = 11
+
 export const RideRequestSchema = z.object({
   token: z.string().min(1),
-  provider: z.nativeEnum(Provider),
-  departureDate: z.string().refine((value) => dayjs(value).isValid(), { message: "Departure date isn't valid" }),
-  originId: z.number().refine((value) => stationsObject[value], { message: "Origin station doesn't exist" }),
-  destinationId: z.number().refine((value) => stationsObject[value], { message: "Destination station doesn't exist" }),
-  trains: z.number().array().nonempty(),
-  locale: z.nativeEnum(LanguageCode),
+  provider: z.enum(Provider),
+  departureDate: z.string().refine((value) => dayjs(value).isValid(), { error: "Departure date isn't valid" }),
+  originId: z.number().refine((value) => stationsObject[value], { error: "Origin station doesn't exist" }),
+  destinationId: z.number().refine((value) => stationsObject[value], { error: "Destination station doesn't exist" }),
+  trains: z.number().array().nonempty().max(MAX_ROUTE_TRAINS),
+  locale: z.enum(LanguageCode),
   viaStationId: z
     .number()
-    .refine((value) => stationsObject[value], { message: "Via station doesn't exist" })
+    .refine((value) => stationsObject[value], { error: "Via station doesn't exist" })
     .optional(),
 })
 
@@ -24,11 +28,11 @@ export type RideRequest = z.infer<typeof RideRequestSchema>
 export const RideAlarmRequestSchema = z.object({
   // The app's own APNs token: the ride token belongs to the Live Activity, whose pushes never reach app code.
   token: z.string().min(1),
-  alarmId: z.string().uuid(),
+  alarmId: z.uuid(),
   leadMinutes: z.number().int().min(1).max(30),
-  locale: z.nativeEnum(LanguageCode),
+  locale: z.enum(LanguageCode),
   /** The trains to ring before getting off, by their index in the route: a transfer, the destination, or both */
-  stops: z.number().int().min(0).max(10).array().nonempty(),
+  stops: z.number().int().min(0).max(10).array().nonempty().max(MAX_ROUTE_TRAINS),
 })
 
 export type RideAlarmRequest = z.infer<typeof RideAlarmRequestSchema>

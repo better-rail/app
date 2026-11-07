@@ -20,7 +20,7 @@ import { railApiFetch } from "../requests/rail-api"
 import { withTopUpDiscounts } from "./top-up-discounts"
 import { FarePair, FarePrices, FareProfile, FareSnapshot, Localized, pairKey } from "./types"
 
-const envelope = <T extends z.ZodTypeAny>(result: T) =>
+const envelope = <T extends z.ZodType>(result: T) =>
   z
     .object({
       version: z.string().nullable().optional(),
@@ -29,7 +29,7 @@ const envelope = <T extends z.ZodTypeAny>(result: T) =>
       errorMessages: z.unknown().optional(),
       result,
     })
-    .passthrough()
+    .loose()
 
 const RailProfile = z
   .object({
@@ -39,7 +39,7 @@ const RailProfile = z
     arb_Desc: z.string().nullable().optional(),
     rus_Desc: z.string().nullable().optional(),
   })
-  .passthrough()
+  .loose()
 
 const RailPair = z
   .object({
@@ -50,7 +50,7 @@ const RailPair = z
     d_Price: z.number(),
     m_Price: z.number(),
   })
-  .passthrough()
+  .loose()
 
 const RailDiscount = z
   .object({
@@ -58,7 +58,7 @@ const RailDiscount = z
     profile_ID: z.number().int(),
     discount_Rate: z.number(),
   })
-  .passthrough()
+  .loose()
 
 const RailNote = z
   .object({
@@ -68,7 +68,7 @@ const RailNote = z
     priceNoteAr: z.string().nullable().optional(),
     priceNoteRu: z.string().nullable().optional(),
   })
-  .passthrough()
+  .loose()
 
 export const RailProfilesResponse = envelope(z.array(RailProfile))
 export const RailPricesResponse = envelope(
@@ -85,7 +85,7 @@ export type RailPricesResponse = z.infer<typeof RailPricesResponse>
 export const PROFILES_PATH = "/taarif/api/v1/PriceEng/GetProfiles?SystemType=Mobile&RequestId=2"
 export const PRICES_PATH = "/taarif/api/v1/PriceEng/GetAllPriceWithNotes?SystemType=Mobile&RequestId=2"
 
-const parseResponse = async <T extends z.ZodTypeAny>(path: string, response: Response, schema: T): Promise<z.infer<T>> => {
+const parseResponse = async <T extends z.ZodType>(path: string, response: Response, schema: T): Promise<z.infer<T>> => {
   if (!response.ok) throw new Error(`Israel Railways API responded with ${response.status} for ${path}`)
   const parsed = schema.safeParse(await response.json())
   if (!parsed.success) throw new Error(`Unexpected payload from ${path}: ${parsed.error.issues[0]?.message ?? "invalid"}`)
