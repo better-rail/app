@@ -8,7 +8,7 @@ import { contentShape, disabled as disabledModifier, shapes } from "@expo/ui/swi
 import { FillWidth } from "./fill-width"
 import type { ContextMenuProps } from "./types"
 
-export type { ContextMenuAction, ContextMenuProps } from "./types"
+export type { ContextMenuAction, ContextMenuProps, ContextMenuRef } from "./types"
 
 export function ContextMenu(props: ContextMenuProps) {
   const { children, actions, style, fillWidth = false, disabled = false } = props

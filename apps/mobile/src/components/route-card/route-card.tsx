@@ -1,15 +1,16 @@
 /* eslint-disable react-native/no-inline-styles */
-import React from "react"
+import React, { useRef } from "react"
 import { View, ViewStyle, Platform, TouchableOpacity, Pressable, Image } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import TouchableScale, { TouchableScaleProps } from "react-native-touchable-scale"
+import HapticFeedback from "react-native-haptic-feedback"
 import { Svg, Line } from "react-native-svg"
 import { color, spacing, fontScale } from "@/theme"
 import { Text } from "@/components/text/text"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { translate, use12HourClock } from "@/i18n"
 import { RouteIndicators } from "./route-indicators"
-import { ContextMenu, ContextMenuAction } from "@/components/context-menu/context-menu"
+import { ContextMenu, ContextMenuAction, type ContextMenuRef } from "@/components/context-menu/context-menu"
 import { createContextMenuActions } from "./route-context-menu-actions"
 import type { RouteItem } from "@/services/api"
 import { useShallow } from "zustand/react/shallow"
@@ -41,7 +42,6 @@ export interface RouteCardProps extends TouchableScaleProps {
   isActiveRide: boolean
   shouldShowDashedLine?: boolean
   isRouteInThePast: boolean
-  onLongPress?: () => void
   contextMenuActions?: ContextMenuAction[]
   routeItem?: RouteItem
   originId?: string
@@ -65,7 +65,6 @@ export function RouteCard(props: RouteCardProps) {
     isMuchShorter,
     isMuchLonger,
     onPress = null,
-    onLongPress = null,
     style,
     shouldShowDashedLine = true,
     contextMenuActions,
@@ -110,6 +109,14 @@ export function RouteCard(props: RouteCardProps) {
   })()
 
   const TouchableComponent = generatedContextMenuActions && Platform.OS === "ios" ? Pressable : TouchableScale
+
+  // iOS opens the menu natively on long press
+  const menuRef = useRef<ContextMenuRef>(null)
+  const showAndroidMenu = () => {
+    if (!menuRef.current) return
+    HapticFeedback.trigger("impactMedium")
+    menuRef.current.show()
+  }
 
   // Get the main train (first train for departure info)
   const mainTrain = routeItem?.trains?.[0]
@@ -157,7 +164,7 @@ export function RouteCard(props: RouteCardProps) {
     <TouchableComponent
       testID={props.testID}
       onPress={onPress}
-      onLongPress={Platform.OS === "android" ? onLongPress : undefined}
+      onLongPress={Platform.OS === "android" ? showAndroidMenu : undefined}
       activeScale={0.97}
       friction={generatedContextMenuActions && Platform.OS === "ios" ? undefined : 9}
       style={[
@@ -246,7 +253,14 @@ export function RouteCard(props: RouteCardProps) {
 
   return (
     // The native menu host drops the card's own margins
-    <ContextMenu actions={generatedContextMenuActions} previewBorderRadius={12} style={style} fillWidth disabled={IS_E2E}>
+    <ContextMenu
+      ref={menuRef}
+      actions={generatedContextMenuActions}
+      previewBorderRadius={12}
+      style={style}
+      fillWidth
+      disabled={IS_E2E}
+    >
       {cardContent}
     </ContextMenu>
   )

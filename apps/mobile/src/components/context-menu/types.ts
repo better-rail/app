@@ -11,7 +11,14 @@ export interface ContextMenuAction {
   onPress: () => void
 }
 
+export interface ContextMenuRef {
+  /** Opens a long-press menu. Android only: iOS opens it natively, and its menu sets no ref. */
+  show: () => void
+}
+
 export interface ContextMenuProps {
+  /** Android renders a long-press menu only with a ref; the content opens it by calling `show()` from its onLongPress */
+  ref?: React.Ref<ContextMenuRef>
   children: React.ReactNode
   actions: ContextMenuAction[]
   /** @default "longPress" */
