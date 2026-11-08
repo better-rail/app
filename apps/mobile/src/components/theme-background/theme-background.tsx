@@ -86,36 +86,35 @@ export function ThemeBackground({ fade = "edges" }: { fade?: ThemeBackgroundFade
   )
 }
 
-const gradient = (rgb: string, { locations, alphas }: (typeof fades)[keyof typeof fades]) =>
-  `linear-gradient(to bottom, ${alphas.map((alpha, i) => `rgba(${rgb}, ${alpha}) ${locations[i] * 100}%`).join(", ")})`
+const gradient = (background: unknown, isDark: boolean, { locations, alphas }: (typeof fades)[keyof typeof fades]) => {
+  const rgb = hexToRgb(background) ?? backgroundRgb[isDark ? "dark" : "light"]
+  return `linear-gradient(to bottom, ${alphas.map((alpha, i) => `rgba(${rgb}, ${alpha}) ${locations[i] * 100}%`).join(", ")})`
+}
 
-const styles = StyleSheet.create((theme, rt) => {
-  const rgb = hexToRgb(theme.colors.background) ?? backgroundRgb[rt.themeName === "dark" ? "dark" : "light"]
-
-  return {
-    container: {
-      ...StyleSheet.absoluteFillObject,
-    },
-    art: {
-      ...StyleSheet.absoluteFillObject,
-      opacity: rt.themeName === "dark" ? 0.16 : 0.12,
-    },
-    layer: {
-      ...StyleSheet.absoluteFillObject,
-      width: "100%",
-      height: "100%",
-    },
-    primaryArt: {
-      tintColor: theme.colors.primary,
-    },
-    secondaryArt: {
-      tintColor: theme.colors.secondary,
-    },
-    edgesFade: {
-      experimental_backgroundImage: gradient(rgb, fades.edges),
-    },
-    uniformFade: {
-      experimental_backgroundImage: gradient(rgb, fades.uniform),
-    },
-  }
-})
+// Read theme and rt inside each style: Unistyles only recomputes a style that references them itself
+const styles = StyleSheet.create((theme, rt) => ({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  art: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: rt.themeName === "dark" ? 0.16 : 0.12,
+  },
+  layer: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+  },
+  primaryArt: {
+    tintColor: theme.colors.primary,
+  },
+  secondaryArt: {
+    tintColor: theme.colors.secondary,
+  },
+  edgesFade: {
+    experimental_backgroundImage: gradient(theme.colors.background, rt.themeName === "dark", fades.edges),
+  },
+  uniformFade: {
+    experimental_backgroundImage: gradient(theme.colors.background, rt.themeName === "dark", fades.uniform),
+  },
+}))
