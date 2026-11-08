@@ -9,7 +9,8 @@ struct ActivityRegistration {
   var token: String?
   /// nil until the server answers the start request.
   var rideId: String?
-  var failed = false
+  /// Set when the server didn't start the ride.
+  var failure: RideStartFailure?
 }
 
 /// What the server needs after an activity reports a push token.
@@ -21,9 +22,10 @@ enum TokenRegistration {
 
 enum RideRegistrationResult {
   case registered(rideId: String)
-  case failed
+  case failed(RideStartFailure)
   case ended
-  case timedOut
+  /// `hadToken` is false when the push token never arrived, and true when the server didn't answer in time.
+  case timedOut(hadToken: Bool)
 }
 
 actor TokenRegistry {
@@ -62,8 +64,8 @@ actor TokenRegistry {
     return registration.token
   }
 
-  func markFailed(activityId: String) {
-    registrations[activityId]?.failed = true
+  func markFailed(activityId: String, failure: RideStartFailure) {
+    registrations[activityId]?.failure = failure
   }
 
   func delete(activityId: String) {
@@ -86,12 +88,12 @@ actor TokenRegistry {
     while true {
       guard let registration = registrations[activityId] else { return .ended }
       if let rideId = registration.rideId { return .registered(rideId: rideId) }
-      if registration.failed { return .failed }
+      if let failure = registration.failure { return .failed(failure) }
 
       // Check and drop in one actor turn, so a ride ID landing later makes `setRideId` return nil and end the server ride.
       if Date() >= deadline {
         delete(activityId: activityId)
-        return .timedOut
+        return .timedOut(hadToken: registration.token != nil)
       }
 
       try? await Task.sleep(nanoseconds: 250_000_000)
