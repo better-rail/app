@@ -22,6 +22,8 @@ export type LiveRideStatus = RideStatus | "prepareToExit" | "getOff"
 export interface LiveRideState extends Omit<RideState, "status"> {
   status: LiveRideStatus
   rawStatus?: string
+  /** The platform the server last saw for the train being waited for. The stored route keeps the one from ride start. */
+  platform?: number
 }
 
 export interface LiveRideDependencies {
@@ -85,11 +87,11 @@ const getMinutesUntil = (targetDate: Date | null, now: number): number | null =>
 const isBoarding = (status: LiveRideStatus): boolean =>
   status === "waitForTrain" || status === "inExchange" || status === "loading"
 
-const formatTrainInfo = (train: Train, locale?: string): string =>
+const formatTrainInfo = (train: Train, locale?: string, platform = train.originPlatform): string =>
   translate("ride.trainInfo", {
     trainNumber: train.trainNumber,
     lastStop: train.lastStop,
-    platform: train.originPlatform,
+    platform,
     locale,
   }) ?? ""
 
@@ -190,7 +192,7 @@ const findCurrentTrainIndex = (route: RouteItem, state: LiveRideState): number =
 const getTracker = (route: RouteItem, state: LiveRideState): { tracker: TrackerIcon; trackerLabel?: string } => {
   if (state.status === "inExchange") return { tracker: "transfer" }
   if (state.status === "waitForTrain") {
-    const platform = route.trains[findCurrentTrainIndex(route, state)]?.originPlatform
+    const platform = state.platform ?? route.trains[findCurrentTrainIndex(route, state)]?.originPlatform
     if (platform) return { tracker: "platform", trackerLabel: String(platform) }
   }
   return { tracker: "dot" }
@@ -266,6 +268,7 @@ export class LiveRideController {
       delay: Number(data.delay) || 0,
       nextStationId: Number(data.nextStationId) || 0,
       rawStatus: data.status,
+      platform: Number(data.platform) || undefined,
     }
 
     await this.render(route, state, alert)
@@ -427,7 +430,7 @@ export class LiveRideController {
       const train = getTrainFromStationId(route, state.nextStationId) ?? route.trains[0]
       // the status comes from the server while the lookup runs against the locally cached route,
       // so the two can disagree - fall back rather than reading a missing train's details.
-      const trainInfo = train ? formatTrainInfo(train, locale) : (translate("ride.activatingRide", options) ?? "")
+      const trainInfo = train ? formatTrainInfo(train, locale, state.platform) : (translate("ride.activatingRide", options) ?? "")
       const body = joinParts(delayText, trainInfo)
       if (!targetDate) return { title: rideTo, body, highlights }
 

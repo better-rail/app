@@ -22,6 +22,8 @@ export type BuildNotificationPayload = {
     nextStationId: number
     delay: number
     status: Status
+    /** The platform the next train leaves from, sent while the rider waits for it (waitForTrain, inExchange). */
+    platform?: number
   }
   alert?: {
     title: string

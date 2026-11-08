@@ -28,6 +28,9 @@ export const getNotificationToSend = (notifications: NotificationPayload[], date
     .value()
 }
 
+/** A platform is 0 when the schedule missed it, so it's left out rather than replacing the one the client saved. */
+const knownPlatform = (platform?: number) => (platform && platform > 0 ? platform : undefined)
+
 export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): NotificationPayload => {
   const train = route.trains[0]
 
@@ -41,6 +44,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
       delay: train.delay,
       status: Status.waitForTrain,
       nextStationId: train.originStationId,
+      platform: knownPlatform(train.originPlatform),
     },
   }
 }
@@ -55,6 +59,7 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
       delay: train.delay,
       status: isFirstTrain(route.trains, train) ? Status.waitForTrain : Status.inExchange,
       nextStationId: train.originStationId,
+      platform: knownPlatform(train.originPlatform),
     },
     alert: {
       title: translate("notifications.getOn.title", ride.locale),
@@ -150,6 +155,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
             nextStationId: train.destinationStationId,
             status: isLastTrain(route.trains, train) ? Status.arrived : Status.inExchange,
             delay: train.delay,
+            platform: knownPlatform(route.trains[index + 1]?.originPlatform),
           },
         },
         !isLastTrain(route.trains, train) && {
@@ -161,6 +167,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
             nextStationId: train.destinationStationId,
             status: Status.inExchange,
             delay: route.trains[index + 1].delay,
+            platform: knownPlatform(route.trains[index + 1].originPlatform),
           },
         },
       ])

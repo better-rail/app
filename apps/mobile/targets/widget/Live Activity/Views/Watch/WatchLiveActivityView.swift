@@ -30,7 +30,7 @@ struct WatchLiveActivityView: View {
   }
 
   private var badge: WatchActivityCardData.Badge {
-    if isWaiting { return .platform(vm.train.originPlatform) }
+    if isWaiting { return .platform(vm.boardingPlatform) }
     if vm.status == .arrived { return .none }
     if vm.status == .getOff { return .getOff }
     // The status row already reads "next station" (stale switches it to "headed to")

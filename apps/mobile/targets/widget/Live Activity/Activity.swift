@@ -24,6 +24,9 @@ struct BetterRailActivityAttributes: ActivityAttributes {
     var delay: Int
     var nextStationId: Int
     var status: ActivityStatus
+    /// The platform of the train the rider waits for. The route above is fixed when the ride starts,
+    /// so the server sends a platform changed since. Missing from older servers and from the app's own updates.
+    var platform: Int? = nil
     var nextStation: Station { getStationById(nextStationId) ?? ERR_STATION }
   }
 
