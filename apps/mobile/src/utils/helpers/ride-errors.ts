@@ -33,6 +33,34 @@ export function toRideApiError(error: unknown): RideStartError {
   return new RideStartError("api", "Couldn't start ride", { cause: error })
 }
 
+// The iOS native start (RNBetterRail.startActivity) rejects with a code naming the failed step.
+// Map it onto the stages Android reports, so an offline start or a ride in the past isn't counted as an app bug.
+export function toLiveActivityError(error: unknown): RideStartError {
+  const { code, userInfo } = (error ?? {}) as { code?: unknown; userInfo?: Record<string, unknown> }
+
+  switch (code) {
+    case "no_response": {
+      const urlErrorCode = userInfo?.urlErrorCode
+      const detail = typeof urlErrorCode === "number" ? `URL error ${urlErrorCode}` : "no response"
+      return new RideStartError("api", `Couldn't start ride: ${detail}`, { cause: error })
+    }
+    case "server_rejected": {
+      const status = typeof userInfo?.status === "number" && userInfo.status > 0 ? userInfo.status : undefined
+      const serverReason = typeof userInfo?.reason === "string" ? userInfo.reason : undefined
+      const detail = serverReason ?? (status ? `HTTP ${status}` : "server reported failure")
+      return new RideStartError("api", `Couldn't start ride: ${detail}`, { cause: error, status, serverReason })
+    }
+    case "push_token_timeout":
+      return new RideStartError("push_token", "Timed out waiting for the live activity push token", { cause: error })
+    case "activities_disabled":
+      return new RideStartError("unsupported", "Live Activities are turned off", { cause: error })
+    default: {
+      const detail = typeof code === "string" ? ` (${code})` : ""
+      return new RideStartError("live_activity", `Couldn't start the live activity${detail}`, { cause: error })
+    }
+  }
+}
+
 // Sentry tags have to be strings, and all three are always set so a missing tag can never hide an event from a filter.
 export function rideStartErrorTags(error: unknown) {
   const rideError = error instanceof RideStartError ? error : undefined

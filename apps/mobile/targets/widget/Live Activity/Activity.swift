@@ -170,9 +170,13 @@ class LiveActivitiesController {
     let ride = Ride(token: token, departureDate: details.departureTime, originId: details.originStationId, destinationId: details.destinationStationId, trains: details.trainNumbers, locale: "en", viaStationId: details.viaStationId)
 
     Task.init {
-      // startRide returns nil on any server failure; flag it so the waiting start rejects.
-      guard let rideId = await ActivityNotificationsAPI.startRide(ride: ride) else {
-        await LiveActivitiesController.tokenRegistry.markFailed(activityId: activity.id)
+      let rideId: String
+      switch await ActivityNotificationsAPI.startRide(ride: ride) {
+      case .success(let id):
+        rideId = id
+      case .failure(let failure):
+        // Flag it so the waiting start rejects, saying why.
+        await LiveActivitiesController.tokenRegistry.markFailed(activityId: activity.id, failure: failure)
         return
       }
 

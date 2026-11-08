@@ -32,7 +32,17 @@ struct Ride: Encodable, Identifiable {
 
 struct StartActivityResult: Decodable {
   let success: Bool
-  let rideId: String
+  /// Missing when the server didn't start the ride. `reason` then says why, e.g. "ride_in_past".
+  let rideId: String?
+  let reason: String?
+}
+
+/// Why the server didn't return a ride ID.
+enum RideStartFailure: Error {
+  /// No answer: the device is offline, the request timed out, or the app was suspended mid-request.
+  case noResponse(URLError.Code?)
+  /// The server answered without a ride ID.
+  case rejected(status: Int, reason: String?)
 }
 
 struct EndActivityResult: Decodable {
@@ -42,34 +52,33 @@ struct EndActivityResult: Decodable {
 class ActivityNotificationsAPI {
   static let basePath = "https://api.better-rail.co.il/api/v1"
   
-  static func startRide(ride: Ride) async -> String? {
-      // Define the request URL
+  static func startRide(ride: Ride) async -> Result<String, RideStartFailure> {
     let url = URL(string: "\(ActivityNotificationsAPI.basePath)/ride")!
-
-    // Convert the request body to Data
-    guard let httpBody = try? JSONEncoder().encode(ride) else {
-        print("Failed to encode request body")
-      return nil;
-    }
 
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
-    request.httpBody = httpBody
     // Leave room within LiveActivitiesController.rideStartTimeout for the push token to arrive first.
     request.timeoutInterval = 15
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
+    let data: Data
+    let response: URLResponse
     do {
-      let (data, _) = try await URLSession.shared.data(for: request)
-      print("Response data: \(String(data: data, encoding: .utf8) ?? "")")
-      
-      let decoder = JSONDecoder()
-      let activityResult = try decoder.decode(StartActivityResult.self, from: data)
-      return activityResult.rideId
+      request.httpBody = try JSONEncoder().encode(ride)
+      (data, response) = try await URLSession.shared.data(for: request)
     } catch {
-      print("Error decoding JSON: \(String(describing: error))")
-      return nil
+      print("Ride start request failed: \(String(describing: error))")
+      return .failure(.noResponse((error as? URLError)?.code))
     }
+
+    print("Response data: \(String(data: data, encoding: .utf8) ?? "")")
+    let result = try? JSONDecoder().decode(StartActivityResult.self, from: data)
+    if result?.success == true, let rideId = result?.rideId {
+      return .success(rideId)
+    }
+
+    let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+    return .failure(.rejected(status: status, reason: result?.reason))
   }
   
   static func endRide(rideId: String) async throws -> EndActivityResult {
