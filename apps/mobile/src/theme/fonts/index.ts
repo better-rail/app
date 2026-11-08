@@ -10,6 +10,7 @@ export const initFonts = async () => {
       Micro5: require("../../../assets/fonts/Micro5-Regular.ttf"),
       FrankRuhlLibre: require("../../../assets/fonts/FrankRuhlLibre-Black.ttf"),
       BebasNeue: require("../../../assets/fonts/BebasNeue-Regular.ttf"),
+      SuezOne: require("../../../assets/fonts/SuezOne-Regular.ttf"),
       TelAvivBrutalist: require("../../../assets/fonts/licensed/TelAviv-BrutalistBold.ttf"),
       TelAvivBrutalistRegular: require("../../../assets/fonts/licensed/TelAviv-BrutalistRegular.ttf"),
       TelAvivModernistRegular: require("../../../assets/fonts/licensed/TelAviv-ModernistRegular.ttf"),
