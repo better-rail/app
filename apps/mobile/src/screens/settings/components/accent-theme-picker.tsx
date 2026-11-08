@@ -10,6 +10,7 @@ import { darkTheme, lightTheme } from "@/theme/themes"
 const swatchImages: Partial<Record<AccentThemeId, number>> = {
   default: require("../../../../assets/theme-swatches/classic.webp"),
   telAviv: require("../../../../assets/theme-swatches/tel-aviv.webp"),
+  jerusalem: require("../../../../assets/theme-swatches/jerusalem.webp"),
 }
 
 const labels: Record<AccentThemeId, TxKeyPath> = {
@@ -25,7 +26,7 @@ const labels: Record<AccentThemeId, TxKeyPath> = {
 }
 
 // Other themes are hidden for now
-const visibleThemeIds: AccentThemeId[] = ["default", "telAviv"]
+const visibleThemeIds: AccentThemeId[] = ["default", "telAviv", "jerusalem"]
 
 interface AccentThemePickerProps {
   value: AccentThemeId

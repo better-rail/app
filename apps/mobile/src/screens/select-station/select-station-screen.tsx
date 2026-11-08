@@ -8,6 +8,7 @@ import { useRoutePlanStore, useRecentSearchesStore, useFavoritesStore } from "@/
 import { useNavigationParamsStore } from "@/models/navigation-params/navigation-params"
 import { useRouter, useLocalSearchParams, useNavigation } from "expo-router"
 import { NormalizedStation, useStations } from "@/data/stations"
+import { buttonFontStyle } from "@/theme/theme-fonts"
 import { SearchInput } from "./search-input"
 import { RecentSearchesBox } from "./recent-searches-box/recent-searches-box"
 import { LegendList, type LegendListRef } from "@legendapp/list/react-native"
@@ -229,6 +230,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginBottom: theme.spacing[3],
   },
   cancelLink: {
+    ...buttonFontStyle(theme, 16, "normal"),
     marginStart: theme.spacing[3],
     color: theme.colors.link,
   },

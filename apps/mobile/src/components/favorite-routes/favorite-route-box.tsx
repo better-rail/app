@@ -6,6 +6,7 @@ import Sortable from "react-native-sortables"
 import { Text } from "@/components/text/text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { translate } from "@/i18n"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 import { useShallow } from "zustand/react/shallow"
 import { useFavoritesStore } from "@/models"
 import { ContextMenu, type ContextMenuAction, type ContextMenuRef } from "@/components/context-menu/context-menu"
@@ -150,9 +151,8 @@ const styles = StyleSheet.create((theme, rt) => {
       marginBottom: theme.spacing[3],
     },
     stationName: {
+      ...subheadingFontStyle(theme, 16.5, "500"),
       color: theme.colors.whiteText,
-      fontWeight: "500",
-      fontSize: 16.5,
       textShadowRadius: 6,
       textShadowColor: "rgba(0,0,0,0.5)",
     },
@@ -211,9 +211,8 @@ const styles = StyleSheet.create((theme, rt) => {
       opacity: 0.85,
     },
     routeLabel: {
+      ...subheadingFontStyle(theme, 20, "bold"),
       color: theme.colors.whiteText,
-      fontSize: 20,
-      fontWeight: "bold",
       marginBottom: theme.spacing[2],
     },
   }

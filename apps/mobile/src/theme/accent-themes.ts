@@ -164,8 +164,14 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
       skin: { delay: "#D23B27" },
     },
   },
-  // Jerusalem stone gold and pomegranate
+  // Jerusalem stone gold and pomegranate, lettered in Suez One (Hebrew and Latin only; Arabic falls back to the system font)
   jerusalem: {
+    headingFont: { family: "SuezOne" },
+    subheadingFont: { family: "SuezOne" },
+    stopNameFont: { family: "SuezOne" },
+    labelFont: { family: "SuezOne" },
+    buttonFont: { family: "SuezOne" },
+    timeFont: { family: "SuezOne", size: 24 },
     light: {
       accents: {
         primary: "#94650F",

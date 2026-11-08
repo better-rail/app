@@ -76,7 +76,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   textInput: {
     width: "90%",
     textAlign: rt.rtl ? "right" : "left",
-    fontFamily: theme.typography.primary,
+    fontFamily: theme.skin.labelFont?.family ?? theme.typography.primary,
     color: theme.colors.text,
   },
   dismissIcon: {
