@@ -55,6 +55,7 @@ const sendAndroidNotification = async (payload: NotificationPayload, route: Rout
       status: payload.state.status,
       delay: payload.state.delay.toString(),
       nextStationId: payload.state.nextStationId.toString(),
+      ...(payload.state.platform !== undefined && { platform: payload.state.platform.toString() }),
     },
     android: {
       ttl: 90 * 1000,

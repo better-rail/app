@@ -23,6 +23,8 @@ class ActivityViewModel {
   // route properties
   var train: Train { getTrainFromStationId(route: route, stationId: context.state.nextStationId)! }
   var nextStop: Station { getStationById(nextStationId)! }
+  /// The platform to board from, preferring the server's over the one saved when the ride started
+  var boardingPlatform: Int { context.state.platform ?? train.originPlatform }
   var lastTrainStop: RouteStation { train.routeStations[train.routeStations.count - 1] }
   var destination: Station {
     if (status == .inExchange) {

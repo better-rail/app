@@ -19,7 +19,7 @@ struct RideInformationBar: View {
   
   var informationText: LocalizedStringKey {
     if (vm.status == .waitForTrain || vm.status == .inExchange) {
-      return LocalizedStringKey("depart from platform \(String(vm.train.originPlatform))")
+      return LocalizedStringKey("depart from platform \(String(vm.boardingPlatform))")
     }
     else if (vm.status == .arrived) {
       return LocalizedStringKey("thanks for riding with better rail")

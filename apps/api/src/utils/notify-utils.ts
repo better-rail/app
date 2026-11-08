@@ -41,6 +41,7 @@ export const buildWaitForTrainNotiifcation = (route: RouteItem, ride: Ride): Not
       delay: train.delay,
       status: Status.waitForTrain,
       nextStationId: train.originStationId,
+      platform: train.originPlatform,
     },
   }
 }
@@ -55,6 +56,7 @@ export const buildGetOnTrainNotifications = (route: RouteItem, ride: Ride): Buil
       delay: train.delay,
       status: isFirstTrain(route.trains, train) ? Status.waitForTrain : Status.inExchange,
       nextStationId: train.originStationId,
+      platform: train.originPlatform,
     },
     alert: {
       title: translate("notifications.getOn.title", ride.locale),
@@ -150,6 +152,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
             nextStationId: train.destinationStationId,
             status: isLastTrain(route.trains, train) ? Status.arrived : Status.inExchange,
             delay: train.delay,
+            platform: route.trains[index + 1]?.originPlatform,
           },
         },
         !isLastTrain(route.trains, train) && {
@@ -161,6 +164,7 @@ export const buildGetOffTrainNotifications = (route: RouteItem, ride: Ride): Bui
             nextStationId: train.destinationStationId,
             status: Status.inExchange,
             delay: route.trains[index + 1].delay,
+            platform: route.trains[index + 1].originPlatform,
           },
         },
       ])

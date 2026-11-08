@@ -198,6 +198,20 @@ test("build get off notifications for exchange train", () => {
   ])
 })
 
+test("sends the platform of the train the rider waits for", () => {
+  // The Live Activity's route is fixed at ride start, so a platform changed since only reaches it through these states.
+  expect(buildGetOnTrainNotifications(exchangeRoute, ride).map((n) => n.state.platform)).toEqual([6, 4])
+  expect(buildGetOffTrainNotifications(exchangeRoute, ride).map((n) => n.state.platform)).toEqual([
+    undefined,
+    undefined,
+    4,
+    4,
+    undefined,
+    undefined,
+    undefined,
+  ])
+})
+
 test("build exchange notification for unsafe change", () => {
   const exchangeTrainText = exchangeTrainPrompt(unsafeChangeTrains, 0, ride.locale)
 
