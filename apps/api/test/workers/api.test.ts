@@ -178,7 +178,7 @@ describe("rides", () => {
     expect(headers.get("apns-priority")).toBe("5")
     expect(headers.get("authorization")).toMatch(/^bearer /)
     expect(push.body.aps.event).toBe("update")
-    expect(push.body.aps["content-state"]).toEqual({ delay: 0, status: "waitForTrain", nextStationId: 3700 })
+    expect(push.body.aps["content-state"]).toEqual({ delay: 0, status: "waitForTrain", nextStationId: 3700, platform: 3 })
 
     // Arrival alarm: rings leadMinutes before the (delayed) arrival of train 0.
     const alarm = await SELF.fetch(
