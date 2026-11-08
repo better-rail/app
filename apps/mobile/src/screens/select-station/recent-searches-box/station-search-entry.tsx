@@ -7,6 +7,7 @@ import TouchableScale from "react-native-touchable-scale"
 import { Text } from "@/components"
 import { translate } from "@/i18n"
 import { IS_E2E } from "@/config/e2e"
+import { subheadingFontStyle } from "@/theme/theme-fonts"
 
 type StationSearchEntryProps = {
   testID?: string
@@ -64,6 +65,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     borderRadius: Platform.select({ ios: 10, android: 6 }),
   },
   searchEntryText: {
+    ...subheadingFontStyle(theme, 16, "normal"),
     marginTop: theme.spacing[1],
   },
   emptyCardWrapper: {

@@ -8,6 +8,7 @@ import { ScrollView } from "react-native-gesture-handler"
 import { Text } from "@/components"
 import { isRTL } from "@/i18n"
 import { spacing } from "@/theme"
+import { labelFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { StationSearchEntry } from "./station-search-entry"
 import { useRouter } from "expo-router"
@@ -115,7 +116,7 @@ const RecentSearchesPlacerholder = () => (
 
 const styles = StyleSheet.create((theme, rt) => ({
   recentSearchesTitle: {
-    fontWeight: "500",
+    ...subheadingFontStyle(theme, 16, "500"),
     opacity: 0.8,
   },
   recentSearchersHeader: {
@@ -148,6 +149,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     opacity: 0.8,
   },
   placeholderInstructions: {
+    ...labelFontStyle(theme, 16),
     color: theme.colors.dim,
     textAlign: "center",
     maxWidth: 220,

@@ -9,6 +9,7 @@ import { useRoutePlanStore, useFavoritesStore, type FavoriteRoute } from "@/mode
 import { trackEvent } from "@/services/analytics"
 import { Text } from "@/components/text/text"
 import { useStations } from "@/data/stations"
+import { buttonFontStyle, labelFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 import { FavoriteRouteBox } from "./favorite-route-box"
 
 export interface FavoriteRoutesProps {
@@ -106,7 +107,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginTop: theme.spacing[4] + 2,
   },
   favoriteRoutesTitle: {
-    fontWeight: "500",
+    ...subheadingFontStyle(theme, 16, "500"),
     opacity: 0.8,
   },
   favoriteRoutesHeader: {
@@ -121,8 +122,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     }),
   },
   doneButton: {
+    ...buttonFontStyle(theme, 16, "600"),
     color: theme.colors.link,
-    fontWeight: "600",
   },
   routesContainer: {
     marginTop: theme.spacing[3],
@@ -134,6 +135,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     marginTop: theme.spacing[2],
   },
   emptyStateText: {
+    fontFamily: theme.skin.labelFont?.family ?? theme.typography.primary,
     color: theme.colors.dim,
   },
   emptyStateImage: {
