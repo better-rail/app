@@ -117,8 +117,10 @@ export async function setupRootStore() {
   // Binaries before v3 have no themes, so they keep the classic look
   const applyTheme = () => {
     const { accentTheme, useAlternateTimeFont } = useSettingsStore.getState()
-    if (isAccentThemeSupported()) applyAccentTheme(accentTheme, useAlternateTimeFont)
+    const supported = isAccentThemeSupported()
+    if (supported) applyAccentTheme(accentTheme, useAlternateTimeFont)
     else applyAccentTheme("default")
+    syncAnalyticsUserProperties({ accent_theme: supported ? accentTheme : "default" })
   }
   applyTheme()
 
