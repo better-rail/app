@@ -37,3 +37,57 @@ test("only the SIRI host is relayed through the egress proxy unless the rail rel
   process.env.EGRESS_PROXY_RELAY_RAIL = "true"
   expect(isRelayedHost("https://rail-api.rail.co.il/rjpa/api/v1/timetable/searchTrainForMobile")).toBe(true)
 })
+
+test("the deadline timer is cleared once the response is read (a pending timer keeps a Durable Object awake and billed)", async () => {
+  const pending = new Set<unknown>()
+  const realSetTimeout = globalThis.setTimeout
+  const realClearTimeout = globalThis.clearTimeout
+  const realAbortTimeout = AbortSignal.timeout
+  const abortTimeout = mock(realAbortTimeout)
+  globalThis.setTimeout = ((handler: () => void, ms?: number) => {
+    const id = realSetTimeout(() => {
+      pending.delete(id)
+      handler()
+    }, ms)
+    pending.add(id)
+    return id
+  }) as typeof setTimeout
+  globalThis.clearTimeout = ((id: Parameters<typeof clearTimeout>[0]) => {
+    pending.delete(id)
+    realClearTimeout(id)
+  }) as typeof clearTimeout
+  AbortSignal.timeout = abortTimeout
+
+  try {
+    const response = await railApiFetch("/common/api/v1/railupdates/?LanguageId=Hebrew")
+    expect(await response.json()).toEqual({ ok: true })
+    expect(pending.size).toBe(0)
+    // AbortSignal.timeout() arms a timer nothing can clear.
+    expect(abortTimeout).not.toHaveBeenCalled()
+  } finally {
+    globalThis.setTimeout = realSetTimeout
+    globalThis.clearTimeout = realClearTimeout
+    AbortSignal.timeout = realAbortTimeout
+  }
+})
+
+test("a hung rail API request is aborted at the deadline with a TimeoutError", async () => {
+  globalThis.fetch = mock(
+    (_url: string | URL | Request, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(init.signal!.reason))
+      }),
+  ) as typeof fetch
+
+  const error = await railApiFetch("/common/api/v1/railupdates/", { retries: 2, timeoutMs: 20 }).catch((e) => e)
+  expect(error?.name).toBe("TimeoutError")
+  // The deadline covers the retries too: an aborted call is not attempted again.
+  expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+})
+
+test("the response keeps its status and body after being read under the deadline", async () => {
+  globalThis.fetch = mock(async () => Response.json({ error: "nope" }, { status: 404 })) as typeof fetch
+  const response = await railApiFetch("/common/api/v1/missing")
+  expect(response.status).toBe(404)
+  expect(await response.json()).toEqual({ error: "nope" })
+})
