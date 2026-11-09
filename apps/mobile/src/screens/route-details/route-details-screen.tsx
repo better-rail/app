@@ -110,10 +110,11 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
   }, [])
 
   useEffect(() => {
-    if (rideId && progress.status === "arrived") {
+    // Progress is computed for any displayed route, so only the ride's own route may end it
+    if (rideId && isRideOnThisRoute && progress.status === "arrived") {
       stopRide(rideId)
     }
-  }, [progress.status, rideId])
+  }, [progress.status, rideId, isRideOnThisRoute])
 
   return (
     <Screen
