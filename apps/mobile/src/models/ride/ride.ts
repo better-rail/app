@@ -191,8 +191,9 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 
   async stopRide(rideId) {
-    const { canRunLiveActivities } = get()
-    if (!canRunLiveActivities) return
+    const { canRunLiveActivities, id } = get()
+    // Several signals can end the same ride; only the first one ends it
+    if (!canRunLiveActivities || id !== rideId) return
 
     // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
@@ -314,6 +315,17 @@ export function hydrateRideStore(data: any) {
 }
 
 let stopSubscription: (() => void) | undefined
+let arrivalSubscription: (() => void) | undefined
+let arrivalTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Ends the ride when its last train arrives while the app is open. Each route refresh re-arms it with the new delay. */
+function armArrivalTimer({ id, route }: RideState) {
+  clearTimeout(arrivalTimer)
+  if (!id || !route) return
+
+  const arrival = addMinutes(route.arrivalTime, last(route.trains)?.delay ?? 0).getTime()
+  arrivalTimer = setTimeout(() => useRideStore.getState().stopRide(id), Math.max(arrival - Date.now(), 0))
+}
 
 /**
  * Run afterCreate logic - checks if ride is still active and authorization.
@@ -333,4 +345,10 @@ export function initializeRideStore() {
       useRideStore.getState().stopRide(currentId)
     }
   })
+
+  arrivalSubscription?.()
+  arrivalSubscription = useRideStore.subscribe((next, prev) => {
+    if (next.id !== prev.id || next.route !== prev.route) armArrivalTimer(next)
+  })
+  armArrivalTimer(useRideStore.getState())
 }
