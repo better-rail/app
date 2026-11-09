@@ -47,6 +47,7 @@ export const logNames = {
     scheduleExisting: "Scheduled existing rides",
     rideInPast: "The requested ride is in the past",
     rideInFuture: "The requested ride is in the future",
+    rideOverdue: "Dropped a ride still tracked long after its arrival",
     scheduleRide: {
       success: "Scheduled notifications for ride",
       failed: "Failed to register notifications for ride",

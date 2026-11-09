@@ -41,7 +41,14 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
   }
 
   const { method = "GET", headers, body, retries = 0, timeoutMs = RAIL_API_TIMEOUT_MS } = options
-  const signal = AbortSignal.timeout(timeoutMs)
+  // A timer this call clears, not AbortSignal.timeout(): that one cannot be cancelled, and a Durable Object stays
+  // awake (and billed) until its pending timers fire, so every ride tick was held open for the whole deadline.
+  const controller = new AbortController()
+  const { signal } = controller
+  const deadline = setTimeout(
+    () => controller.abort(new DOMException("The Israel Railways API request timed out", "TimeoutError")),
+    timeoutMs,
+  )
   const init: RequestInit = {
     method,
     body,
@@ -55,22 +62,38 @@ export const railApiFetch = async (path: string, options: RailFetchOptions = {})
     },
   }
 
-  let lastError: unknown
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2 ** attempt * 100))
+  try {
+    let lastError: unknown
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2 ** attempt * 100))
 
-    try {
-      const response = await egressFetch(`${config.railUrl}${path}`, init)
-      // Only server-side failures are worth another attempt; a 4xx would repeat.
-      if (response.status >= 500 && attempt < retries) continue
-      return response
-    } catch (error) {
-      lastError = error
-      if (signal.aborted) break
+      try {
+        const response = await egressFetch(`${config.railUrl}${path}`, init)
+        // Only server-side failures are worth another attempt; a 4xx would repeat.
+        if (response.status >= 500 && attempt < retries) continue
+        return await buffered(response)
+      } catch (error) {
+        lastError = error
+        if (signal.aborted) break
+      }
     }
-  }
 
-  throw lastError ?? new Error("Failed to reach the Israel Railways API")
+    throw lastError ?? new Error("Failed to reach the Israel Railways API")
+  } finally {
+    clearTimeout(deadline)
+  }
+}
+
+const NULL_BODY_STATUSES = new Set([101, 204, 205, 304])
+
+/** The response with its body already read, so the deadline covers the read and can be cleared before the caller parses it. */
+const buffered = async (response: Response): Promise<Response> => {
+  const body = NULL_BODY_STATUSES.has(response.status) ? null : await response.arrayBuffer()
+  const headers = new Headers(response.headers)
+  // The buffered bytes are already decoded; the upstream's framing headers no longer describe them.
+  headers.delete("content-encoding")
+  headers.delete("content-length")
+  return new Response(body, { status: response.status, statusText: response.statusText, headers })
 }
 
 export type RailTimetableSearch = {

@@ -6,7 +6,7 @@
  * guarded operator / debug routes.
  */
 import { SELF, env, runDurableObjectAlarm } from "cloudflare:test"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { applySchema } from "../../src/db"
 import { encodePayload } from "../../src/ingest/payload"
@@ -36,6 +36,7 @@ beforeEach(() => {
 })
 afterEach(() => {
   globalThis.fetch = realFetch
+  vi.useRealTimers()
 })
 
 describe("timetable", () => {
@@ -203,6 +204,53 @@ describe("rides", () => {
     expect(await ended.json()).toEqual({ success: true })
 
     // Nothing is scheduled any more.
+    expect(await runDurableObjectAlarm(stub)).toBe(false)
+  })
+
+  /** Moves the clock the Worker and its Durable Objects read; the alarm itself is run by hand. */
+  const setClock = (ms: number) => {
+    vi.useFakeTimers({ toFake: ["Date"] })
+    vi.setSystemTime(ms)
+  }
+
+  it("tells a rider who started right before departure to board, and ends the ride at arrival", async () => {
+    // The train leaves in 90 seconds: too late for the "wait for your train" state, too early to board.
+    const startedAt = Date.now()
+    departureOffsetSec = israelServiceClock(startedAt).offsetSec + 90
+    await seedFeed(makeFeed({ departureOffsetSec, serviceDate }))
+    const { body } = await startRide()
+    expect(body.success).toBe(true)
+    const stub = env.RIDES.getByName(body.rideId!)
+
+    expect(await runDurableObjectAlarm(stub)).toBe(true)
+    expect(outbound).toHaveLength(0)
+
+    // 45 seconds before departure the "hop on board" alert is due (it goes out a minute before the train).
+    setClock(startedAt + 45_000)
+    expect(await runDurableObjectAlarm(stub)).toBe(true)
+    expect(outbound).toHaveLength(1)
+    expect(outbound[0].body.aps.alert.title).toBe("Hop on board!")
+    expect(outbound[0].body.aps["content-state"].status).toBe("waitForTrain")
+
+    // A minute after the 20-minute ride arrived: the Live Activity is ended and nothing ticks any more.
+    setClock(startedAt + (90 + 21 * 60) * 1000)
+    expect(await runDurableObjectAlarm(stub)).toBe(true)
+    expect(outbound).toHaveLength(2)
+    expect(outbound[1].body.aps.event).toBe("end")
+    expect(outbound[1].body.aps["content-state"].status).toBe("arrived")
+    expect(await runDurableObjectAlarm(stub)).toBe(false)
+  })
+
+  it("drops a ride still tracked long after its train arrived, without pushing anything", async () => {
+    const startedAt = Date.now()
+    const { body } = await startRide()
+    expect(body.success).toBe(true)
+    const stub = env.RIDES.getByName(body.rideId!)
+
+    // Departure in 10 minutes and a 20-minute ride: two hours on, the rider left the station long ago.
+    setClock(startedAt + 2 * 3600 * 1000)
+    expect(await runDurableObjectAlarm(stub)).toBe(true)
+    expect(outbound).toHaveLength(0)
     expect(await runDurableObjectAlarm(stub)).toBe(false)
   })
 

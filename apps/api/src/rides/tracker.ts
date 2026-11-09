@@ -12,7 +12,7 @@
  * persists after every change.
  */
 import dayjs, { Dayjs } from "dayjs"
-import { head, isEmpty, omit } from "lodash"
+import { head, isEmpty, max, omit } from "lodash"
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore"
 
 dayjs.extend(isSameOrBefore)
@@ -31,6 +31,8 @@ import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond 
 
 const PRODUCTION_TICK_MS = 60_000
 const TEST_TICK_MS = 15_000
+// The last notification goes out at the arrival, so a ride still tracked this long after it is stuck.
+const OVERDUE_MINUTES = 30
 
 /** A notification as stored: `time` is a Dayjs in memory and ISO text at rest. */
 type StoredNotification = Omit<NotificationPayload, "time"> & { time: string }
@@ -140,6 +142,13 @@ export class RideTracker {
       return { ended: false }
     }
 
+    // The backstop: whatever kept this ride from ending, the rider left the train long ago. Nothing is pushed,
+    // and the Durable Object stops waking up every minute for good.
+    if (this.isOverdue(fireDate)) {
+      this.logger.warn(logNames.scheduler.rideOverdue, { lastNotificationId: this.ride.lastNotificationId })
+      return { ended: true }
+    }
+
     await this.updateDelay()
 
     // If there's a new notification to send, send it now
@@ -163,7 +172,15 @@ export class RideTracker {
       return this.sendNotification(waitForTrainNotification)
     }
 
-    return { ended: false }
+    // Nothing was sent and nothing is left to send, which no later tick can change.
+    return { ended: isEmpty(this.notificationsToSend) }
+  }
+
+  private isOverdue(now: Date) {
+    const delay = max(this.route.trains.map((train) => train.delay)) ?? 0
+    return dayjs(this.route.arrivalTime)
+      .add(delay + OVERDUE_MINUTES, "minutes")
+      .isBefore(now)
   }
 
   updateRideToken(token: string) {
@@ -209,7 +226,11 @@ export class RideTracker {
    * @returns Filtered notifications to send
    */
   private buildRideNotifications(isInitialRun: boolean = false) {
-    const notifications = buildNotifications(this.route, this.ride, config.env === "production", this.lastSentNotification?.id)
+    // Only a fresh ride finds its place by the clock. After that the place is the last notification's id, even
+    // while none went out yet (id 0): a tick rebuilds this list right before it looks for what is due, and
+    // filtering by the clock there would drop a notification the moment it comes due, before it is ever sent.
+    const lastNotificationId = isInitialRun ? undefined : (this.lastSentNotification?.id ?? this.ride.lastNotificationId)
+    const notifications = buildNotifications(this.route, this.ride, config.env === "production", lastNotificationId)
 
     if (config.env === "production") {
       // If it's the first run of this function, get the last sent notification
