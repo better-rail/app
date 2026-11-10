@@ -8,8 +8,9 @@ import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Path, RadialGra
 import { format } from "date-fns"
 import { Text } from "@/components"
 import { StatsScreen } from "./stats-screen"
+import { StatsDisplayText } from "./stats-display-text"
 import { stationLocale, stationsObject } from "@/data/stations"
-import { dateFnsLocalization, isRTL, translate, userLocale, type TxKeyPath } from "@/i18n"
+import { dateFnsLocalization, translate, userLocale, type TxKeyPath } from "@/i18n"
 import { randomRiderNameSeed, riderName } from "./rider-names"
 import { useRideHistoryStore, type RideRecord } from "@/models"
 import { formatTime } from "@/utils/helpers/date-helpers"
@@ -18,6 +19,8 @@ import { GlassView } from "expo-glass-effect"
 import {
   computeAchievements,
   computeStats,
+  metricChart,
+  metricValue,
   weekDelays,
   firstRideDate,
   nextAchievement,
@@ -25,10 +28,12 @@ import {
   ridesToNextRank,
   type Achievement,
 } from "./compute-stats"
+import { formatMetric } from "./ride-format"
 import { statsNumberFont, statsPalette } from "./statistics-palette"
 import { CHEVRON_ICON } from "@/screens/settings/components/settings-box"
 
 const chevronIcon = require("../../../assets/chevron.png")
+const arrowIcon = require("../../../assets/arrow-left.png")
 
 const formatNumber = (value: number) => Math.round(value).toLocaleString(userLocale)
 const stationName = (id: string) => stationsObject[id]?.[stationLocale] ?? ""
@@ -41,17 +46,8 @@ export function StatisticsScreen() {
   const stats = useMemo(() => computeStats(rides), [rides])
   const achievement = useMemo(() => (SHOW_NEXT_ACHIEVEMENT ? nextAchievement(computeAchievements(rides)) : undefined), [rides])
   const since = firstRideDate(rides)
-  const router = useRouter()
 
   const hasRides = rides.length > 0
-
-  const totals = (
-    <View style={styles.totals}>
-      <Total icon="🚉" label={translate("statistics.stationsVisited")} value={formatNumber(stats.stationCount)} />
-      <View style={styles.totalsDivider} />
-      <Total icon="⏱️" label={translate("statistics.hoursOnTrain")} value={formatNumber(stats.minutesOnTrain / 60)} />
-    </View>
-  )
 
   return (
     // The rides hero is the header, so the content starts at the top edge
@@ -62,24 +58,7 @@ export function StatisticsScreen() {
 
       {!hasRides && <EmptyHint />}
 
-      {hasRides ? (
-        <Pressable
-          onPress={() => router.push("/statistics/history")}
-          accessibilityRole="button"
-          accessibilityLabel={translate("statistics.seeHistory") ?? undefined}
-          style={({ pressed }) => !isLiquidGlassSupported && pressed && styles.cardPressed}
-        >
-          <Card interactive>
-            {totals}
-            <View style={styles.historyLink}>
-              <Text style={styles.historyLinkText} tx="statistics.seeHistory" />
-              <Image style={[CHEVRON_ICON, styles.historyChevron]} source={chevronIcon} />
-            </View>
-          </Card>
-        </Pressable>
-      ) : (
-        <Card>{totals}</Card>
-      )}
+      <TimeOnTrainCard rides={rides} />
 
       <WeekDelaysCard rides={rides} />
       {stats.onTime && <OnTimeCard percent={stats.onTime.percent} averageDelay={stats.onTime.averageDelayMinutes} />}
@@ -162,7 +141,9 @@ function RiderProfile({ rides }: { rides: ReturnType<typeof useRideHistoryStore.
         <View style={styles.badgeTileShine} />
         <Text style={styles.badgeTileEmoji}>{emoji}</Text>
       </Pressable>
-      <Text style={styles.profileRank}>{name}</Text>
+      <StatsDisplayText englishSize={32} style={styles.profileRank}>
+        {name}
+      </StatsDisplayText>
       <View style={styles.profilePills}>
         <View style={[styles.pill, styles.pillAccent]}>
           <Text style={[styles.pillText, styles.pillAccentText]}>{translate("statistics.level", { level })}</Text>
@@ -190,6 +171,7 @@ function RiderProfile({ rides }: { rides: ReturnType<typeof useRideHistoryStore.
 /** Full-bleed gradient behind the status bar and close button, with the ride count */
 function RidesHero({ count, since }: { count: number; since: number | undefined }) {
   const headerHeight = useHeaderHeight()
+  const router = useRouter()
 
   return (
     <View style={[styles.hero, { paddingTop: headerHeight }]}>
@@ -197,13 +179,23 @@ function RidesHero({ count, since }: { count: number; since: number | undefined 
       <Text style={styles.heroValue} maxFontSizeMultiplier={1.1}>
         {formatNumber(count)}
       </Text>
-      <Text style={styles.heroLabel} tx="statistics.rides" />
+      <StatsDisplayText englishSize={22} style={styles.heroLabel} tx="statistics.rides" />
       {since && (
         <View style={styles.heroPill}>
           <Text style={styles.heroPillText}>
             {translate("statistics.since", { date: format(since, "MMMM yyyy", { locale: dateFnsLocalization }) })}
           </Text>
         </View>
+      )}
+      {count > 0 && (
+        <Pressable
+          onPress={() => router.push("/statistics/history")}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.historyLink, pressed && styles.cardPressed]}
+        >
+          <StatsDisplayText englishSize={18} style={styles.historyLinkText} tx="statistics.seeHistory" />
+          <Image style={[CHEVRON_ICON, styles.historyChevron]} source={chevronIcon} />
+        </Pressable>
       )}
     </View>
   )
@@ -274,29 +266,11 @@ function HeroGradient() {
   )
 }
 
-/** Label, value, and a helper line that puts the value in context */
-function Total({ icon, label, value }: { icon: string; label: string | null; value: string }) {
-  return (
-    <View style={styles.total}>
-      <View style={styles.totalValueRow}>
-        <Text style={styles.totalIcon}>{icon}</Text>
-        <Text style={styles.totalValue} maxFontSizeMultiplier={1.1}>
-          {value}
-        </Text>
-      </View>
-      <Text style={styles.totalLabel} numberOfLines={1}>
-        {label}
-      </Text>
-    </View>
-  )
-}
-
 /** Health-app style metric: tinted icon and title, a big value with its unit, and a small chart at the end */
 function MetricCard({
   icon,
   color,
   title,
-  context,
   value,
   unit,
   helper,
@@ -306,7 +280,6 @@ function MetricCard({
   icon: React.ReactNode
   color: string
   title: string | null
-  context?: string | null
   value: string
   unit?: string | null
   helper?: string | null
@@ -318,15 +291,14 @@ function MetricCard({
       <View style={styles.metricHeader}>
         <View style={styles.metricTitleRow}>
           {icon}
-          <Text style={[styles.metricTitle, { color }]}>{title}</Text>
+          <StatsDisplayText englishSize={20} style={[styles.metricTitle, { color }]}>
+            {title}
+          </StatsDisplayText>
         </View>
-        <View style={styles.metricTitleRow}>
-          {context && <Text style={styles.metricContext}>{context}</Text>}
-          {onPress && <Image style={[CHEVRON_ICON, styles.metricChevron]} source={chevronIcon} />}
-        </View>
+        {onPress && <Image style={[CHEVRON_ICON, styles.metricChevron]} source={chevronIcon} />}
       </View>
       <View style={styles.metricBody}>
-        <View>
+        <View style={styles.metricReading}>
           <View style={styles.metricValueRow}>
             <Text style={styles.metricValue} maxFontSizeMultiplier={1.1}>
               {value}
@@ -348,6 +320,42 @@ function MetricCard({
   )
 }
 
+/** Time on trains, with a direct link to the corresponding history chart. */
+function TimeOnTrainCard({ rides }: { rides: RideRecord[] }) {
+  const router = useRouter()
+  const { buckets } = useMemo(() => metricChart(rides, "all", "hours"), [rides])
+
+  return (
+    <MetricCard
+      icon={<ClockIcon color={statsPalette.orange} />}
+      color={statsPalette.orange}
+      title={translate("statistics.hoursOnTrain")}
+      value={formatMetric("hours", metricValue(rides, "hours"))}
+      unit={translate("statistics.hoursUnit")}
+      onPress={rides.length > 0 ? () => router.push({ pathname: "/statistics/history", params: { metric: "hours" } }) : undefined}
+      accessory={<ActivityBars values={buckets.map((bucket) => bucket.value ?? 0)} color={statsPalette.orange} />}
+    />
+  )
+}
+
+/** A compact, decorative preview of the history chart; empty periods stay on the baseline. */
+function ActivityBars({ values, color }: { values: number[]; color: string }) {
+  const max = Math.max(1, ...values)
+  return (
+    <View style={styles.activityBars} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {values.map((value, index) => (
+        <View
+          key={index}
+          style={[
+            styles.activityBar,
+            { height: Math.max(2, (value / max) * 40), backgroundColor: color, opacity: value > 0 ? 1 : 0.2 },
+          ]}
+        />
+      ))}
+    </View>
+  )
+}
+
 const MINI_BAR_HEIGHT = 32
 
 function WeekDelaysCard({ rides }: { rides: RideRecord[] }) {
@@ -362,7 +370,6 @@ function WeekDelaysCard({ rides }: { rides: RideRecord[] }) {
       icon={<ClockIcon color={statsPalette.tomato} />}
       color={statsPalette.tomato}
       title={translate("statistics.weekDelays")}
-      context={translate("statistics.periodWeek")}
       value={hasRides ? String(total) : "—"}
       unit={hasRides ? translate("statistics.minutesUnit") : undefined}
       helper={hasRides ? translate("statistics.lastWeekDelays", { count: lastWeekTotal }) : undefined}
@@ -387,6 +394,7 @@ function WeekDelaysCard({ rides }: { rides: RideRecord[] }) {
 }
 
 function OnTimeCard({ percent, averageDelay }: { percent: number; averageDelay: number }) {
+  const router = useRouter()
   return (
     <MetricCard
       icon={<CheckIcon color={statsPalette.accent} />}
@@ -394,6 +402,7 @@ function OnTimeCard({ percent, averageDelay }: { percent: number; averageDelay: 
       title={translate("statistics.onTime")}
       value={`${percent}%`}
       helper={translate("statistics.averageDelay", { count: averageDelay })}
+      onPress={() => router.push({ pathname: "/statistics/history", params: { metric: "onTime" } })}
       accessory={<ProgressRing progress={percent / 100} color={statsPalette.accent} />}
     />
   )
@@ -497,7 +506,7 @@ function UsualTrainCard({
           colors={["rgba(16, 21, 58, 0.75)", "rgba(16, 21, 58, 0.5)", "rgba(16, 21, 58, 0.92)"]}
         />
         <View style={styles.usualContent}>
-          <Text style={styles.usualLabel} tx="statistics.usualTrain" />
+          <StatsDisplayText englishSize={20} style={styles.usualLabel} tx="statistics.usualTrain" />
           <Text style={styles.usualTime} maxFontSizeMultiplier={1.1}>
             {formatTime(departureTime)}
           </Text>
@@ -506,9 +515,14 @@ function UsualTrainCard({
               <Text style={styles.usualOrigin} numberOfLines={1}>
                 {stationName(originId)}
               </Text>
-              <Text style={styles.usualDestination} numberOfLines={1}>
-                {isRTL ? "←" : "→"} {stationName(destinationId)}
-              </Text>
+              <View style={styles.usualDestinationRow}>
+                <View style={styles.usualArrowCircle}>
+                  <Image source={arrowIcon} style={styles.usualArrowIcon} />
+                </View>
+                <Text style={styles.usualDestination} numberOfLines={1}>
+                  {stationName(destinationId)}
+                </Text>
+              </View>
             </View>
             <View style={styles.pill}>
               <Text style={styles.pillText}>
@@ -535,7 +549,7 @@ function AchievementCard({ achievement }: { achievement: Achievement | undefined
         <Text style={styles.badgeIcon}>{copy?.icon ?? "🏆"}</Text>
       </View>
       <View style={styles.achievementContent}>
-        <Text style={styles.cardTitle} tx="statistics.nextAchievement" />
+        <StatsDisplayText englishSize={20} style={styles.cardTitle} tx="statistics.nextAchievement" />
         {achievement && copy ? (
           <>
             <Text style={styles.achievementTitle} numberOfLines={1}>
@@ -561,7 +575,7 @@ function EmptyHint() {
     <Card style={styles.emptyCard}>
       <Text style={styles.emptyIcon}>🚆</Text>
       <View style={styles.emptyBody}>
-        <Text style={styles.emptyTitle} tx="statistics.emptyTitle" />
+        <StatsDisplayText englishSize={22} style={styles.emptyTitle} tx="statistics.emptyTitle" />
         <Text style={styles.emptyText} tx="statistics.emptyMessage" />
       </View>
     </Card>
@@ -570,7 +584,7 @@ function EmptyHint() {
 
 const cardRadius = isLiquidGlassSupported ? 22 : 16
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   profile: {
     alignItems: "center",
     paddingTop: theme.spacing[2],
@@ -681,28 +695,13 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 13,
     fontWeight: "600",
   },
-  totals: {
-    flexDirection: "row",
-    paddingVertical: theme.spacing[4],
-  },
-  total: {
-    flex: 1,
-    alignItems: "center",
-    paddingHorizontal: theme.spacing[2],
-  },
-  totalLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: statsPalette.muted,
-  },
   historyLink: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: theme.spacing[2],
+    minHeight: 44,
+    marginTop: theme.spacing[1],
     paddingHorizontal: theme.spacing[4],
-    paddingVertical: theme.spacing[3],
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: statsPalette.track,
   },
   historyLinkText: {
     color: statsPalette.accentSoft,
@@ -710,28 +709,10 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: "600",
   },
   historyChevron: {
-    tintColor: statsPalette.muted,
+    tintColor: statsPalette.accentSoft,
     marginEnd: 0,
-  },
-  totalsDivider: {
-    width: StyleSheet.hairlineWidth,
-    backgroundColor: statsPalette.track,
-    marginVertical: theme.spacing[1],
-  },
-  totalValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: theme.spacing[1],
-  },
-  totalIcon: {
-    fontSize: 20,
-  },
-  totalValue: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: statsPalette.text,
-    fontVariant: ["tabular-nums"],
-    ...statsNumberFont,
+    width: 6,
+    height: 12,
   },
   pill: {
     paddingHorizontal: theme.spacing[3],
@@ -763,14 +744,12 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: "row",
     alignItems: "center",
     gap: theme.spacing[2],
+    flexShrink: 1,
   },
   metricTitle: {
     fontSize: 15,
     fontWeight: "700",
-  },
-  metricContext: {
-    fontSize: 13,
-    color: statsPalette.muted,
+    flexShrink: 1,
   },
   metricChevron: {
     tintColor: statsPalette.muted,
@@ -782,11 +761,16 @@ const styles = StyleSheet.create((theme) => ({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
+    gap: theme.spacing[3],
+  },
+  metricReading: {
+    flexShrink: 1,
   },
   metricValueRow: {
     flexDirection: "row",
     alignItems: "baseline",
     gap: theme.spacing[1],
+    flexWrap: "wrap",
   },
   metricValue: {
     fontSize: 34,
@@ -799,6 +783,18 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 15,
     fontWeight: "600",
     color: statsPalette.muted,
+  },
+  activityBars: {
+    width: 88,
+    height: 40,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 2,
+    marginBottom: theme.spacing[1],
+  },
+  activityBar: {
+    flex: 1,
+    borderRadius: 2,
   },
   miniBars: {
     height: MINI_BAR_HEIGHT,
@@ -877,7 +873,30 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 17,
     fontWeight: "700",
   },
+  usualDestinationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 2,
+  },
+  // Same arrow as the voucher hero and the widget previews
+  usualArrowCircle: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: statsPalette.text,
+  },
+  usualArrowIcon: {
+    width: 9,
+    height: 9,
+    tintColor: "#000000",
+    // The asset points left, which is forward in right-to-left layouts
+    transform: rt.rtl ? undefined : [{ rotate: "180deg" }],
+  },
   usualDestination: {
+    flexShrink: 1,
     color: statsPalette.text,
     fontSize: 15,
     fontWeight: "500",

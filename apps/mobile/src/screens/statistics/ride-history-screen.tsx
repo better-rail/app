@@ -4,11 +4,12 @@ import { StyleSheet } from "react-native-unistyles"
 import { FlashList } from "@shopify/flash-list"
 import HapticFeedback from "react-native-haptic-feedback"
 import TouchableScale from "react-native-touchable-scale"
-import { useRouter } from "expo-router"
+import { useLocalSearchParams, useRouter } from "expo-router"
 import { useHeaderHeight } from "expo-router/react-navigation"
 import { format, isThisYear } from "date-fns"
 import { Text } from "@/components"
 import { StatsBackground } from "./stats-screen"
+import { StatsDisplayText } from "./stats-display-text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { dateFnsLocalization, isRTL, translate, type TxKeyPath } from "@/i18n"
 import { useRideHistoryStore, type RideRecord } from "@/models"
@@ -24,17 +25,16 @@ import {
   type HistoryPeriod,
 } from "./compute-stats"
 import { statsNumberFont, statsPalette } from "./statistics-palette"
-import { formatMetric, rideDuration } from "./ride-format"
+import { formatMetric, rideDistance, rideDuration } from "./ride-format"
 import { MetricChart } from "./metric-chart"
 import { NumericText } from "./numeric-text"
 
 const stationName = (id: string) => stationsObject[id]?.[stationLocale] ?? ""
 
-const STOP_SPACING = 14
-
 const METRICS: { metric: HistoryMetric; label: TxKeyPath; icon: string }[] = [
   { metric: "rides", label: "statistics.rides", icon: "🎫" },
   { metric: "hours", label: "statistics.hoursOnTrain", icon: "⏱️" },
+  { metric: "distance", label: "statistics.distanceTravelled", icon: "🛤️" },
   { metric: "onTime", label: "statistics.legendOnTime", icon: "🎯" },
 ]
 
@@ -42,7 +42,10 @@ const selectionHaptic = () => HapticFeedback.trigger("selection")
 
 export function RideHistoryScreen() {
   const rides = useRideHistoryStore((state) => state.rides)
-  const [metric, setMetric] = useState<HistoryMetric>("rides")
+  const params = useLocalSearchParams<{ metric?: string }>()
+  const [metric, setMetric] = useState<HistoryMetric>(
+    () => METRICS.find((item) => item.metric === params.metric)?.metric ?? "rides",
+  )
   const [period, setPeriod] = useState<HistoryPeriod>("all")
   const visibleRides = useMemo(() => ridesInPeriod(rides, period), [rides, period])
   const items = useMemo(() => rideHistoryItems(visibleRides), [visibleRides])
@@ -111,7 +114,7 @@ function PeriodChips({ selected, onSelect }: { selected: HistoryPeriod; onSelect
   )
 }
 
-/** Totals for the rides in view. The selected tile picks which pill each ride highlights. */
+/** Totals for the rides in view. The selected tile highlights the corresponding detail in each ride. */
 function MetricTiles({
   rides,
   allRides,
@@ -123,8 +126,9 @@ function MetricTiles({
   selected: HistoryMetric
   onSelect: (metric: HistoryMetric) => void
 }) {
-  const scrollRef = useRef<ScrollView>(null)
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null)
   const dragged = useRef(false)
+  const initialMetric = useRef(selected)
 
   return (
     <ScrollView
@@ -134,8 +138,13 @@ function MetricTiles({
       style={styles.tilesScroll}
       contentContainerStyle={styles.tiles}
       onScrollBeginDrag={() => (dragged.current = true)}
-      // In RTL the offset drifts off the first tile as the values widen the tiles. Native "end" is the RTL start
-      onContentSizeChange={() => isRTL && !dragged.current && scrollRef.current?.scrollToEnd({ animated: false })}
+      // Reveal a metric opened from the overview, while leaving the strip alone once the rider scrolls it.
+      onContentSizeChange={() => {
+        if (dragged.current) return
+        const showLastTiles = initialMetric.current === "distance" || initialMetric.current === "onTime"
+        if (showLastTiles !== isRTL) scrollRef.current?.scrollToEnd({ animated: false })
+        else if (isRTL) scrollRef.current?.scrollTo({ x: 0, animated: false })
+      }}
     >
       {METRICS.map(({ metric, label, icon }) => (
         <MetricTile
@@ -191,9 +200,9 @@ function MetricTile({
         <Text style={[styles.tileValue, styles.tileSizer]} maxFontSizeMultiplier={1.1} accessibilityElementsHidden>
           {sizerText}
         </Text>
-        <Text style={[styles.tileLabel, selected && styles.tileTextSelected]} numberOfLines={1}>
+        <StatsDisplayText englishSize={17} style={[styles.tileLabel, selected && styles.tileTextSelected]} numberOfLines={1}>
           {label?.toUpperCase()}
-        </Text>
+        </StatsDisplayText>
       </View>
     </TouchableScale>
   )
@@ -202,59 +211,80 @@ function MetricTile({
 function HistoryRow({ item, metric }: { item: HistoryItem; metric: HistoryMetric }) {
   if (item.type === "day") {
     const pattern = isThisYear(item.date) ? "EEEE, d MMMM" : "EEEE, d MMMM yyyy"
-    return <Text style={styles.day}>{format(item.date, pattern, { locale: dateFnsLocalization })}</Text>
+    return (
+      <Text style={styles.day} accessibilityRole="header">
+        {format(item.date, pattern, { locale: dateFnsLocalization })}
+      </Text>
+    )
   }
-  return <RideRow ride={item.ride} firstOfDay={item.firstOfDay} metric={metric} />
+  return <RideRow ride={item.ride} metric={metric} />
 }
 
-function RideRow({ ride, firstOfDay, metric }: { ride: RideRecord; firstOfDay: boolean; metric: HistoryMetric }) {
+function RideRow({ ride, metric }: { ride: RideRecord; metric: HistoryMetric }) {
   const router = useRouter()
   const late = ride.delay >= ON_TIME_THRESHOLD_MINUTES
+  const status = late ? translate("statistics.lateBy", { count: ride.delay }) : translate("statistics.onTimeShort")
+  const duration = rideDuration(ride)
+  const distance = metric === "distance" ? rideDistance(ride) : undefined
+  const origin = stationName(ride.originId)
+  const destination = stationName(ride.destinationId)
 
   return (
     <Pressable
       onPress={() => router.push({ pathname: "/statistics/ride", params: { id: ride.id } })}
-      style={({ pressed }) => [styles.ride, !firstOfDay && styles.rideDivider, pressed && styles.pressed]}
+      accessibilityRole="button"
+      accessibilityLabel={`${translate("statistics.departed")} ${formatTime(ride.departureTime)}, ${origin}, ${translate("statistics.arrived")} ${destination}, ${duration}${distance ? `, ${distance}` : ""}, ${status}`}
+      style={({ pressed }) => [styles.ride, pressed && styles.ridePressed]}
     >
-      <StopsStrip stops={ride.stationIds.length} highlighted={metric === "rides"} />
-      <Text style={styles.rideRoute} numberOfLines={1}>
-        {stationName(ride.originId)} {isRTL ? "←" : "→"} {stationName(ride.destinationId)}
-      </Text>
-      <View style={styles.rideDetails}>
-        <Text style={styles.rideTime}>{formatTime(ride.departureTime)}</Text>
-        <Pill
-          text={late ? translate("statistics.lateBy", { count: ride.delay }) : translate("statistics.onTimeShort")}
-          tone={late ? "late" : "onTime"}
-          highlighted={metric === "onTime"}
-        />
-        <Pill text={rideDuration(ride)} highlighted={metric === "hours"} />
+      <View style={styles.rideHeader}>
+        <View style={styles.rideSchedule}>
+          <Text style={styles.rideTime}>{formatTime(ride.departureTime)}</Text>
+          <Text style={styles.scheduleSeparator} accessibilityElementsHidden importantForAccessibility="no">
+            ·
+          </Text>
+          <Text style={[styles.rideDuration, (metric === "hours" || metric === "distance") && styles.durationHighlighted]}>
+            {distance ?? duration}
+          </Text>
+        </View>
+        <Pill text={status} tone={late ? "late" : "onTime"} />
+      </View>
+      <View style={styles.rideRoute}>
+        <StopsRail stops={ride.stationIds.length} highlighted={metric === "rides"} />
+        <View style={styles.rideStations}>
+          <Text style={styles.rideStation}>{origin}</Text>
+          <Text style={styles.rideStation}>{destination}</Text>
+        </View>
       </View>
     </Pressable>
   )
 }
 
-function Pill({ text, tone, highlighted }: { text: string | null; tone?: "late" | "onTime"; highlighted: boolean }) {
-  const toneColor = tone === "late" ? statsPalette.orange : tone === "onTime" ? statsPalette.green : statsPalette.accent
+function Pill({ text, tone }: { text: string | null; tone: "late" | "onTime" }) {
+  const toneColor = tone === "late" ? statsPalette.orange : statsPalette.green
   return (
-    <View style={[styles.pill, highlighted && { backgroundColor: toneColor }]}>
-      <Text
-        style={[styles.pillText, tone && !highlighted && { color: toneColor }, highlighted && { color: statsPalette.background }]}
-      >
-        {text}
-      </Text>
+    <View style={[styles.pill, tone === "late" ? styles.pillLate : styles.pillOnTime]}>
+      <View style={[styles.statusDot, { backgroundColor: toneColor }]} />
+      <Text style={[styles.pillText, { color: toneColor }]}>{text}</Text>
     </View>
   )
 }
 
-/** A line segment with a dot for every station the ride passed */
-function StopsStrip({ stops, highlighted }: { stops: number; highlighted: boolean }) {
-  const count = Math.max(2, stops)
+/** A compact route marker; cap intermediate dots so long trips stay legible. */
+function StopsRail({ stops, highlighted }: { stops: number; highlighted: boolean }) {
+  const count = Math.min(6, Math.max(2, stops))
   return (
-    <View
-      style={[styles.strip, highlighted && styles.stripHighlighted, { width: (count - 1) * STOP_SPACING + styles.strip.height }]}
-    >
+    <View style={styles.rail} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <View style={[styles.railLine, highlighted && styles.railLineHighlighted]} />
       {Array.from({ length: count }, (_, index) => (
-        <View key={index} style={[styles.stop, (index === 0 || index === count - 1) && styles.stopEnd]} />
+        <View
+          key={index}
+          style={[
+            styles.stop,
+            highlighted && styles.stopHighlighted,
+            (index === 0 || index === count - 1) && styles.stopEnd,
+            index === 0 && styles.stopOrigin,
+          ]}
+        />
       ))}
     </View>
   )
@@ -266,9 +296,6 @@ const styles = StyleSheet.create((theme) => ({
   content: {
     paddingHorizontal: theme.spacing[4],
     paddingBottom: theme.spacing[6],
-  },
-  pressed: {
-    opacity: 0.6,
   },
   chipsScroll: {
     marginHorizontal: -theme.spacing[4],
@@ -361,76 +388,142 @@ const styles = StyleSheet.create((theme) => ({
     color: statsPalette.background,
   },
   day: {
-    color: statsPalette.text,
-    fontSize: 20,
-    fontWeight: "700",
-    marginTop: theme.spacing[6],
-    marginBottom: theme.spacing[1],
-  },
-  ride: {
-    paddingVertical: theme.spacing[3],
-    gap: theme.spacing[2],
-  },
-  rideDivider: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderColor: statsPalette.track,
-  },
-  strip: {
-    height: 12,
-    maxWidth: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 3,
-    borderRadius: 6,
-    backgroundColor: statsPalette.pill,
-    overflow: "hidden",
-  },
-  stripHighlighted: {
-    backgroundColor: statsPalette.accent,
-  },
-  stop: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: statsPalette.text,
-    opacity: 0.45,
-  },
-  stopEnd: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    opacity: 1,
-  },
-  rideRoute: {
-    color: statsPalette.text,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  rideDetails: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: theme.spacing[2],
-  },
-  rideTime: {
     color: statsPalette.muted,
     fontSize: 15,
     fontWeight: "600",
-    fontVariant: ["tabular-nums"],
-    marginEnd: theme.spacing[1],
+    paddingHorizontal: theme.spacing[1],
+    marginTop: theme.spacing[6],
+    marginBottom: theme.spacing[3],
   },
-  pill: {
-    paddingHorizontal: theme.spacing[2],
-    paddingVertical: 3,
-    borderRadius: 8,
+  ride: {
+    padding: theme.spacing[4],
+    marginBottom: theme.spacing[2],
+    gap: theme.spacing[4],
+    borderRadius: 20,
     borderCurve: "continuous",
+    backgroundColor: "rgba(139, 143, 255, 0.08)",
+  },
+  ridePressed: {
+    backgroundColor: statsPalette.cardRaised,
+  },
+  rideHeader: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: theme.spacing[2],
+  },
+  rideSchedule: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    columnGap: theme.spacing[2],
+    rowGap: theme.spacing[1],
+  },
+  rail: {
+    width: 10,
+    alignSelf: "stretch",
+    marginVertical: 7,
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  railLine: {
+    position: "absolute",
+    top: 4,
+    bottom: 4,
+    width: 2,
     backgroundColor: statsPalette.pill,
   },
-  pillText: {
-    color: statsPalette.accentSoft,
-    fontSize: 14,
-    fontWeight: "700",
+  railLineHighlighted: {
+    backgroundColor: statsPalette.accent,
+  },
+  stop: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+    backgroundColor: statsPalette.muted,
+  },
+  stopHighlighted: {
+    backgroundColor: statsPalette.accent,
+  },
+  stopEnd: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: statsPalette.accentSoft,
+  },
+  stopOrigin: {
+    borderWidth: 2,
+    borderColor: statsPalette.accentSoft,
+    backgroundColor: statsPalette.card,
+  },
+  rideRoute: {
+    flexDirection: "row",
+    gap: theme.spacing[3],
+  },
+  rideStations: {
+    flex: 1,
+    gap: theme.spacing[2],
+  },
+  rideStation: {
+    color: statsPalette.text,
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "500",
+    flexShrink: 1,
+  },
+  rideTime: {
+    color: statsPalette.text,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: "600",
     fontVariant: ["tabular-nums"],
+    writingDirection: "ltr",
+    ...statsNumberFont,
+  },
+  scheduleSeparator: {
+    color: statsPalette.muted,
+    fontSize: 14,
+  },
+  rideDuration: {
+    color: statsPalette.muted,
+    fontSize: 13,
+    fontWeight: "500",
+    fontVariant: ["tabular-nums"],
+    paddingHorizontal: theme.spacing[1],
+    paddingVertical: 3,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  durationHighlighted: {
+    color: statsPalette.background,
+    backgroundColor: statsPalette.accent,
+  },
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: theme.spacing[2],
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderCurve: "continuous",
+    flexShrink: 1,
+  },
+  pillLate: {
+    backgroundColor: "rgba(251, 169, 40, 0.1)",
+  },
+  pillOnTime: {
+    backgroundColor: "rgba(90, 209, 107, 0.1)",
+  },
+  statusDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+  pillText: {
+    fontSize: 12,
+    fontWeight: "600",
+    fontVariant: ["tabular-nums"],
+    flexShrink: 1,
   },
 }))

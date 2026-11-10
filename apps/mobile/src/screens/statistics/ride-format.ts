@@ -7,8 +7,13 @@ const formatNumber = (value: number) => Math.round(value).toLocaleString(userLoc
 export function formatMetric(metric: HistoryMetric, value: number | undefined) {
   if (value === undefined) return "–"
   if (metric === "onTime") return `${Math.round(value)}%`
+  if (metric === "distance") return translate("statistics.kmValue", { count: formatDistance(value) }) ?? ""
   if (metric === "hours" && value > 0 && value < 10) return value.toFixed(1)
   return formatNumber(value)
+}
+
+export function formatDistance(value: number) {
+  return value.toLocaleString(userLocale, { maximumFractionDigits: value > 0 && value < 10 ? 1 : 0 })
 }
 
 export function rideDuration(ride: RideRecord) {
@@ -19,6 +24,5 @@ export function rideDuration(ride: RideRecord) {
 }
 
 export function rideDistance(ride: RideRecord) {
-  const distance = ride.distanceKm < 10 ? ride.distanceKm.toFixed(1) : formatNumber(ride.distanceKm)
-  return translate("statistics.kmValue", { count: distance })
+  return translate("statistics.kmValue", { count: formatDistance(ride.distanceKm) })
 }

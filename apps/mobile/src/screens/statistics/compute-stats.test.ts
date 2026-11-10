@@ -147,11 +147,22 @@ describe("metricValue", () => {
   test("sums each metric", () => {
     expect(metricValue(rides, "rides")).toBe(2)
     expect(metricValue(rides, "hours")).toBe(2)
+    expect(metricValue(rides, "distance")).toBe(100)
     expect(metricValue(rides, "onTime")).toBe(50)
   })
 
   test("has no on-time percent without rides", () => {
     expect(metricValue([], "onTime")).toBeUndefined()
+  })
+
+  test("keeps fractional distances until display, ignores negative distances and handles no rides", () => {
+    const trips = [
+      ride({ departureTime: at(10, 1), distanceKm: 12.25 }),
+      ride({ departureTime: at(10, 2), distanceKm: 17.5 }),
+      ride({ departureTime: at(10, 3), distanceKm: -5 }),
+    ]
+    expect(metricValue(trips, "distance")).toBe(29.75)
+    expect(metricValue([], "distance")).toBe(0)
   })
 })
 
@@ -212,6 +223,20 @@ describe("ridesInPeriod", () => {
 
 describe("metricChart", () => {
   const now = new Date(2026, 9, 15, 12) // Thursday, 15 Oct 2026
+
+  test("distance totals match the selected period and its chart buckets", () => {
+    const rides = [
+      ride({ departureTime: at(9, 30), distanceKm: 80 }),
+      ride({ departureTime: at(10, 12), distanceKm: 12.25 }),
+      ride({ departureTime: at(10, 12, 17), distanceKm: 17.5 }),
+      ride({ departureTime: at(10, 13), distanceKm: 40.5 }),
+    ]
+    const visible = ridesInPeriod(rides, "week", now)
+    const { buckets } = metricChart(visible, "week", "distance", now)
+    expect(buckets.map((bucket) => bucket.value)).toEqual([0, 29.75, 40.5, 0, 0, 0, 0])
+    expect(metricValue(visible, "distance")).toBe(buckets.reduce((sum, bucket) => sum + (bucket.value ?? 0), 0))
+    expect(metricValue(visible, "distance")).toBe(70.25)
+  })
 
   test("buckets this week by day, marking today and the days ahead", () => {
     const rides = [

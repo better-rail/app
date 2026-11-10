@@ -241,7 +241,7 @@ export function ridesToNextRank(rideCount: number) {
   return next === undefined ? undefined : next - rideCount
 }
 
-export type HistoryMetric = "rides" | "hours" | "onTime"
+export type HistoryMetric = "rides" | "hours" | "distance" | "onTime"
 
 /** The value of a metric over a set of rides; on-time is a percent, undefined with no rides */
 export function metricValue(rides: RideRecord[], metric: HistoryMetric) {
@@ -250,6 +250,8 @@ export function metricValue(rides: RideRecord[], metric: HistoryMetric) {
       return rides.length
     case "hours":
       return rides.reduce((sum, ride) => sum + Math.max(0, ride.arrivalTime - ride.departureTime), 0) / 3600000
+    case "distance":
+      return rides.reduce((sum, ride) => sum + Math.max(0, ride.distanceKm), 0)
     case "onTime":
       return onTime(rides)?.percent
   }

@@ -23,6 +23,7 @@ const averageLabel: Record<ChartUnit, TxKeyPath> = {
 
 function formatAverage(metric: HistoryMetric, value: number | undefined) {
   if (value === undefined) return "–"
+  if (metric === "distance") return formatMetric(metric, value)
   if (metric === "onTime") return `${Math.round(value)}%`
   return value.toLocaleString(userLocale, { maximumFractionDigits: value < 10 ? 1 : 0 })
 }
@@ -30,6 +31,7 @@ function formatAverage(metric: HistoryMetric, value: number | undefined) {
 const unitLabel: Record<HistoryMetric, TxKeyPath> = {
   rides: "statistics.rides",
   hours: "statistics.hoursOnTrain",
+  distance: "statistics.kmUnit",
   onTime: "statistics.legendOnTime",
 }
 
@@ -103,7 +105,9 @@ export function MetricChart({ rides, period, metric }: { rides: RideRecord[]; pe
         <NumericText value={selectedBucket ? selectedBucket.value : average} style={styles.legendValue}>
           {selectedBucket ? formatMetric(metric, selectedBucket.value) : averageText}
         </NumericText>
-        {selectedBucket && <Text style={styles.legendText}>{translate(unitLabel[metric])?.toLocaleLowerCase(userLocale)}</Text>}
+        {selectedBucket && metric !== "distance" && (
+          <Text style={styles.legendText}>{translate(unitLabel[metric])?.toLocaleLowerCase(userLocale)}</Text>
+        )}
       </View>
 
       <GestureDetector gesture={gesture}>

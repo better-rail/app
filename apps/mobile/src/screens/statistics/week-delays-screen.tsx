@@ -7,6 +7,7 @@ import { useRouter } from "expo-router"
 import { addDays, addWeeks, differenceInCalendarWeeks, endOfWeek, format } from "date-fns"
 import { Text } from "@/components"
 import { StatsScreen } from "./stats-screen"
+import { StatsDisplayText } from "./stats-display-text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { dateFnsLocalization, isRTL, translate } from "@/i18n"
 import { useRideHistoryStore, type RideRecord } from "@/models"
@@ -95,7 +96,11 @@ export function WeekDelaysScreen() {
 
       {week.delayedRides.length > 0 ? (
         <>
-          <Text style={styles.sectionTitle} tx={isCurrentWeek ? "statistics.delayedRidesTitle" : "statistics.delayedRides"} />
+          <StatsDisplayText
+            englishSize={24}
+            style={styles.sectionTitle}
+            tx={isCurrentWeek ? "statistics.delayedRidesTitle" : "statistics.delayedRides"}
+          />
           <View style={[styles.card, styles.rides]}>
             {week.delayedRides.map((ride, index) => (
               <DelayedRide key={ride.id} ride={ride} first={index === 0} />
@@ -281,9 +286,9 @@ function Total({ value, unit, label }: { value: string; unit?: string | null; la
         </Text>
         {unit && <Text style={styles.totalUnit}>{unit}</Text>}
       </View>
-      <Text style={styles.totalLabel} numberOfLines={1}>
+      <StatsDisplayText englishSize={17} style={styles.totalLabel} numberOfLines={1}>
         {label}
-      </Text>
+      </StatsDisplayText>
     </View>
   )
 }

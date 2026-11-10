@@ -1,7 +1,7 @@
 import { Stack } from "expo-router/stack"
 import { useRouter } from "expo-router"
 import { CloseButton } from "@/components"
-import { translate } from "@/i18n"
+import { translate, userLocale } from "@/i18n"
 import { spacing } from "@/theme"
 import { statsHeaderOptions } from "@/screens/statistics/statistics-palette"
 
@@ -9,7 +9,17 @@ export default function StatisticsLayout() {
   const router = useRouter()
 
   return (
-    <Stack screenOptions={{ ...statsHeaderOptions, headerShadowVisible: false, headerBackButtonDisplayMode: "minimal" }}>
+    <Stack
+      screenOptions={{
+        ...statsHeaderOptions,
+        headerTitleStyle:
+          userLocale === "en"
+            ? { ...statsHeaderOptions.headerTitleStyle, fontFamily: "BebasNeue", fontSize: 24 }
+            : statsHeaderOptions.headerTitleStyle,
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: "minimal",
+      }}
+    >
       <Stack.Screen
         name="index"
         options={{

@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react"
-import { Alert, Pressable, View } from "react-native"
+import { Alert, Image, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import Svg, { Circle, Defs, Path, Pattern, Rect } from "react-native-svg"
 import Animated, { Easing, useAnimatedProps, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import HapticFeedback from "react-native-haptic-feedback"
-import { useLocalSearchParams, useRouter } from "expo-router"
+import { Stack, useLocalSearchParams, useRouter } from "expo-router"
 import { format } from "date-fns"
 import { Text } from "@/components"
+import { ContextMenu } from "@/components/context-menu/context-menu"
 import { StatsScreen } from "./stats-screen"
+import { StatsDisplayText } from "./stats-display-text"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { dateFnsLocalization, translate, type TxKeyPath } from "@/i18n"
 import { useRideHistoryStore, type RideRecord } from "@/models"
@@ -39,18 +41,6 @@ export function RideDetailsScreen() {
   const late = ride.delay >= ON_TIME_THRESHOLD_MINUTES
   const changes = Math.max(0, ride.trainNumbers.length - 1)
 
-  const planAgain = () => {
-    router.dismissTo({
-      pathname: "/route-list",
-      params: {
-        originId: ride.originId,
-        destinationId: ride.destinationId,
-        time: String(Date.now()),
-        enableQuery: "true",
-      },
-    })
-  }
-
   const confirmRemove = () => {
     Alert.alert(translate("statistics.removeRideTitle") ?? "", translate("statistics.removeRideMessage") ?? "", [
       { text: translate("common.cancel") ?? "", style: "cancel" },
@@ -65,9 +55,53 @@ export function RideDetailsScreen() {
     ])
   }
 
+  const actions = [
+    {
+      title: translate("statistics.remove") ?? "",
+      systemIcon: "trash" as const,
+      destructive: true,
+      onPress: confirmRemove,
+    },
+  ]
+
   return (
     <StatsScreen>
-      <Text style={styles.weekday}>{format(ride.departureTime, "EEEE", { locale: dateFnsLocalization })}</Text>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <ContextMenu mode="tap" actions={actions}>
+              <View
+                style={styles.headerAction}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel={translate("routes.routeActions") ?? ""}
+              >
+                <Image source={require("../../../assets/ellipsis.regular.png")} style={styles.headerActionIcon} />
+              </View>
+            </ContextMenu>
+          ),
+          unstable_headerRightItems: () => [
+            {
+              type: "menu",
+              label: "",
+              icon: { type: "sfSymbol", name: "ellipsis" },
+              accessibilityLabel: translate("routes.routeActions") ?? "",
+              menu: {
+                items: actions.map((action) => ({
+                  type: "action" as const,
+                  label: action.title,
+                  icon: { type: "sfSymbol" as const, name: action.systemIcon },
+                  destructive: action.destructive,
+                  onPress: action.onPress,
+                })),
+              },
+            },
+          ],
+        }}
+      />
+      <StatsDisplayText englishSize={21} style={styles.weekday}>
+        {format(ride.departureTime, "EEEE", { locale: dateFnsLocalization })}
+      </StatsDisplayText>
       <Text style={styles.date}>{format(ride.departureTime, "d MMMM yyyy", { locale: dateFnsLocalization })}</Text>
       <Text style={styles.timeRange}>
         {translate("statistics.timeRange", { from: formatTime(ride.departureTime), to: formatTime(ride.arrivalTime) })}
@@ -113,13 +147,6 @@ export function RideDetailsScreen() {
         />
         <DetailRow icon="🚆" label="statistics.trains" value={ride.trainNumbers.join(" · ")} last />
       </View>
-
-      <Pressable onPress={planAgain} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
-        <Text style={styles.primaryButtonText} tx="statistics.planAgain" />
-      </Pressable>
-      <Pressable onPress={confirmRemove} style={({ pressed }) => [styles.removeButton, pressed && styles.pressed]}>
-        <Text style={styles.removeButtonText} tx="statistics.removeRide" />
-      </Pressable>
     </StatsScreen>
   )
 }
@@ -272,7 +299,7 @@ function DetailRow({
   return (
     <View style={[styles.row, !last && styles.rowDivider]}>
       <Text style={styles.rowIcon}>{icon}</Text>
-      <Text style={styles.rowLabel} tx={label} />
+      <StatsDisplayText englishSize={18} style={styles.rowLabel} tx={label} />
       <Text style={[styles.rowValue, valueColor && { color: valueColor }]} numberOfLines={1}>
         {value}
       </Text>
@@ -283,8 +310,17 @@ function DetailRow({
 const cardRadius = isLiquidGlassSupported ? 26 : 18
 
 const styles = StyleSheet.create((theme) => ({
-  pressed: {
-    opacity: 0.7,
+  headerAction: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerActionIcon: {
+    width: 22,
+    height: 22,
+    resizeMode: "contain",
+    tintColor: statsPalette.accentSoft,
   },
   weekday: {
     color: statsPalette.accent,
@@ -411,27 +447,5 @@ const styles = StyleSheet.create((theme) => ({
     fontSize: 15,
     fontWeight: "600",
     fontVariant: ["tabular-nums"],
-  },
-  primaryButton: {
-    marginTop: theme.spacing[5],
-    paddingVertical: theme.spacing[4],
-    borderRadius: 999,
-    alignItems: "center",
-    backgroundColor: statsPalette.accent,
-  },
-  primaryButtonText: {
-    color: statsPalette.background,
-    fontSize: 17,
-    fontWeight: "800",
-  },
-  removeButton: {
-    marginTop: theme.spacing[2],
-    paddingVertical: theme.spacing[3],
-    alignItems: "center",
-  },
-  removeButtonText: {
-    color: "#FF7A7A",
-    fontSize: 16,
-    fontWeight: "600",
   },
 }))

@@ -1,13 +1,14 @@
 import React, { useMemo } from "react"
-import { ImageBackground, View } from "react-native"
+import { Image, ImageBackground, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import LinearGradient from "react-native-linear-gradient"
 import { Stack, useLocalSearchParams } from "expo-router"
 import { useHeaderHeight } from "expo-router/react-navigation"
 import { Text } from "@/components"
 import { StatsScreen } from "./stats-screen"
+import { StatsDisplayText } from "./stats-display-text"
 import { stationLocale, stationsObject } from "@/data/stations"
-import { isRTL, translate } from "@/i18n"
+import { translate } from "@/i18n"
 import { useRideHistoryStore } from "@/models"
 import { formatTime } from "@/utils/helpers/date-helpers"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
@@ -15,6 +16,7 @@ import { ON_TIME_THRESHOLD_MINUTES, computeUsualTrainDetails } from "./compute-s
 import { statsNumberFont, statsPalette } from "./statistics-palette"
 
 const stationName = (id: string) => stationsObject[id]?.[stationLocale] ?? ""
+const arrowIcon = require("../../../assets/arrow-left.png")
 
 const CHART_HEIGHT = 96
 const MIN_BAR_HEIGHT = 6
@@ -52,9 +54,17 @@ export function UsualTrainScreen() {
           <Text style={styles.heroTime} maxFontSizeMultiplier={1.1}>
             {time}
           </Text>
-          <Text style={styles.heroRoute} numberOfLines={1}>
-            {stationName(trip.originId)} {isRTL ? "←" : "→"} {stationName(trip.destinationId)}
+          <Text style={styles.heroOrigin} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+            {stationName(trip.originId)}
           </Text>
+          <View style={styles.heroDestinationRow}>
+            <View style={styles.heroArrowCircle}>
+              <Image source={arrowIcon} style={styles.heroArrowIcon} />
+            </View>
+            <Text style={styles.heroDestination} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              {stationName(trip.destinationId)}
+            </Text>
+          </View>
         </View>
       </ImageBackground>
 
@@ -78,9 +88,9 @@ export function UsualTrainScreen() {
       </View>
 
       <View style={[styles.card, styles.chartCard]}>
-        <Text style={styles.chartTitle}>
+        <StatsDisplayText englishSize={22} style={styles.chartTitle}>
           {translate("statistics.recentOnTime", { onTime: details.recentOnTimeCount, total: details.recentDelays.length })}
-        </Text>
+        </StatsDisplayText>
         <DelayBars delays={details.recentDelays} />
         <View style={styles.legend}>
           <View style={styles.legendItem}>
@@ -152,14 +162,16 @@ function Total({
         </Text>
         {unit && <Text style={[styles.totalUnit, highlight && styles.totalValueHighlight]}>{unit}</Text>}
       </View>
-      <Text style={styles.totalLabel}>{label}</Text>
+      <StatsDisplayText englishSize={17} style={styles.totalLabel}>
+        {label}
+      </StatsDisplayText>
     </View>
   )
 }
 
 const cardRadius = isLiquidGlassSupported ? 20 : 14
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   card: {
     borderRadius: cardRadius,
     borderCurve: "continuous",
@@ -189,10 +201,38 @@ const styles = StyleSheet.create((theme) => ({
     fontVariant: ["tabular-nums"],
     ...statsNumberFont,
   },
-  heroRoute: {
+  heroOrigin: {
     color: theme.colors.palette.white,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  heroDestinationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 2,
+  },
+  // Same arrow as the voucher hero and the widget previews
+  heroArrowCircle: {
+    width: 15,
+    height: 15,
+    borderRadius: 7.5,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: theme.colors.palette.white,
+  },
+  heroArrowIcon: {
+    width: 9,
+    height: 9,
+    tintColor: "#000000",
+    // The asset points left, which is forward in right-to-left layouts
+    transform: rt.rtl ? undefined : [{ rotate: "180deg" }],
+  },
+  heroDestination: {
+    flexShrink: 1,
+    color: theme.colors.palette.white,
+    fontSize: 15,
+    fontWeight: "500",
     opacity: 0.92,
   },
   totals: {
