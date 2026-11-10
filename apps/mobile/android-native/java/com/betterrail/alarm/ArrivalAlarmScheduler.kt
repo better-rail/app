@@ -18,12 +18,23 @@ data class ArrivalAlarmStop(
     val fireDate: Long,
     /** False once it rang, or when the phone was off when it should have */
     val isScheduled: Boolean,
+    /** The phone was off when it should have rung, so it never did */
+    val missed: Boolean = false,
 ) {
+    /** What became of the alarm, as the app reads it: scheduled, rang or missed */
+    val status: String
+        get() = when {
+            isScheduled -> "scheduled"
+            missed -> "missed"
+            else -> "rang"
+        }
+
     fun toJson(): JSONObject = JSONObject()
         .put("train", train)
         .put("title", title)
         .put("fireDate", fireDate)
         .put("isScheduled", isScheduled)
+        .put("missed", missed)
 
     companion object {
         fun fromJson(obj: JSONObject) = ArrivalAlarmStop(
@@ -31,6 +42,7 @@ data class ArrivalAlarmStop(
             title = obj.getString("title"),
             fireDate = obj.getLong("fireDate"),
             isScheduled = obj.getBoolean("isScheduled"),
+            missed = obj.optBoolean("missed", false),
         )
     }
 }
@@ -188,7 +200,7 @@ object ArrivalAlarmScheduler {
         // The phone was off when it should have rung; ringing now would be too late to help.
         val missed = System.currentTimeMillis() - RESTORE_GRACE_MS
         val current = state.copy(
-            stops = state.stops.map { if (it.isScheduled && it.fireDate < missed) it.copy(isScheduled = false) else it },
+            stops = state.stops.map { if (it.isScheduled && it.fireDate < missed) it.copy(isScheduled = false, missed = true) else it },
         )
         val pending = current.stops.filter { it.isScheduled }.map { it.train }.toSet()
 
@@ -210,7 +222,7 @@ object ArrivalAlarmScheduler {
             stops = state.stops.map { stop ->
                 if (stop.train !in trains) return@map stop
 
-                val scheduled = stop.copy(fireDate = maxOf(stop.fireDate, now + MIN_DELAY_MS), isScheduled = true)
+                val scheduled = stop.copy(fireDate = maxOf(stop.fireDate, now + MIN_DELAY_MS), isScheduled = true, missed = false)
                 // setAlarmClock: exact even in Doze, shows the alarm icon in the status bar, and lets the
                 // receiver start the ringing service from the background.
                 val info = AlarmManager.AlarmClockInfo(scheduled.fireDate, openAppIntent(context))

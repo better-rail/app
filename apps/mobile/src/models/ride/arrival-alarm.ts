@@ -222,30 +222,35 @@ export async function syncArrivalAlarmWithServer() {
 }
 
 /**
- * Updates the alarm with what the device has: the stops a push moved, and the ones that rang.
- * False when the device doesn't have the alarm.
+ * Updates the alarm with what the device has: the stops a push moved, the ones that rang, and the ones that
+ * won't ring. False when the device doesn't have the alarm.
  */
 async function updateFromDevice(alarm: ArrivalAlarm, movedBy: "app" | "extension") {
   const device = await getArrivalAlarm()
   if (!device || device.alarmId !== alarm.alarmId) return false
 
-  const now = Date.now()
   const rang = [...useRideStore.getState().arrivalAlarmRangStops]
   let moved = false
-  const stops = alarm.stops.map((stop) => {
+  const stops = alarm.stops.flatMap((stop) => {
     const native = device.stops.find(({ train }) => train === stop.train)
-    if (rang.includes(stop.train) || !native) return stop
+    if (rang.includes(stop.train) || !native) return [stop]
 
-    // A one-shot alarm is gone once it rang.
-    if (!native.isScheduled && native.fireDate <= now) {
-      trackEvent("arrival_alarm_rang", { lead_minutes: alarm.leadMinutes })
-      rang.push(stop.train)
-      return { ...stop, fireDate: native.fireDate }
+    switch (native.status) {
+      case "rang":
+        trackEvent("arrival_alarm_rang", { lead_minutes: alarm.leadMinutes })
+        rang.push(stop.train)
+        return [{ ...stop, fireDate: native.fireDate }]
+      case "missed":
+        // It didn't ring, so it isn't counted as rang, but the alarm no longer has it.
+        trackEvent("arrival_alarm_missed", { lead_minutes: alarm.leadMinutes })
+        return []
+      case "unknown":
+        return [stop]
     }
 
-    if (native.fireDate === stop.fireDate) return stop
+    if (native.fireDate === stop.fireDate) return [stop]
     moved = true
-    return { ...stop, fireDate: native.fireDate }
+    return [{ ...stop, fireDate: native.fireDate }]
   })
 
   if (moved) trackEvent("arrival_alarm_rescheduled", { source: movedBy })
@@ -256,8 +261,9 @@ async function updateFromDevice(alarm: ArrivalAlarm, movedBy: "app" | "extension
     return true
   }
 
-  const allRang = stops.every((stop) => rang.includes(stop.train))
-  useRideStore.setState({ arrivalAlarm: allRang ? undefined : { ...alarm, stops }, arrivalAlarmRangStops: rang })
+  // Off once no stop is left to ring.
+  const done = stops.every((stop) => rang.includes(stop.train))
+  useRideStore.setState({ arrivalAlarm: done ? undefined : { ...alarm, stops }, arrivalAlarmRangStops: rang })
   return true
 }
 
@@ -267,7 +273,12 @@ async function refreshArrivalAlarm() {
   if (pendingArrivalAlarmRemoval) {
     retryArrivalAlarmRemoval(pendingArrivalAlarmRemoval, rideId)
   }
-  if (!alarm) return
+  if (!alarm) {
+    // iOS: reading the alarm also cancels any AlarmKit alarm left behind by a change that lost, like an
+    // extension killed while moving it as the rider turned it off.
+    if (Platform.OS === "ios") getArrivalAlarm().catch(() => {})
+    return
+  }
 
   // The ride ended without the app noticing.
   if (alarm.rideId !== rideId) {

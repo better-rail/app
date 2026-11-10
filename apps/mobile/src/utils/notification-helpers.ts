@@ -88,7 +88,7 @@ const handleAndroidArrivalAlarmPush = async (data: Record<string, string>) => {
 
   // A push for an alarm the rider turned off or changed, or whose stops all rang.
   const current = await getArrivalAlarm().catch(() => null)
-  if (current?.alarmId !== push.alarmId || !current.stops.some((stop) => stop.isScheduled)) return
+  if (current?.alarmId !== push.alarmId || !current.stops.some((stop) => stop.status === "scheduled")) return
 
   const moved = await moveArrivalAlarm(push).catch(() => false)
   await postAndroidAlert({

@@ -237,18 +237,23 @@ class RNBetterRail: NSObject {
     ArrivalAlarmScheduler.cancel()
   }
 
-  /// Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), isScheduled }] }, or nil when there's no alarm.
+  /// Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), status }] }, or nil when there's no alarm.
+  /// `status` is an ArrivalAlarmStopStatus. Also cancels any AlarmKit alarm the stored alarm doesn't point to.
   @objc func getArrivalAlarm(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) -> Void {
-    guard #available(iOS 26.0, *), let state = ArrivalAlarmStore.load() else {
+    guard #available(iOS 26.0, *), let alarm = ArrivalAlarmScheduler.current() else {
       resolve(nil)
       return
     }
 
     resolve([
-      "rideId": state.rideId,
-      "alarmId": state.alarmId.uuidString.lowercased(),
-      "stops": state.stops.map {
-        ["train": $0.train, "fireDate": $0.fireDate.timeIntervalSince1970 * 1000, "isScheduled": ArrivalAlarmScheduler.isScheduled($0)] as [String: Any]
+      "rideId": alarm.state.rideId,
+      "alarmId": alarm.state.alarmId.uuidString.lowercased(),
+      "stops": alarm.state.stops.map {
+        [
+          "train": $0.train,
+          "fireDate": $0.fireDate.timeIntervalSince1970 * 1000,
+          "status": (alarm.statuses[$0.train] ?? .unknown).rawValue,
+        ] as [String: Any]
       },
     ])
   }
