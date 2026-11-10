@@ -17,6 +17,7 @@ import { trackEvent } from "@/services/analytics"
 import { showErrorAlert } from "@/utils/helpers/error-alert"
 import { rideStartErrorLevel, rideStartErrorTags } from "@/utils/helpers/ride-errors"
 import { isSameRoute } from "@/utils/helpers/ride-helpers"
+import { refetchRideRoute } from "@/hooks/use-ride-progress/refetch-ride-route"
 import type { ArrivalAlarmStop } from "@/utils/helpers/arrival-alarm-helpers"
 
 const routeApi = new RouteApi()
@@ -191,8 +192,9 @@ export const useRideStore = create<RideStore>((set, get) => ({
   },
 
   async stopRide(rideId) {
-    const { canRunLiveActivities } = get()
-    if (!canRunLiveActivities) return
+    const { canRunLiveActivities, id } = get()
+    // Several signals can end the same ride; only the first one ends it
+    if (!canRunLiveActivities || id !== rideId) return
 
     // The ride's alarm goes with it. Its server side is removed with the ride.
     if (get().arrivalAlarm) {
@@ -314,6 +316,38 @@ export function hydrateRideStore(data: any) {
 }
 
 let stopSubscription: (() => void) | undefined
+let arrivalSubscription: (() => void) | undefined
+let arrivalTimer: ReturnType<typeof setTimeout> | undefined
+
+const ARRIVAL_RECHECK_MS = 60_000
+// Without fresh data the ride still ends this long after arrival, like the server's overdue backstop
+const ARRIVAL_OVERDUE_MINUTES = 30
+
+const arrivalOf = (route: RouteItem) => addMinutes(route.arrivalTime, last(route.trains)?.delay ?? 0).getTime()
+
+/** Checks for arrival while the app is open. Each route refresh re-arms it with the new delay. */
+function armArrivalTimer({ id, route }: RideState) {
+  clearTimeout(arrivalTimer)
+  if (!id || !route) return
+
+  arrivalTimer = setTimeout(() => confirmArrival(id, route), Math.max(arrivalOf(route) - Date.now(), 0))
+}
+
+/** The stored route goes stale away from route details, so the ride ends only once fresh delays agree it arrived. */
+async function confirmArrival(id: string, route: RouteItem) {
+  const fresh = await refetchRideRoute(routeApi, route).catch(() => undefined)
+  const { id: currentId, route: currentRoute, setRoute, stopRide } = useRideStore.getState()
+  // A newer route already re-armed the timer, or the ride is gone
+  if (currentId !== id || currentRoute !== route) return
+
+  if (fresh && arrivalOf(fresh) > Date.now()) {
+    setRoute(fresh)
+  } else if (fresh || Date.now() > addMinutes(arrivalOf(route), ARRIVAL_OVERDUE_MINUTES).getTime()) {
+    stopRide(id)
+  } else {
+    arrivalTimer = setTimeout(() => confirmArrival(id, route), ARRIVAL_RECHECK_MS)
+  }
+}
 
 /**
  * Run afterCreate logic - checks if ride is still active and authorization.
@@ -333,4 +367,10 @@ export function initializeRideStore() {
       useRideStore.getState().stopRide(currentId)
     }
   })
+
+  arrivalSubscription?.()
+  arrivalSubscription = useRideStore.subscribe((next, prev) => {
+    if (next.id !== prev.id || next.route !== prev.route) armArrivalTimer(next)
+  })
+  armArrivalTimer(useRideStore.getState())
 }
