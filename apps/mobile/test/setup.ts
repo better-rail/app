@@ -5,6 +5,7 @@ import "./mock-async-storage"
 import "./mock-expo-localization"
 import "./mock-i18n"
 import "./mock-env"
+import "./mock-expo-secure-store"
 
 declare global {
   // @ts-ignore - React Native global variable

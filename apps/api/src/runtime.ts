@@ -12,6 +12,7 @@
  */
 import type { D1Database, DurableObjectNamespace, KVNamespace } from "@cloudflare/workers-types"
 import type { ApnsTokenDO } from "./push/apns-token-do"
+import type { DeviceDO } from "./devices/device-do"
 import type { RideDO } from "./rides/ride-do"
 import type { SiriPollerDO } from "./siri/poller-do"
 
@@ -22,6 +23,8 @@ export interface Env {
   SIRI: DurableObjectNamespace<SiriPollerDO>
   /** The one APNs provider token, shared by every isolate (`src/push/apns-token-do.ts`). */
   APNS_TOKEN: DurableObjectNamespace<ApnsTokenDO>
+  /** One object per device, named by its anonymous device id (`src/devices/device-do.ts`). */
+  DEVICES: DurableObjectNamespace<DeviceDO>
   /** The GTFS ingest container (a Durable Object that owns one container instance). */
   INGEST: DurableObjectNamespace
   [variable: string]: unknown

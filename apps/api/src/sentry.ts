@@ -11,26 +11,51 @@
 import * as Sentry from "@sentry/cloudflare"
 import type { Breadcrumb, ErrorEvent } from "@sentry/cloudflare"
 
-// Push tokens ride along in ride metadata, notification payloads and APNs errors.
-const TOKEN_KEY = /token/i
-const TOKEN_IN_TEXT = /("[^"]*token[^"]*"\s*:\s*)"[^"]*"/gi
+// Push tokens ride along in ride metadata, notification payloads and APNs errors; a device's anonymous id, its
+// secret and its push tokens (`tokens: { pushToStart, apns, fcm }`) must never reach Sentry either.
+const SENSITIVE_KEY = /token|secret|device[-_]?id|authorization|^(pushToStart|apns|fcm)$/i
+const SENSITIVE_IN_TEXT = /("(?:[^"]*(?:token|secret|device[-_]?id|authorization)[^"]*|pushToStart|apns|fcm)"\s*:\s*)"[^"]*"/gi
+// A device's credentials, which the server logs never print either (logger.ts). Ride push tokens still do: they
+// are short-lived and the ride logs need them to trace a delivery.
+const IDENTITY_KEY = /secret|device[-_]?id|authorization|^(tokens|pushToStart|apns|fcm)$/i
+const IDENTITY_IN_TEXT = /("(?:[^"]*(?:secret|device[-_]?id|authorization)[^"]*|pushToStart|apns|fcm)"\s*:\s*)"[^"]*"/gi
 const FILTERED = "[Filtered]"
 
-export const scrubTokens = (value: unknown, depth = 0): unknown => {
-  if (typeof value === "string") return value.replace(TOKEN_IN_TEXT, `$1"${FILTERED}"`)
-  if (value === null || typeof value !== "object" || depth > 8) return value
-  if (Array.isArray(value)) return value.map((item) => scrubTokens(item, depth + 1))
+// An Authorization header value quoted in an error message.
+const BEARER_IN_TEXT = /\b(Bearer\s+)[^\s"',]+/gi
 
-  return Object.fromEntries(
-    Object.entries(value).map(([key, item]) => [key, TOKEN_KEY.test(key) ? FILTERED : scrubTokens(item, depth + 1)]),
-  )
+const scrubber = (keyPattern: RegExp, textPattern: RegExp) => {
+  const scrub = (value: unknown, depth = 0): unknown => {
+    if (typeof value === "string") return value.replace(textPattern, `$1"${FILTERED}"`).replace(BEARER_IN_TEXT, `$1${FILTERED}`)
+    if (value === null || typeof value !== "object" || depth > 8) return value
+    if (Array.isArray(value)) return value.map((item) => scrub(item, depth + 1))
+
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [key, keyPattern.test(key) ? FILTERED : scrub(item, depth + 1)]),
+    )
+  }
+  return scrub
 }
+
+/** Everything sensitive, for what goes to Sentry: push tokens, device ids, device secrets, Authorization values. */
+export const scrubTokens = scrubber(SENSITIVE_KEY, SENSITIVE_IN_TEXT)
+
+/** A device's id, secret and push tokens, for what the server logs print (Workers Logs keep all of it). */
+export const scrubDeviceIdentity = scrubber(IDENTITY_KEY, IDENTITY_IN_TEXT)
+
+/** Whether a log field holds a device's id, secret or push tokens. */
+export const isDeviceIdentityKey = (key: string) => IDENTITY_KEY.test(key)
 
 export const scrubEvent = (event: ErrorEvent) => {
   // The request (URL + headers) can carry the SIRI debug token; the log metadata is what matters.
   delete event.request
   if (event.extra) event.extra = scrubTokens(event.extra) as ErrorEvent["extra"]
   if (event.contexts) event.contexts = scrubTokens(event.contexts) as ErrorEvent["contexts"]
+  // A thrown message can quote what was logged (`${message}: ${error}`) or a request's headers.
+  if (event.message) event.message = scrubTokens(event.message) as string
+  for (const exception of event.exception?.values ?? []) {
+    if (exception.value) exception.value = scrubTokens(exception.value) as string
+  }
   return event
 }
 

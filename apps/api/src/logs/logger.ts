@@ -6,7 +6,7 @@
  * through sentry.ts, throttled per log site so one broken dependency doesn't
  * flood the quota. Workers Logs capture console output as structured events.
  */
-import { reportError } from "../sentry"
+import { isDeviceIdentityKey, reportError, scrubDeviceIdentity } from "../sentry"
 
 type Meta = Record<string, unknown>
 
@@ -17,13 +17,20 @@ export type Logger = {
   child(bindings: Meta): Logger
 }
 
-// JSON.stringify turns an Error into `{}`, which would hide every logged failure's cause.
-const serializeErrors = (_key: string, value: unknown) =>
-  value instanceof Error ? { name: value.name, message: value.message, stack: value.stack } : value
+const FILTERED = "[Filtered]"
+
+// JSON.stringify turns an Error into `{}`, which would hide every logged failure's cause. A device's id, secret and
+// push tokens never get printed, wherever they sit in the metadata (Workers Logs keep everything `console` prints).
+const serialize = (key: string, value: unknown) => {
+  if (key && isDeviceIdentityKey(key)) return FILTERED
+  if (typeof value === "string") return scrubDeviceIdentity(value)
+  return value instanceof Error ? { name: value.name, message: value.message, stack: value.stack } : value
+}
 
 const format = (level: string, message: string, meta: Meta) => {
   const hasMeta = Object.keys(meta).length > 0
-  return `${new Date().toISOString()} ${level}: ${message}${hasMeta ? " - " + JSON.stringify(meta, serializeErrors) : ""}`
+  const text = `${scrubDeviceIdentity(message)}${hasMeta ? " - " + JSON.stringify(meta, serialize) : ""}`
+  return `${new Date().toISOString()} ${level}: ${text}`
 }
 
 const createLogger = (bindings: Meta = {}): Logger => ({
