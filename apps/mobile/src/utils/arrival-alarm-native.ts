@@ -46,12 +46,20 @@ export function cancelArrivalAlarm() {
   native?.cancelArrivalAlarm?.()
 }
 
+/**
+ * What became of a stop's alarm:
+ * - `scheduled`: waiting to ring
+ * - `rang`: rang, or is ringing. On iOS it's inferred: AlarmKit only says the alarm is gone after its time.
+ * - `missed`: won't ring and didn't: the phone was off (Android), or alarms were turned off in Settings (iOS)
+ * - `unknown`: the device couldn't say this time (iOS)
+ */
+export type ArrivalAlarmStopStatus = "scheduled" | "rang" | "missed" | "unknown"
+
 /** The alarm as the device has it, which a push may have moved while the app wasn't running */
 export async function getArrivalAlarm(): Promise<{
   rideId: string
   alarmId: string
-  /** `isScheduled` is false once a stop's alarm rang */
-  stops: { train: number; fireDate: number; isScheduled: boolean }[]
+  stops: { train: number; fireDate: number; status: ArrivalAlarmStopStatus }[]
 } | null> {
   return native.getArrivalAlarm()
 }

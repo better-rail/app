@@ -87,7 +87,7 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
         ArrivalAlarmScheduler.cancel(reactApplicationContext)
     }
 
-    /** Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), isScheduled }] }, or null when there's no alarm. */
+    /** Resolves with { rideId, alarmId, stops: [{ train, fireDate (ms), status }] }, or null when there's no alarm. */
     @ReactMethod
     fun getArrivalAlarm(promise: Promise) {
         val state = ArrivalAlarmScheduler.current(reactApplicationContext)
@@ -151,7 +151,7 @@ class ArrivalAlarmModule(reactContext: ReactApplicationContext) : ReactContextBa
                     Arguments.createMap().apply {
                         putInt("train", stop.train)
                         putDouble("fireDate", stop.fireDate.toDouble())
-                        if (withState) putBoolean("isScheduled", stop.isScheduled)
+                        if (withState) putString("status", stop.status)
                     },
                 )
             }
