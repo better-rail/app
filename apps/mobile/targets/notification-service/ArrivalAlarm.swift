@@ -231,7 +231,8 @@ enum ArrivalAlarmScheduler {
       let result: (consistent: Bool, state: ArrivalAlarmState?)? = try? change(seeing: snapshot) { record in
         (record.revision == read.revision, record.state)
       }
-      guard let result else { return nil }
+      // The cleanup couldn't be saved, but the alarm is still there and its alarms still ring.
+      guard let result else { return read.state.map { ($0, statuses(of: $0, in: nil)) } }
       guard let state = result.state else { return nil }
       if result.consistent {
         return (state, statuses(of: state, in: snapshot))
