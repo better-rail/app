@@ -75,6 +75,8 @@ struct ArrivalAlarmRecord: Codable, Equatable {
 enum ArrivalAlarmStore {
   enum StoreError: Error {
     case unavailable
+    /// The stored record can't be decoded
+    case unreadable
   }
 
   private static let suite = "group.il.co.better-rail"
@@ -91,7 +93,9 @@ enum ArrivalAlarmStore {
 
   /// Reads the record, lets `body` change it, and saves it, while no other process or task can.
   /// Keep `body` short and off AlarmKit: an app suspended while holding a lock in the app group is killed.
-  static func update<T>(_ body: (inout ArrivalAlarmRecord) throws -> T) throws -> T {
+  /// Throws when the record can't be read rather than starting an empty one, which would make every alarm look
+  /// unreferenced. `replacingUnreadable` starts one anyway, for a change that replaces the whole alarm.
+  static func update<T>(replacingUnreadable: Bool = false, _ body: (inout ArrivalAlarmRecord) throws -> T) throws -> T {
     guard let directory else { throw StoreError.unavailable }
     let file = directory.appendingPathComponent("arrival-alarm.json")
 
@@ -105,8 +109,14 @@ enum ArrivalAlarmStore {
 
     var record = ArrivalAlarmRecord()
     var migrated = false
-    if let stored = try? Data(contentsOf: file) {
-      record = (try? JSONDecoder().decode(ArrivalAlarmRecord.self, from: stored)) ?? record
+    if FileManager.default.fileExists(atPath: file.path) {
+      // A file that exists but can't be read, like one still protected before the first unlock, isn't an empty one.
+      let stored = try Data(contentsOf: file)
+      if let decoded = try? JSONDecoder().decode(ArrivalAlarmRecord.self, from: stored) {
+        record = decoded
+      } else if !replacingUnreadable {
+        throw StoreError.unreadable
+      }
     } else if let legacy = UserDefaults(suiteName: suite)?.data(forKey: legacyKey) {
       record.state = try? JSONDecoder().decode(ArrivalAlarmState.self, from: legacy)
       migrated = true
@@ -211,7 +221,8 @@ enum ArrivalAlarmScheduler {
   }
 
   static func cancel() {
-    let cancelled: Void? = try? change { record in
+    // Replaces an unreadable record too, so a corrupt file can't keep the rider from setting the alarm again.
+    let cancelled: Void? = try? change(replacingUnreadable: true) { record in
       record.intent += 1
       record.state = nil
       record.revision += 1
@@ -225,7 +236,16 @@ enum ArrivalAlarmScheduler {
   /// The alarm with what became of each stop's alarm, by train. Also cancels the alarms nothing points to.
   static func current() -> (state: ArrivalAlarmState, statuses: [Int: ArrivalAlarmStopStatus])? {
     for attempt in 1...3 {
-      guard let read = try? ArrivalAlarmStore.update({ $0 }) else { return nil }
+      let read: ArrivalAlarmRecord
+      do {
+        read = try ArrivalAlarmStore.update { $0 }
+      } catch ArrivalAlarmStore.StoreError.unreadable {
+        // Nothing can say which alarms are the rider's, so all go, matching the app showing none.
+        cancel()
+        return nil
+      } catch {
+        return nil
+      }
       let snapshot = Snapshot.take()
 
       let result: (consistent: Bool, state: ArrivalAlarmState?)? = try? change(seeing: snapshot) { record in
@@ -372,9 +392,13 @@ enum ArrivalAlarmScheduler {
   /// The snapshot can be older than the change: an id is claimed before its alarm is scheduled, and an id that's
   /// neither stored nor claimed never will be again.
   @discardableResult
-  private static func change<T>(seeing snapshot: Snapshot = .take(), _ body: (inout ArrivalAlarmRecord) throws -> T) throws -> T {
+  private static func change<T>(
+    seeing snapshot: Snapshot = .take(),
+    replacingUnreadable: Bool = false,
+    _ body: (inout ArrivalAlarmRecord) throws -> T
+  ) throws -> T {
     var unreferenced = Set<UUID>()
-    let result = try ArrivalAlarmStore.update { record in
+    let result = try ArrivalAlarmStore.update(replacingUnreadable: replacingUnreadable) { record in
       let known = record.systemAlarmIds + record.pending.map(\.id)
       let result = try body(&record)
 
