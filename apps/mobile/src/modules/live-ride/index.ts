@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications"
-import { DeviceEventEmitter, NativeModules, Platform } from "react-native"
+import { DeviceEventEmitter, Linking, NativeModules, Platform } from "react-native"
+import { getBundleId } from "react-native-device-info"
 import { clearBackgroundStorage, getRideRoute, getUserLocale, setRideRoute } from "@/utils/storage/background-storage"
 import { LiveRideController } from "./live-ride-controller"
 import type { AndroidAlert, LiveRideNativeBridge, LiveRideUpdatePayload } from "./types"
@@ -61,6 +62,15 @@ export const liveRideNotifications = new LiveRideController({
 })
 
 export const postAndroidAlert = (alert: AndroidAlert) => bridge.postAlert(alert)
+
+/**
+ * The app's notification settings, for when the permission dialog can't show:
+ * below Android 13 there's no runtime permission, and from 13 on Android stops asking after two denials.
+ */
+export const openNotificationSettings = () =>
+  Linking.sendIntent("android.settings.APP_NOTIFICATION_SETTINGS", [
+    { key: "android.provider.extra.APP_PACKAGE", value: getBundleId() },
+  ]).catch(() => Linking.openSettings())
 
 export const openLiveUpdatesSettings = () => {
   if (isLiveRideSupported()) NativeModules.LiveRideNotificationModule.openLiveUpdatesSettings()
