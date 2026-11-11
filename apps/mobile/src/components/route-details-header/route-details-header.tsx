@@ -212,7 +212,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     },
     {
       title: translate("recurringRides.menuAction"),
-      systemIcon: "bell.badge" as const,
+      systemIcon: "clock.arrow.circlepath" as const,
       onPress: openRecurringRideSheet,
     },
   ]

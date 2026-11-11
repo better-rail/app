@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native-unistyles"
 import { router, useLocalSearchParams } from "expo-router"
 import * as Notifications from "expo-notifications"
 import * as Crypto from "expo-crypto"
-import { formatInTimeZone } from "date-fns-tz"
+import { format } from "date-fns"
 import * as Burnt from "burnt"
 import { Button, Text } from "@/components"
 import { translate } from "@/i18n"
@@ -21,25 +21,22 @@ import { settingsStyles } from "@/screens/settings/settings-styles"
 
 import { describeRoute, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
 
-const ISRAEL = "Asia/Jerusalem"
 const LEAD_MINUTES = [5, 10, 15, 30]
-
-/** The departure's weekday on Israel's clock, 0 = Sunday. */
-const israelWeekday = (time: number) => new Date(`${formatInTimeZone(time, ISRAEL, "yyyy-MM-dd")}T00:00:00Z`).getUTCDay()
 
 export function RecurringRideScreen() {
   const params = useLocalSearchParams<{ originId: string; destinationId: string; departureAt: string }>()
   const departureAt = Number(params.departureAt)
   const origin = getStationById(params.originId)
   const destination = getStationById(params.destinationId)
-  const departureTime = formatInTimeZone(departureAt, ISRAEL, "HH:mm")
+  // Schedule times hold Israel's wall clock read in the device's zone, so the device's clock formats them.
+  const departureTime = format(departureAt, "HH:mm")
 
   const rides = useRecurringRidesStore((state) => state.rides)
   const existing = findRecurringRide(rides, Number(params.originId), Number(params.destinationId), departureTime)
 
   const [days, setDays] = useState<number[]>(() => {
     if (existing) return existing.days
-    const weekday = israelWeekday(departureAt)
+    const weekday = new Date(departureAt).getDay()
     // A weekend ride is likely a one-day habit; a weekday one, the workweek.
     return WORKWEEK.includes(weekday) ? WORKWEEK : [weekday]
   })
@@ -63,7 +60,7 @@ export function RecurringRideScreen() {
       departureTime,
       days,
       leadMinutes,
-      mode: "notify",
+      mode: "auto",
       enabled: true,
       skipDates: existing?.skipDates ?? [],
     }
@@ -93,6 +90,8 @@ export function RecurringRideScreen() {
       <Text style={styles.subtitle}>
         {describeRoute({ originId: Number(origin.id), destinationId: Number(destination.id), departureTime })}
       </Text>
+
+      <Text style={styles.description}>{translate("recurringRides.description")}</Text>
 
       <Text style={styles.groupTitle}>{translate("recurringRides.days")}</Text>
       <View style={styles.days}>
@@ -157,9 +156,14 @@ const styles = StyleSheet.create((theme) => ({
   },
   subtitle: {
     marginTop: theme.spacing[1],
-    marginBottom: theme.spacing[4],
+    marginBottom: theme.spacing[3],
     fontSize: 15,
     opacity: 0.8,
+  },
+  description: {
+    marginBottom: theme.spacing[4],
+    fontSize: 14,
+    opacity: 0.7,
   },
   groupTitle: {
     marginStart: theme.spacing[3],

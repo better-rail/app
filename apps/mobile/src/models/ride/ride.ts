@@ -323,6 +323,10 @@ export function initializeRideStore() {
   const state = useRideStore.getState()
   if (state.id) {
     state.isRideActive(state.id)
+  } else {
+    // Required lazily: auto-started-ride imports this store.
+    const { adoptAutoStartedRide } = require("@/utils/auto-started-ride") as typeof import("@/utils/auto-started-ride")
+    adoptAutoStartedRide().catch(() => {})
   }
   state.checkLiveRideAuthorization()
 

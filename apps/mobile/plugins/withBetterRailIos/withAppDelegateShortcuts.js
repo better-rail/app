@@ -34,6 +34,17 @@ const withAppDelegateShortcuts = (config) =>
       comment: "//",
     }).contents
 
+    // Observe Live Activities at launch: push-to-start wakes the app in the background, possibly without loading JS
+    // (which otherwise starts this), and the started activity's update token must reach the server.
+    contents = mergeContents({
+      tag: "better-rail-live-activity-monitor",
+      src: contents,
+      newSrc: "    LiveActivitiesController.shared.monitorLiveActivities()",
+      anchor: /return super\.application\(application, didFinishLaunchingWithOptions: launchOptions\)/,
+      offset: 0,
+      comment: "//",
+    }).contents
+
     cfg.modResults.contents = contents
     return cfg
   })

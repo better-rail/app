@@ -14,6 +14,7 @@ import { getInitialWebsiteHandoffURL } from "@/utils/website-handoff"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
 import * as Notifications from "expo-notifications"
 import { findRecurringRideReminder } from "@/utils/recurring-ride-notifications"
+import { timezoneCorrection } from "@/utils/helpers/date-helpers"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 
@@ -145,11 +146,13 @@ export function useDeepLinking(storeReady: boolean) {
     const destination = getStationById(String(reminder.destinationId))
     if (!origin || !destination) return
     trackEvent("recurring_ride_reminder_opened")
+    // The reminder carries the real instant; the app reads schedule times as Israel's wall clock in the device's zone.
+    const time = timezoneCorrection(new Date(reminder.departureAt)).getTime()
 
     const routePlan = useRoutePlanStore.getState()
     routePlan.setOrigin(origin)
     routePlan.setDestination(destination)
-    routePlan.setDate(new Date(reminder.departureAt))
+    routePlan.setDate(new Date(time))
     routePlan.setDateType("departure")
 
     dismissDeepLinkedScreens()
@@ -158,7 +161,7 @@ export function useDeepLinking(storeReady: boolean) {
       params: {
         originId: origin.id,
         destinationId: destination.id,
-        time: String(reminder.departureAt),
+        time: String(time),
         enableQuery: "true",
         deepLink: "true",
       },

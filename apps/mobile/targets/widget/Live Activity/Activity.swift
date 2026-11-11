@@ -48,6 +48,8 @@ struct BetterRailActivityAttributes: ActivityAttributes {
   var viaStationId: Int? { route.viaStationId.flatMap(Int.init) }
   
   var frequentPushesEnabled: Bool = true
+  /// The recurring ride the server started this activity for, with push-to-start. Nil for a ride started in the app.
+  var scheduleId: String? = nil
 }
 
 class LiveActivitiesController {
@@ -106,14 +108,45 @@ class LiveActivitiesController {
   }
   
   
+  /// Where the latest push-to-start token is kept for JS, which syncs it to the server.
+  static let pushToStartTokenKey = "liveActivityPushToStartToken"
+  private static var isMonitoring = false
+
+  /// Called from the AppDelegate, so a launch by push-to-start (which may not load JS) registers the ride, and from JS.
   func monitorLiveActivities() {
+      if LiveActivitiesController.isMonitoring { return }
+      LiveActivitiesController.isMonitoring = true
+
+      // A push-started activity exists before the app launches, so activityUpdates never reports it. Only those are
+      // picked up here: an activity the app started in an earlier launch already has a server ride.
+      for activity in Activity<BetterRailActivityAttributes>.activities
+      where activity.attributes.scheduleId != nil && activity.activityState == .active {
+        monitorLiveActivity(activity)
+        monitorLiveActivityTokenChanges(activity)
+      }
+
       // Listen to on-going and new Live Activities.
       Task {
+          let activityIds = Set(Activity<BetterRailActivityAttributes>.activities.map(\.id))
+          await LiveActivitiesController.tokenRegistry.prune(keeping: activityIds)
+
           for await activity in Activity<BetterRailActivityAttributes>.activityUpdates {
             print("Activity received an update: \(activity.content.state)")
             LiveActivitiesController.lastUpdateTime = Date()
             monitorLiveActivity(activity)
           }
+      }
+
+      if #available(iOS 17.2, *) {
+        Task {
+          // Subscribing makes ActivityKit flush every pending token, the activities' update tokens included. Let the
+          // observers above attach first, or a push-started activity's update token reaches nobody and isn't replayed.
+          try? await Task.sleep(for: .seconds(1))
+          for await tokenData in Activity<BetterRailActivityAttributes>.pushToStartTokenUpdates {
+            let token = tokenData.map { String(format: "%02x", $0) }.joined()
+            UserDefaults.standard.set(token, forKey: LiveActivitiesController.pushToStartTokenKey)
+          }
+        }
       }
   }
 //
@@ -147,19 +180,28 @@ class LiveActivitiesController {
 
   private func monitorLiveActivityTokenChanges(_ activity: LiveActivityRoute) {
     Task {
+        // A token issued before this observer attached (a push-started activity's) isn't replayed, so read it first.
+        // The registry ignores a token it already has, so it and its replay register once.
+        if let current = activity.pushToken {
+          await handleToken(current, for: activity)
+        }
         // Listen to push token updates of each active activity.
         for await token in activity.pushTokenUpdates {
-          let decodedToken = token.map { String(format: "%02x", $0) }.joined()
-
-          switch await LiveActivitiesController.tokenRegistry.registerToken(activityId: activity.id, token: decodedToken) {
-          case .startRide:
-            registerLiveActivity(activity, token: decodedToken)
-          case .updateToken(let rideId):
-            await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: decodedToken)
-          case .nothing:
-            break
-          }
+          await handleToken(token, for: activity)
         }
+    }
+  }
+
+  private func handleToken(_ token: Data, for activity: LiveActivityRoute) async {
+    let decodedToken = token.map { String(format: "%02x", $0) }.joined()
+
+    switch await LiveActivitiesController.tokenRegistry.registerToken(activityId: activity.id, token: decodedToken) {
+    case .startRide:
+      registerLiveActivity(activity, token: decodedToken)
+    case .updateToken(let rideId):
+      await ActivityNotificationsAPI.updateRideToken(rideId: rideId, token: decodedToken)
+    case .nothing:
+      break
     }
   }
 
@@ -198,7 +240,7 @@ class LiveActivitiesController {
     let registry = LiveActivitiesController.tokenRegistry
     let rideActivityId = await registry.activityId(rideId: rideId)
 
-    // After a relaunch the registry no longer knows the ride, so also end activities left by an earlier launch.
+    // Also end activities the registry doesn't know (e.g. their ride never started before a relaunch).
     // Otherwise the ride's activity stays on screen after the server stops updating it.
     var activities: [LiveActivityRoute] = []
     for activity in Activity<BetterRailActivityAttributes>.activities {

@@ -11,6 +11,7 @@ import { serverBaseURL } from "@/config/api-config"
 import { extractFcmData, isLiveRideSupported, liveRideNotifications, postAndroidAlert } from "@/modules/live-ride"
 import { consumeNativeStopHandled, setApiBaseUrl, setRideId } from "./storage/background-storage"
 import { postAndroidReminder, RECURRING_RIDE_TYPE, shouldPresentNotification } from "./recurring-ride-notifications"
+import { startAutoStartedRide } from "./auto-started-ride"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -59,6 +60,10 @@ const handleFcmData = async (data: Record<string, string> | null): Promise<void>
   }
   if (data.type === RECURRING_RIDE_TYPE) {
     await postAndroidReminder(data)
+    return
+  }
+  if (data.type === "auto-start-ride") {
+    await startAutoStartedRide(data)
   }
 }
 

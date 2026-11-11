@@ -15,18 +15,21 @@ import { userLocale } from "@/i18n"
 import { useRecurringRidesStore } from "@/models/recurring-rides/recurring-rides"
 import { deviceApi, type DeviceSyncState } from "@/services/api/device-api"
 import { peekDeviceIdentity } from "@/services/device/identity"
+import { pushToStartToken } from "@/utils/ios-helpers"
 
 /** A hash of the state the server last accepted, so an unchanged state isn't sent again. */
 const LAST_SYNC_KEY = "device_last_sync"
 
 const buildState = async (): Promise<DeviceSyncState> => {
   const token = String((await Notifications.getDevicePushTokenAsync()).data)
+  // iOS 17.2+: the token the server starts the ride's Live Activity with. Without one, it reminds instead.
+  const pushToStart = Platform.OS === "ios" ? await pushToStartToken().catch(() => null) : null
   return {
     platform: Platform.OS === "ios" ? "ios" : "android",
     locale: userLocale,
     appVersion: getVersion(),
-    tokens: Platform.OS === "ios" ? { apns: token } : { fcm: token },
-    supportsPushToStart: false,
+    tokens: Platform.OS === "ios" ? { apns: token, ...(pushToStart && { pushToStart }) } : { fcm: token },
+    supportsPushToStart: Boolean(pushToStart),
     recurringRides: useRecurringRidesStore.getState().rides,
   }
 }
