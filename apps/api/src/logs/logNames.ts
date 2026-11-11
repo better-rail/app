@@ -148,6 +148,10 @@ export const logNames = {
       failed: "Failed to send recurring ride reminder",
       tokenGone: "Dropped a push token the push service rejected",
     },
+    autoStart: {
+      success: "Auto-started a recurring ride",
+      failed: "Failed to auto-start a recurring ride",
+    },
   },
   gtfs: {
     noActiveFeed: "No active GTFS feed in the database",

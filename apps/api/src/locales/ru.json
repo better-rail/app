@@ -29,6 +29,10 @@
     "recurring": {
       "title": "Поезд в %{time} до станции %{destination}",
       "description": "Отправляется со станции %{origin}. Нажмите, чтобы увидеть время и задержки."
+    },
+    "autoStart": {
+      "title": "Поездка до станции %{destination} началась",
+      "description": "Поезд отправляется в %{time} с платформы %{platform}."
     }
   }
 }

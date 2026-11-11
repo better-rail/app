@@ -29,6 +29,10 @@
     "recurring": {
       "title": "قطار الساعة %{time} إلى %{destination}",
       "description": "ينطلق من %{origin}. اضغط لمعرفة المواعيد والتأخيرات المباشرة."
+    },
+    "autoStart": {
+      "title": "بدأت رحلتك إلى %{destination}",
+      "description": "ينطلق القطار الساعة %{time} من الرصيف %{platform}."
     }
   }
 }

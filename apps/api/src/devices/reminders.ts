@@ -79,8 +79,11 @@ export const sendReminder = async (
   }
 }
 
-/** The tokens without the platform's push token, after APNs or FCM said it's gone. */
-export const withoutPushToken = (platform: DeviceRecord["platform"], tokens: DeviceTokens): DeviceTokens => {
-  const { apns, fcm, ...rest } = tokens
-  return platform === "ios" ? { ...rest, ...(fcm && { fcm }) } : { ...rest, ...(apns && { apns }) }
+/** The tokens without one APNs or FCM said is gone. */
+export const withoutToken = (tokens: DeviceTokens, key: keyof DeviceTokens): DeviceTokens => {
+  const { [key]: _gone, ...rest } = tokens
+  return rest
 }
+
+/** The key of the platform's own push token (not the push-to-start one). */
+export const pushTokenKey = (platform: DeviceRecord["platform"]): keyof DeviceTokens => (platform === "ios" ? "apns" : "fcm")

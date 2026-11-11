@@ -29,6 +29,10 @@
     "recurring": {
       "title": "הרכבת של %{time} ל%{destination}",
       "description": "יוצאת מ%{origin}. הקישו לזמנים ולעיכובים בזמן אמת."
+    },
+    "autoStart": {
+      "title": "הנסיעה ל%{destination} התחילה",
+      "description": "הרכבת יוצאת ב־%{time} מרציף %{platform}."
     }
   }
 }

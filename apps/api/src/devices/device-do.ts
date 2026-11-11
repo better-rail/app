@@ -10,7 +10,8 @@ import { DurableObject } from "cloudflare:workers"
 
 import { bindRuntime, type Env } from "../runtime"
 import type { DeviceRecord, DeviceState } from "../types/device"
-import { sendReminder, withoutPushToken } from "./reminders"
+import { autoStartRide } from "./auto-start"
+import { pushTokenKey, sendReminder, withoutToken } from "./reminders"
 import { nextReminder, type NextReminder } from "./schedule"
 import { deleteDeviceState, readDeviceRecord, syncDeviceState, writeDeviceRecord, type SyncDeviceResult } from "./store"
 
@@ -59,12 +60,26 @@ export class DeviceDO extends DurableObject<Env> {
 
     if (record && due && now - due.at < STALE_REMINDER_MS) {
       for (const ride of record.recurringRides.filter((ride) => due.rideIds.includes(ride.id) && ride.enabled)) {
-        const result = await sendReminder(record, ride, due.at + ride.leadMinutes * 60_000, now)
+        const departureAt = due.at + ride.leadMinutes * 60_000
+
+        if (ride.mode === "auto") {
+          const started = await autoStartRide(record, ride, departureAt, now)
+          if (started === "token-gone") {
+            // The push-to-start token (iOS) or the FCM token (Android) will never work again.
+            record.tokens = withoutToken(record.tokens, record.platform === "ios" ? "pushToStart" : "fcm")
+            await writeDeviceRecord(this.ctx.storage, record)
+          }
+          // Remind the rider instead when this device can't be started remotely: iOS before 17.2, a route too big
+          // for one push, or a push-to-start token gone (the app's own APNs token still works).
+          const remindInstead = started === "unsupported" || (started === "token-gone" && record.platform === "ios")
+          if (!remindInstead) continue
+        }
+
+        const reminded = await sendReminder(record, ride, departureAt, now)
         // The token will never work again: forget it until the app syncs a new one.
-        if (result === "token-gone") {
-          record.tokens = withoutPushToken(record.platform, record.tokens)
+        if (reminded === "token-gone") {
+          record.tokens = withoutToken(record.tokens, pushTokenKey(record.platform))
           await writeDeviceRecord(this.ctx.storage, record)
-          break
         }
       }
     }

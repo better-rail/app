@@ -29,6 +29,10 @@
     "recurring": {
       "title": "Your %{time} train to %{destination}",
       "description": "Leaves from %{origin}. Tap for live times and delays."
+    },
+    "autoStart": {
+      "title": "Your ride to %{destination} started",
+      "description": "The train leaves at %{time} from platform %{platform}."
     }
   }
 }
