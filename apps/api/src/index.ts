@@ -13,6 +13,7 @@ import { bindRuntime, type Env } from "./runtime"
 import { sentryOptions } from "./sentry"
 import { runScheduled } from "./scheduled"
 import { ApnsTokenDO as ApnsTokenDOClass } from "./push/apns-token-do"
+import { DeviceDO as DeviceDOClass } from "./devices/device-do"
 import { RideDO as RideDOClass } from "./rides/ride-do"
 import { SiriPollerDO as SiriPollerDOClass } from "./siri/poller-do"
 import { IngestContainer as IngestContainerClass } from "./ingest/container"
@@ -41,6 +42,10 @@ export const SiriPollerDO = Sentry.instrumentDurableObjectWithSentry(
 export const ApnsTokenDO = Sentry.instrumentDurableObjectWithSentry(
   (env) => sentryOptions(env as Record<string, unknown>),
   ApnsTokenDOClass,
+)
+export const DeviceDO = Sentry.instrumentDurableObjectWithSentry(
+  (env) => sentryOptions(env as Record<string, unknown>),
+  DeviceDOClass,
 )
 export const IngestContainer = Sentry.instrumentDurableObjectWithSentry(
   (env) => sentryOptions(env as Record<string, unknown>),

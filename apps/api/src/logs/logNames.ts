@@ -136,6 +136,14 @@ export const logNames = {
     snapshotReadFailed: "Failed to read the SIRI snapshot",
     snapshotWriteFailed: "Failed to write the SIRI snapshot",
   },
+  devices: {
+    sync: {
+      failed: "Failed to sync device state",
+    },
+    delete: {
+      failed: "Failed to delete device state",
+    },
+  },
   gtfs: {
     noActiveFeed: "No active GTFS feed in the database",
     feedExpiring: "Active GTFS feed is within 2 days of its validity end date",
