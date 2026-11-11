@@ -139,6 +139,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         destinationId,
         departureAt: String(routeItem.departureTime),
         arrivalAt: String(routeItem.arrivalTime),
+        trainNumber: String(routeItem.trains[0].trainNumber),
       },
     })
   }

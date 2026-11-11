@@ -1,14 +1,13 @@
 import { useState } from "react"
-import { Alert, ImageBackground, Platform, Pressable, View } from "react-native"
+import { Alert, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { router, useLocalSearchParams } from "expo-router"
 import * as Notifications from "expo-notifications"
 import * as Crypto from "expo-crypto"
 import { format } from "date-fns"
 import * as Burnt from "burnt"
-import LinearGradient from "react-native-linear-gradient"
 import { Button, Text } from "@/components"
-import { isRTL, translate } from "@/i18n"
+import { translate } from "@/i18n"
 import { getStationById } from "@/data/stations"
 import { trackEvent } from "@/services/analytics"
 import {
@@ -19,8 +18,8 @@ import {
 } from "@/models/recurring-rides/recurring-rides"
 import { MenuPicker } from "@/screens/settings/components/menu-picker"
 import { settingsStyles } from "@/screens/settings/settings-styles"
-import { formatTime } from "@/utils/helpers/date-helpers"
-import { headingFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
+import { VoucherHero } from "@/screens/voucher/components/voucher-hero"
+import { headingFontStyle } from "@/theme/theme-fonts"
 
 import { leadTimeLabel, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
 
@@ -28,9 +27,16 @@ const LEAD_MINUTES = [15, 30, 45, 60]
 const DEFAULT_LEAD_MINUTES = 15
 
 export function RecurringRideScreen() {
-  const params = useLocalSearchParams<{ originId: string; destinationId: string; departureAt: string; arrivalAt?: string }>()
+  const params = useLocalSearchParams<{
+    originId: string
+    destinationId: string
+    departureAt: string
+    arrivalAt?: string
+    trainNumber?: string
+  }>()
   const departureAt = Number(params.departureAt)
   const arrivalAt = Number(params.arrivalAt)
+  const trainNumber = Number(params.trainNumber)
   const origin = getStationById(params.originId)
   const destination = getStationById(params.destinationId)
   // Schedule times hold Israel's wall clock read in the device's zone, so the device's clock formats them.
@@ -91,22 +97,17 @@ export function RecurringRideScreen() {
 
   return (
     <View testID="recurring-ride-screen" style={styles.wrapper}>
-      <ImageBackground source={origin.image} style={styles.hero} imageStyle={styles.heroImage}>
-        <LinearGradient style={styles.heroShade} colors={["rgba(0, 0, 0, 0.1)", "rgba(0, 0, 0, 0.85)"]} />
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{translate("recurringRides.title")}</Text>
-        </View>
-
-        <View>
-          <Text style={styles.heroTime}>
-            {formatTime(departureAt)}
-            {Number.isFinite(arrivalAt) && <Text style={styles.heroArrival}>{`  –  ${formatTime(arrivalAt)}`}</Text>}
-          </Text>
-          <Text style={styles.heroRoute} numberOfLines={2}>
-            {`${origin.name}  ${isRTL ? "←" : "→"}  ${destination.name}`}
-          </Text>
-        </View>
-      </ImageBackground>
+      <Text style={styles.title}>{translate("recurringRides.title")}</Text>
+      <VoucherHero
+        style={styles.hero}
+        height={170}
+        trainNumber={trainNumber}
+        departureTime={departureAt}
+        arrivalTime={Number.isFinite(arrivalAt) ? arrivalAt : departureAt}
+        fromStationId={Number(origin.id)}
+        toStationId={Number(destination.id)}
+        details={`${translate("routeDetails.trainNo")} ${trainNumber}`}
+      />
 
       <Text style={styles.description}>{translate("recurringRides.description")}</Text>
 
@@ -161,49 +162,13 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing[4],
     paddingBottom: Platform.OS === "ios" ? theme.spacing[4] : theme.spacing[6],
   },
-  hero: {
-    height: 176,
-    padding: theme.spacing[4],
+  title: {
+    ...headingFontStyle(theme, 24),
     marginBottom: theme.spacing[3],
-    justifyContent: "space-between",
-    borderRadius: 22,
-    borderCurve: "continuous",
-    overflow: "hidden",
+    color: theme.colors.text,
   },
-  heroImage: {
-    borderRadius: 22,
-  },
-  heroShade: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  badge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: theme.spacing[3],
-    paddingVertical: theme.spacing[1],
-    borderRadius: 999,
-    backgroundColor: theme.colors.primary,
-  },
-  badgeText: {
-    ...subheadingFontStyle(theme, 13),
-    color: "white",
-    letterSpacing: 0.3,
-  },
-  heroTime: {
-    ...headingFontStyle(theme, 34),
-    color: "white",
-  },
-  heroArrival: {
-    ...headingFontStyle(theme, 20, "500"),
-    color: "rgba(255, 255, 255, 0.75)",
-  },
-  heroRoute: {
-    ...subheadingFontStyle(theme, 15, "600"),
-    marginTop: theme.spacing[1],
-    color: "white",
+  hero: {
+    marginBottom: theme.spacing[3],
   },
   description: {
     marginBottom: theme.spacing[4],

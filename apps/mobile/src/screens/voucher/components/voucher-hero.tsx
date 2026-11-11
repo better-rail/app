@@ -16,11 +16,13 @@ type VoucherHeroProps = {
   toStationId: number
   height?: number
   style?: ViewStyle
+  /** Replaces the "train on date" line, e.g. for a ride that repeats every week */
+  details?: string
 }
 
 /** The trip, styled like the iOS home screen widget: a dimmed station photo with the times over it. */
 export function VoucherHero(props: VoucherHeroProps) {
-  const { trainNumber, departureTime, arrivalTime, fromStationId, toStationId, height = 190, style } = props
+  const { trainNumber, departureTime, arrivalTime, fromStationId, toStationId, height = 190, style, details } = props
   const stationName = (id: number) => stationsObject[id]?.[stationLocale] ?? ""
 
   return (
@@ -58,10 +60,11 @@ export function VoucherHero(props: VoucherHeroProps) {
             </View>
           </View>
           <Text style={styles.details} numberOfLines={1} maxFontSizeMultiplier={1.3}>
-            {translate("voucher.trainOnDate", {
-              trainNumber,
-              date: format(departureTime, "EEEE, d.M", { locale: dateFnsLocalization }),
-            })}
+            {details ??
+              translate("voucher.trainOnDate", {
+                trainNumber,
+                date: format(departureTime, "EEEE, d.M", { locale: dateFnsLocalization }),
+              })}
           </Text>
         </View>
       </View>
