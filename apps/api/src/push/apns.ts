@@ -136,6 +136,20 @@ export const sendApnNotification = (deviceToken: string, aps: Record<string, unk
     body: { aps },
   })
 
+/** A plain visible push to the app's device token; the app reads `data` when the rider taps it. */
+export const sendApnAlert = (
+  deviceToken: string,
+  options: { alert: { title: string; body: string }; data: Record<string, unknown>; collapseId: string },
+) =>
+  post({
+    deviceToken,
+    pushType: "alert",
+    topic: config.appleBundleId,
+    priority: "immediate",
+    collapseId: options.collapseId,
+    body: { aps: { alert: options.alert, sound: "default", "thread-id": options.collapseId }, ...options.data },
+  })
+
 /** A visible push to the app's device token. The notification service extension moves the arrival alarm before it's shown. */
 export const sendApnAlarmNotification = (
   deviceToken: string,

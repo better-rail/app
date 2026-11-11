@@ -56,5 +56,7 @@ export const deleteDeviceState = async (storage: DeviceStorage, secretHash: stri
   return true
 }
 
-/** The stored record, for the object's own use (scheduling, later); never sent back to a client. */
+/** The stored record, for the object's own use (scheduling, reminders); never sent back to a client. */
 export const readDeviceRecord = (storage: DeviceStorage) => storage.get<DeviceRecord>(RECORD_KEY)
+
+export const writeDeviceRecord = (storage: DeviceStorage, record: DeviceRecord) => storage.put(RECORD_KEY, record)

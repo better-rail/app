@@ -25,6 +25,10 @@
         "description": "سيرن قبل %{minutes} دقائق من الوصول إلى %{station}."
       },
       "failed": "تغيّر وقت وصولك. افتح Better Rail لتحديث المنبه."
+    },
+    "recurring": {
+      "title": "قطار الساعة %{time} إلى %{destination}",
+      "description": "ينطلق من %{origin}. اضغط لمعرفة المواعيد والتأخيرات المباشرة."
     }
   }
 }

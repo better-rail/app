@@ -143,6 +143,11 @@ export const logNames = {
     delete: {
       failed: "Failed to delete device state",
     },
+    reminder: {
+      success: "Sent recurring ride reminder",
+      failed: "Failed to send recurring ride reminder",
+      tokenGone: "Dropped a push token the push service rejected",
+    },
   },
   gtfs: {
     noActiveFeed: "No active GTFS feed in the database",

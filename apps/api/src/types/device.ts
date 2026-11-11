@@ -75,6 +75,8 @@ export const DeviceTokensSchema = z.object({
   fcm: Token.optional(),
 })
 
+export type DeviceTokens = z.infer<typeof DeviceTokensSchema>
+
 /** The body of `PUT /device`: the device's whole state. */
 export const DeviceStateSchema = z.object({
   platform: z.enum(["ios", "android"]),

@@ -21,7 +21,7 @@ const state = (overrides: Record<string, unknown> = {}) => ({
       originId: 3700,
       destinationId: 3500,
       departureTime: "07:45",
-      days: [0, 1, 2, 3, 4],
+      days: [0, 1, 2, 3, 4, 5, 6],
       leadMinutes: 10,
       mode: "auto",
       enabled: true,
@@ -41,6 +41,9 @@ const call = (method: string, deviceId: string, deviceSecret: string, body?: unk
 const record = (deviceId: string) =>
   runInDurableObject(env.DEVICES.getByName(deviceId), (_instance, ctx) => ctx.storage.get<DeviceRecord>("device"))
 
+const alarm = (deviceId: string) =>
+  runInDurableObject(env.DEVICES.getByName(deviceId), (_instance, ctx) => ctx.storage.getAlarm())
+
 describe("device sync", () => {
   it("registers, replaces, guards and deletes a device's state", async () => {
     const deviceId = crypto.randomUUID()
@@ -48,9 +51,12 @@ describe("device sync", () => {
 
     expect((await call("PUT", deviceId, deviceSecret, state())).status).toBe(201)
     expect((await record(deviceId))?.tokens).toEqual({ pushToStart: "pts-token", apns: "apns-token" })
+    // The recurring ride's next reminder is armed, and cleared once no ride is left.
+    expect(await alarm(deviceId)).toBeGreaterThan(Date.now())
 
     expect((await call("PUT", deviceId, deviceSecret, state({ tokens: {}, recurringRides: [] }))).status).toBe(200)
     expect(await record(deviceId)).toMatchObject({ tokens: {}, recurringRides: [] })
+    expect(await alarm(deviceId)).toBeNull()
 
     // Another secret for the same id: the same 404 as an unknown route, and nothing changes.
     expect((await call("PUT", deviceId, secret(), state())).status).toBe(404)
