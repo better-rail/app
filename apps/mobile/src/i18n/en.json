@@ -503,6 +503,7 @@
     "settingsDescription": "These rides start by themselves before the train leaves. To add one, open a route and choose “Auto Start Ride” from its menu.",
     "workweek": "Sun–Thu",
     "everyDay": "Every day",
-    "description": "Better Rail starts the live ride for you before the train leaves, on the days you pick."
+    "description": "Better Rail starts the live ride for you before the train leaves, on the days you pick.",
+    "hourBefore": "1 hour before"
   }
 }

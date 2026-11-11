@@ -24,7 +24,11 @@ export const describeRoute = (ride: Pick<RecurringRide, "originId" | "destinatio
     destination: getStationById(String(ride.destinationId))?.name ?? "",
   }) ?? ""
 
-/** "Sun–Thu · 10 min before" */
+/** "15 min before", "1 hour before" */
+export const leadTimeLabel = (minutes: number) =>
+  (minutes === 60 ? translate("recurringRides.hourBefore") : translate("recurringRides.minutesBefore", { minutes })) ?? ""
+
+/** "Sun–Thu · 15 min before" */
 export const describeSchedule = (ride: Pick<RecurringRide, "days" | "leadMinutes">) => {
   const days =
     ride.days.length === WORKWEEK.length && WORKWEEK.every((day) => ride.days.includes(day))
@@ -32,5 +36,5 @@ export const describeSchedule = (ride: Pick<RecurringRide, "days" | "leadMinutes
       : ride.days.length === WEEKDAYS.length
         ? translate("recurringRides.everyDay")
         : [...ride.days].sort().map(weekdayName).join(", ")
-  return `${days} · ${translate("recurringRides.minutesBefore", { minutes: ride.leadMinutes })}`
+  return `${days} · ${leadTimeLabel(ride.leadMinutes)}`
 }

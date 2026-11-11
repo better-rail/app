@@ -134,7 +134,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     trackEvent("recurring_ride_sheet_opened")
     router.push({
       pathname: "/recurring-ride",
-      params: { originId, destinationId, departureAt: String(routeItem.departureTime) },
+      params: {
+        originId,
+        destinationId,
+        departureAt: String(routeItem.departureTime),
+        arrivalAt: String(routeItem.arrivalTime),
+      },
     })
   }
 

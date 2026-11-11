@@ -1,13 +1,14 @@
 import { useState } from "react"
-import { Alert, Platform, Pressable, View } from "react-native"
+import { Alert, ImageBackground, Platform, Pressable, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { router, useLocalSearchParams } from "expo-router"
 import * as Notifications from "expo-notifications"
 import * as Crypto from "expo-crypto"
 import { format } from "date-fns"
 import * as Burnt from "burnt"
+import LinearGradient from "react-native-linear-gradient"
 import { Button, Text } from "@/components"
-import { translate } from "@/i18n"
+import { isRTL, translate } from "@/i18n"
 import { getStationById } from "@/data/stations"
 import { trackEvent } from "@/services/analytics"
 import {
@@ -16,16 +17,20 @@ import {
   useRecurringRidesStore,
   type RecurringRide,
 } from "@/models/recurring-rides/recurring-rides"
-import { SettingBox } from "@/screens/settings/components/settings-box"
+import { MenuPicker } from "@/screens/settings/components/menu-picker"
 import { settingsStyles } from "@/screens/settings/settings-styles"
+import { formatTime } from "@/utils/helpers/date-helpers"
+import { headingFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 
-import { describeRoute, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
+import { leadTimeLabel, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
 
-const LEAD_MINUTES = [5, 10, 15, 30]
+const LEAD_MINUTES = [15, 30, 45, 60]
+const DEFAULT_LEAD_MINUTES = 15
 
 export function RecurringRideScreen() {
-  const params = useLocalSearchParams<{ originId: string; destinationId: string; departureAt: string }>()
+  const params = useLocalSearchParams<{ originId: string; destinationId: string; departureAt: string; arrivalAt?: string }>()
   const departureAt = Number(params.departureAt)
+  const arrivalAt = Number(params.arrivalAt)
   const origin = getStationById(params.originId)
   const destination = getStationById(params.destinationId)
   // Schedule times hold Israel's wall clock read in the device's zone, so the device's clock formats them.
@@ -40,7 +45,7 @@ export function RecurringRideScreen() {
     // A weekend ride is likely a one-day habit; a weekday one, the workweek.
     return WORKWEEK.includes(weekday) ? WORKWEEK : [weekday]
   })
-  const [leadMinutes, setLeadMinutes] = useState(existing?.leadMinutes ?? 10)
+  const [leadMinutes, setLeadMinutes] = useState(existing?.leadMinutes ?? DEFAULT_LEAD_MINUTES)
 
   if (!origin || !destination || !Number.isFinite(departureAt)) return null
 
@@ -86,10 +91,22 @@ export function RecurringRideScreen() {
 
   return (
     <View testID="recurring-ride-screen" style={styles.wrapper}>
-      <Text style={styles.title}>{translate("recurringRides.title")}</Text>
-      <Text style={styles.subtitle}>
-        {describeRoute({ originId: Number(origin.id), destinationId: Number(destination.id), departureTime })}
-      </Text>
+      <ImageBackground source={origin.image} style={styles.hero} imageStyle={styles.heroImage}>
+        <LinearGradient style={styles.heroShade} colors={["rgba(0, 0, 0, 0.1)", "rgba(0, 0, 0, 0.85)"]} />
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{translate("recurringRides.title")}</Text>
+        </View>
+
+        <View>
+          <Text style={styles.heroTime}>
+            {formatTime(departureAt)}
+            {Number.isFinite(arrivalAt) && <Text style={styles.heroArrival}>{`  –  ${formatTime(arrivalAt)}`}</Text>}
+          </Text>
+          <Text style={styles.heroRoute} numberOfLines={2}>
+            {`${origin.name}  ${isRTL ? "←" : "→"}  ${destination.name}`}
+          </Text>
+        </View>
+      </ImageBackground>
 
       <Text style={styles.description}>{translate("recurringRides.description")}</Text>
 
@@ -112,19 +129,14 @@ export function RecurringRideScreen() {
         })}
       </View>
 
-      <Text style={styles.groupTitle}>{translate("recurringRides.remindMe")}</Text>
       <View style={settingsStyles.group}>
-        {LEAD_MINUTES.map((minutes, index) => (
-          <SettingBox
-            key={minutes}
-            testID={`recurring-ride-lead-${minutes}`}
-            first={index === 0}
-            last={index === LEAD_MINUTES.length - 1}
-            title={translate("recurringRides.minutesBefore", { minutes }) ?? ""}
-            checkmark={leadMinutes === minutes}
-            onPress={() => setLeadMinutes(minutes)}
-          />
-        ))}
+        <MenuPicker
+          testID="recurring-ride-lead"
+          label={translate("recurringRides.remindMe") ?? ""}
+          value={String(leadMinutes)}
+          onChange={(value) => setLeadMinutes(Number(value))}
+          options={LEAD_MINUTES.map((minutes) => ({ value: String(minutes), label: leadTimeLabel(minutes) }))}
+        />
       </View>
 
       <Button
@@ -149,21 +161,55 @@ const styles = StyleSheet.create((theme) => ({
     paddingHorizontal: theme.spacing[4],
     paddingBottom: Platform.OS === "ios" ? theme.spacing[4] : theme.spacing[6],
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: theme.colors.text,
-  },
-  subtitle: {
-    marginTop: theme.spacing[1],
+  hero: {
+    height: 176,
+    padding: theme.spacing[4],
     marginBottom: theme.spacing[3],
-    fontSize: 15,
-    opacity: 0.8,
+    justifyContent: "space-between",
+    borderRadius: 22,
+    borderCurve: "continuous",
+    overflow: "hidden",
+  },
+  heroImage: {
+    borderRadius: 22,
+  },
+  heroShade: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  badge: {
+    alignSelf: "flex-start",
+    paddingHorizontal: theme.spacing[3],
+    paddingVertical: theme.spacing[1],
+    borderRadius: 999,
+    backgroundColor: theme.colors.primary,
+  },
+  badgeText: {
+    ...subheadingFontStyle(theme, 13),
+    color: "white",
+    letterSpacing: 0.3,
+  },
+  heroTime: {
+    ...headingFontStyle(theme, 34),
+    color: "white",
+  },
+  heroArrival: {
+    ...headingFontStyle(theme, 20, "500"),
+    color: "rgba(255, 255, 255, 0.75)",
+  },
+  heroRoute: {
+    ...subheadingFontStyle(theme, 15, "600"),
+    marginTop: theme.spacing[1],
+    color: "white",
   },
   description: {
     marginBottom: theme.spacing[4],
+    paddingHorizontal: theme.spacing[1],
     fontSize: 14,
-    opacity: 0.7,
+    opacity: 0.75,
   },
   groupTitle: {
     marginStart: theme.spacing[3],
