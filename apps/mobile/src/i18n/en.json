@@ -484,5 +484,24 @@
     "removeTitle": "Remove this voucher?",
     "removeMessage": "Only remove it if you cancelled it with the link in Israel Railways' SMS. It's removed from this device only.",
     "remove": "Remove"
+  },
+  "recurringRides": {
+    "menuAction": "Remind Me Every Week",
+    "title": "Weekly Reminder",
+    "routeSummary": "%{time} · %{origin} → %{destination}",
+    "days": "Days",
+    "remindMe": "Remind me",
+    "minutesBefore": "%{minutes} min before",
+    "save": "Save Reminder",
+    "update": "Update Reminder",
+    "remove": "Remove Reminder",
+    "saved": "Reminder saved",
+    "limitReached": "You can save up to %{count} weekly reminders.",
+    "notificationsOff": "Notifications are off",
+    "notificationsOffMessage": "The reminder is saved, but to get it, allow notifications for Better Rail in your device settings.",
+    "settingsTitle": "Weekly Reminders",
+    "settingsDescription": "We'll remind you before these trains leave. To add one, open a route and choose “Remind Me Every Week” from its menu.",
+    "workweek": "Sun–Thu",
+    "everyDay": "Every day"
   }
 }

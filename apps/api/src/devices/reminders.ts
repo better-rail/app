@@ -1,8 +1,8 @@
 /**
  * reminders.ts — the push that reminds a rider of a recurring ride shortly before it leaves.
  *
- * iOS gets a plain alert on the app's APNs token; Android gets a data message that the app shows itself, like the
- * live ride alerts. Either way the tap opens the route, from the ride's stations and departure in the payload.
+ * iOS gets a plain alert on the app's APNs token; Android gets a data message with the texts, which the app posts
+ * as a local notification. Either way the tap opens the route, from the ride's stations and departure in the payload.
  * Nothing here logs a push token or the device id.
  */
 import { stationsObject } from "../data/stations"
@@ -60,7 +60,7 @@ export const sendReminder = async (
       if (!record.tokens.fcm) return "failed"
       await sendFcmNotification({
         token: record.tokens.fcm,
-        data: { ...data, notifee: JSON.stringify({ id: collapseId, ...texts }) },
+        data: { ...data, ...texts },
         // Pointless once the train left.
         android: { priority: "high", collapseKey: collapseId, ttl: Math.max(0, departureAt - now) },
       })

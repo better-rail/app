@@ -408,5 +408,24 @@
     "removeTitle": "حذف هذه القسيمة؟",
     "removeMessage": "احذفها فقط إذا ألغيتها عبر الرابط في رسالة SMS من سكك حديد إسرائيل. ستُحذف من هذا الجهاز فقط.",
     "remove": "حذف"
+  },
+  "recurringRides": {
+    "menuAction": "ذكّرني كل أسبوع",
+    "title": "تذكير أسبوعي",
+    "routeSummary": "%{time} · %{origin} ← %{destination}",
+    "days": "الأيام",
+    "remindMe": "ذكّرني",
+    "minutesBefore": "قبل %{minutes} دقيقة",
+    "save": "حفظ التذكير",
+    "update": "تحديث التذكير",
+    "remove": "حذف التذكير",
+    "saved": "تم حفظ التذكير",
+    "limitReached": "يمكنك حفظ ما يصل إلى %{count} تذكيرات أسبوعية.",
+    "notificationsOff": "الإشعارات متوقفة",
+    "notificationsOffMessage": "تم حفظ التذكير، ولكن لاستلامه اسمح بالإشعارات لتطبيق Better Rail في إعدادات الجهاز.",
+    "settingsTitle": "التذكيرات الأسبوعية",
+    "settingsDescription": "سنذكّرك قبل انطلاق هذه القطارات. لإضافة تذكير، افتح مسارًا واختر \"ذكّرني كل أسبوع\" من القائمة.",
+    "workweek": "الأحد–الخميس",
+    "everyDay": "كل يوم"
   }
 }

@@ -486,5 +486,24 @@
     "removeTitle": "להסיר את השובר?",
     "removeMessage": "יש להסיר רק אם השובר בוטל דרך הקישור ב-SMS מרכבת ישראל. השובר יוסר מהמכשיר הזה בלבד.",
     "remove": "הסרה"
+  },
+  "recurringRides": {
+    "menuAction": "תזכורת שבועית",
+    "title": "תזכורת שבועית",
+    "routeSummary": "%{time} · %{origin} ← %{destination}",
+    "days": "ימים",
+    "remindMe": "להזכיר לי",
+    "minutesBefore": "%{minutes} דקות לפני",
+    "save": "שמירת התזכורת",
+    "update": "עדכון התזכורת",
+    "remove": "מחיקת התזכורת",
+    "saved": "התזכורת נשמרה",
+    "limitReached": "אפשר לשמור עד %{count} תזכורות שבועיות.",
+    "notificationsOff": "ההתראות כבויות",
+    "notificationsOffMessage": "התזכורת נשמרה. כדי לקבל אותה, אפשרו התראות לבטר רייל בהגדרות המכשיר.",
+    "settingsTitle": "תזכורות שבועיות",
+    "settingsDescription": "נזכיר לכם לפני שהרכבות האלה יוצאות. כדי להוסיף תזכורת, פתחו מסלול ובחרו ״תזכורת שבועית״ מהתפריט.",
+    "workweek": "א׳–ה׳",
+    "everyDay": "כל יום"
   }
 }

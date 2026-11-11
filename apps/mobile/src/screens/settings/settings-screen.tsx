@@ -18,11 +18,13 @@ import { WidgetPreviewModal } from "./components/widget-preview-modal"
 import { SocialLinks } from "./components/social-links"
 import { scheduleTestArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { isArrivalAlarmSupported } from "@/utils/arrival-alarm-native"
+import { useRecurringRidesStore } from "@/models/recurring-rides/recurring-rides"
 
 export function SettingsScreen() {
   const router = useRouter()
   const isBetaTester = useIsBetaTester()
   const [showWidgetModal, setShowWidgetModal] = useState(false)
+  const hasRecurringRides = useRecurringRidesStore((state) => state.rides.length > 0)
 
   const pinWidget = async (family: WidgetFamily) => {
     const { origin, destination } = useRoutePlanStore.getState()
@@ -63,6 +65,20 @@ export function SettingsScreen() {
           onPress={() => router.push("/settings/ui-settings")}
         />
       </View>
+
+      {hasRecurringRides && (
+        <View style={settingsStyles.group}>
+          <SettingBox
+            testID="settings-recurring-rides"
+            first
+            last
+            title={translate("recurringRides.settingsTitle") ?? ""}
+            icon="🔁"
+            chevron
+            onPress={() => router.push("/settings/recurring-rides")}
+          />
+        </View>
+      )}
 
       <View style={settingsStyles.group}>
         {Platform.OS === "ios" ? (

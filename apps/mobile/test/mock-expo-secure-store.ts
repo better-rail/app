@@ -1,5 +1,5 @@
 import { mock } from "bun:test"
-import { randomBytes, randomUUID } from "node:crypto"
+import { createHash, randomBytes, randomUUID } from "node:crypto"
 
 /** The in-memory keychain behind the expo-secure-store mock, for tests to inspect and seed. */
 export const mockSecureStore = {
@@ -25,4 +25,6 @@ mock.module("expo-secure-store", () => ({
 mock.module("expo-crypto", () => ({
   randomUUID: () => randomUUID(),
   getRandomBytes: (count: number) => new Uint8Array(randomBytes(count)),
+  CryptoDigestAlgorithm: { SHA256: "SHA-256" },
+  digestStringAsync: async (_algorithm: string, value: string) => createHash("sha256").update(value).digest("hex"),
 }))

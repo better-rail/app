@@ -129,6 +129,15 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  const openRecurringRideSheet = () => {
+    if (!routeItem) return
+    trackEvent("recurring_ride_sheet_opened")
+    router.push({
+      pathname: "/recurring-ride",
+      params: { originId, destinationId, departureAt: String(routeItem.departureTime) },
+    })
+  }
+
   const openFaresSheet = () => {
     HapticFeedback.trigger("impactMedium")
     router.push({ pathname: "/fares", params: { originId, destinationId } })
@@ -200,6 +209,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       title: translate("fares.title"),
       systemIcon: "shekelsign.circle" as const,
       onPress: openFaresSheet,
+    },
+    {
+      title: translate("recurringRides.menuAction"),
+      systemIcon: "bell.badge" as const,
+      onPress: openRecurringRideSheet,
     },
   ]
 

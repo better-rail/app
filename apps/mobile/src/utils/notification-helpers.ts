@@ -10,6 +10,7 @@ import { trackEvent } from "@/services/analytics"
 import { serverBaseURL } from "@/config/api-config"
 import { extractFcmData, isLiveRideSupported, liveRideNotifications, postAndroidAlert } from "@/modules/live-ride"
 import { consumeNativeStopHandled, setApiBaseUrl, setRideId } from "./storage/background-storage"
+import { postAndroidReminder, RECURRING_RIDE_TYPE, shouldPresentNotification } from "./recurring-ride-notifications"
 
 const rideApi = new RideApi()
 let tokenSubscription: Notifications.Subscription | undefined
@@ -17,13 +18,12 @@ let tokenSubscription: Notifications.Subscription | undefined
 // expo-notifications is the sole FCM receiver on Android. Live-ride updates arrive as
 // data-only FCM messages; LiveRideNotificationModule owns all display, so suppress
 // expo-notifications from rendering anything itself (prevents an empty/duplicate notification).
+// A recurring ride reminder is the exception: it shows while the app is open too.
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: false,
-    shouldShowList: false,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
+  handleNotification: async (notification) => {
+    const show = shouldPresentNotification(notification)
+    return { shouldShowBanner: show, shouldShowList: show, shouldPlaySound: show, shouldSetBadge: false }
+  },
 })
 
 const BACKGROUND_LIVE_RIDE_TASK = "better-rail-live-ride-notification"
@@ -55,6 +55,10 @@ const handleFcmData = async (data: Record<string, string> | null): Promise<void>
   }
   if (data.type === "arrival-alarm") {
     await handleAndroidArrivalAlarmPush(data)
+    return
+  }
+  if (data.type === RECURRING_RIDE_TYPE) {
+    await postAndroidReminder(data)
   }
 }
 
@@ -137,10 +141,9 @@ export const configureNotifications = async () => {
       importance: Notifications.AndroidImportance.HIGH,
     })
 
-    // Background / killed: expo-notifications wakes the JS task defined at module scope.
-    if (isLiveRideSupported()) {
-      await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
-    }
+    // Background / killed: expo-notifications wakes the JS task defined at module scope. Every device needs it
+    // for the recurring ride reminders; handleFcmData skips live-ride messages a device can't show.
+    await Notifications.registerTaskAsync(BACKGROUND_LIVE_RIDE_TASK)
 
     if (isArrivalAlarmSupported()) {
       await Notifications.setNotificationChannelAsync(ARRIVAL_ALARM_UPDATES_CHANNEL, {
