@@ -21,7 +21,7 @@ const deviceRateLimitWindowMs = 10 * 60 * 1000
 const deviceHeader = (request: { headers: Headers }) => request.headers.get(DEVICE_ID_HEADER) ?? undefined
 
 const perIp = createRateLimiter(deviceRateLimitWindowMs, 1000)
-// The app syncs on launch, on foreground and whenever its rides or tokens change.
+// Only devices with recurring rides sync, and only when their rides or push tokens change; the rest never call here.
 const syncLimiter = createRateLimiter(deviceRateLimitWindowMs, 30, deviceHeader)
 const deleteLimiter = createRateLimiter(deviceRateLimitWindowMs, 10, deviceHeader)
 
