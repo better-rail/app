@@ -18,7 +18,8 @@ import { json, notFound, rateLimited } from "./helpers"
 const deviceRateLimitWindowMs = 10 * 60 * 1000
 
 // Keyed in isolate memory only; the limiter never logs its keys.
-const deviceHeader = (request: { headers: Headers }) => request.headers.get(DEVICE_ID_HEADER) ?? undefined
+// Normalized like readDeviceCredentials, so case or spacing can't split one device into several buckets.
+const deviceHeader = (request: { headers: Headers }) => request.headers.get(DEVICE_ID_HEADER)?.trim().toLowerCase()
 
 const perIp = createRateLimiter(deviceRateLimitWindowMs, 1000)
 // Only devices with recurring rides sync, and only when their rides or push tokens change; the rest never call here.

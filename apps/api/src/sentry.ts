@@ -56,6 +56,8 @@ export const scrubEvent = (event: ErrorEvent) => {
   for (const exception of event.exception?.values ?? []) {
     if (exception.value) exception.value = scrubTokens(exception.value) as string
   }
+  // reportError fingerprints by the error's message, which can quote the same things.
+  if (event.fingerprint) event.fingerprint = event.fingerprint.map((part) => scrubTokens(part) as string)
   return event
 }
 
