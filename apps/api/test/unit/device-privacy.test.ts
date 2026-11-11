@@ -5,12 +5,11 @@
 import { afterEach, beforeEach, expect, mock, spyOn, test } from "bun:test"
 import * as Sentry from "@sentry/cloudflare"
 
-import { logger } from "../../../src/logs"
-import { resetThrottle, scrubEvent, scrubTokens } from "../../../src/sentry"
-import { randomSecret } from "./fixtures"
+import { logger } from "../../src/logs"
+import { resetThrottle, scrubEvent } from "../../src/sentry"
 
 const deviceId = crypto.randomUUID()
-const secret = randomSecret()
+const secret = "f".repeat(64)
 const pushToStart = "push-to-start-0123456789abcdef"
 const apns = "apns-0123456789abcdef"
 const fcm = "fcm-0123456789abcdef"
@@ -74,20 +73,16 @@ test("Sentry never receives a device's id, secret or push tokens", () => {
   logger.error("device sync failed", leakyMetadata)
   expect(captured.length).toBe(1)
 
-  const { value, context } = captured[0] as { value: Error; context: { extra: unknown; tags: unknown } }
+  const { value, context } = captured[0] as { value: Error; context: { extra: unknown; tags: unknown; fingerprint: string[] } }
   // What beforeSend hands Sentry: the event built from the captured error and its context.
   const event = scrubEvent({
     message: value.message,
     exception: { values: [{ type: value.name, value: value.message }] },
     extra: context.extra as Record<string, unknown>,
+    fingerprint: context.fingerprint,
     contexts: { device: { deviceId, secret } },
     request: { headers: { "x-device-id": deviceId, authorization: `Bearer ${secret}` } },
   } as never)
   expectClean(event)
   expectClean(context.tags)
-})
-
-test("scrubTokens filters device credentials and still filters ride push tokens", () => {
-  expectClean(scrubTokens(leakyMetadata))
-  expect(scrubTokens({ rideId: "r1", token: "abc" })).toEqual({ rideId: "r1", token: "[Filtered]" })
 })

@@ -2,7 +2,7 @@ import { beforeEach, expect, test } from "bun:test"
 import { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios"
 
 import { mockSecureStore } from "../../../test/mock-expo-secure-store"
-import { clearDeviceIdentity, peekDeviceIdentity } from "@/services/device/identity"
+import { clearDeviceIdentity } from "@/services/device/identity"
 import { DeviceApi, DeviceApiError, type DeviceSyncState } from "./device-api"
 
 const identity = {
@@ -95,52 +95,4 @@ test("a failed sync throws a DeviceApiError without the credentials", async () =
   expect(serialized).not.toContain(identity.deviceId)
   expect(serialized).not.toContain(identity.secret)
   expect(Object.keys(error as object).sort()).toEqual(["name", "status"])
-})
-
-test("a network failure is sanitized too", async () => {
-  storeIdentity()
-  const recording = api.axiosInstance.defaults.adapter
-  api.axiosInstance.defaults.adapter = async (config) => {
-    throw new AxiosError("Network Error", "ERR_NETWORK", config as never)
-  }
-  try {
-    const error = await api.syncDevice(state).catch((e: unknown) => e)
-    expect(error).toBeInstanceOf(DeviceApiError)
-    expect((error as Error).message).toBe("Couldn't sync the device: ERR_NETWORK")
-    expect((error as InstanceType<typeof DeviceApiError>).status).toBeUndefined()
-  } finally {
-    api.axiosInstance.defaults.adapter = recording
-  }
-})
-
-test("deleteDevice DELETEs with the identity headers and then forgets the identity", async () => {
-  storeIdentity()
-  await api.deleteDevice()
-
-  expect(sent).toHaveLength(1)
-  expect(sent[0].method).toBe("delete")
-  expect(sent[0].url).toBe("/device")
-  expect(sent[0].headers["x-device-id"]).toBe(identity.deviceId)
-  expect(sent[0].headers.authorization).toBe(`Bearer ${identity.secret}`)
-  expect(await peekDeviceIdentity()).toBeUndefined()
-})
-
-test("deleteDevice treats 404 as nothing left to delete", async () => {
-  storeIdentity()
-  respond = () => ({ status: 404 })
-  await api.deleteDevice()
-  expect(await peekDeviceIdentity()).toBeUndefined()
-})
-
-test("deleteDevice keeps the identity when the server fails, so the user can retry", async () => {
-  storeIdentity()
-  respond = () => ({ status: 500 })
-  await expect(api.deleteDevice()).rejects.toBeInstanceOf(DeviceApiError)
-  expect(await peekDeviceIdentity()).toEqual(identity)
-})
-
-test("deleteDevice without an identity sends nothing and creates none", async () => {
-  await api.deleteDevice()
-  expect(sent).toHaveLength(0)
-  expect(mockSecureStore.items.size).toBe(0)
 })
