@@ -82,9 +82,30 @@ const resolveTarget = (): Target => {
   return { baseUrl, token }
 }
 
+// Where the run currently is, for the report the Worker keeps (GET /internal/ingest/status).
+let stage = "starting"
+let reportTarget: Target | null = null
+
+/** Tell the Worker how the run went. Best effort: a job that cannot reach the Worker cannot report that either. */
+const report = async (ok: boolean, error?: unknown) => {
+  if (!reportTarget) return
+  try {
+    await fetch(internalUrl(reportTarget.baseUrl, "ingest/report"), {
+      method: "POST",
+      headers: { ...authHeaders(reportTarget), "Content-Type": "application/json" },
+      body: JSON.stringify({ ok, stage, ...(error === undefined ? {} : { error: String((error as Error)?.message ?? error) }) }),
+      signal: AbortSignal.timeout(15_000),
+    })
+  } catch (reportError) {
+    console.error("[ingest] could not report to the Worker:", reportError)
+  }
+}
+
 const ingest = async (workDir: string) => {
   const outFile = flag("--out")
   const target = outFile ? null : resolveTarget()
+  reportTarget = target
+  stage = "reading the active feed"
   const active = target ? await fetchActiveFeed(target) : null
   if (active) log(`active feed ${active.feedId}`, { checksum: active.checksum, feedEndDate: active.feedEndDate })
 
@@ -98,6 +119,7 @@ const ingest = async (workDir: string) => {
   } else {
     const zipPath = path.join(workDir, "feed.zip")
     log("downloading feed…")
+    stage = "downloading the feed"
     await downloadFeed(zipPath)
     checksum = sha256(zipPath)
     gtfsDir = path.join(workDir, "extracted")
@@ -105,15 +127,18 @@ const ingest = async (workDir: string) => {
 
   if (active && active.checksum === checksum) {
     log("feed unchanged since last ingest (checksum match) — nothing to do")
+    stage = "unchanged"
     return
   }
 
   if (!flag("--gtfs")) {
     log("extracting…")
+    stage = "extracting the feed"
     await extractFeed(path.join(workDir, "feed.zip"), gtfsDir)
   }
 
   log("parsing rail subset…")
+  stage = "parsing"
   const feed = await parseRailFeed(gtfsDir)
   log("parsed", {
     routes: feed.routes.size,
@@ -123,6 +148,7 @@ const ingest = async (workDir: string) => {
     days: new Set(feed.calendarDates.map((c) => c.serviceDate)).size,
   })
 
+  stage = "matching stations"
   const match = matchStations([...feed.stationNodes.values()])
   const payload = buildPayload(feed, match, checksum)
   for (const warning of payload.warnings) log(`⚠️ ${warning}`)
@@ -133,8 +159,10 @@ const ingest = async (workDir: string) => {
     return
   }
 
+  stage = "posting the payload"
   const reply = await postPayload(target!, payload)
   log("worker reply", reply)
+  stage = "loaded"
 }
 
 const main = async () => {
@@ -151,8 +179,12 @@ const main = async () => {
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch((error) => {
+  .then(async () => {
+    await report(true)
+    process.exit(0)
+  })
+  .catch(async (error) => {
     console.error("[ingest] FAILED:", error)
+    await report(false, error)
     process.exit(1)
   })
