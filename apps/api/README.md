@@ -165,7 +165,8 @@ proxy on the host whose IP MOT registered if GTFS mode is ever enabled.
   `POST /internal/ingest/run`. `GET /internal/ingest/status` says how the last container run ended (`run`) and what the
   job itself last reported (`lastReport`: the stage it reached and, on failure, the error; null when the job has not
   reported since that run started, i.e. it died before it could), so a failed night is one request to diagnose. The object keeps itself awake on an alarm while the job runs and destroys a run that passes 30
-  minutes. `bun run ingest --target https://api.better-rail.co.il` loads a feed from any machine when the container can't. A feed with an unmapped traversed station is refused and the previous feed stays active
+  minutes. When Cloudflare has no container instance to hand out (common for a few minutes after a deploy; `run.state`
+  is `waiting-for-instance`), the start is retried every minute for a quarter of an hour. `bun run ingest --target https://api.better-rail.co.il` loads a feed from any machine when the container can't. A feed with an unmapped traversed station is refused and the previous feed stays active
   (same rule as before: add the station to `src/data/rail-stations-geo.json`, rebuild the mapping with
   `bun run build:mapping`).
 - **SIRI**: the poller arms itself the first time the minute cron fires after a deploy; `GET /siri/status` shows the
