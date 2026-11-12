@@ -37,7 +37,7 @@ export type JobReport = {
 export type IngestStatus = { running: boolean; run: RunRecord | null; lastReport: JobReport | null }
 
 export type KeepaliveStep =
-  | { action: "rearm" }
+  | { action: "rearm"; record?: RunRecord }
   | { action: "finish"; record: RunRecord }
   | { action: "destroy"; record: RunRecord }
   | { action: "idle" }
@@ -49,10 +49,18 @@ export const keepaliveStep = (record: RunRecord | undefined, containerRunning: b
     if (record?.state === "running") return { action: "finish", record: { ...record, state: "exited", endedAt: nowMs } }
     return { action: "idle" }
   }
-  if (record && nowMs - record.startedAt > MAX_RUN_MS) {
+  // A running container always has a clock against it: one found with no record gets one now, so the limit still applies.
+  if (!record) return { action: "rearm", record: { startedAt: nowMs, state: "running" } }
+  if (nowMs - record.startedAt > MAX_RUN_MS) {
+    // Also reached again if a destroy did not take: the alarm keeps coming back until the container is gone.
     return {
       action: "destroy",
-      record: { ...record, state: "timed-out", endedAt: nowMs, error: `still running after ${MAX_RUN_MS / 60_000} minutes` },
+      record: {
+        ...record,
+        state: "timed-out",
+        endedAt: record.endedAt ?? nowMs,
+        error: `still running after ${MAX_RUN_MS / 60_000} minutes`,
+      },
     }
   }
   return { action: "rearm" }

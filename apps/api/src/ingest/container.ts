@@ -56,6 +56,9 @@ export class IngestContainer extends DurableObject<Env> {
     const baseUrl = config.apiBaseUrl || fallbackBaseUrl
     if (!baseUrl) return { started: false, reason: "API_BASE_URL is not set" }
 
+    // The record and the alarm come first: once the container is up, something is always counting against it.
+    await this.ctx.storage.put<RunRecord>(RUN_KEY, { startedAt: Date.now(), state: "running" })
+    await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
     container.start({
       enableInternet: true,
       env: {
@@ -64,8 +67,6 @@ export class IngestContainer extends DurableObject<Env> {
         NODE_ENV: config.env,
       },
     })
-    await this.ctx.storage.put<RunRecord>(RUN_KEY, { startedAt: Date.now(), state: "running" })
-    await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
     this.hold(container)
     logger.info(logNames.gtfs.ingest.start, { container: true })
     return { started: true }
@@ -77,11 +78,14 @@ export class IngestContainer extends DurableObject<Env> {
     const step = keepaliveStep(await this.ctx.storage.get<RunRecord>(RUN_KEY), Boolean(container?.running), Date.now())
     switch (step.action) {
       case "rearm":
+        if (step.record) await this.ctx.storage.put(RUN_KEY, step.record)
         await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
         return
       case "destroy":
         logger.error(logNames.gtfs.ingest.failed, { container: "timed out", error: step.record.error })
         await this.ctx.storage.put(RUN_KEY, step.record)
+        // Come back to check it is gone: the alarm only stops once the container has.
+        await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
         await container?.destroy(new Error(step.record.error)).catch(() => {})
         return
       case "finish":

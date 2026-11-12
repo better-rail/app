@@ -14,8 +14,8 @@ const running: RunRecord = { startedAt: 1_000_000, state: "running" }
 describe("keepaliveStep", () => {
   test("keeps waking the object while the job runs", () => {
     expect(keepaliveStep(running, true, running.startedAt + 60_000)).toEqual({ action: "rearm" })
-    // An object that restarted before the record was written still holds on to a running container
-    expect(keepaliveStep(undefined, true, 5)).toEqual({ action: "rearm" })
+    // A running container found with no record gets one, so the run limit still counts against it
+    expect(keepaliveStep(undefined, true, 5)).toEqual({ action: "rearm", record: { startedAt: 5, state: "running" } })
   })
 
   test("closes the record when the container has gone and nothing else did", () => {
@@ -37,6 +37,21 @@ describe("keepaliveStep", () => {
     const step = keepaliveStep(running, true, now)
     expect(step).toMatchObject({ action: "destroy", record: { state: "timed-out", endedAt: now } })
     expect(keepaliveStep(running, true, running.startedAt + MAX_RUN_MS)).toEqual({ action: "rearm" })
+  })
+
+  test("nothing runs forever: a destroy that did not take is repeated, and the alarm stops once the container is gone", () => {
+    const timedOut = (keepaliveStep(running, true, running.startedAt + MAX_RUN_MS + 1) as { record: RunRecord }).record
+    const later = running.startedAt + MAX_RUN_MS + 20_001
+    // Still running after the destroy: destroy again, keeping the time the limit was first hit
+    expect(keepaliveStep(timedOut, true, later)).toMatchObject({
+      action: "destroy",
+      record: { state: "timed-out", endedAt: timedOut.endedAt },
+    })
+    // Gone: no further alarm
+    expect(keepaliveStep(timedOut, false, later)).toEqual({ action: "idle" })
+    // A normal exit ends the alarms too, whether the watcher or the alarm closed the record
+    expect(keepaliveStep({ ...running, state: "exited", endedAt: later }, false, later)).toEqual({ action: "idle" })
+    expect(keepaliveStep(running, false, later).action).toBe("finish")
   })
 })
 
