@@ -19,6 +19,7 @@ import { bindRuntime, runtime, type Env } from "../runtime"
 import { config } from "../config"
 import { logNames, logger } from "../logs"
 import {
+  afterFailure,
   type IngestStatus,
   type JobReport,
   KEEPALIVE_MS,
@@ -26,6 +27,7 @@ import {
   MAX_RUN_MS,
   reportForRun,
   type RunRecord,
+  START_RETRY_MS,
 } from "./run-state"
 
 export const INGEST_CONTAINER_NAME = "ingest"
@@ -56,20 +58,24 @@ export class IngestContainer extends DurableObject<Env> {
     const baseUrl = config.apiBaseUrl || fallbackBaseUrl
     if (!baseUrl) return { started: false, reason: "API_BASE_URL is not set" }
 
-    // The record and the alarm come first: once the container is up, something is always counting against it.
-    await this.ctx.storage.put<RunRecord>(RUN_KEY, { startedAt: Date.now(), state: "running" })
+    await this.launch(container, { startedAt: Date.now(), state: "running", attempts: 1, baseUrl })
+    return { started: true }
+  }
+
+  /** One start attempt. The record and the alarm come first: once the container is up, something always counts against it. */
+  private async launch(container: Container, record: RunRecord) {
+    await this.ctx.storage.put<RunRecord>(RUN_KEY, record)
     await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
     container.start({
       enableInternet: true,
       env: {
-        API_BASE_URL: baseUrl,
+        API_BASE_URL: record.baseUrl ?? config.apiBaseUrl,
         INGEST_TOKEN: config.ingestToken,
         NODE_ENV: config.env,
       },
     })
     this.hold(container)
-    logger.info(logNames.gtfs.ingest.start, { container: true })
-    return { started: true }
+    logger.info(logNames.gtfs.ingest.start, { container: true, attempt: record.attempts ?? 1 })
   }
 
   /** The keep-alive: wakes the object while the job runs, closes the record once it has gone, stops a stuck run. */
@@ -80,6 +86,10 @@ export class IngestContainer extends DurableObject<Env> {
       case "rearm":
         if (step.record) await this.ctx.storage.put(RUN_KEY, step.record)
         await this.ctx.storage.setAlarm(Date.now() + KEEPALIVE_MS)
+        return
+      case "start":
+        // The last attempt found no instance to run on; this is the retry.
+        if (container) await this.launch(container, step.record)
         return
       case "destroy":
         logger.error(logNames.gtfs.ingest.failed, { container: "timed out", error: step.record.error })
@@ -120,23 +130,35 @@ export class IngestContainer extends DurableObject<Env> {
     this.ctx.waitUntil(
       container
         .monitor()
-        .then(() => this.close("exited"))
-        .catch((error) => this.close("crashed", message(error))),
+        .then(() => this.exited())
+        .catch((error) => this.failed(message(error))),
     )
   }
 
-  private async close(state: "exited" | "crashed", error?: string) {
+  private async exited() {
     const record = await this.ctx.storage.get<RunRecord>(RUN_KEY)
     // A run the alarm already closed (timed out) keeps that verdict.
     if (record && record.state !== "running") return
     await this.ctx.storage.put<RunRecord>(RUN_KEY, {
+      ...record,
       startedAt: record?.startedAt ?? Date.now(),
-      state,
+      state: "exited",
       endedAt: Date.now(),
-      ...(error ? { error } : {}),
     })
-    if (state === "crashed") logger.error(logNames.gtfs.ingest.failed, { error, container: "crashed" })
-    else logger.info(logNames.gtfs.ingest.loaded, { container: "exited" })
+    logger.info(logNames.gtfs.ingest.loaded, { container: "exited" })
+  }
+
+  private async failed(error: string) {
+    const record = await this.ctx.storage.get<RunRecord>(RUN_KEY)
+    if (record && record.state !== "running") return
+    const next = afterFailure(record, error, Date.now())
+    await this.ctx.storage.put<RunRecord>(RUN_KEY, next)
+    if (next.state === "waiting-for-instance") {
+      logger.warn(logNames.gtfs.ingest.failed, { error, container: "no instance yet, retrying", attempt: next.attempts })
+      await this.ctx.storage.setAlarm(Date.now() + START_RETRY_MS)
+      return
+    }
+    logger.error(logNames.gtfs.ingest.failed, { error, container: "crashed", attempts: next.attempts })
   }
 }
 

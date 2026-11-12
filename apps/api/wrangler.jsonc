@@ -72,7 +72,9 @@
       "class_name": "IngestContainer",
       "image": "./ingest/Dockerfile",
       "image_build_context": ".",
-      "max_instances": 1,
+      // Only one ever runs (a single Durable Object starts it). The spare capacity is free, since only running
+      // instances are billed, and keeps a start from being refused while an image rollout holds the other slot.
+      "max_instances": 3,
       // The feed is a few hundred MB unzipped; 4 GiB leaves room for the parse.
       "instance_type": "standard-1",
     },

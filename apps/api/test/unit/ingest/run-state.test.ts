@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test"
 
 import {
+  afterFailure,
   type JobReport,
   keepaliveStep,
   MAX_RUN_MS,
+  MAX_START_ATTEMPTS,
   parseJobReport,
   reportForRun,
   type RunRecord,
@@ -52,6 +54,36 @@ describe("keepaliveStep", () => {
     // A normal exit ends the alarms too, whether the watcher or the alarm closed the record
     expect(keepaliveStep({ ...running, state: "exited", endedAt: later }, false, later)).toEqual({ action: "idle" })
     expect(keepaliveStep(running, false, later).action).toBe("finish")
+  })
+})
+
+describe("no container instance available", () => {
+  const NO_INSTANCE = "There is no container instance that can be provided to this Durable Object, try again later"
+  const first: RunRecord = { startedAt: 1_000_000, state: "running", attempts: 1, baseUrl: "https://api.test" }
+
+  test("waits for an instance and starts again, keeping the origin the job posts back to", () => {
+    const waiting = afterFailure(first, NO_INSTANCE, 1_000_800)
+    expect(waiting).toEqual({
+      startedAt: 1_000_000,
+      state: "waiting-for-instance",
+      attempts: 1,
+      baseUrl: "https://api.test",
+      error: NO_INSTANCE,
+    })
+    expect(keepaliveStep(waiting, false, 1_060_800)).toEqual({
+      action: "start",
+      record: { ...waiting, state: "running", attempts: 2 },
+    })
+  })
+
+  test("gives up after the last attempt, and never retries a real crash", () => {
+    const last = afterFailure({ ...first, attempts: MAX_START_ATTEMPTS }, NO_INSTANCE, 2_000_000)
+    expect(last).toMatchObject({ state: "crashed", endedAt: 2_000_000, attempts: MAX_START_ATTEMPTS, error: NO_INSTANCE })
+    expect(keepaliveStep(last, false, 2_060_000)).toEqual({ action: "idle" })
+
+    const crash = afterFailure(first, "container exited with code 1", 1_200_000)
+    expect(crash).toMatchObject({ state: "crashed", endedAt: 1_200_000, error: "container exited with code 1" })
+    expect(afterFailure(undefined, "boom", 5)).toMatchObject({ startedAt: 5, state: "crashed", attempts: 1 })
   })
 })
 

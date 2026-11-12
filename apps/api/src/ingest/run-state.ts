@@ -15,14 +15,36 @@ export const KEEPALIVE_MS = 20_000
 /** A run longer than this is stuck (a normal one takes a few minutes); the container is destroyed. */
 export const MAX_RUN_MS = 30 * 60_000
 
-export type RunState = "running" | "exited" | "crashed" | "timed-out"
+/**
+ * Cloudflare sometimes has no container instance to hand out ("There is no container instance that can be provided
+ * to this Durable Object, try again later"): right after a deploy while the new image rolls out, or when capacity is
+ * short. It is transient, so the start is tried again a minute apart for a quarter of an hour before giving up.
+ */
+export const START_RETRY_MS = 60_000
+export const MAX_START_ATTEMPTS = 15
+
+const NO_INSTANCE = /no container instance/i
+
+export type RunState = "running" | "waiting-for-instance" | "exited" | "crashed" | "timed-out"
 
 export type RunRecord = {
   startedAt: number
   state: RunState
   endedAt?: number
-  /** Why the container crashed or was destroyed. */
+  /** Why the container crashed or was destroyed, or why the last start attempt failed. */
   error?: string
+  /** Start attempts so far (1 on the first). */
+  attempts?: number
+  /** The Worker origin the job posts back to, kept so a retried start gets the same one. */
+  baseUrl?: string
+}
+
+/** The record after the container's watcher reported a failure: wait for an instance and retry, or a crash. */
+export const afterFailure = (record: RunRecord | undefined, error: string, nowMs: number): RunRecord => {
+  const attempts = record?.attempts ?? 1
+  const base = { startedAt: record?.startedAt ?? nowMs, attempts, ...(record?.baseUrl ? { baseUrl: record.baseUrl } : {}) }
+  if (NO_INSTANCE.test(error) && attempts < MAX_START_ATTEMPTS) return { ...base, state: "waiting-for-instance", error }
+  return { ...base, state: "crashed", endedAt: nowMs, error }
 }
 
 /** What the job itself said last (POST /internal/ingest/report): the stage it reached and, on failure, why. */
@@ -38,6 +60,7 @@ export type IngestStatus = { running: boolean; run: RunRecord | null; lastReport
 
 export type KeepaliveStep =
   | { action: "rearm"; record?: RunRecord }
+  | { action: "start"; record: RunRecord }
   | { action: "finish"; record: RunRecord }
   | { action: "destroy"; record: RunRecord }
   | { action: "idle" }
@@ -45,6 +68,9 @@ export type KeepaliveStep =
 /** The alarm's decision: keep waking while the job runs, close the record when it has gone, stop a stuck one. */
 export const keepaliveStep = (record: RunRecord | undefined, containerRunning: boolean, nowMs: number): KeepaliveStep => {
   if (!containerRunning) {
+    if (record?.state === "waiting-for-instance") {
+      return { action: "start", record: { ...record, state: "running", attempts: (record.attempts ?? 1) + 1 } }
+    }
     // The exit watcher normally closes the record; this covers an object that restarted and lost its watcher.
     if (record?.state === "running") return { action: "finish", record: { ...record, state: "exited", endedAt: nowMs } }
     return { action: "idle" }
