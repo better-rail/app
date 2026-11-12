@@ -18,7 +18,15 @@ import { DurableObject } from "cloudflare:workers"
 import { bindRuntime, runtime, type Env } from "../runtime"
 import { config } from "../config"
 import { logNames, logger } from "../logs"
-import { type IngestStatus, type JobReport, KEEPALIVE_MS, keepaliveStep, MAX_RUN_MS, type RunRecord } from "./run-state"
+import {
+  type IngestStatus,
+  type JobReport,
+  KEEPALIVE_MS,
+  keepaliveStep,
+  MAX_RUN_MS,
+  reportForRun,
+  type RunRecord,
+} from "./run-state"
 
 export const INGEST_CONTAINER_NAME = "ingest"
 
@@ -92,11 +100,9 @@ export class IngestContainer extends DurableObject<Env> {
 
   /** How the last run went (GET /internal/ingest/status). */
   async status(): Promise<IngestStatus> {
-    return {
-      running: Boolean(this.ctx.container?.running),
-      run: (await this.ctx.storage.get<RunRecord>(RUN_KEY)) ?? null,
-      lastReport: (await this.ctx.storage.get<JobReport>(REPORT_KEY)) ?? null,
-    }
+    const run = (await this.ctx.storage.get<RunRecord>(RUN_KEY)) ?? null
+    const report = (await this.ctx.storage.get<JobReport>(REPORT_KEY)) ?? null
+    return { running: Boolean(this.ctx.container?.running), run, lastReport: reportForRun(run, report) }
   }
 
   /** Keep the container through the run and record how it ends. */

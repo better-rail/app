@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test"
 
-import { keepaliveStep, MAX_RUN_MS, parseJobReport, type RunRecord } from "../../../src/ingest/run-state"
+import {
+  type JobReport,
+  keepaliveStep,
+  MAX_RUN_MS,
+  parseJobReport,
+  reportForRun,
+  type RunRecord,
+} from "../../../src/ingest/run-state"
 
 const running: RunRecord = { startedAt: 1_000_000, state: "running" }
 
@@ -30,6 +37,26 @@ describe("keepaliveStep", () => {
     const step = keepaliveStep(running, true, now)
     expect(step).toMatchObject({ action: "destroy", record: { state: "timed-out", endedAt: now } })
     expect(keepaliveStep(running, true, running.startedAt + MAX_RUN_MS)).toEqual({ action: "rearm" })
+  })
+})
+
+describe("reportForRun", () => {
+  const loaded: JobReport = { at: 900_000, ok: true, stage: "loaded" }
+
+  test("hides a report filed before the last run started", () => {
+    // An earlier success must not sit beside a later run that died before it could report
+    const crashed: RunRecord = { ...running, state: "crashed", endedAt: 1_100_000, error: "exit code 137" }
+    expect(reportForRun(crashed, loaded)).toBeNull()
+    expect(reportForRun(running, loaded)).toBeNull()
+  })
+
+  test("keeps a report from the last run, and one with no container run at all", () => {
+    const exited: RunRecord = { ...running, state: "exited", endedAt: 1_300_000 }
+    const fromRun: JobReport = { at: 1_250_000, ok: false, stage: "downloading the feed", error: "HTTP 403" }
+    expect(reportForRun(exited, fromRun)).toEqual(fromRun)
+    expect(reportForRun(exited, { ...loaded, at: exited.startedAt })).toEqual({ ...loaded, at: exited.startedAt })
+    expect(reportForRun(null, loaded)).toEqual(loaded)
+    expect(reportForRun(exited, null)).toBeNull()
   })
 })
 

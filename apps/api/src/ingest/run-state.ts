@@ -33,6 +33,7 @@ export type JobReport = {
   error?: string
 }
 
+/** `lastReport` is null when the job has not reported since the last run started (see `reportForRun`). */
 export type IngestStatus = { running: boolean; run: RunRecord | null; lastReport: JobReport | null }
 
 export type KeepaliveStep =
@@ -56,6 +57,13 @@ export const keepaliveStep = (record: RunRecord | undefined, containerRunning: b
   }
   return { action: "rearm" }
 }
+
+/**
+ * The job report that belongs next to `run`: one filed before the last run started says nothing about that run (it
+ * died before it could report), and showing an older success beside a crashed run would read as if it had worked.
+ */
+export const reportForRun = (run: RunRecord | null, report: JobReport | null): JobReport | null =>
+  run && report && report.at < run.startedAt ? null : report
 
 const text = (value: unknown, max: number) => (typeof value === "string" ? value.slice(0, max) : undefined)
 
