@@ -15,7 +15,8 @@ import { invalidateActiveFeedCache } from "../db"
 import { logNames, logger } from "../logs"
 import { UnchangedFeedError, activeFeedSummary, decodePayload, loadFeed } from "../ingest/load"
 import { parseFarePayloads, syncFares } from "../fares/sync"
-import { startIngest } from "../ingest/container"
+import { ingestStatus, recordIngestReport, startIngest } from "../ingest/container"
+import { parseJobReport } from "../ingest/run-state"
 import { isApnConfigured, sendApnNotification } from "../push/apns"
 import { isFcmConfigured, sendFcmNotification } from "../push/fcm"
 import { json, jsonBody, notFound, safeEqual } from "./helpers"
@@ -71,6 +72,25 @@ export const internalRoutes = new Elysia({ prefix: "/internal" })
       logger.error(logNames.gtfs.ingest.failed, { error })
       return json(ctx, 500, { error: (error as Error).message })
     }
+  })
+  // How the last container run went, and what the job itself last reported.
+  // Awaited and written out: an un-awaited Durable Object call is an RPC promise, which the framework must not walk.
+  .get("/ingest/status", async () => Response.json(await ingestStatus()))
+  // The job's own account of a run: the stage it reached and, on failure, why.
+  .post("/ingest/report", async (ctx) => {
+    // The framework has already read the body: an object for application/json, the text for anything else.
+    let body: unknown = ctx.body
+    if (typeof body === "string") {
+      try {
+        body = JSON.parse(body)
+      } catch {
+        body = null
+      }
+    }
+    const report = parseJobReport(body, Date.now())
+    if (!report) return json(ctx, 400, { error: "Expected { ok: boolean, stage: string, error?: string }" })
+    await recordIngestReport(report)
+    return { recorded: true }
   })
   // Pull the fares from the rail API now.
   .post("/fares/pull", async (ctx) => {

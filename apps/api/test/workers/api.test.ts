@@ -382,6 +382,42 @@ describe("guarded routes", () => {
     expect(await res.text()).toBe("null")
   })
 
+  it("keeps the ingest job's report and answers how the last run went", async () => {
+    expect((await SELF.fetch(`${api}/internal/ingest/status`)).status).toBe(404)
+    const empty = await SELF.fetch(`${api}/internal/ingest/status`, { headers: AUTH })
+    expect(await empty.json()).toEqual({ running: false, run: null, lastReport: null })
+
+    const bad = await SELF.fetch(`${api}/internal/ingest/report`, { method: "POST", headers: AUTH, body: "{}" })
+    expect(bad.status).toBe(400)
+    const reported = await SELF.fetch(`${api}/internal/ingest/report`, {
+      method: "POST",
+      headers: AUTH,
+      body: JSON.stringify({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" }),
+    })
+    expect(await reported.json()).toEqual({ recorded: true })
+    // The job sends application/json; both forms reach the same record
+    const asJson = await SELF.fetch(`${api}/internal/ingest/report`, {
+      method: "POST",
+      headers: { ...AUTH, "content-type": "application/json" },
+      body: JSON.stringify({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" }),
+    })
+    expect(await asJson.json()).toEqual({ recorded: true })
+
+    const status = (await (await SELF.fetch(`${api}/internal/ingest/status`, { headers: AUTH })).json()) as {
+      running: boolean
+      run: unknown
+      lastReport: { at: number; ok: boolean; stage: string; error: string }
+    }
+    expect(status.running).toBe(false)
+    expect(status.run).toBeNull()
+    expect(status.lastReport).toMatchObject({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" })
+    expect(status.lastReport.at).toBeGreaterThan(Date.now() - 60_000)
+
+    // No container in tests: starting one says so, and leaves no run behind
+    const run = await SELF.fetch(`${api}/internal/ingest/run`, { method: "POST", headers: AUTH })
+    expect(await run.json()).toMatchObject({ started: false })
+  })
+
   it("hides the SIRI debug routes without the token and answers with the poller state with it", async () => {
     expect((await SELF.fetch(`${api}/siri/status`)).status).toBe(404)
     const status = await SELF.fetch(`${api}/siri/status`, { headers: { "x-debug-token": "test-debug-token" } })
