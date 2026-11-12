@@ -11,6 +11,7 @@ export const initFonts = async () => {
       FrankRuhlLibre: require("../../../assets/fonts/FrankRuhlLibre-Black.ttf"),
       BebasNeue: require("../../../assets/fonts/BebasNeue-Regular.ttf"),
       SuezOne: require("../../../assets/fonts/SuezOne-Regular.ttf"),
+      SecularOne: require("../../../assets/fonts/SecularOne-Regular.ttf"),
       TelAvivBrutalist: require("../../../assets/fonts/licensed/TelAviv-BrutalistBold.ttf"),
       TelAvivBrutalistRegular: require("../../../assets/fonts/licensed/TelAviv-BrutalistRegular.ttf"),
       TelAvivModernistRegular: require("../../../assets/fonts/licensed/TelAviv-ModernistRegular.ttf"),

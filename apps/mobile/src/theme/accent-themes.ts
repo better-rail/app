@@ -197,6 +197,12 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
   },
   // The bay's teal and Carmel green
   haifa: {
+    headingFont: { family: "SecularOne" },
+    subheadingFont: { family: "SecularOne" },
+    stopNameFont: { family: "SecularOne" },
+    labelFont: { family: "SecularOne" },
+    buttonFont: { family: "SecularOne" },
+    timeFont: { family: "SecularOne", size: 24 },
     light: {
       accents: {
         primary: "#0B8793",
