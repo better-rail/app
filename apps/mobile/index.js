@@ -7,7 +7,11 @@
 // 3. Hand off to expo-router/entry LAST (it builds the route tree + registers the root).
 import "./src/theme/unistyles"
 import * as Sentry from "@sentry/react-native"
+import * as SplashScreen from "expo-splash-screen"
 import { configureNotifications } from "./src/utils/notification-helpers"
+
+// Keep the splash up until the root layout has real content; it hides it on first layout.
+SplashScreen.preventAutoHideAsync().catch(() => {})
 
 // Guard fatal startup errors so a single failing init can't crash launch.
 // After the startup window closes, errors propagate to the default handler.
