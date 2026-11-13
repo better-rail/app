@@ -1,6 +1,6 @@
 import { createMMKV } from "react-native-mmkv"
 import { AsyncStorage } from "./async-storage"
-import { isAsyncStorageMigrated, migrateAsyncStorage, MIGRATED_KEYS } from "./migrate-async-storage"
+import { isAsyncStorageMigrated, migrateAsyncStorage } from "./migrate-async-storage"
 
 const mmkv = createMMKV()
 
@@ -23,8 +23,13 @@ export async function migrate(): Promise<Error | undefined> {
   }
 }
 
-/** Drops the copy the migration left in AsyncStorage. */
-export const removeAsyncStorageCopy = () => AsyncStorage.multiRemove(MIGRATED_KEYS).catch(() => {})
+/** Erases data the user asked to delete: from MMKV even when read-only, and the copy the migration left in AsyncStorage. */
+export async function erase(key: string): Promise<void> {
+  try {
+    mmkv.remove(key)
+  } catch {}
+  await AsyncStorage.removeItem(key).catch(() => {})
+}
 
 /** Loads a value from storage and runs it through JSON.parse. */
 export function load(key: string): any | null {

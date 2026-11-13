@@ -45,8 +45,7 @@ export function PrivacyScreen() {
           text: translate("common.ok"),
           style: "destructive",
           onPress: async () => {
-            clearAllData()
-            await storage.removeAsyncStorageCopy()
+            await clearAllData()
             RNRestart.Restart()
           },
         },

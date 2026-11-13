@@ -162,7 +162,7 @@ export function setupRootStore() {
 /**
  * Clears all store data back to defaults.
  */
-export function clearAllData() {
+export async function clearAllData() {
   resetRoutePlanStore()
   resetTrainRoutesStore()
   resetRecentSearchesStore()
@@ -172,4 +172,6 @@ export function clearAllData() {
   resetUserStore()
   resetVouchersStore()
   resetRecurringRidesStore()
+  // The resets can't persist while storage is read-only, and the old AsyncStorage copy would come back
+  await storage.erase(ROOT_STATE_STORAGE_KEY)
 }
