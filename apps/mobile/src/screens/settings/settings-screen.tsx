@@ -65,6 +65,18 @@ export function SettingsScreen() {
       </View>
 
       <View style={settingsStyles.group}>
+        <SettingBox
+          testID="settings-live"
+          first
+          last
+          title={translate("settings.live") ?? ""}
+          icon="🚆"
+          chevron
+          onPress={() => router.push("/settings/live")}
+        />
+      </View>
+
+      <View style={settingsStyles.group}>
         {Platform.OS === "ios" ? (
           <SettingBox
             first

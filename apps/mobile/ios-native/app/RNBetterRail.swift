@@ -49,6 +49,47 @@ class RNBetterRail: NSObject {
     @objc func monitorActivities() {
     LiveActivitiesController.shared.monitorLiveActivities()
   }
+
+  /// The ride the server started with push-to-start, once it's registered: what JS needs to show it. Nil when none runs.
+  @objc func autoStartedRide(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    Task {
+      for activity in Activity<BetterRailActivityAttributes>.activities
+      where activity.attributes.scheduleId != nil && activity.activityState == .active {
+        guard let rideId = await LiveActivitiesController.tokenRegistry.rideId(activityId: activity.id) else { continue }
+        let attributes = activity.attributes
+        var ride: [String: Any] = [
+          "rideId": rideId,
+          "originId": attributes.originStationId,
+          "destinationId": attributes.destinationStationId,
+          "departureTime": attributes.departureTime,
+          "trainNumbers": attributes.trainNumbers,
+        ]
+        if let viaStationId = attributes.viaStationId { ride["viaStationId"] = viaStationId }
+        resolve(ride)
+        return
+      }
+      resolve(nil)
+    }
+  }
+
+  /// The push-to-start token the server starts recurring rides with, or nil before iOS 17.2 or until iOS issues one.
+  /// Waits a few seconds for the first one, which arrives shortly after `monitorActivities`.
+  @objc func pushToStartToken(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
+    guard #available(iOS 17.2, *), ActivityAuthorizationInfo().areActivitiesEnabled else {
+      resolve(nil)
+      return
+    }
+    Task {
+      for _ in 0..<20 {
+        if let token = UserDefaults.standard.string(forKey: LiveActivitiesController.pushToStartTokenKey) {
+          resolve(token)
+          return
+        }
+        try? await Task.sleep(nanoseconds: 250_000_000)
+      }
+      resolve(nil)
+    }
+  }
   
   /// data - A JSON representation of a Route
   /// Rejects with a code naming the step that failed, which `toLiveActivityError` in ride-errors.ts maps for reporting.
@@ -125,30 +166,34 @@ class RNBetterRail: NSObject {
     }
   }
   
+  /// The ride's Live Activity, if it's still there: an empty list means the ride is over. Only this ride's activity
+  /// counts, so a recurring ride started by push doesn't keep an earlier ride looking active.
   @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-    // Use ActivityKit's API to get running activities instead of in-memory TokenRegistry.
-    // This works even after app restart since ActivityKit maintains the activity state.
-    let runningActivities = Activity<BetterRailActivityAttributes>.activities
+    Task {
+      // The registry keeps ride IDs across launches; ActivityKit keeps the activities
+      let activityId = await LiveActivitiesController.tokenRegistry.activityId(rideId: rideId)
+      let runningActivities = Activity<BetterRailActivityAttributes>.activities.filter { $0.id == activityId }
 
-    let jsonArray = runningActivities.map { activity -> [String: String] in
-      let tokenString: String
-      if let token = activity.pushToken {
-        tokenString = token.map { String(format: "%02x", $0) }.joined()
-      } else {
-        tokenString = ""
+      let jsonArray = runningActivities.map { activity -> [String: String] in
+        let tokenString: String
+        if let token = activity.pushToken {
+          tokenString = token.map { String(format: "%02x", $0) }.joined()
+        } else {
+          tokenString = ""
+        }
+
+        return ["rideId": activity.id, "token": tokenString]
       }
 
-      return ["rideId": activity.id, "token": tokenString]
-    }
-
-    do {
-      let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
-      if let jsonString = String(data: jsonData, encoding: .utf8) {
-        resolve(jsonString)
+      do {
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+          resolve(jsonString)
+        }
+      } catch {
+        print(error.localizedDescription)
+        reject("error", "error", error)
       }
-    } catch {
-      print(error.localizedDescription)
-      reject("error", "error", error)
     }
   }
 

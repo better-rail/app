@@ -41,6 +41,7 @@ export default function MainLayout() {
         <Stack.Screen name="fares" options={formSheetOptions} />
         <Stack.Screen name="train-info-prompt" options={formSheetOptions} />
         <Stack.Screen name="live-permissions" options={formSheetOptions} />
+        <Stack.Screen name="recurring-ride" options={formSheetOptions} />
       </Stack>
     </ThemeProvider>
   )

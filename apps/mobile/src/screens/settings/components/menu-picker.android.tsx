@@ -4,18 +4,10 @@ import { DropdownMenu, DropdownMenuItem, Host, RNHostView, Text as ComposeText }
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { FillWidth } from "@/components/context-menu/fill-width"
-import { translate } from "@/i18n"
-import type { ColorSchemePreference } from "@/models/settings/settings"
-import type { ColorSchemePickerProps } from "./color-scheme-picker.types"
+import type { MenuPickerProps } from "./menu-picker.types"
 
-export function ColorSchemePicker({ value, onChange }: ColorSchemePickerProps) {
+export function MenuPicker<T extends string>({ label, value, options, onChange, testID }: MenuPickerProps<T>) {
   const [expanded, setExpanded] = useState(false)
-  const label = translate("settings.colorScheme") ?? ""
-  const options: { value: ColorSchemePreference; label: string }[] = [
-    { value: "automatic", label: translate("settings.colorSchemeAutomatic") ?? "" },
-    { value: "light", label: translate("settings.colorSchemeLight") ?? "" },
-    { value: "dark", label: translate("settings.colorSchemeDark") ?? "" },
-  ]
   const selectedLabel = options.find((option) => option.value === value)?.label ?? ""
 
   return (
@@ -27,7 +19,7 @@ export function ColorSchemePicker({ value, onChange }: ColorSchemePickerProps) {
             <DropdownMenu.Trigger>
               <RNHostView matchContents>
                 <Pressable
-                  testID="color-scheme-picker"
+                  testID={testID}
                   accessibilityRole="button"
                   accessibilityLabel={`${label}: ${selectedLabel}`}
                   onPress={() => setExpanded(true)}

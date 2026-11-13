@@ -140,3 +140,12 @@ export function getRideStatus(
 
   return "inTransit"
 }
+
+/** How long after its arrival (with the delay it last had) a ride counts as over, in case the delay grew since */
+const RIDE_OVER_AFTER_MS = 60 * 60 * 1000
+
+/** Whether a ride on this route has surely arrived by `now` */
+export const isRideOver = (route: Pick<RouteItem, "arrivalTime" | "trains">, now = Date.now()) => {
+  const delay = route.trains[route.trains.length - 1]?.delay ?? 0
+  return now >= addMinutes(route.arrivalTime, delay).getTime() + RIDE_OVER_AFTER_MS
+}

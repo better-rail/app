@@ -42,6 +42,8 @@ import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
 import { formSheetOptions } from "@/utils/form-sheet-options"
+import { startDeviceSync } from "@/services/device/device-sync"
+import { adoptAutoStartedRide } from "@/utils/auto-started-ride"
 
 enableScreens()
 
@@ -221,6 +223,8 @@ function RootLayout() {
         rideState.checkLiveRideAuthorization()
         if (rideState.id) {
           rideState.isRideActive(rideState.id)
+        } else {
+          adoptAutoStartedRide().catch(() => {})
         }
       }
       appState.current = nextAppState
@@ -264,6 +268,11 @@ function RootLayout() {
       markInteractive()
     }
   }, [storeReady, localeReady, markInteractive])
+
+  useEffect(() => {
+    // After the language, which the server's reminders are written in. A no-op for a device without recurring rides.
+    if (storeReady && localeReady && !IS_E2E) startDeviceSync()
+  }, [storeReady, localeReady])
 
   if (!storeReady || !localeReady) return null
 

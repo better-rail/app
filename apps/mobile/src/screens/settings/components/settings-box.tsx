@@ -113,6 +113,9 @@ const styles = StyleSheet.create((theme, rt) => ({
   settingsBoxDetails: {
     flexDirection: "row",
     alignItems: "center",
+    // A long title wraps instead of pushing the switch or chevron off the row.
+    flexShrink: 1,
+    marginEnd: theme.spacing[2],
   },
   settingsBoxTitle: { marginStart: theme.spacing[2], fontSize: 16.5, fontWeight: "400" },
   icon: { fontSize: 18 },
