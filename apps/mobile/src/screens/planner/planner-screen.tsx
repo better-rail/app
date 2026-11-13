@@ -24,6 +24,7 @@ import { differenceInHours, parseISO } from "date-fns"
 import { save, load } from "@/utils/storage"
 import { donateRouteIntent } from "@/utils/ios-helpers"
 import { trackEvent } from "@/services/analytics"
+import { useReducedMotion } from "react-native-reanimated"
 import { useRouter, useIsFocused } from "expo-router"
 import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
@@ -31,6 +32,9 @@ import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
 import { ThemeBackground } from "@/components/theme-background/theme-background"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
+
+// Samples of a sine arc, so the mid-glide scale eases in and out instead of turning on a point.
+const SCALE_STEPS = Array.from({ length: 13 }, (_, i) => i / 12)
 
 export function PlannerScreen() {
   const router = useRouter()
@@ -50,7 +54,13 @@ export function PlannerScreen() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
   const formattedDate = useFormattedDate(date)
-  const stationCardScale = useRef(new Animated.Value(1)).current
+  // The two cards keep their station and trade places by transform, so nothing re-renders mid-glide.
+  // 0 = the upper card shows the origin, 1 = the cards have traded places.
+  const swapProgress = useRef(new Animated.Value(0)).current
+  const [flipped, setFlipped] = useState(false)
+  const cardOffsets = useRef({ upper: 0, lower: 0 })
+  const [swapDistance, setSwapDistance] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   const now = new Date()
 
@@ -91,31 +101,59 @@ export function PlannerScreen() {
     return undefined
   })()
 
-  const scaleStationCards = () => {
-    Animated.sequence([
-      Animated.timing(stationCardScale, {
-        toValue: 0.96,
-        duration: 175,
-        useNativeDriver: true,
-      }),
-      Animated.timing(stationCardScale, {
-        toValue: 1,
-        duration: 175,
-        useNativeDriver: true,
-      }),
-    ]).start()
+  const onCardLayout = (card: "upper" | "lower", y: number) => {
+    cardOffsets.current[card] = y
+    setSwapDistance(cardOffsets.current.lower - cardOffsets.current.upper)
   }
 
-  const onSwitchPress = () => {
-    scaleStationCards()
-    HapticFeedback.trigger("impactMedium")
+  const swapStyle = (direction: 1 | -1, midScale: number) => ({
+    transform: [
+      { translateY: swapProgress.interpolate({ inputRange: [0, 1], outputRange: [0, direction * swapDistance] }) },
+      {
+        scale: swapProgress.interpolate({
+          inputRange: SCALE_STEPS,
+          outputRange: SCALE_STEPS.map((p) => 1 + (midScale - 1) * Math.sin(Math.PI * p)),
+          extrapolate: "clamp",
+        }),
+      },
+    ],
+  })
 
-    // Delay the actual switch so it'll be synced with the animation
-    setTimeout(() => {
-      switchDirection()
-    }, 50)
+  const onSwitchPress = () => {
+    HapticFeedback.trigger("impactMedium")
+    const toValue = flipped ? 0 : 1
+    setFlipped(!flipped)
+    switchDirection()
+
+    if (reduceMotion) {
+      swapProgress.setValue(toValue)
+    } else {
+      // A spring lands softly and keeps its speed when a second tap reverses it mid-glide.
+      Animated.spring(swapProgress, { toValue, stiffness: 210, damping: 26, mass: 1, useNativeDriver: true }).start()
+    }
 
     trackEvent("switch_stations_btn_press")
+  }
+
+  const renderCard = (card: "upper" | "lower") => {
+    const type = (card === "upper") !== flipped ? "origin" : "destination"
+    const station = type === "origin" ? origin : destination
+    const data = type === "origin" ? originData : destinationData
+    return (
+      <Animated.View
+        testID={`planner-${type}-${station?.id ?? "empty"}`}
+        style={card === "upper" ? swapStyle(1, 0.94) : swapStyle(-1, 1.02)}
+        onLayout={(e) => onCardLayout(card, e.nativeEvent.layout.y)}
+      >
+        <StationCard
+          testID={`planner-${type}-card`}
+          name={data?.name}
+          image={data?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: type } })}
+        />
+      </Animated.View>
+    )
   }
 
   const onGetRoutePress = () => {
@@ -182,33 +220,14 @@ export function PlannerScreen() {
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-          <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              testID="planner-origin-card"
-              name={originData?.name}
-              image={originData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
-            />
-          </Animated.View>
+          {renderCard("upper")}
 
           <View style={styles.changeDirectionWrapper}>
             <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
           </View>
 
           <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-          <Animated.View
-            testID={`planner-destination-${destination?.id ?? "empty"}`}
-            style={{ transform: [{ scale: stationCardScale }] }}
-          >
-            <StationCard
-              testID="planner-destination-card"
-              name={destinationData?.name}
-              image={destinationData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
-            />
-          </Animated.View>
+          {renderCard("lower")}
 
           <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
 
