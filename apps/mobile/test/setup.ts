@@ -2,6 +2,7 @@
 import "./mock-assets"
 import "./mock-react-native"
 import "./mock-async-storage"
+import "./mock-mmkv"
 import "./mock-expo-localization"
 import "./mock-i18n"
 import "./mock-env"

@@ -1,79 +1,55 @@
+import { createMMKV } from "react-native-mmkv"
 import { AsyncStorage } from "./async-storage"
+import { isAsyncStorageMigrated, migrateAsyncStorage, MIGRATED_KEYS } from "./migrate-async-storage"
 
-/**
- * Loads a string from storage.
- *
- * @param key The key to fetch.
- */
-export async function loadString(key: string): Promise<string | null> {
+const mmkv = createMMKV()
+
+// After a failed migration the saved data is only in AsyncStorage; a write here would shadow it for good.
+let readOnly = false
+
+export const isReadOnly = () => readOnly
+
+/** False until the AsyncStorage data has been copied over: nothing may be read or written before that. */
+export const isMigrated = () => isAsyncStorageMigrated(mmkv)
+
+/** Runs the one-time copy from AsyncStorage. Never rejects: on failure storage stays read-only until the next launch retries. */
+export async function migrate(): Promise<Error | undefined> {
   try {
-    return await AsyncStorage.getItem(key)
+    await migrateAsyncStorage(AsyncStorage, mmkv)
+    return undefined
+  } catch (error) {
+    readOnly = true
+    return error instanceof Error ? error : new Error(String(error))
+  }
+}
+
+/** Drops the copy the migration left in AsyncStorage. */
+export const removeAsyncStorageCopy = () => AsyncStorage.multiRemove(MIGRATED_KEYS).catch(() => {})
+
+/** Loads a value from storage and runs it through JSON.parse. */
+export function load(key: string): any | null {
+  try {
+    const value = mmkv.getString(key)
+    return value === undefined ? null : JSON.parse(value)
   } catch {
-    // not sure why this would fail... even reading the RN docs I'm unclear
     return null
   }
 }
 
-/**
- * Saves a string to storage.
- *
- * @param key The key to fetch.
- * @param value The value to store.
- */
-export async function saveString(key: string, value: string): Promise<boolean> {
+/** Saves a JSON-serializable value. Returns whether it was written. */
+export function save(key: string, value: any): boolean {
+  if (readOnly) return false
   try {
-    await AsyncStorage.setItem(key, value)
+    mmkv.set(key, JSON.stringify(value))
     return true
   } catch {
     return false
   }
 }
 
-/**
- * Loads something from storage and runs it thru JSON.parse.
- *
- * @param key The key to fetch.
- */
-export async function load(key: string): Promise<any | null> {
+export function remove(key: string): void {
+  if (readOnly) return
   try {
-    const almostThere = await AsyncStorage.getItem(key)
-    return JSON.parse(almostThere)
-  } catch {
-    return null
-  }
-}
-
-/**
- * Saves an object to storage.
- *
- * @param key The key to fetch.
- * @param value The value to store.
- */
-export async function save(key: string, value: any): Promise<boolean> {
-  try {
-    await AsyncStorage.setItem(key, JSON.stringify(value))
-    return true
-  } catch {
-    return false
-  }
-}
-
-/**
- * Removes something from storage.
- *
- * @param key The key to kill.
- */
-export async function remove(key: string): Promise<void> {
-  try {
-    await AsyncStorage.removeItem(key)
-  } catch {}
-}
-
-/**
- * Burn it all to the ground.
- */
-export async function clear(): Promise<void> {
-  try {
-    await AsyncStorage.clear()
+    mmkv.remove(key)
   } catch {}
 }

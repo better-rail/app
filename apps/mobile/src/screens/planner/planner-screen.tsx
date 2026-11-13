@@ -139,16 +139,15 @@ export function PlannerScreen() {
   useEffect(() => {
     function refreshDate(currentState: AppStateStatus) {
       if (currentState === "active") {
-        load("lastAppLaunch").then((launchDate: string) => {
-          if (launchDate) {
-            const hoursDiff = differenceInHours(new Date(), parseISO(launchDate))
+        const launchDate: string | null = load("lastAppLaunch")
+        if (launchDate) {
+          const hoursDiff = differenceInHours(new Date(), parseISO(launchDate))
 
-            if (hoursDiff >= 1) {
-              setDate(new Date())
-            }
+          if (hoursDiff >= 1) {
+            setDate(new Date())
           }
-          save("lastAppLaunch", new Date())
-        })
+        }
+        save("lastAppLaunch", new Date())
       }
     }
 

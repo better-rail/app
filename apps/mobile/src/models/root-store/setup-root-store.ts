@@ -30,9 +30,6 @@ import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
 
-/**
- * The key we'll be saving our state as within async storage.
- */
 const ROOT_STATE_STORAGE_KEY = "root"
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
 let appearanceAnalyticsSubscription: ReturnType<typeof Appearance.addChangeListener> | undefined
@@ -55,26 +52,19 @@ function getSnapshot() {
 
 // Purchases must await durable accounting before finishing a StoreKit transaction.
 export async function persistRootStore() {
-  const saved = await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
+  const saved = storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
   if (!saved) throw new Error("Failed to persist app state")
 }
 
 /**
  * Setup the root state - loads persisted data and subscribes to changes.
+ * Synchronous, so it can run before the first render.
  *
- * This reads from the same "root" AsyncStorage key that was previously used
- * by MobX State Tree. The snapshot format is compatible: MST's onSnapshot
- * produced plain JSON with the same key structure our hydrate functions expect.
- * On first run after migration, the data is re-persisted in Zustand format.
+ * The "root" key was first written by MobX State Tree. The snapshot format is compatible:
+ * MST's onSnapshot produced plain JSON with the same key structure our hydrate functions expect.
  */
-export async function setupRootStore() {
-  let data: any
-
-  try {
-    data = (await storage.load(ROOT_STATE_STORAGE_KEY)) || {}
-  } catch (e) {
-    data = {}
-  }
+export function setupRootStore() {
+  const data = storage.load(ROOT_STATE_STORAGE_KEY) || {}
 
   // Hydrate each store individually so a failure in one doesn't prevent others
   const hydrators = [
@@ -151,23 +141,12 @@ export async function setupRootStore() {
   useUserStore.subscribe(persist)
   useVouchersStore.subscribe(persist)
 
-  // Storage housekeeping runs in the background so it doesn't delay the first render
-  normalizePersistedState()
-}
-
-async function normalizePersistedState() {
-  // Re-persist to normalize data saved in the old MobX State Tree format
-  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
-
-  // Sync telemetry disabled flag with async storage for backwards compatibility
-  const userState = useUserStore.getState()
-  if (userState.disableTelemetry === true) {
-    const telemetryDisabledFlag = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
-    if (!telemetryDisabledFlag) {
-      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
-    }
-  } else if (userState.disableTelemetry === false) {
-    await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
+  // Keep the standalone telemetry flag, read before the stores exist, in line with the user store
+  const { disableTelemetry } = useUserStore.getState()
+  if (disableTelemetry === true) {
+    storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
+  } else if (disableTelemetry === false) {
+    storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
   }
 }
 

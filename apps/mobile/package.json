@@ -73,6 +73,7 @@
     "react-native-haptic-feedback": "2.3.3",
     "react-native-inappbrowser-reborn": "3.7.0",
     "react-native-linear-gradient": "2.5.6",
+    "react-native-mmkv": "4.3.2",
     "react-native-modal-datetime-picker": "18.0.0",
     "react-native-nitro-modules": "0.37.1",
     "react-native-push-notification": "8.1.1",

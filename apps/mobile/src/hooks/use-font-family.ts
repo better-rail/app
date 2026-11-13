@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import * as storage from "@/utils/storage"
 
 /**
@@ -7,16 +7,8 @@ import * as storage from "@/utils/storage"
  * Heebo is now bundled on both iOS and Android, so non-English locales get Heebo on either platform.
  */
 export function useFontFamily() {
-  const [fontFamily, setFontFamily] = useState("System")
-
-  useEffect(() => {
-    storage.load("appLanguage").then((languageCode) => {
-      if (languageCode) {
-        const isHeebo = languageCode !== "en"
-        if (isHeebo) setFontFamily("Heebo")
-      }
-    })
-  }, [])
+  // State, not the i18n module variable: the compiler would cache that read for good
+  const [fontFamily] = useState(() => ((storage.load("appLanguage") ?? "en") === "en" ? "System" : "Heebo"))
 
   return { fontFamily, isHeebo: fontFamily === "Heebo" }
 }

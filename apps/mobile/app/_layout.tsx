@@ -25,6 +25,7 @@ import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
 import {
   changeUserLanguage,
+  getInitialLanguage,
   getLanguageChangedInIOSSettings,
   isRTLLanguage,
   setInitialLanguage,
@@ -73,17 +74,41 @@ Sentry.init({
   ],
 })
 
-async function disableSentryIfTelemetryDisabled() {
-  if (__DEV__) return
-  try {
-    const telemetryDisabled = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
-    if (telemetryDisabled) {
-      Sentry.close()
-    }
-  } catch {}
+/** Applies the saved language. Returns the restart it needs, to run once mounted, if it can't apply in place. */
+function applySavedLanguage(): (() => void) | undefined {
+  const iosSettingsLanguage = getLanguageChangedInIOSSettings()
+  // forceRTL only applies after a reload
+  if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
+    return () => changeUserLanguage(iosSettingsLanguage)
+  }
+
+  // Read-only storage can't save the first-launch choice, and restarting for it would loop
+  const fallbackLanguage = storage.isReadOnly() ? getInitialLanguage() : undefined
+  const languageCode = iosSettingsLanguage ?? storage.load("appLanguage") ?? fallbackLanguage
+  if (!languageCode) return setInitialLanguage
+
+  // Saved before setUserLanguage marks it synced, or a lost write reverts the choice next launch
+  if (iosSettingsLanguage) storage.save("appLanguage", iosSettingsLanguage)
+  setUserLanguage(languageCode)
+  setAnalyticsUserProperty("user_locale", languageCode)
+  Sentry.setTag("user_locale", languageCode)
+  return undefined
 }
 
-disableSentryIfTelemetryDisabled()
+function hydrateApp() {
+  if (!__DEV__ && storage.load(TELEMETRY_DISABLED_STORAGE_KEY)) Sentry.close()
+  setupRootStore()
+  return { languageRestart: applySavedLanguage() }
+}
+
+// Started first, so the fonts register natively while the stores hydrate and are usually in by the first render
+let fontsLoaded = false
+const fontsLoading = initFonts().then(() => {
+  fontsLoaded = true
+})
+
+// Stores and language are ready before the first render. Only the launch that migrates AsyncStorage waits.
+const launchHydration = storage.isMigrated() ? hydrateApp() : undefined
 
 // Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
 // route context to the event and marks in-flight navigation transactions as errored.
@@ -181,12 +206,16 @@ function AppStack() {
 }
 
 function RootLayout() {
-  const [storeReady, setStoreReady] = useState(false)
-  const [localeReady, setLocaleReady] = useState(false)
+  const [hydration, setHydration] = useState(launchHydration)
+  const [fontsReady, setFontsReady] = useState(() => fontsLoaded)
+  const storeReady = !!hydration
+  // A pending language restart keeps the splash up until the app reloads
+  const ready = storeReady && !hydration.languageRestart && fontsReady
   const appState = useRef(AppState.currentState)
   const { markInteractive } = useObserve()
 
-  useDeepLinking(storeReady)
+  // Not before the stack is mounted: a launch URL would navigate into nothing
+  useDeepLinking(ready)
 
   useEffect(() => {
     if (!storeReady) return
@@ -229,43 +258,28 @@ function RootLayout() {
   }, [storeReady])
 
   useEffect(() => {
-    // Fonts still gate the first render: text mounted before they register keeps the fallback font
-    Promise.all([setupRootStore(), initFonts()]).then(() => setStoreReady(true))
-  }, [])
-
-  useEffect(() => {
+    // Fonts still gate the content: text mounted before they register keeps the fallback font
+    fontsLoading.then(() => setFontsReady(true))
     // After the widget lookup, so its properties are sent this launch
     trackInstalledWidgets().finally(identifyPosthogUser)
 
-    storage.load("appLanguage").then(async (storedLanguageCode) => {
-      const iosSettingsLanguage = getLanguageChangedInIOSSettings()
-      const languageCode = iosSettingsLanguage ?? storedLanguageCode
-
-      // forceRTL only applies after a reload
-      if (iosSettingsLanguage && isRTLLanguage(iosSettingsLanguage) !== I18nManager.isRTL) {
-        changeUserLanguage(iosSettingsLanguage)
-      } else if (languageCode) {
-        // Saved before setUserLanguage marks it synced, or a lost write reverts the choice next launch
-        if (iosSettingsLanguage) await storage.save("appLanguage", iosSettingsLanguage)
-        setUserLanguage(languageCode)
-        setLocaleReady(true)
-        setAnalyticsUserProperty("user_locale", languageCode)
-        Sentry.setTag("user_locale", languageCode)
-      } else {
-        setInitialLanguage()
-      }
+    if (launchHydration) return
+    storage.migrate().then((error) => {
+      if (error) Sentry.captureException(error, { tags: { source: "storage-migration" } })
+      setHydration(hydrateApp())
     })
   }, [])
 
   useEffect(() => {
-    // Signal EAS Observe that the app is interactive once the store + locale are
-    // ready — this is the point we stop returning null and render the real UI.
-    if (storeReady && localeReady) {
-      markInteractive()
-    }
-  }, [storeReady, localeReady, markInteractive])
+    hydration?.languageRestart?.()
+  }, [hydration])
 
-  if (!storeReady || !localeReady) return null
+  useEffect(() => {
+    // Signal EAS Observe that the app is interactive: this is the point we stop returning null and render the real UI.
+    if (ready) markInteractive()
+  }, [ready, markInteractive])
+
+  if (!ready) return null
 
   return (
     <QueryClientProvider client={queryClient}>
