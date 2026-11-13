@@ -15,6 +15,7 @@ import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import * as SplashScreen from "expo-splash-screen"
 import { TipIAPProvider } from "@/services/iap/tip-iap-provider"
 
 import { initFonts } from "@/theme/fonts"
@@ -88,7 +89,16 @@ disableSentryIfTelemetryDisabled()
 
 // Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
 // route context to the event and marks in-flight navigation transactions as errored.
-export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
+const RouteErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
+
+// index.js holds the splash; hiding on the first content layout avoids a blank frame in between
+const hideSplashScreen = () => SplashScreen.hide()
+
+export function ErrorBoundary(props: React.ComponentProps<typeof RouteErrorBoundary>) {
+  // A crash before the first layout would otherwise leave the splash over the error screen
+  useEffect(hideSplashScreen, [])
+  return <RouteErrorBoundary {...props} />
+}
 
 // Usually a connectivity blip or a slow connection timing out, so group them into one warning
 // issue. A spike there can still mean the API is unreachable or hanging (DNS, TLS, outage).
@@ -223,10 +233,8 @@ function RootLayout() {
   }, [storeReady])
 
   useEffect(() => {
-    ;(async () => {
-      await initFonts()
-      setupRootStore().then(() => setStoreReady(true))
-    })()
+    // Fonts still gate the first render: text mounted before they register keeps the fallback font
+    Promise.all([setupRootStore(), initFonts()]).then(() => setStoreReady(true))
   }, [])
 
   useEffect(() => {
@@ -270,7 +278,7 @@ function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }} onLayout={hideSplashScreen}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
             <TipIAPProvider>

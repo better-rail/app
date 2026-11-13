@@ -44,7 +44,7 @@ answers a request without one with an HTML challenge page, verified from the dep
 - `GET /api/v1/fares?from=&to=`, `GET /api/v1/fares/profiles`.
 - `GET /api/v1/siri/{status,raw,unmatched}` — `x-debug-token: $SIRI_DEBUG_TOKEN` (404 otherwise).
 - `/api/v1/internal/*` — `Authorization: Bearer $INGEST_TOKEN` (404 otherwise): `GET ingest/active`, `POST ingest`
-  (the container's upload), `POST ingest/run` (start the container now), `POST fares/pull`, `POST fares/snapshot`.
+  (the container's upload), `POST ingest/run` (start the container now), `GET ingest/status` (the last run and the job's last report), `POST ingest/report` (the job's report), `POST fares/pull`, `POST fares/snapshot`.
 
 ## Development
 
@@ -162,7 +162,11 @@ proxy on the host whose IP MOT registered if GTFS mode is ever enabled.
 ### Operating
 
 - **Ingest**: nightly cron starts the container; it logs `[ingest] …` lines and the Worker logs the load. Re-run with
-  `POST /internal/ingest/run`. A feed with an unmapped traversed station is refused and the previous feed stays active
+  `POST /internal/ingest/run`. `GET /internal/ingest/status` says how the last container run ended (`run`) and what the
+  job itself last reported (`lastReport`: the stage it reached and, on failure, the error; null when the job has not
+  reported since that run started, i.e. it died before it could), so a failed night is one request to diagnose. The object keeps itself awake on an alarm while the job runs and destroys a run that passes 30
+  minutes. When Cloudflare has no container instance to hand out (common for a few minutes after a deploy; `run.state`
+  is `waiting-for-instance`), the start is retried every minute for a quarter of an hour. `bun run ingest --target https://api.better-rail.co.il` loads a feed from any machine when the container can't. A feed with an unmapped traversed station is refused and the previous feed stays active
   (same rule as before: add the station to `src/data/rail-stations-geo.json`, rebuild the mapping with
   `bun run build:mapping`).
 - **SIRI**: the poller arms itself the first time the minute cron fires after a deploy; `GET /siri/status` shows the

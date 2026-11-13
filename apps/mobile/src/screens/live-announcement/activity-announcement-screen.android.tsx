@@ -26,7 +26,7 @@ export function ActivityAnnouncementScreen() {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   container: {
     flex: 1,
     alignItems: "center",
@@ -34,7 +34,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   scrollContent: {
     paddingTop: theme.spacing[7] + 4,
-    paddingBottom: theme.spacing[3],
+    paddingBottom: rt.insets.bottom + theme.spacing[3],
     paddingHorizontal: theme.spacing[2],
     backgroundColor: theme.colors.tertiaryBackground,
   },
