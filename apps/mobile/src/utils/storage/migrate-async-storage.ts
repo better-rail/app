@@ -11,6 +11,7 @@ export const MIGRATED_KEYS = [
   "lastInAppReview",
   "appInstallDate",
   "lastAppLaunch",
+  "device_last_sync",
 ]
 
 type Source = { multiGet: (keys: string[]) => Promise<readonly (readonly [string, string | null])[]> }

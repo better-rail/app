@@ -43,6 +43,8 @@ import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
 import { formSheetOptions } from "@/utils/form-sheet-options"
+import { startDeviceSync } from "@/services/device/device-sync"
+import { adoptAutoStartedRide } from "@/utils/auto-started-ride"
 
 enableScreens()
 
@@ -209,8 +211,9 @@ function RootLayout() {
   const [hydration, setHydration] = useState(launchHydration)
   const [fontsReady, setFontsReady] = useState(() => fontsLoaded)
   const storeReady = !!hydration
-  // A pending language restart keeps the splash up until the app reloads
-  const ready = storeReady && !hydration.languageRestart && fontsReady
+  // False while a language restart is pending, which keeps the splash up until the app reloads
+  const localeReady = storeReady && !hydration.languageRestart
+  const ready = localeReady && fontsReady
   const appState = useRef(AppState.currentState)
   const { markInteractive } = useObserve()
 
@@ -250,6 +253,8 @@ function RootLayout() {
         rideState.checkLiveRideAuthorization()
         if (rideState.id) {
           rideState.isRideActive(rideState.id)
+        } else {
+          adoptAutoStartedRide().catch(() => {})
         }
       }
       appState.current = nextAppState
@@ -278,6 +283,11 @@ function RootLayout() {
     // Signal EAS Observe that the app is interactive: this is the point we stop returning null and render the real UI.
     if (ready) markInteractive()
   }, [ready, markInteractive])
+
+  useEffect(() => {
+    // After the language, which the server's reminders are written in. A no-op for a device without recurring rides.
+    if (localeReady && !IS_E2E) startDeviceSync()
+  }, [localeReady])
 
   if (!ready) return null
 

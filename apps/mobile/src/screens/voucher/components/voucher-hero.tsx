@@ -2,25 +2,31 @@ import { Image, ImageBackground, View, ViewStyle } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { format } from "date-fns"
 import { Text } from "@/components"
-import { dateFnsLocalization, translate } from "@/i18n"
+import { dateFnsLocalization, isRTL, translate } from "@/i18n"
 import { stationLocale, stationsObject } from "@/data/stations"
 import { formatTime } from "@/utils/helpers/date-helpers"
 
 const arrowIcon = require("../../../../assets/arrow-left.png")
 
 type VoucherHeroProps = {
-  trainNumber: number
+  trainNumber?: number
   departureTime: number
-  arrivalTime: number
+  /** Left out for a ride that repeats, whose arrival changes with the day's train */
+  arrivalTime?: number
   fromStationId: number
   toStationId: number
-  height?: number
+  /** "auto" fits the card to its content */
+  height?: number | "auto"
   style?: ViewStyle
+  /** Replaces the "train on date" line, e.g. for a ride that repeats every week */
+  details?: string
+  /** Shows "Departure" above the time. Off where the time speaks for itself, like the Auto Start sheet. */
+  departureLabel?: boolean
 }
 
 /** The trip, styled like the iOS home screen widget: a dimmed station photo with the times over it. */
 export function VoucherHero(props: VoucherHeroProps) {
-  const { trainNumber, departureTime, arrivalTime, fromStationId, toStationId, height = 190, style } = props
+  const { trainNumber, departureTime, arrivalTime, fromStationId, toStationId, height = 190, style, details, departureLabel = true } = props
   const stationName = (id: number) => stationsObject[id]?.[stationLocale] ?? ""
 
   return (
@@ -42,27 +48,32 @@ export function VoucherHero(props: VoucherHeroProps) {
           </View>
         </View>
 
-        <View>
+        <View style={!departureLabel && styles.timesUnlabeled}>
           <View style={styles.times}>
             <View>
-              <Text style={styles.departureLabel}>{translate("routes.departure")}</Text>
+              {departureLabel && <Text style={styles.departureLabel}>{translate("routes.departure")}</Text>}
               <Text style={styles.departureTime} maxFontSizeMultiplier={1.1}>
                 {formatTime(departureTime)}
               </Text>
             </View>
-            <View>
-              <Text style={styles.arrivalLabel}>{translate("routes.arrival")}</Text>
-              <Text style={styles.arrivalTime} maxFontSizeMultiplier={1.1}>
-                {formatTime(arrivalTime)}
-              </Text>
-            </View>
+            {arrivalTime !== undefined && (
+              <View>
+                <Text style={styles.arrivalLabel}>{translate("routes.arrival")}</Text>
+                <Text style={styles.arrivalTime} maxFontSizeMultiplier={1.1}>
+                  {formatTime(arrivalTime)}
+                </Text>
+              </View>
+            )}
           </View>
-          <Text style={styles.details} numberOfLines={1} maxFontSizeMultiplier={1.3}>
-            {translate("voucher.trainOnDate", {
-              trainNumber,
-              date: format(departureTime, "EEEE, d.M", { locale: dateFnsLocalization }),
-            })}
-          </Text>
+          {(details !== undefined || trainNumber !== undefined) && (
+            <Text style={styles.details} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              {details ??
+                translate("voucher.trainOnDate", {
+                  trainNumber,
+                  date: format(departureTime, "EEEE, d.M", { locale: dateFnsLocalization }),
+                })}
+            </Text>
+          )}
         </View>
       </View>
     </ImageBackground>
@@ -81,7 +92,7 @@ const MUTED = "#a1a1a6"
 // Heebo's descender as a fraction of the font size (862 / 2048 units)
 const HEEBO_DESCENT = 862 / 2048
 
-const styles = StyleSheet.create((theme, rt) => ({
+const styles = StyleSheet.create((theme) => ({
   card: {
     overflow: "hidden",
     borderRadius: 22,
@@ -96,7 +107,8 @@ const styles = StyleSheet.create((theme, rt) => ({
     backgroundColor: "rgba(0, 0, 0, 0.74)",
   },
   content: {
-    flex: 1,
+    // Grows to a fixed height, and still sizes the card when its height is "auto"
+    flexGrow: 1,
     justifyContent: "space-between",
     padding: theme.spacing[4],
   },
@@ -125,8 +137,9 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: 9,
     height: 9,
     tintColor: "#000000",
-    // The asset points left, which is forward in right-to-left layouts
-    transform: rt.rtl ? undefined : [{ rotate: "180deg" }],
+    // The asset points left, which is forward in right-to-left layouts. Uses the app's layout direction:
+    // rt.rtl kept the arrow pointing backwards in English on a Hebrew device.
+    transform: isRTL ? undefined : [{ rotate: "180deg" }],
   },
   destination: {
     flexShrink: 1,
@@ -134,6 +147,10 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 15,
     fontWeight: "500",
     ...textShadow,
+  },
+  // Without the label, keeps the time clear of the stations when the card fits its content
+  timesUnlabeled: {
+    marginTop: theme.spacing[3],
   },
   times: {
     flexDirection: "row",

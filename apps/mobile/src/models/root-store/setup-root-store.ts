@@ -29,6 +29,12 @@ import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, r
 import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
+import {
+  useRecurringRidesStore,
+  getRecurringRidesSnapshot,
+  hydrateRecurringRidesStore,
+  resetRecurringRidesStore,
+} from "@/models/recurring-rides/recurring-rides"
 
 const ROOT_STATE_STORAGE_KEY = "root"
 const TELEMETRY_DISABLED_STORAGE_KEY = "telemetry_disabled"
@@ -47,6 +53,7 @@ function getSnapshot() {
     ride: getRideSnapshot(useRideStore.getState()),
     user: getUserSnapshot(useUserStore.getState()),
     vouchers: getVouchersSnapshot(useVouchersStore.getState()),
+    recurringRides: getRecurringRidesSnapshot(useRecurringRidesStore.getState()),
   }
 }
 
@@ -76,6 +83,7 @@ export function setupRootStore() {
     () => hydrateRideStore(data.ride),
     () => hydrateUserStore(data.user),
     () => hydrateVouchersStore(data.vouchers),
+    () => hydrateRecurringRidesStore(data.recurringRides),
   ]
 
   for (const hydrate of hydrators) {
@@ -140,6 +148,7 @@ export function setupRootStore() {
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
   useVouchersStore.subscribe(persist)
+  useRecurringRidesStore.subscribe(persist)
 
   // Keep the standalone telemetry flag, read before the stores exist, in line with the user store
   const { disableTelemetry } = useUserStore.getState()
@@ -162,4 +171,5 @@ export function clearAllData() {
   resetRideStore()
   resetUserStore()
   resetVouchersStore()
+  resetRecurringRidesStore()
 }

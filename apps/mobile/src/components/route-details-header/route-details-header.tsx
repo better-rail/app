@@ -23,6 +23,8 @@ import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
+import { format } from "date-fns"
+import { findRecurringRide, useRecurringRidesStore } from "@/models/recurring-rides/recurring-rides"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
@@ -129,6 +131,33 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  const viaStationId = routeItem?.viaStationId ? Number(routeItem.viaStationId) : undefined
+  const hasRecurringRide = useRecurringRidesStore(
+    (state) =>
+      !!routeItem &&
+      !!findRecurringRide(
+        state.rides,
+        Number(originId),
+        Number(destinationId),
+        format(routeItem.departureTime, "HH:mm"),
+        viaStationId,
+      ),
+  )
+
+  const openRecurringRideSheet = () => {
+    if (!routeItem) return
+    trackEvent("recurring_ride_sheet_opened")
+    router.push({
+      pathname: "/recurring-ride",
+      params: {
+        originId,
+        destinationId,
+        ...(viaStationId && { viaStationId: String(viaStationId) }),
+        departureAt: String(routeItem.departureTime),
+      },
+    })
+  }
+
   const openFaresSheet = () => {
     HapticFeedback.trigger("impactMedium")
     router.push({ pathname: "/fares", params: { originId, destinationId } })
@@ -200,6 +229,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       title: translate("fares.title"),
       systemIcon: "shekelsign.circle" as const,
       onPress: openFaresSheet,
+    },
+    {
+      title: translate(hasRecurringRide ? "recurringRides.menuEdit" : "recurringRides.menuAction"),
+      systemIcon: "repeat" as const,
+      onPress: openRecurringRideSheet,
     },
   ]
 
