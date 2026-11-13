@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { View, Animated, AppState, Platform, Alert } from "react-native"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
@@ -29,6 +29,7 @@ import { useObserve } from "expo-observe"
 import { useMountEffect } from "@/hooks"
 import { PlannerScreenHeader } from "./planner-screen-header"
 import { FlingGestureWrapper } from "./planner-slider-wrapper"
+import { useStationSwap } from "./use-station-swap"
 import { ThemeBackground } from "@/components/theme-background/theme-background"
 import { routeListDayQueryKey } from "@/screens/route-list/route-list-query"
 
@@ -50,7 +51,7 @@ export function PlannerScreen() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false)
 
   const formattedDate = useFormattedDate(date)
-  const stationCardScale = useRef(new Animated.Value(1)).current
+  const stationSwap = useStationSwap()
 
   const now = new Date()
 
@@ -91,31 +92,27 @@ export function PlannerScreen() {
     return undefined
   })()
 
-  const scaleStationCards = () => {
-    Animated.sequence([
-      Animated.timing(stationCardScale, {
-        toValue: 0.96,
-        duration: 175,
-        useNativeDriver: true,
-      }),
-      Animated.timing(stationCardScale, {
-        toValue: 1,
-        duration: 175,
-        useNativeDriver: true,
-      }),
-    ]).start()
+  const onSwitchPress = () => {
+    HapticFeedback.trigger("impactMedium")
+    stationSwap.swap()
+    switchDirection()
+    trackEvent("switch_stations_btn_press")
   }
 
-  const onSwitchPress = () => {
-    scaleStationCards()
-    HapticFeedback.trigger("impactMedium")
-
-    // Delay the actual switch so it'll be synced with the animation
-    setTimeout(() => {
-      switchDirection()
-    }, 50)
-
-    trackEvent("switch_stations_btn_press")
+  const renderCard = ({ type, style, onLayout }: typeof stationSwap.upper) => {
+    const station = type === "origin" ? origin : destination
+    const data = type === "origin" ? originData : destinationData
+    return (
+      <Animated.View testID={`planner-${type}-${station?.id ?? "empty"}`} style={style} onLayout={onLayout}>
+        <StationCard
+          testID={`planner-${type}-card`}
+          name={data?.name}
+          image={data?.image}
+          style={{ marginBottom: spacing[4] }}
+          onPress={() => router.push({ pathname: "/select-station", params: { selectionType: type } })}
+        />
+      </Animated.View>
+    )
   }
 
   const onGetRoutePress = () => {
@@ -182,33 +179,14 @@ export function PlannerScreen() {
           <Text preset="header" tx="plan.title" style={styles.screenTitle} />
 
           <Text preset="fieldLabel" tx="plan.origin" style={{ marginBottom: spacing[1] }} />
-          <Animated.View testID={`planner-origin-${origin?.id ?? "empty"}`} style={{ transform: [{ scale: stationCardScale }] }}>
-            <StationCard
-              testID="planner-origin-card"
-              name={originData?.name}
-              image={originData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "origin" } })}
-            />
-          </Animated.View>
+          {renderCard(stationSwap.upper)}
 
           <View style={styles.changeDirectionWrapper}>
             <ChangeDirectionButton testID="switch-stations-button" onPress={onSwitchPress} disabled={!origin || !destination} />
           </View>
 
           <Text preset="fieldLabel" tx="plan.destination" style={{ marginBottom: spacing[1] }} />
-          <Animated.View
-            testID={`planner-destination-${destination?.id ?? "empty"}`}
-            style={{ transform: [{ scale: stationCardScale }] }}
-          >
-            <StationCard
-              testID="planner-destination-card"
-              name={destinationData?.name}
-              image={destinationData?.image}
-              style={{ marginBottom: spacing[4] }}
-              onPress={() => router.push({ pathname: "/select-station", params: { selectionType: "destination" } })}
-            />
-          </Animated.View>
+          {renderCard(stationSwap.lower)}
 
           <Text preset="fieldLabel" text={dateTypeDisplayName} style={{ marginBottom: spacing[1] }} />
 
