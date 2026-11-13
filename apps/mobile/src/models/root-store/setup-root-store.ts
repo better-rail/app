@@ -134,22 +134,6 @@ export async function setupRootStore() {
   initializeRideStore()
   initializeArrivalAlarm()
 
-  // Re-persist immediately to normalize the data format.
-  // This ensures any data saved by the old MobX State Tree format
-  // is re-written in the Zustand snapshot format on first launch.
-  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
-
-  // Sync telemetry disabled flag with async storage for backwards compatibility
-  const userState = useUserStore.getState()
-  if (userState.disableTelemetry === true) {
-    const telemetryDisabledFlag = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
-    if (!telemetryDisabledFlag) {
-      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
-    }
-  } else if (userState.disableTelemetry === false) {
-    await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
-  }
-
   // Subscribe to all store changes and persist snapshots
   const persist = () => storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
 
@@ -166,6 +150,25 @@ export async function setupRootStore() {
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
   useVouchersStore.subscribe(persist)
+
+  // Storage housekeeping runs in the background so it doesn't delay the first render
+  normalizePersistedState()
+}
+
+async function normalizePersistedState() {
+  // Re-persist to normalize data saved in the old MobX State Tree format
+  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
+
+  // Sync telemetry disabled flag with async storage for backwards compatibility
+  const userState = useUserStore.getState()
+  if (userState.disableTelemetry === true) {
+    const telemetryDisabledFlag = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
+    if (!telemetryDisabledFlag) {
+      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
+    }
+  } else if (userState.disableTelemetry === false) {
+    await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
+  }
 }
 
 /**
