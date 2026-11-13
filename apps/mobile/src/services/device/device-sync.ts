@@ -5,7 +5,7 @@
  * what the server holds (rides, push token, language, app version) syncs it, and removing the last ride deletes
  * it. Nothing changed means no request, so calling this on every launch is cheap.
  */
-import { Platform } from "react-native"
+import { AppState, Platform } from "react-native"
 import * as Notifications from "expo-notifications"
 import * as Crypto from "expo-crypto"
 import { getVersion } from "react-native-device-info"
@@ -52,16 +52,28 @@ const syncNow = async () => {
 
 let queue: Promise<void> = Promise.resolve()
 
-/**
- * Sync the device, one call at a time. A failure is dropped: the state stays unsynced, so the next call (the next
- * launch at the latest) sends it again.
- */
+/** After a failed sync, try again after these delays; past them, the next change or foreground does. */
+const RETRY_DELAYS_MS = [30_000, 2 * 60_000, 10 * 60_000]
+let retryAttempt = 0
+let retryTimer: ReturnType<typeof setTimeout> | undefined
+
+/** Sync the device, one call at a time. A failed sync stays unsynced and is retried a few times. */
 export const syncDevice = () => {
-  queue = queue.then(syncNow).catch(() => {})
+  clearTimeout(retryTimer)
+  queue = queue.then(syncNow).then(
+    () => {
+      retryAttempt = 0
+    },
+    () => {
+      const delay = RETRY_DELAYS_MS[retryAttempt++]
+      if (delay) retryTimer = setTimeout(syncDevice, delay)
+    },
+  )
   return queue
 }
 
 let tokenSubscription: Notifications.Subscription | undefined
+let appStateSubscription: ReturnType<typeof AppState.addEventListener> | undefined
 
 /** Sync once now, and again whenever the rides or the push token change. */
 export const startDeviceSync = () => {
@@ -71,4 +83,11 @@ export const startDeviceSync = () => {
   })
   tokenSubscription?.remove()
   tokenSubscription = Notifications.addPushTokenListener(() => syncDevice())
+  // Unchanged state sends nothing, so syncing on every foreground only costs a request after a failure.
+  appStateSubscription?.remove()
+  appStateSubscription = AppState.addEventListener("change", (state) => {
+    if (state !== "active") return
+    retryAttempt = 0
+    syncDevice()
+  })
 }

@@ -9,11 +9,13 @@ export const WORKWEEK = [0, 1, 2, 3, 4]
 // A Sunday, to name the weekdays in the app's language.
 const A_SUNDAY = new Date(2026, 10, 15)
 
+const weekdayDate = (day: number) => new Date(A_SUNDAY.getFullYear(), A_SUNDAY.getMonth(), A_SUNDAY.getDate() + day)
+
 /** "Su", "א׳"… */
-export const weekdayName = (day: number) =>
-  format(new Date(A_SUNDAY.getFullYear(), A_SUNDAY.getMonth(), A_SUNDAY.getDate() + day), "EEEEEE", {
-    locale: dateFnsLocalization,
-  })
+export const weekdayName = (day: number) => format(weekdayDate(day), "EEEEEE", { locale: dateFnsLocalization })
+
+/** "Sunday", for screen readers */
+export const weekdayFullName = (day: number) => format(weekdayDate(day), "EEEE", { locale: dateFnsLocalization })
 
 /** "07:45 · Tel Aviv - Savidor → Haifa" */
 export const describeRoute = (ride: Pick<RecurringRide, "originId" | "destinationId" | "departureTime">) =>
@@ -27,14 +29,3 @@ export const describeRoute = (ride: Pick<RecurringRide, "originId" | "destinatio
 /** "15 min before", "1 hour before" */
 export const leadTimeLabel = (minutes: number) =>
   (minutes === 60 ? translate("recurringRides.hourBefore") : translate("recurringRides.minutesBefore", { minutes })) ?? ""
-
-/** "Sun–Thu · 15 min before" */
-export const describeSchedule = (ride: Pick<RecurringRide, "days" | "leadMinutes">) => {
-  const days =
-    ride.days.length === WORKWEEK.length && WORKWEEK.every((day) => ride.days.includes(day))
-      ? translate("recurringRides.workweek")
-      : ride.days.length === WEEKDAYS.length
-        ? translate("recurringRides.everyDay")
-        : [...ride.days].sort().map(weekdayName).join(", ")
-  return `${days} · ${leadTimeLabel(ride.leadMinutes)}`
-}

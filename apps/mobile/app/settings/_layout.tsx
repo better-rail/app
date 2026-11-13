@@ -45,8 +45,8 @@ export default function SettingsLayout() {
       <Stack.Screen name="about" options={{ title: translate("settings.about") ?? "", headerTitleStyle: titleStyle }} />
       <Stack.Screen name="privacy" options={{ title: translate("settings.privacy") ?? "", headerTitleStyle: titleStyle }} />
       <Stack.Screen
-        name="recurring-rides"
-        options={{ title: translate("recurringRides.settingsTitle") ?? "", headerTitleStyle: titleStyle }}
+        name="live"
+        options={{ title: translate("settings.live") ?? "", headerTitleStyle: titleStyle }}
       />
     </Stack>
   )

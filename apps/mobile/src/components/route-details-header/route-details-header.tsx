@@ -23,6 +23,8 @@ import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported, useGlassTint } from "@/utils/liquid-glass"
 import { HeaderBackButton } from "@/components/header-back-button"
 import { RouteStationNameButton } from "./route-station-name-button"
+import { format } from "date-fns"
+import { findRecurringRide, useRecurringRidesStore } from "@/models/recurring-rides/recurring-rides"
 
 const arrowIcon = require("../../../assets/arrow-left.png")
 const ellipsisIcon = require("../../../assets/ellipsis.regular.png")
@@ -129,6 +131,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  const hasRecurringRide = useRecurringRidesStore(
+    (state) =>
+      !!routeItem &&
+      !!findRecurringRide(state.rides, Number(originId), Number(destinationId), format(routeItem.departureTime, "HH:mm")),
+  )
+
   const openRecurringRideSheet = () => {
     if (!routeItem) return
     trackEvent("recurring_ride_sheet_opened")
@@ -138,8 +146,6 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         originId,
         destinationId,
         departureAt: String(routeItem.departureTime),
-        arrivalAt: String(routeItem.arrivalTime),
-        trainNumber: String(routeItem.trains[0].trainNumber),
       },
     })
   }
@@ -217,8 +223,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       onPress: openFaresSheet,
     },
     {
-      title: translate("recurringRides.menuAction"),
-      systemIcon: "clock.arrow.circlepath" as const,
+      title: translate(hasRecurringRide ? "recurringRides.menuEdit" : "recurringRides.menuAction"),
+      systemIcon: "repeat" as const,
       onPress: openRecurringRideSheet,
     },
   ]
