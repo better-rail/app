@@ -26,12 +26,12 @@ export function PrivacyScreen() {
       trackEvent("telemetry_disabled")
       setDisableTelemetry(newDisableTelemetry)
       await setAnalyticsCollectionEnabled(false)
-      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
+      storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
     } else {
       trackEvent("telemetry_enabled")
       setDisableTelemetry(newDisableTelemetry)
       await setAnalyticsCollectionEnabled(true)
-      await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
+      storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
     }
   }
 
@@ -44,8 +44,8 @@ export function PrivacyScreen() {
         {
           text: translate("common.ok"),
           style: "destructive",
-          onPress: () => {
-            clearAllData()
+          onPress: async () => {
+            await clearAllData()
             RNRestart.Restart()
           },
         },
