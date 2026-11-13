@@ -79,7 +79,7 @@ const styles = StyleSheet.create((theme, rt) => {
     scrollContent: {
       paddingTop: rt.insets.top + 4,
       paddingHorizontal: theme.spacing[2],
-      paddingBottom: theme.spacing[5] * rt.fontScale,
+      paddingBottom: rt.insets.bottom + theme.spacing[5] * rt.fontScale,
     },
     content: {
       marginTop: theme.spacing[2],
