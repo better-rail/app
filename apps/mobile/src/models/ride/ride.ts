@@ -233,9 +233,11 @@ export const useRideStore = create<RideStore>((set, get) => ({
     const { canRunLiveActivities, route, id } = get()
 
     if (Platform.OS === "ios" && canRunLiveActivities) {
-      iOSHelpers.isRideActive(rideId).then((tokens) => {
+      iOSHelpers.isRideActive(rideId).then(async (tokens) => {
         if (tokens && tokens.length === 0) {
-          get().stopRide(rideId)
+          await get().stopRide(rideId)
+          // A recurring ride may have started by push while this one was over
+          adoptAutoStartedRide().catch(() => {})
         }
       })
     } else if (Platform.OS === "android") {
@@ -315,6 +317,10 @@ export function hydrateRideStore(data: any) {
 
 let stopSubscription: (() => void) | undefined
 
+/** Shows a ride started outside the app. Required lazily: auto-started-ride imports this store. */
+const adoptAutoStartedRide = () =>
+  (require("@/utils/auto-started-ride") as typeof import("@/utils/auto-started-ride")).adoptAutoStartedRide()
+
 /**
  * Run afterCreate logic - checks if ride is still active and authorization.
  * Should be called after hydration.
@@ -324,8 +330,6 @@ export function initializeRideStore() {
   if (state.id) {
     state.isRideActive(state.id)
   } else {
-    // Required lazily: auto-started-ride imports this store.
-    const { adoptAutoStartedRide } = require("@/utils/auto-started-ride") as typeof import("@/utils/auto-started-ride")
     adoptAutoStartedRide().catch(() => {})
   }
   state.checkLiveRideAuthorization()

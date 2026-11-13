@@ -11,11 +11,28 @@ import type { RouteItem } from "@/services/api"
 import { RouteApi } from "@/services/api/route-api"
 import { useRideStore } from "@/models/ride/ride"
 import { formatDateForAPI, timezoneCorrection } from "@/utils/helpers/date-helpers"
+import { isRideOver } from "@/utils/helpers/ride-helpers"
 import { autoStartedRide } from "@/utils/ios-helpers"
 import { getRideId, getRideRoute, setRideRoute } from "@/utils/storage/background-storage"
 import { trackEvent } from "@/services/analytics"
 
 const routeApi = new RouteApi()
+
+/**
+ * The ride the app is showing or the background holds, unless it's over. One that's over is stopped: on Android a
+ * ride that arrives while the app stays closed keeps its ID until the app is opened, which would block the next one.
+ */
+const currentRideId = async () => {
+  const [storedId, storedRoute] = await Promise.all([getRideId(), getRideRoute()])
+  const { id, route } = useRideStore.getState()
+  const rideId = id ?? storedId
+  if (!rideId) return undefined
+
+  const rideRoute = route ?? storedRoute
+  if (!rideRoute || !isRideOver(rideRoute)) return rideId
+  await useRideStore.getState().stopRide(rideId)
+  return undefined
+}
 
 /** The route with these trains, from a search at its departure (ms, the app's Israel-wall-clock convention). */
 export const findRideRoute = async (
@@ -55,7 +72,7 @@ export const adoptAutoStartedRide = async () => {
 export const startAutoStartedRide = async (data: Record<string, string>) => {
   if (Platform.OS !== "android") return
   // One ride at a time: the rider may have started this train (or another) themselves.
-  if (useRideStore.getState().id || (await getRideId())) return
+  if (await currentRideId()) return
 
   // The message carries the real instant; the app reads schedule times as Israel's wall clock in the device's zone.
   const departureAt = timezoneCorrection(new Date(Number(data.departureAt))).getTime()

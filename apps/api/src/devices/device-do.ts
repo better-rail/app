@@ -9,7 +9,7 @@
 import { DurableObject } from "cloudflare:workers"
 
 import { bindRuntime, type Env } from "../runtime"
-import type { DeviceRecord, DeviceState } from "../types/device"
+import type { DeviceRecord, DeviceState, DeviceTokens } from "../types/device"
 import { autoStartRide } from "./auto-start"
 import { pushTokenKey, sendReminder, withoutToken } from "./reminders"
 import { nextReminder, type NextReminder } from "./schedule"
@@ -66,8 +66,7 @@ export class DeviceDO extends DurableObject<Env> {
           const started = await autoStartRide(record, ride, departureAt, now)
           if (started === "token-gone") {
             // The push-to-start token (iOS) or the FCM token (Android) will never work again.
-            record.tokens = withoutToken(record.tokens, record.platform === "ios" ? "pushToStart" : "fcm")
-            await writeDeviceRecord(this.ctx.storage, record)
+            record.tokens = await this.forgetToken(record.tokens, record.platform === "ios" ? "pushToStart" : "fcm")
           }
           // Remind the rider instead when this device can't be started remotely: iOS before 17.2, a route too big
           // for one push, or a push-to-start token gone (the app's own APNs token still works).
@@ -78,11 +77,24 @@ export class DeviceDO extends DurableObject<Env> {
         const reminded = await sendReminder(record, ride, departureAt, now)
         // The token will never work again: forget it until the app syncs a new one.
         if (reminded === "token-gone") {
-          record.tokens = withoutToken(record.tokens, pushTokenKey(record.platform))
-          await writeDeviceRecord(this.ctx.storage, record)
+          record.tokens = await this.forgetToken(record.tokens, pushTokenKey(record.platform))
         }
       }
     }
-    await this.schedule(record)
+    // A sync or a delete may have landed while the pushes were sent
+    await this.schedule(await readDeviceRecord(this.ctx.storage))
+  }
+
+  /**
+   * Drops a token the push service says is gone, and returns the tokens without it for the rest of this alarm.
+   * Storage is read again: a sync or a delete can land while a push is sent, and writing back the record read
+   * before it would undo that sync or bring back the deleted device. A token the app has replaced since is kept.
+   */
+  private async forgetToken(tokens: DeviceTokens, key: keyof DeviceTokens): Promise<DeviceTokens> {
+    const current = await readDeviceRecord(this.ctx.storage)
+    if (current && current.tokens[key] === tokens[key]) {
+      await writeDeviceRecord(this.ctx.storage, { ...current, tokens: withoutToken(current.tokens, key) })
+    }
+    return withoutToken(tokens, key)
   }
 }

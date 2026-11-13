@@ -39,9 +39,21 @@ export const useRecurringRidesStore = create<RecurringRidesState & RecurringRide
   },
 }))
 
-/** The recurring ride for this route and departure time, if the rider saved one. */
-export const findRecurringRide = (rides: RecurringRide[], originId: number, destinationId: number, departureTime: string) =>
-  rides.find((ride) => ride.originId === originId && ride.destinationId === destinationId && ride.departureTime === departureTime)
+/** The recurring ride for this route, via station and departure time, if the rider saved one. */
+export const findRecurringRide = (
+  rides: RecurringRide[],
+  originId: number,
+  destinationId: number,
+  departureTime: string,
+  viaStationId?: number,
+) =>
+  rides.find(
+    (ride) =>
+      ride.originId === originId &&
+      ride.destinationId === destinationId &&
+      ride.departureTime === departureTime &&
+      ride.viaStationId === viaStationId,
+  )
 
 export const getRecurringRidesSnapshot = (state: RecurringRidesState) => ({ rides: state.rides })
 

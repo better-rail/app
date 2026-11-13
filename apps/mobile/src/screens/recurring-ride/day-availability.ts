@@ -33,12 +33,14 @@ export const weekdayDepartures = (now: Date, departureTime: string, weeksAhead =
   })
 }
 
-const hasTrain = async (originId: string, destinationId: string, departureAt: number) => {
+const hasTrain = async (originId: string, destinationId: string, departureAt: number, viaStationId?: number) => {
   const [date] = formatDateForAPI(departureAt)
   const [searchDate, searchHour] = formatDateForAPI(departureAt - SEARCH_LEAD_MS)
   // Past midnight the search starts at the day's beginning instead
   const hour = searchDate === date ? searchHour : "00:00"
-  const routes = await routeApi.getRoutes(originId, destinationId, date, hour)
+  const routes = await routeApi.getRoutes(originId, destinationId, date, hour, {
+    viaStation: viaStationId ? String(viaStationId) : undefined,
+  })
   return hasTrainAround(routes, departureAt)
 }
 
@@ -46,9 +48,14 @@ const hasTrain = async (originId: string, destinationId: string, departureAt: nu
  * For each weekday: true when it has a train at the departure time, false when it doesn't,
  * undefined while loading or when the timetable couldn't be read (the day stays available).
  */
-export function useDayAvailability(originId: string | undefined, destinationId: string | undefined, departureTime: string) {
+export function useDayAvailability(
+  originId: string | undefined,
+  destinationId: string | undefined,
+  departureTime: string,
+  viaStationId?: number,
+) {
   const { data } = useQuery(
-    ["recurringRideDays", originId, destinationId, departureTime],
+    ["recurringRideDays", originId, destinationId, departureTime, viaStationId],
     async () => {
       const now = timezoneCorrection(new Date())
       const thisWeek = weekdayDepartures(now, departureTime)
@@ -57,8 +64,8 @@ export function useDayAvailability(originId: string | undefined, destinationId: 
       return Promise.all(
         WEEKDAYS.map(async (day) => {
           try {
-            if (await hasTrain(originId!, destinationId!, thisWeek[day])) return true
-            return await hasTrain(originId!, destinationId!, nextWeek[day])
+            if (await hasTrain(originId!, destinationId!, thisWeek[day], viaStationId)) return true
+            return await hasTrain(originId!, destinationId!, nextWeek[day], viaStationId)
           } catch {
             return undefined
           }

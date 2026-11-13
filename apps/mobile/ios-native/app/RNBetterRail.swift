@@ -166,30 +166,34 @@ class RNBetterRail: NSObject {
     }
   }
   
+  /// The ride's Live Activity, if it's still there: an empty list means the ride is over. Only this ride's activity
+  /// counts, so a recurring ride started by push doesn't keep an earlier ride looking active.
   @objc func isRideActive(_ rideId: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) -> Void {
-    // Use ActivityKit's API to get running activities instead of in-memory TokenRegistry.
-    // This works even after app restart since ActivityKit maintains the activity state.
-    let runningActivities = Activity<BetterRailActivityAttributes>.activities
+    Task {
+      // The registry keeps ride IDs across launches; ActivityKit keeps the activities
+      let activityId = await LiveActivitiesController.tokenRegistry.activityId(rideId: rideId)
+      let runningActivities = Activity<BetterRailActivityAttributes>.activities.filter { $0.id == activityId }
 
-    let jsonArray = runningActivities.map { activity -> [String: String] in
-      let tokenString: String
-      if let token = activity.pushToken {
-        tokenString = token.map { String(format: "%02x", $0) }.joined()
-      } else {
-        tokenString = ""
+      let jsonArray = runningActivities.map { activity -> [String: String] in
+        let tokenString: String
+        if let token = activity.pushToken {
+          tokenString = token.map { String(format: "%02x", $0) }.joined()
+        } else {
+          tokenString = ""
+        }
+
+        return ["rideId": activity.id, "token": tokenString]
       }
 
-      return ["rideId": activity.id, "token": tokenString]
-    }
-
-    do {
-      let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
-      if let jsonString = String(data: jsonData, encoding: .utf8) {
-        resolve(jsonString)
+      do {
+        let jsonData = try JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted)
+        if let jsonString = String(data: jsonData, encoding: .utf8) {
+          resolve(jsonString)
+        }
+      } catch {
+        print(error.localizedDescription)
+        reject("error", "error", error)
       }
-    } catch {
-      print(error.localizedDescription)
-      reject("error", "error", error)
     }
   }
 

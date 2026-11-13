@@ -131,10 +131,17 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     }
   }
 
+  const viaStationId = routeItem?.viaStationId ? Number(routeItem.viaStationId) : undefined
   const hasRecurringRide = useRecurringRidesStore(
     (state) =>
       !!routeItem &&
-      !!findRecurringRide(state.rides, Number(originId), Number(destinationId), format(routeItem.departureTime, "HH:mm")),
+      !!findRecurringRide(
+        state.rides,
+        Number(originId),
+        Number(destinationId),
+        format(routeItem.departureTime, "HH:mm"),
+        viaStationId,
+      ),
   )
 
   const openRecurringRideSheet = () => {
@@ -145,6 +152,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       params: {
         originId,
         destinationId,
+        ...(viaStationId && { viaStationId: String(viaStationId) }),
         departureAt: String(routeItem.departureTime),
       },
     })

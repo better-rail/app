@@ -38,16 +38,26 @@ const todayAt = (time: string) => {
 
 export function RecurringRideScreen() {
   // Opened from a route (its stations and departure) or from Settings (a saved ride's id)
-  const params = useLocalSearchParams<{ rideId?: string; originId?: string; destinationId?: string; departureAt?: string }>()
+  const params = useLocalSearchParams<{
+    rideId?: string
+    originId?: string
+    destinationId?: string
+    viaStationId?: string
+    departureAt?: string
+  }>()
   const rides = useRecurringRidesStore((state) => state.rides)
   const saved = params.rideId ? rides.find((ride) => ride.id === params.rideId) : undefined
 
   // Schedule times hold Israel's wall clock read in the device's zone, so the device's clock formats them.
   const departureAt = saved ? todayAt(saved.departureTime) : Number(params.departureAt)
-  const departureTime = saved?.departureTime ?? format(departureAt, "HH:mm")
+  // Deleting the ride re-renders with neither a saved ride nor a departure before the sheet closes
+  const departureTime = saved?.departureTime ?? (Number.isFinite(departureAt) ? format(departureAt, "HH:mm") : "")
   const origin = getStationById(saved ? String(saved.originId) : (params.originId ?? ""))
   const destination = getStationById(saved ? String(saved.destinationId) : (params.destinationId ?? ""))
-  const existing = saved ?? findRecurringRide(rides, Number(origin?.id), Number(destination?.id), departureTime)
+  // A route searched through a via station keeps it: without it the server could start a different itinerary
+  const viaStationId = saved ? saved.viaStationId : params.viaStationId ? Number(params.viaStationId) : undefined
+  const existing =
+    saved ?? findRecurringRide(rides, Number(origin?.id), Number(destination?.id), departureTime, viaStationId)
 
   const [days, setDays] = useState<number[]>(() => {
     if (existing) return existing.days
@@ -58,7 +68,7 @@ export function RecurringRideScreen() {
   const [leadMinutes, setLeadMinutes] = useState(existing?.leadMinutes ?? DEFAULT_LEAD_MINUTES)
 
   // Weekdays without a train at this time can't be picked
-  const availability = useDayAvailability(origin?.id, destination?.id, departureTime)
+  const availability = useDayAvailability(origin?.id, destination?.id, departureTime, viaStationId)
   const touchedDays = useRef(false)
   // A new ride starts without them, unless the rider already changed the days
   useEffect(() => {
@@ -95,6 +105,7 @@ export function RecurringRideScreen() {
       id: existing?.id ?? Crypto.randomUUID(),
       originId: Number(origin.id),
       destinationId: Number(destination.id),
+      ...(viaStationId && { viaStationId }),
       departureTime,
       days,
       leadMinutes,
