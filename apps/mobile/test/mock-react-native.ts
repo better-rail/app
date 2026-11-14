@@ -37,6 +37,9 @@ mock.module("react-native", () => {
       flatten: (style: any) => style,
     },
     View: "View",
+    Animated: {
+      View: "Animated.View",
+    },
     ActivityIndicator: "ActivityIndicator",
     Modal: "Modal",
     useColorScheme: () => "light",
@@ -59,7 +62,7 @@ mock.module("react-native", () => {
     processColor: (color: string) => color,
     AppState: {
       currentState: "active",
-      addEventListener: mock(),
+      addEventListener: mock(() => ({ remove: mock() })),
       removeEventListener: mock(),
     },
     NativeModules: {},
