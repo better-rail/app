@@ -3,7 +3,7 @@
  * worth knowing about, but it is not a crash in our code.
  */
 export class TimetableApiError extends Error {
-  constructor(readonly status: number) {
+  constructor(status: number) {
     super(`Timetable API responded with ${status}`)
     this.name = "TimetableApiError"
   }

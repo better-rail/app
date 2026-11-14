@@ -8,13 +8,11 @@ const report = async <T>(next: () => T | Promise<T>) => {
   try {
     return await next()
   } catch (error) {
-    // The page shows its error state for these, so they are grouped by status as warnings rather than crashes.
+    // The page shows its error state for these, so they are warnings rather than crashes.
     const upstream = error instanceof TimetableApiError
     captureException(error, {
       mechanism: { type: "auto.middleware.tanstackstart", handled: upstream },
-      ...(upstream && {
-        captureContext: { level: "warning", fingerprint: ["timetable-api", String(error.status)] },
-      }),
+      captureContext: upstream ? { level: "warning" } : undefined,
     })
     throw error
   }
