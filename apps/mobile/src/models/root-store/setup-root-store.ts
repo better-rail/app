@@ -29,6 +29,12 @@ import { useRideStore, getRideSnapshot, hydrateRideStore, initializeRideStore, r
 import { initializeArrivalAlarm } from "@/models/ride/arrival-alarm"
 import { useUserStore, getUserSnapshot, hydrateUserStore, resetUserStore } from "@/models/user/user"
 import { useVouchersStore, getVouchersSnapshot, hydrateVouchersStore, resetVouchersStore } from "@/models/vouchers/vouchers"
+import {
+  useRecurringRidesStore,
+  getRecurringRidesSnapshot,
+  hydrateRecurringRidesStore,
+  resetRecurringRidesStore,
+} from "@/models/recurring-rides/recurring-rides"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -50,6 +56,7 @@ function getSnapshot() {
     ride: getRideSnapshot(useRideStore.getState()),
     user: getUserSnapshot(useUserStore.getState()),
     vouchers: getVouchersSnapshot(useVouchersStore.getState()),
+    recurringRides: getRecurringRidesSnapshot(useRecurringRidesStore.getState()),
   }
 }
 
@@ -86,6 +93,7 @@ export async function setupRootStore() {
     () => hydrateRideStore(data.ride),
     () => hydrateUserStore(data.user),
     () => hydrateVouchersStore(data.vouchers),
+    () => hydrateRecurringRidesStore(data.recurringRides),
   ]
 
   for (const hydrate of hydrators) {
@@ -117,8 +125,10 @@ export async function setupRootStore() {
   // Binaries before v3 have no themes, so they keep the classic look
   const applyTheme = () => {
     const { accentTheme, useAlternateTimeFont } = useSettingsStore.getState()
-    if (isAccentThemeSupported()) applyAccentTheme(accentTheme, useAlternateTimeFont)
+    const supported = isAccentThemeSupported()
+    if (supported) applyAccentTheme(accentTheme, useAlternateTimeFont)
     else applyAccentTheme("default")
+    syncAnalyticsUserProperties({ accent_theme: supported ? accentTheme : "default" })
   }
   applyTheme()
 
@@ -131,22 +141,6 @@ export async function setupRootStore() {
   // Run afterCreate equivalents
   initializeRideStore()
   initializeArrivalAlarm()
-
-  // Re-persist immediately to normalize the data format.
-  // This ensures any data saved by the old MobX State Tree format
-  // is re-written in the Zustand snapshot format on first launch.
-  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
-
-  // Sync telemetry disabled flag with async storage for backwards compatibility
-  const userState = useUserStore.getState()
-  if (userState.disableTelemetry === true) {
-    const telemetryDisabledFlag = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
-    if (!telemetryDisabledFlag) {
-      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
-    }
-  } else if (userState.disableTelemetry === false) {
-    await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
-  }
 
   // Subscribe to all store changes and persist snapshots
   const persist = () => storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
@@ -164,6 +158,26 @@ export async function setupRootStore() {
   useRideStore.subscribe(persist)
   useUserStore.subscribe(persist)
   useVouchersStore.subscribe(persist)
+  useRecurringRidesStore.subscribe(persist)
+
+  // Storage housekeeping runs in the background so it doesn't delay the first render
+  normalizePersistedState()
+}
+
+async function normalizePersistedState() {
+  // Re-persist to normalize data saved in the old MobX State Tree format
+  await storage.save(ROOT_STATE_STORAGE_KEY, getSnapshot())
+
+  // Sync telemetry disabled flag with async storage for backwards compatibility
+  const userState = useUserStore.getState()
+  if (userState.disableTelemetry === true) {
+    const telemetryDisabledFlag = await storage.load(TELEMETRY_DISABLED_STORAGE_KEY)
+    if (!telemetryDisabledFlag) {
+      await storage.save(TELEMETRY_DISABLED_STORAGE_KEY, true)
+    }
+  } else if (userState.disableTelemetry === false) {
+    await storage.remove(TELEMETRY_DISABLED_STORAGE_KEY)
+  }
 }
 
 /**
@@ -178,4 +192,5 @@ export function clearAllData() {
   resetRideStore()
   resetUserStore()
   resetVouchersStore()
+  resetRecurringRidesStore()
 }

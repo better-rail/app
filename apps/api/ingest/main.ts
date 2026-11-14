@@ -12,7 +12,7 @@
  *
  * Flags:  --gtfs <dir>   use an extracted feed (checksum of its stop_times.txt)
  *         --out <file>   write the payload JSON to a file instead of posting
- *         --target <url> Worker base URL (default API_BASE_URL)
+ *         --target <url> Worker origin, e.g. https://api.better-rail.co.il (default API_BASE_URL)
  * Env:    INGEST_TOKEN   bearer token for the Worker's /internal routes
  */
 import os from "os"
@@ -24,6 +24,7 @@ import { parseRailFeed } from "./parse"
 import { matchStations } from "./station-match"
 import { downloadFeed, extractFeed } from "./download"
 import { buildPayload } from "./build-payload"
+import { API_PREFIX, internalUrl, normalizeBaseUrl } from "./target"
 import { encodePayload, toWire, type RailFeedPayload } from "../src/ingest/payload"
 
 const log = (message: string, meta?: unknown) => console.log(`[ingest] ${message}${meta ? " " + JSON.stringify(meta) : ""}`)
@@ -42,11 +43,11 @@ type Target = { baseUrl: string; token: string }
 const authHeaders = (target: Target) => ({ Authorization: `Bearer ${target.token}` })
 
 const fetchActiveFeed = async (target: Target): Promise<ActiveFeed | null> => {
-  const res = await fetch(`${target.baseUrl}/internal/ingest/active`, {
+  const res = await fetch(internalUrl(target.baseUrl, "ingest/active"), {
     headers: authHeaders(target),
     signal: AbortSignal.timeout(30_000),
   })
-  if (!res.ok) throw new Error(`GET /internal/ingest/active failed: HTTP ${res.status} ${await res.text()}`)
+  if (!res.ok) throw new Error(`GET ${API_PREFIX}/internal/ingest/active failed: HTTP ${res.status} ${await res.text()}`)
   const text = await res.text()
   const body = (text ? JSON.parse(text) : null) as ActiveFeed | null
   return body && body.feedId ? body : null
@@ -55,7 +56,7 @@ const fetchActiveFeed = async (target: Target): Promise<ActiveFeed | null> => {
 const postPayload = async (target: Target, payload: RailFeedPayload): Promise<unknown> => {
   const body = await encodePayload(payload)
   log(`posting payload`, { gzipBytes: body.byteLength })
-  const res = await fetch(`${target.baseUrl}/internal/ingest`, {
+  const res = await fetch(internalUrl(target.baseUrl, "ingest"), {
     method: "POST",
     // application/gzip rather than application/json: the Worker reads the raw body itself (and the
     // edge must not try to inflate it); the gzip magic bytes tell the decoder what it is.
@@ -65,7 +66,7 @@ const postPayload = async (target: Target, payload: RailFeedPayload): Promise<un
     signal: AbortSignal.timeout(10 * 60_000),
   })
   const text = await res.text()
-  if (!res.ok) throw new Error(`POST /internal/ingest failed: HTTP ${res.status} ${text}`)
+  if (!res.ok) throw new Error(`POST ${API_PREFIX}/internal/ingest failed: HTTP ${res.status} ${text}`)
   try {
     return JSON.parse(text)
   } catch {
@@ -74,16 +75,37 @@ const postPayload = async (target: Target, payload: RailFeedPayload): Promise<un
 }
 
 const resolveTarget = (): Target => {
-  const baseUrl = (flag("--target") ?? process.env.API_BASE_URL ?? "").replace(/\/+$/, "")
+  const baseUrl = normalizeBaseUrl(flag("--target") ?? process.env.API_BASE_URL ?? "")
   const token = process.env.INGEST_TOKEN ?? ""
   if (!baseUrl) throw new Error("No target: pass --target <url> or set API_BASE_URL")
   if (!token) throw new Error("INGEST_TOKEN is not set")
   return { baseUrl, token }
 }
 
+// Where the run currently is, for the report the Worker keeps (GET /internal/ingest/status).
+let stage = "starting"
+let reportTarget: Target | null = null
+
+/** Tell the Worker how the run went. Best effort: a job that cannot reach the Worker cannot report that either. */
+const report = async (ok: boolean, error?: unknown) => {
+  if (!reportTarget) return
+  try {
+    await fetch(internalUrl(reportTarget.baseUrl, "ingest/report"), {
+      method: "POST",
+      headers: { ...authHeaders(reportTarget), "Content-Type": "application/json" },
+      body: JSON.stringify({ ok, stage, ...(error === undefined ? {} : { error: String((error as Error)?.message ?? error) }) }),
+      signal: AbortSignal.timeout(15_000),
+    })
+  } catch (reportError) {
+    console.error("[ingest] could not report to the Worker:", reportError)
+  }
+}
+
 const ingest = async (workDir: string) => {
   const outFile = flag("--out")
   const target = outFile ? null : resolveTarget()
+  reportTarget = target
+  stage = "reading the active feed"
   const active = target ? await fetchActiveFeed(target) : null
   if (active) log(`active feed ${active.feedId}`, { checksum: active.checksum, feedEndDate: active.feedEndDate })
 
@@ -97,6 +119,7 @@ const ingest = async (workDir: string) => {
   } else {
     const zipPath = path.join(workDir, "feed.zip")
     log("downloading feed…")
+    stage = "downloading the feed"
     await downloadFeed(zipPath)
     checksum = sha256(zipPath)
     gtfsDir = path.join(workDir, "extracted")
@@ -104,15 +127,18 @@ const ingest = async (workDir: string) => {
 
   if (active && active.checksum === checksum) {
     log("feed unchanged since last ingest (checksum match) — nothing to do")
+    stage = "unchanged"
     return
   }
 
   if (!flag("--gtfs")) {
     log("extracting…")
+    stage = "extracting the feed"
     await extractFeed(path.join(workDir, "feed.zip"), gtfsDir)
   }
 
   log("parsing rail subset…")
+  stage = "parsing"
   const feed = await parseRailFeed(gtfsDir)
   log("parsed", {
     routes: feed.routes.size,
@@ -122,6 +148,7 @@ const ingest = async (workDir: string) => {
     days: new Set(feed.calendarDates.map((c) => c.serviceDate)).size,
   })
 
+  stage = "matching stations"
   const match = matchStations([...feed.stationNodes.values()])
   const payload = buildPayload(feed, match, checksum)
   for (const warning of payload.warnings) log(`⚠️ ${warning}`)
@@ -132,8 +159,10 @@ const ingest = async (workDir: string) => {
     return
   }
 
+  stage = "posting the payload"
   const reply = await postPayload(target!, payload)
   log("worker reply", reply)
+  stage = "loaded"
 }
 
 const main = async () => {
@@ -150,8 +179,12 @@ const main = async () => {
 }
 
 main()
-  .then(() => process.exit(0))
-  .catch((error) => {
+  .then(async () => {
+    await report(true)
+    process.exit(0)
+  })
+  .catch(async (error) => {
     console.error("[ingest] FAILED:", error)
+    await report(false, error)
     process.exit(1)
   })

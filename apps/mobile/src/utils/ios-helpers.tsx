@@ -30,6 +30,28 @@ export function monitorLiveActivities() {
   RNBetterRail.monitorActivities()
 }
 
+/** The push-to-start token the server auto-starts recurring rides with; null before iOS 17.2 or without Live Activities. */
+export async function pushToStartToken(): Promise<string | null> {
+  if (Platform.OS !== "ios" || !RNBetterRail?.pushToStartToken) return null
+  return RNBetterRail.pushToStartToken()
+}
+
+/** A ride the server started with push-to-start, as the Live Activity holds it. */
+export type AutoStartedRide = {
+  rideId: string
+  originId: number
+  destinationId: number
+  /** "YYYY-MM-DDTHH:mm:ss", Israel's wall clock */
+  departureTime: string
+  trainNumbers: number[]
+  viaStationId?: number
+}
+
+export async function autoStartedRide(): Promise<AutoStartedRide | null> {
+  if (Platform.OS !== "ios" || !RNBetterRail?.autoStartedRide) return null
+  return RNBetterRail.autoStartedRide()
+}
+
 export type ActivityAuthorizationInfo = { areActivitiesEnabled: boolean; frequentPushesEnabled: boolean }
 
 export async function activityAuthorizationInfo(): Promise<ActivityAuthorizationInfo> {
@@ -113,4 +135,6 @@ export default {
   isRideActive,
   canRunLiveActivities,
   activityAuthorizationInfo,
+  pushToStartToken,
+  autoStartedRide,
 }

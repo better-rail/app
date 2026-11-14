@@ -12,6 +12,9 @@ import { getStationById } from "@/data/stations"
 import { isWebsiteURL, parseWebsiteRouteURL } from "@/utils/helpers/web-links"
 import { getInitialWebsiteHandoffURL } from "@/utils/website-handoff"
 import Shortcuts, { ShortcutItem } from "react-native-quick-actions-shortcuts"
+import * as Notifications from "expo-notifications"
+import { findRecurringRideReminder } from "@/utils/recurring-ride-notifications"
+import { timezoneCorrection } from "@/utils/helpers/date-helpers"
 
 const ShortcutsEmitter = new NativeEventEmitter(Shortcuts)
 
@@ -135,6 +138,36 @@ export function useDeepLinking(storeReady: boolean) {
     }
   }
 
+  /** A tapped recurring ride reminder: the route list at the ride's departure. */
+  function openRecurringRideReminder(response: Notifications.NotificationResponse | null) {
+    const reminder = findRecurringRideReminder(response?.notification.request)
+    if (!reminder) return
+    const origin = getStationById(String(reminder.originId))
+    const destination = getStationById(String(reminder.destinationId))
+    if (!origin || !destination) return
+    trackEvent("recurring_ride_reminder_opened")
+    // The reminder carries the real instant; the app reads schedule times as Israel's wall clock in the device's zone.
+    const time = timezoneCorrection(new Date(reminder.departureAt)).getTime()
+
+    const routePlan = useRoutePlanStore.getState()
+    routePlan.setOrigin(origin)
+    routePlan.setDestination(destination)
+    routePlan.setDate(new Date(time))
+    routePlan.setDateType("departure")
+
+    dismissDeepLinkedScreens()
+    router.push({
+      pathname: "/route-list",
+      params: {
+        originId: origin.id,
+        destinationId: destination.id,
+        time: String(time),
+        enableQuery: "true",
+        deepLink: "true",
+      },
+    })
+  }
+
   function openHomeScreenShortcut(item: ShortcutItem | null) {
     if (!item) return
     const origin = getStationById(item.data.originId)
@@ -180,15 +213,29 @@ export function useDeepLinking(storeReady: boolean) {
       handleDeepLinkURL(url)
     })
 
+    let notificationListener: Notifications.Subscription | undefined
     if (storeReady) {
       Shortcuts.getInitialShortcut().then(openHomeScreenShortcut)
       shortcutsListener = ShortcutsEmitter.addListener("onShortcutItemPressed", openHomeScreenShortcut)
+
+      // A reminder tapped while the app was closed, then any tapped later. Cleared once handled, so a later
+      // render doesn't open it again.
+      Notifications.getLastNotificationResponseAsync().then((response) => {
+        if (!active || !findRecurringRideReminder(response?.notification.request)) return
+        Notifications.clearLastNotificationResponseAsync()
+        openRecurringRideReminder(response)
+      })
+      notificationListener = Notifications.addNotificationResponseReceivedListener((response) => {
+        Notifications.clearLastNotificationResponseAsync()
+        openRecurringRideReminder(response)
+      })
     }
 
     return () => {
       active = false
       linkingListener?.remove()
       shortcutsListener?.remove()
+      notificationListener?.remove()
     }
   }, [storeReady])
 }

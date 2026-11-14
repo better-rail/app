@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { applySchema } from "../../src/db"
 import { encodePayload } from "../../src/ingest/payload"
 import { FARES_KEY } from "../../src/fares/store"
+import { internalUrl, normalizeBaseUrl } from "../../ingest/target"
 import { AUTH, israelServiceClock, makeFeed, naiveIso, seedFeed } from "./helpers"
 
 const api = "https://api.test/api/v1"
@@ -40,6 +41,20 @@ afterEach(() => {
 })
 
 describe("timetable", () => {
+  it("serves the ingest job's URLs: its target is the bare origin, as the container gets it in API_BASE_URL", async () => {
+    // The job 404'd in production for weeks by calling /internal/... without the /api/v1 prefix.
+    await applySchema(env.DB)
+    for (const configured of ["https://api.test", "https://api.test/", "https://api.test/api/v1"]) {
+      const res = await SELF.fetch(internalUrl(normalizeBaseUrl(configured), "ingest/active"), { headers: AUTH })
+      expect(res.status).toBe(200)
+      expect(await res.json()).toBeNull()
+    }
+    expect((await SELF.fetch("https://api.test/internal/ingest/active", { headers: AUTH })).status).toBe(404)
+    // Reaches the loader (an empty body is a bad payload), not the router's 404
+    const post = await SELF.fetch(internalUrl("https://api.test", "ingest"), { method: "POST", headers: AUTH, body: "" })
+    expect(post.status).not.toBe(404)
+  })
+
   it("loads a feed through /internal/ingest and answers searchTrainForMobile in the legacy shape", async () => {
     const feed = makeFeed({ departureOffsetSec: 8 * 3600, checksum: "feed-a" })
     const serviceDate = feed.calendarDates[0].serviceDate
@@ -365,6 +380,42 @@ describe("guarded routes", () => {
     expect(res.status).toBe(200)
     expect(res.headers.get("content-type")).toContain("application/json")
     expect(await res.text()).toBe("null")
+  })
+
+  it("keeps the ingest job's report and answers how the last run went", async () => {
+    expect((await SELF.fetch(`${api}/internal/ingest/status`)).status).toBe(404)
+    const empty = await SELF.fetch(`${api}/internal/ingest/status`, { headers: AUTH })
+    expect(await empty.json()).toEqual({ running: false, run: null, lastReport: null })
+
+    const bad = await SELF.fetch(`${api}/internal/ingest/report`, { method: "POST", headers: AUTH, body: "{}" })
+    expect(bad.status).toBe(400)
+    const reported = await SELF.fetch(`${api}/internal/ingest/report`, {
+      method: "POST",
+      headers: AUTH,
+      body: JSON.stringify({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" }),
+    })
+    expect(await reported.json()).toEqual({ recorded: true })
+    // The job sends application/json; both forms reach the same record
+    const asJson = await SELF.fetch(`${api}/internal/ingest/report`, {
+      method: "POST",
+      headers: { ...AUTH, "content-type": "application/json" },
+      body: JSON.stringify({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" }),
+    })
+    expect(await asJson.json()).toEqual({ recorded: true })
+
+    const status = (await (await SELF.fetch(`${api}/internal/ingest/status`, { headers: AUTH })).json()) as {
+      running: boolean
+      run: unknown
+      lastReport: { at: number; ok: boolean; stage: string; error: string }
+    }
+    expect(status.running).toBe(false)
+    expect(status.run).toBeNull()
+    expect(status.lastReport).toMatchObject({ ok: false, stage: "downloading the feed", error: "Download failed: HTTP 403" })
+    expect(status.lastReport.at).toBeGreaterThan(Date.now() - 60_000)
+
+    // No container in tests: starting one says so, and leaves no run behind
+    const run = await SELF.fetch(`${api}/internal/ingest/run`, { method: "POST", headers: AUTH })
+    expect(await run.json()).toMatchObject({ started: false })
   })
 
   it("hides the SIRI debug routes without the token and answers with the poller state with it", async () => {

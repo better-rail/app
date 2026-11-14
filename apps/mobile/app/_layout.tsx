@@ -15,6 +15,7 @@ import { enableScreens } from "react-native-screens"
 import { PostHogProvider } from "posthog-react-native"
 import { Observe, ObserveRoot, useObserve } from "expo-observe"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
+import * as SplashScreen from "expo-splash-screen"
 import { TipIAPProvider } from "@/services/iap/tip-iap-provider"
 
 import { initFonts } from "@/theme/fonts"
@@ -41,6 +42,8 @@ import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
 import { formSheetOptions } from "@/utils/form-sheet-options"
+import { startDeviceSync } from "@/services/device/device-sync"
+import { adoptAutoStartedRide } from "@/utils/auto-started-ride"
 
 enableScreens()
 
@@ -86,7 +89,16 @@ disableSentryIfTelemetryDisabled()
 
 // Capture render-phase errors per route via Expo Router's ErrorBoundary. Attaches
 // route context to the event and marks in-flight navigation transactions as errored.
-export const ErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
+const RouteErrorBoundary = Sentry.wrapExpoRouterErrorBoundary(ExpoErrorBoundary)
+
+// index.js holds the splash; hiding on the first content layout avoids a blank frame in between
+const hideSplashScreen = () => SplashScreen.hide()
+
+export function ErrorBoundary(props: React.ComponentProps<typeof RouteErrorBoundary>) {
+  // A crash before the first layout would otherwise leave the splash over the error screen
+  useEffect(hideSplashScreen, [])
+  return <RouteErrorBoundary {...props} />
+}
 
 // Usually a connectivity blip or a slow connection timing out, so group them into one warning
 // issue. A spike there can still mean the API is unreachable or hanging (DNS, TLS, outage).
@@ -211,6 +223,8 @@ function RootLayout() {
         rideState.checkLiveRideAuthorization()
         if (rideState.id) {
           rideState.isRideActive(rideState.id)
+        } else {
+          adoptAutoStartedRide().catch(() => {})
         }
       }
       appState.current = nextAppState
@@ -219,10 +233,8 @@ function RootLayout() {
   }, [storeReady])
 
   useEffect(() => {
-    ;(async () => {
-      await initFonts()
-      setupRootStore().then(() => setStoreReady(true))
-    })()
+    // Fonts still gate the first render: text mounted before they register keeps the fallback font
+    Promise.all([setupRootStore(), initFonts()]).then(() => setStoreReady(true))
   }, [])
 
   useEffect(() => {
@@ -257,11 +269,16 @@ function RootLayout() {
     }
   }, [storeReady, localeReady, markInteractive])
 
+  useEffect(() => {
+    // After the language, which the server's reminders are written in. A no-op for a device without recurring rides.
+    if (storeReady && localeReady && !IS_E2E) startDeviceSync()
+  }, [storeReady, localeReady])
+
   if (!storeReady || !localeReady) return null
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={{ flex: 1 }} onLayout={hideSplashScreen}>
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <PostHogProvider client={posthog} autocapture={{ captureScreens: false }}>
             <TipIAPProvider>

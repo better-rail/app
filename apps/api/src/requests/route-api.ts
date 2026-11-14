@@ -8,6 +8,42 @@ import { routeDurationInMs } from "../utils/date-utils"
 import { israelDateAndHour, israelEpoch } from "../utils/israel-time"
 import { LanguageCode, railApiLocales } from "../locales/i18n"
 
+/** The timetable's raw travels (the rail API's shape, which the app and its Live Activity decode) around a departure. */
+export const searchTravels = async (
+  originId: number,
+  destinationId: number,
+  departureDate: string | Date,
+  locale: LanguageCode,
+  options: { viaStation?: number } = {},
+) => {
+  if (!originId || !destinationId) throw new Error("Missing origin / destination data")
+
+  // The timetable's own wall clock (the Bun server got this for free from TZ=Asia/Jerusalem).
+  const { date, hour } = israelDateAndHour(departureDate instanceof Date ? departureDate.toISOString() : departureDate)
+
+  // Both sources answer in the rail API's `{ result: { travels } }` shape, so the
+  // formatting below is the same either way (see data/config.ts on the flag).
+  const railSearch = {
+    fromStation: originId,
+    toStation: destinationId,
+    date,
+    hour,
+    scheduleType: "ByDeparture" as const,
+    languageId: railApiLocales[locale],
+  }
+  const response =
+    config.railDataSource === "gtfs"
+      ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
+      : options.viaStation
+        ? await searchViaOnRailApi(railSearch, options.viaStation)
+        : await searchTimetableOnRailApi(railSearch)
+
+  if (!response?.result) {
+    throw new Error("Error fetching results")
+  }
+  return response.result.travels
+}
+
 export class RouteApi {
   async getRoutes(
     originId: number,
@@ -16,33 +52,7 @@ export class RouteApi {
     locale: LanguageCode,
     options: { viaStation?: number } = {},
   ): Promise<RouteItem[]> {
-    if (!originId || !destinationId) throw new Error("Missing origin / destination data")
-
-    // The timetable's own wall clock (the Bun server got this for free from TZ=Asia/Jerusalem).
-    const { date, hour } = israelDateAndHour(departureDate instanceof Date ? departureDate.toISOString() : departureDate)
-
-    // Both sources answer in the rail API's `{ result: { travels } }` shape, so the
-    // formatting below is the same either way (see data/config.ts on the flag).
-    const railSearch = {
-      fromStation: originId,
-      toStation: destinationId,
-      date,
-      hour,
-      scheduleType: "ByDeparture" as const,
-      languageId: railApiLocales[locale],
-    }
-    const response =
-      config.railDataSource === "gtfs"
-        ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
-        : options.viaStation
-          ? await searchViaOnRailApi(railSearch, options.viaStation)
-          : await searchTimetableOnRailApi(railSearch)
-
-    if (!response?.result) {
-      throw new Error("Error fetching results")
-    }
-
-    const { travels } = response.result
+    const travels = await searchTravels(originId, destinationId, departureDate, locale, options)
 
     // format for usage in the UI
     const formattedRoutes = travels.map((route) => {

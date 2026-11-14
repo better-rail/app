@@ -136,6 +136,23 @@ export const logNames = {
     snapshotReadFailed: "Failed to read the SIRI snapshot",
     snapshotWriteFailed: "Failed to write the SIRI snapshot",
   },
+  devices: {
+    sync: {
+      failed: "Failed to sync device state",
+    },
+    delete: {
+      failed: "Failed to delete device state",
+    },
+    reminder: {
+      success: "Sent recurring ride reminder",
+      failed: "Failed to send recurring ride reminder",
+      tokenGone: "Dropped a push token the push service rejected",
+    },
+    autoStart: {
+      success: "Auto-started a recurring ride",
+      failed: "Failed to auto-start a recurring ride",
+    },
+  },
   gtfs: {
     noActiveFeed: "No active GTFS feed in the database",
     feedExpiring: "Active GTFS feed is within 2 days of its validity end date",

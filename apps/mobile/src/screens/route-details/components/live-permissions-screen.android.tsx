@@ -7,7 +7,7 @@ import { primaryFont } from "@/theme"
 import { translate } from "@/i18n"
 import { useShallow } from "zustand/react/shallow"
 import { useRideStore } from "@/models"
-import { liveRideNotifications, openLiveUpdatesSettings } from "@/modules/live-ride"
+import { liveRideNotifications, openLiveUpdatesSettings, openNotificationSettings } from "@/modules/live-ride"
 import { openArrivalAlarmSettings } from "@/utils/arrival-alarm-native"
 import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
@@ -40,7 +40,14 @@ export function LivePermissionsScreen() {
   )
 
   const grantNotifications = async () => {
-    await liveRideNotifications.requestPermissions()
+    const { granted } = await liveRideNotifications.requestPermissions()
+    if (!granted) {
+      // No dialog showed, or the rider declined it: only the system settings can turn notifications on now
+      Alert.alert(translate("ride.notificationsDisabledTitle"), translate("ride.notificationsDisabledMessage"), [
+        { style: "cancel", text: translate("common.cancel") },
+        { text: translate("settings.title"), onPress: openNotificationSettings },
+      ])
+    }
     return checkLiveRideAuthorization()
   }
 

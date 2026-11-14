@@ -10,6 +10,7 @@ import { CloudflareAdapter } from "elysia/adapter/cloudflare-worker"
 import { logNames, logger } from "./logs"
 import { railApiRoutes } from "./routes/rail-api"
 import { rideRoutes } from "./routes/rides"
+import { deviceRoutes } from "./routes/devices"
 import { faresRoutes } from "./routes/fares"
 import { siriDebugRoutes } from "./routes/siri-debug"
 import { internalRoutes } from "./routes/internal"
@@ -31,4 +32,6 @@ export const app = new Elysia({ adapter: CloudflareAdapter, aot: false })
     return "Internal Server Error"
   })
   .get("/isAlive", () => "App is ready! 🚂")
-  .group("/api/v1", (api) => api.use(rideRoutes).use(faresRoutes).use(siriDebugRoutes).use(internalRoutes).use(railApiRoutes))
+  .group("/api/v1", (api) =>
+    api.use(rideRoutes).use(deviceRoutes).use(faresRoutes).use(siriDebugRoutes).use(internalRoutes).use(railApiRoutes),
+  )

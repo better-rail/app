@@ -1,29 +1,20 @@
 import React from "react"
-import { View } from "react-native"
-import { SettingBox } from "./settings-box"
 import { translate } from "@/i18n"
+import { MenuPicker } from "./menu-picker"
 import type { ColorSchemePickerProps } from "./color-scheme-picker.types"
 
 export function ColorSchemePicker({ value, onChange }: ColorSchemePickerProps) {
   return (
-    <View>
-      <SettingBox
-        first
-        title={translate("settings.colorSchemeAutomatic") ?? ""}
-        checkmark={value === "automatic"}
-        onPress={() => onChange("automatic")}
-      />
-      <SettingBox
-        title={translate("settings.colorSchemeLight") ?? ""}
-        checkmark={value === "light"}
-        onPress={() => onChange("light")}
-      />
-      <SettingBox
-        last
-        title={translate("settings.colorSchemeDark") ?? ""}
-        checkmark={value === "dark"}
-        onPress={() => onChange("dark")}
-      />
-    </View>
+    <MenuPicker
+      testID="color-scheme-picker"
+      label={translate("settings.colorScheme") ?? ""}
+      value={value}
+      onChange={onChange}
+      options={[
+        { value: "automatic", label: translate("settings.colorSchemeAutomatic") ?? "" },
+        { value: "light", label: translate("settings.colorSchemeLight") ?? "" },
+        { value: "dark", label: translate("settings.colorSchemeDark") ?? "" },
+      ]}
+    />
   )
 }

@@ -52,11 +52,7 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
     useShallow((s) => ({ routeItem: s.routeItem, originId: s.originId, destinationId: s.destinationId })),
   )
   const viaStationId = paramsRouteItem.viaStationId
-  const {
-    rideRoute,
-    id: rideId,
-    stopRide,
-  } = useRideStore(useShallow((s) => ({ rideRoute: s.route, id: s.id, stopRide: s.stopRide })))
+  const rideRoute = useRideStore((s) => s.route)
   const canRunLiveActivities = useRideStore((s) => s.canRunLiveActivities)
   const allStations = useStations()
 
@@ -108,12 +104,6 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
     // allow button fade only after the view mounts; disable the animation when the view appears initally.
     setShouldFadeRideButton(true)
   }, [])
-
-  useEffect(() => {
-    if (rideId && progress.status === "arrived") {
-      stopRide(rideId)
-    }
-  }, [progress.status, rideId])
 
   return (
     <Screen
