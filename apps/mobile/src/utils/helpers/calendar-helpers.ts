@@ -72,7 +72,9 @@ async function getEventCalendar(): Promise<Calendar.ExpoCalendar> {
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<boolean> {
   trackEvent("add_route_to_calendar")
 
-  const { status } = await Calendar.requestCalendarPermissions()
+  // On iOS 17+, request write-only access: we only add events, so there's no need to read the user's calendar.
+  // Ignored on Android, which needs READ_CALENDAR to look up a modifiable calendar.
+  const { status } = await Calendar.requestCalendarPermissions(true)
 
   if (status !== "granted") {
     Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
