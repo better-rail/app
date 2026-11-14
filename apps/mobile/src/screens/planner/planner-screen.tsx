@@ -116,8 +116,10 @@ export function PlannerScreen() {
   }
 
   const onGetRoutePress = () => {
-    const { id: originId } = origin
-    const { id: destinationId } = destination
+    // Guarded so React Compiler doesn't read the ids during render, where a station may still be unpicked
+    if (!origin || !destination) return
+    const originId = origin.id
+    const destinationId = destination.id
     if (Platform.OS === "ios") {
       donateRouteIntent(originId, destinationId)
     }
