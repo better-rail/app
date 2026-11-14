@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { View, Animated, AppState, Platform, Alert } from "react-native"
+import { View, AppState, Platform, Alert } from "react-native"
+import Animated from "react-native-reanimated"
 import type { AppStateStatus } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import {
