@@ -116,7 +116,7 @@ export function PlannerScreen() {
   }
 
   const onGetRoutePress = () => {
-    // Guarded so React Compiler doesn't read the ids during render, where a station may still be unpicked
+    // Keeps React Compiler from reading the ids during render
     if (!origin || !destination) return
     const originId = origin.id
     const destinationId = destination.id
