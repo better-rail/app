@@ -137,10 +137,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
       !!routeItem &&
       !!findRecurringRide(
         state.rides,
-        Number(originId),
-        Number(destinationId),
-        format(routeItem.departureTime, "HH:mm"),
-        viaStationId,
+        {
+          originId: Number(originId),
+          destinationId: Number(destinationId),
+          viaStationId,
+          departureTime: format(routeItem.departureTime, "HH:mm"),
+        },
+        format(routeItem.departureTime, "yyyy-MM-dd"),
       ),
   )
 

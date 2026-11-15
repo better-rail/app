@@ -37,7 +37,7 @@ import { monitorLiveActivities } from "@/utils/ios-helpers"
 import { useForceUpdate } from "@/hooks/use-force-update"
 import { ForceUpdateScreen } from "@/screens/force-update/force-update-screen"
 import { openActiveRide } from "@/utils/helpers/open-active-ride"
-import { isNetworkError, isSuspendedNetworkError } from "@/utils/helpers/network-errors"
+import { isNetworkError, isSuspendedNetworkError, isUpstreamTimeout } from "@/utils/helpers/network-errors"
 import PushNotification from "react-native-push-notification"
 import "react-native-console-time-polyfill"
 import { IS_E2E } from "@/config/e2e"
@@ -102,8 +102,12 @@ export function ErrorBoundary(props: React.ComponentProps<typeof RouteErrorBound
 
 // Usually a connectivity blip or a slow connection timing out, so group them into one warning
 // issue. A spike there can still mean the API is unreachable or hanging (DNS, TLS, outage).
-const networkErrorContext = (error: unknown) =>
-  isNetworkError(error) ? { level: "warning" as const, fingerprint: ["axios-network-error"] } : {}
+// The rail API timing out behind our server gets its own warning issue, so a hanging upstream stays visible.
+const networkErrorContext = (error: unknown) => {
+  if (isNetworkError(error)) return { level: "warning" as const, fingerprint: ["axios-network-error"] }
+  if (isUpstreamTimeout(error)) return { level: "warning" as const, fingerprint: ["rail-api-upstream-timeout"] }
+  return {}
+}
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({

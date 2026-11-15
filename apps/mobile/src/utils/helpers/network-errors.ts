@@ -19,6 +19,12 @@ export function isNetworkError(error: unknown): boolean {
   return axios.isAxiosError(error) && NETWORK_ERROR_CODES.has(error.code ?? "")
 }
 
+// Our API answers 504 when the Israel Railways API it relays to misses its deadline (apps/api routes/proxy.ts).
+// The rail API hangs now and then; the server already logs these, so they're expected noise here.
+export function isUpstreamTimeout(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 504
+}
+
 // The OS drops sockets when the app is backgrounded, so a network error around a suspension
 // says nothing about connectivity or the API. Used to skip reporting those to Sentry.
 export function isSuspendedNetworkError(error: unknown): boolean {

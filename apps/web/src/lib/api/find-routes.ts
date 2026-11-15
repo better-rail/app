@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start"
 import { getRequestHeader } from "@tanstack/react-start/server"
 import { getStationById } from "@/data/stations"
 import { isValidClock, isValidDateKey, naiveFromParts, addDays, dateKey } from "@/lib/time"
+import { TimetableApiError } from "./errors"
 import { formatTravels } from "./route-format"
 import type { ApiSearchResult, ResultType, RoutesResult, RoutesSearch } from "./types"
 
@@ -42,8 +43,8 @@ async function searchDay(
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
 
-  try {
-    const response = await fetch(`${API_BASE}${SEARCH_PATH}`, {
+  const request = () =>
+    fetch(`${API_BASE}${SEARCH_PATH}`, {
       method: "POST",
       signal: controller.signal,
       headers: {
@@ -65,7 +66,12 @@ async function searchDay(
       }),
     })
 
-    if (!response.ok) throw new Error(`Timetable API responded with ${response.status}`)
+  try {
+    let response = await request()
+    // The API fails now and then on its side and answers the very same request a moment later.
+    if (response.status >= 500) response = await request()
+
+    if (!response.ok) throw new TimetableApiError(response.status)
     const payload = (await response.json()) as ApiSearchResult
     if (!payload.result) throw new Error(payload.message ?? "Timetable API returned no result")
     return formatTravels(payload.result.travels, date)
