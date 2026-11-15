@@ -42,16 +42,17 @@ export const RecurringRideSchema = z
     destinationId: station("Destination station doesn't exist"),
     viaStationId: station("Via station doesn't exist").optional(),
     departureTime: TimeOfDay,
-    /** Weekdays the ride repeats on, 0 = Sunday … 6 = Saturday */
+    /** Weekdays the ride repeats on, 0 = Sunday … 6 = Saturday; empty for a one-time ride */
     days: z
       .number()
       .int()
       .min(0)
       .max(6)
       .array()
-      .nonempty()
       .max(7)
       .refine((days) => new Set(days).size === days.length, { error: "Days must be unique" }),
+    /** The one date a one-time ride runs on, instead of repeating on `days` */
+    date: CalendarDate.optional(),
     /** How long before departure the ride starts (or the reminder goes out) */
     leadMinutes: z.number().int().min(0).max(120),
     /** `auto` starts the live ride by itself (push-to-start / FCM); `notify` sends a reminder */
@@ -61,6 +62,9 @@ export const RecurringRideSchema = z
     skipDates: CalendarDate.array().max(MAX_SKIP_DATES),
   })
   .refine((ride) => ride.originId !== ride.destinationId, { error: "Origin and destination must differ" })
+  .refine((ride) => (ride.date ? ride.days.length === 0 : ride.days.length > 0), {
+    error: "A ride repeats on weekdays or runs on one date",
+  })
 
 export type RecurringRide = z.infer<typeof RecurringRideSchema>
 

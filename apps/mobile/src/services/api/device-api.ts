@@ -12,7 +12,7 @@ import { clearDeviceIdentity, DeviceIdentity, getDeviceIdentity, peekDeviceIdent
 
 export type RecurringRideMode = "auto" | "notify"
 
-/** A ride the device repeats on given weekdays (mirrors the server's `RecurringRideSchema`). */
+/** A ride the device repeats on given weekdays, or runs once on a date (mirrors the server's `RecurringRideSchema`). */
 export type RecurringRide = {
   id: string
   originId: number
@@ -20,8 +20,10 @@ export type RecurringRide = {
   viaStationId?: number
   /** "HH:mm", Israel time */
   departureTime: string
-  /** 0 = Sunday … 6 = Saturday */
+  /** 0 = Sunday … 6 = Saturday; empty for a one-time ride */
   days: number[]
+  /** "YYYY-MM-DD", Israel time: the one date a one-time ride runs on */
+  date?: string
   leadMinutes: number
   mode: RecurringRideMode
   enabled: boolean
