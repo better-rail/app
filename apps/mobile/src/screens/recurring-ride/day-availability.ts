@@ -77,3 +77,22 @@ export function useDayAvailability(
 
   return data ?? []
 }
+
+/**
+ * Whether a one-time ride's date has a train at its departure: undefined while loading, when the timetable
+ * couldn't be read, or when `enabled` is off.
+ */
+export function useDateHasTrain(
+  originId: string | undefined,
+  destinationId: string | undefined,
+  departureAt: number,
+  viaStationId: number | undefined,
+  enabled: boolean,
+) {
+  const { data } = useQuery(
+    ["recurringRideDate", originId, destinationId, departureAt, viaStationId],
+    () => hasTrain(originId!, destinationId!, departureAt, viaStationId),
+    { enabled: enabled && Boolean(originId && destinationId), staleTime: 60 * 60 * 1000, retry: 1 },
+  )
+  return enabled ? data : undefined
+}

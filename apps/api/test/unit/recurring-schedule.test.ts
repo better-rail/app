@@ -4,7 +4,7 @@
 import { describe, expect, it } from "bun:test"
 
 import { nextDueAt, nextReminder } from "../../src/devices/schedule"
-import type { RecurringRide } from "../../src/types/device"
+import { RecurringRideSchema, type RecurringRide } from "../../src/types/device"
 import { israelEpoch } from "../../src/utils/israel-time"
 
 const ride = (overrides: Partial<RecurringRide> = {}): RecurringRide => ({
@@ -46,6 +46,13 @@ describe("nextDueAt", () => {
     expect(nextDueAt(ride({ days: [0] }), israelEpoch("2027-03-27T12:00:00"))).toBe(Date.parse("2027-03-28T04:35:00Z"))
   })
 
+  it("is due once for a one-time ride, on its date", () => {
+    const once = ride({ days: [], date: "2026-11-17", departureTime: "06:58", leadMinutes: 15 })
+    expect(nextDueAt(once, sundayMorning)).toBe(israelEpoch("2026-11-17T06:43:00"))
+    expect(nextDueAt(once, israelEpoch("2026-11-17T06:43:00"))).toBeUndefined()
+    expect(nextDueAt({ ...once, enabled: false }, sundayMorning)).toBeUndefined()
+  })
+
   it("is never due when disabled", () => {
     expect(nextDueAt(ride({ enabled: false }), sundayMorning)).toBeUndefined()
   })
@@ -57,4 +64,14 @@ it("nextReminder groups the rides due at the same time", () => {
   const later = ride({ departureTime: "09:00" })
   expect(nextReminder([later, a, b], sundayMorning)).toEqual({ at: israelEpoch("2026-11-15T07:35:00"), rideIds: [a.id, b.id] })
   expect(nextReminder([], sundayMorning)).toBeUndefined()
+})
+
+describe("RecurringRideSchema", () => {
+  it("takes either weekdays or one date", () => {
+    expect(RecurringRideSchema.safeParse(ride()).success).toBe(true)
+    expect(RecurringRideSchema.safeParse(ride({ days: [], date: "2026-11-17" })).success).toBe(true)
+    expect(RecurringRideSchema.safeParse(ride({ days: [2], date: "2026-11-17" })).success).toBe(false)
+    expect(RecurringRideSchema.safeParse(ride({ days: [] })).success).toBe(false)
+    expect(RecurringRideSchema.safeParse(ride({ days: [], date: "2026-02-30" })).success).toBe(false)
+  })
 })

@@ -141,6 +141,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         Number(destinationId),
         format(routeItem.departureTime, "HH:mm"),
         viaStationId,
+        format(routeItem.departureTime, "yyyy-MM-dd"),
       ),
   )
 

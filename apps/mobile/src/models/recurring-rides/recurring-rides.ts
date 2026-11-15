@@ -1,4 +1,6 @@
+import { format } from "date-fns"
 import { create } from "zustand"
+import { israelNow } from "@/utils/helpers/date-helpers"
 import type { RecurringRide } from "@/services/api/device-api"
 
 export type { RecurringRide }
@@ -39,26 +41,38 @@ export const useRecurringRidesStore = create<RecurringRidesState & RecurringRide
   },
 }))
 
-/** The recurring ride for this route, via station and departure time, if the rider saved one. */
+/**
+ * The saved ride for this route, via station and departure time: the one-time ride on `date` if there is one,
+ * else the weekly ride.
+ */
 export const findRecurringRide = (
   rides: RecurringRide[],
   originId: number,
   destinationId: number,
   departureTime: string,
   viaStationId?: number,
-) =>
-  rides.find(
+  date?: string,
+) => {
+  const sameRoute = rides.filter(
     (ride) =>
       ride.originId === originId &&
       ride.destinationId === destinationId &&
       ride.departureTime === departureTime &&
       ride.viaStationId === viaStationId,
   )
+  return sameRoute.find((ride) => date && ride.date === date) ?? sameRoute.find((ride) => !ride.date)
+}
+
+/** Whether a one-time ride's train already left (Israel's clock, `now` as `israelNow` gives it). */
+export const isPastOneTimeRide = (ride: RecurringRide, now = israelNow()) =>
+  Boolean(ride.date) && `${ride.date}T${ride.departureTime}` <= format(now, "yyyy-MM-dd'T'HH:mm")
 
 export const getRecurringRidesSnapshot = (state: RecurringRidesState) => ({ rides: state.rides })
 
 export const hydrateRecurringRidesStore = (data?: Partial<RecurringRidesState>) => {
-  if (Array.isArray(data?.rides)) useRecurringRidesStore.setState({ rides: data.rides })
+  // A one-time ride is done once its train left
+  if (Array.isArray(data?.rides))
+    useRecurringRidesStore.setState({ rides: data.rides.filter((ride) => !isPastOneTimeRide(ride)) })
 }
 
 export const resetRecurringRidesStore = () => useRecurringRidesStore.setState(initialState)

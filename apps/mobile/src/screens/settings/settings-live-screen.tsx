@@ -4,8 +4,15 @@ import { router } from "expo-router"
 import { Screen, Text } from "@/components"
 import { isRTL, translate } from "@/i18n"
 import { getStationById, stationsObject } from "@/data/stations"
-import { useRecurringRidesStore, type RecurringRide } from "@/models/recurring-rides/recurring-rides"
-import { leadTimeLabel, weekdayFullName, weekdayName, WEEKDAYS } from "@/screens/recurring-ride/recurring-ride-format"
+import { isPastOneTimeRide, useRecurringRidesStore, type RecurringRide } from "@/models/recurring-rides/recurring-rides"
+import {
+  leadTimeLabel,
+  rideDateLabel,
+  rideDateShort,
+  weekdayFullName,
+  weekdayName,
+  WEEKDAYS,
+} from "@/screens/recurring-ride/recurring-ride-format"
 import { formatClockTime } from "@/utils/helpers/date-helpers"
 import { subheadingFontStyle } from "@/theme/theme-fonts"
 
@@ -19,7 +26,8 @@ const textShadow = {
 
 /** Better Rail Live settings. Auto Start is its first section; other live ride settings can join it here. */
 export function LiveSettingsScreen() {
-  const rides = useRecurringRidesStore((state) => state.rides)
+  // A one-time ride whose train left is done; the store drops it at the next launch
+  const rides = useRecurringRidesStore((state) => state.rides).filter((ride) => !isPastOneTimeRide(ride))
 
   return (
     <Screen testID="live-settings-screen" style={styles.root} preset="scroll" unsafe>
@@ -107,13 +115,19 @@ function RecurringRideCard({ ride }: { ride: RecurringRide }) {
           <Text style={styles.label}>{translate("routes.departure")}</Text>
           <Text style={styles.time}>{formatClockTime(ride.departureTime)}</Text>
           <View style={styles.meta}>
-            <View style={styles.days} accessible accessibilityLabel={ride.days.map(weekdayFullName).join(", ")}>
-              {WEEKDAYS.map((day) => (
-                <Text key={day} style={[styles.day, ride.days.includes(day) && styles.daySelected]}>
-                  {weekdayName(day)}
-                </Text>
-              ))}
-            </View>
+            {ride.date ? (
+              <Text style={styles.metaText} numberOfLines={1} accessibilityLabel={rideDateLabel(ride.date)}>
+                {rideDateShort(ride.date)}
+              </Text>
+            ) : (
+              <View style={styles.days} accessible accessibilityLabel={ride.days.map(weekdayFullName).join(", ")}>
+                {WEEKDAYS.map((day) => (
+                  <Text key={day} style={[styles.day, ride.days.includes(day) && styles.daySelected]}>
+                    {weekdayName(day)}
+                  </Text>
+                ))}
+              </View>
+            )}
             <Text style={styles.metaText} accessibilityElementsHidden importantForAccessibility="no">
               ‧
             </Text>

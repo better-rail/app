@@ -2,7 +2,7 @@
  * schedule.ts — when a device's recurring rides are next due.
  *
  * A ride is due `leadMinutes` before its departure time on each of its weekdays, on Israel's clock, except the
- * dates the rider skipped. The device's object keeps one alarm for the earliest due ride and moves it after every
+ * dates the rider skipped. A one-time ride is due once, on its date, and never again after. The device's object keeps one alarm for the earliest due ride and moves it after every
  * sync and every reminder.
  */
 import type { RecurringRide } from "../types/device"
@@ -19,6 +19,10 @@ const pad = (n: number) => String(n).padStart(2, "0")
 /** The next instant after `now` that `ride` is due, or undefined when it never is. */
 export const nextDueAt = (ride: RecurringRide, now: number): number | undefined => {
   if (!ride.enabled) return undefined
+  if (ride.date) {
+    const dueAt = israelEpoch(`${ride.date}T${ride.departureTime}:00`) - ride.leadMinutes * 60_000
+    return dueAt > now ? dueAt : undefined
+  }
   const today = new Date(israelWallClockMs(now))
   const skipped = new Set(ride.skipDates)
 
