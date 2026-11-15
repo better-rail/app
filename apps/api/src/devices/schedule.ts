@@ -17,15 +17,18 @@ const LOOKAHEAD_DAYS = 61 * 7 + 1
 
 const pad = (n: number) => String(n).padStart(2, "0")
 
-/** The next instant after `now` that `ride` is due, or undefined when it never is. `alsoSkip` adds dates to skip. */
-export const nextDueAt = (ride: RecurringRide, now: number, alsoSkip: string[] = []): number | undefined => {
+/** When `ride` is due on `date` ("YYYY-MM-DD") */
+const dueOn = (ride: RecurringRide, date: string) => israelEpoch(`${date}T${ride.departureTime}:00`) - ride.leadMinutes * 60_000
+
+/** The next instant after `now` that `ride` is due, or undefined when it never is. */
+export const nextDueAt = (ride: RecurringRide, now: number): number | undefined => {
   if (!ride.enabled) return undefined
   if (ride.date) {
-    const dueAt = israelEpoch(`${ride.date}T${ride.departureTime}:00`) - ride.leadMinutes * 60_000
+    const dueAt = dueOn(ride, ride.date)
     return dueAt > now ? dueAt : undefined
   }
   const today = new Date(israelWallClockMs(now))
-  const skipped = new Set([...ride.skipDates, ...alsoSkip])
+  const skipped = new Set(ride.skipDates)
 
   // From yesterday: a ride just after midnight with a lead time is due the evening before.
   for (let offset = -1; offset <= LOOKAHEAD_DAYS; offset++) {
@@ -34,7 +37,7 @@ export const nextDueAt = (ride: RecurringRide, now: number, alsoSkip: string[] =
     const date = `${day.getUTCFullYear()}-${pad(day.getUTCMonth() + 1)}-${pad(day.getUTCDate())}`
     if (skipped.has(date)) continue
 
-    const dueAt = israelEpoch(`${date}T${ride.departureTime}:00`) - ride.leadMinutes * 60_000
+    const dueAt = dueOn(ride, date)
     if (dueAt > now) return dueAt
   }
   return undefined
@@ -54,7 +57,7 @@ const replacedDates = (ride: RecurringRide, rides: RecurringRide[]) =>
 export const nextReminder = (rides: RecurringRide[], now: number): NextReminder | undefined => {
   let next: NextReminder | undefined
   for (const ride of rides) {
-    const at = nextDueAt(ride, now, replacedDates(ride, rides))
+    const at = nextDueAt({ ...ride, skipDates: [...ride.skipDates, ...replacedDates(ride, rides)] }, now)
     if (at === undefined) continue
     if (!next || at < next.at) next = { at, rideIds: [ride.id] }
     else if (at === next.at) next.rideIds.push(ride.id)

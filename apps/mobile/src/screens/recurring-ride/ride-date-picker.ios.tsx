@@ -1,11 +1,11 @@
 import { View } from "react-native"
-import { format } from "date-fns"
 import { DatePicker, Host } from "@expo/ui/swift-ui"
 import { accessibilityLabel, datePickerStyle, environment, labelsHidden, tint } from "@expo/ui/swift-ui/modifiers"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Text } from "@/components"
 import { userLocale } from "@/i18n"
-import { toPickerDate, type RideDatePickerProps } from "./ride-date-picker.types"
+import { calendarDate, dateKey } from "./recurring-ride-format"
+import type { RideDatePickerProps } from "./ride-date-picker.types"
 
 /** The compact system date picker: the date as a button that opens a calendar */
 export function RideDatePicker({ label, value, minimumDate, maximumDate, onChange, testID }: RideDatePickerProps) {
@@ -18,10 +18,10 @@ export function RideDatePicker({ label, value, minimumDate, maximumDate, onChang
       <Text style={styles.label}>{label}</Text>
       <Host matchContents>
         <DatePicker
-          selection={toPickerDate(value)}
-          range={{ start: toPickerDate(minimumDate), end: toPickerDate(maximumDate) }}
+          selection={calendarDate(value)}
+          range={{ start: calendarDate(minimumDate), end: calendarDate(maximumDate) }}
           displayedComponents={["date"]}
-          onDateChange={(date) => onChange(format(date, "yyyy-MM-dd"))}
+          onDateChange={(date) => onChange(dateKey(date))}
           modifiers={[
             datePickerStyle("compact"),
             labelsHidden(),

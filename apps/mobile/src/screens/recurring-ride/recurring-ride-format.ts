@@ -17,10 +17,14 @@ export const weekdayName = (day: number) => format(weekdayDate(day), "EEEEEE", {
 /** "Sunday", for screen readers */
 export const weekdayFullName = (day: number) => format(weekdayDate(day), "EEEE", { locale: dateFnsLocalization })
 
-const calendarDate = (date: string) => {
+/** A "YYYY-MM-DD" date at midnight, on the device's clock */
+export const calendarDate = (date: string) => {
   const [year, month, day] = date.split("-").map(Number)
   return new Date(year, month - 1, day)
 }
+
+/** The "YYYY-MM-DD" a one-time ride keeps */
+export const dateKey = (date: Date | number) => format(date, "yyyy-MM-dd")
 
 /** A one-time ride's date: "Tuesday, 17 November" */
 export const rideDateLabel = (date: string) => format(calendarDate(date), "EEEE, d MMMM", { locale: dateFnsLocalization })

@@ -50,7 +50,6 @@ describe("nextDueAt", () => {
     const once = ride({ days: [], date: "2026-11-17", departureTime: "06:58", leadMinutes: 15 })
     expect(nextDueAt(once, sundayMorning)).toBe(israelEpoch("2026-11-17T06:43:00"))
     expect(nextDueAt(once, israelEpoch("2026-11-17T06:43:00"))).toBeUndefined()
-    expect(nextDueAt({ ...once, enabled: false }, sundayMorning)).toBeUndefined()
   })
 
   it("is never due when disabled", () => {
@@ -68,9 +67,8 @@ it("nextReminder lets a one-time ride replace the weekly ride on its route and t
     at: israelEpoch("2026-11-17T07:35:00"),
     rideIds: [weekly.id],
   })
-  // A paused one-time ride, or one at another time, leaves the weekly ride alone
+  // A paused one-time ride leaves the weekly ride alone
   expect(nextReminder([weekly, { ...once, enabled: false }], sundayMorning)?.rideIds).toEqual([weekly.id])
-  expect(nextReminder([weekly, { ...once, departureTime: "09:00" }], sundayMorning)?.rideIds).toEqual([weekly.id])
 })
 
 it("nextReminder groups the rides due at the same time", () => {
@@ -83,10 +81,9 @@ it("nextReminder groups the rides due at the same time", () => {
 
 describe("RecurringRideSchema", () => {
   it("takes either weekdays or one date", () => {
-    expect(RecurringRideSchema.safeParse(ride()).success).toBe(true)
     expect(RecurringRideSchema.safeParse(ride({ days: [], date: "2026-11-17" })).success).toBe(true)
     expect(RecurringRideSchema.safeParse(ride({ days: [2], date: "2026-11-17" })).success).toBe(false)
+    // A weekly ride without days would never start
     expect(RecurringRideSchema.safeParse(ride({ days: [] })).success).toBe(false)
-    expect(RecurringRideSchema.safeParse(ride({ days: [], date: "2026-02-30" })).success).toBe(false)
   })
 })

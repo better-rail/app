@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import type { RecurringRide } from "@/services/api/device-api"
-import { findRecurringRide, isPastOneTimeRide, resetRecurringRidesStore, useRecurringRidesStore } from "./recurring-rides"
+import { findRecurringRide, isPastOneTimeRide, rideToSaveOver } from "./recurring-rides"
 
 const ride = (id: string, viaStationId?: number): RecurringRide => ({
   id,
@@ -15,36 +15,33 @@ const ride = (id: string, viaStationId?: number): RecurringRide => ({
   skipDates: [],
 })
 
+const trip = { originId: 680, destinationId: 9600, departureTime: "07:39" }
+const once = (id: string, date: string): RecurringRide => ({ ...ride(id), days: [], date })
+
 test("a route through a via station is a different ride from the direct one", () => {
   const rides = [ride("direct"), ride("via", 3700)]
-  expect(findRecurringRide(rides, 680, 9600, "07:39")?.id).toBe("direct")
-  expect(findRecurringRide(rides, 680, 9600, "07:39", 3700)?.id).toBe("via")
-  expect(findRecurringRide(rides, 680, 9600, "07:39", 4600)).toBeUndefined()
+  expect(findRecurringRide(rides, trip)?.id).toBe("direct")
+  expect(findRecurringRide(rides, { ...trip, viaStationId: 3700 })?.id).toBe("via")
+  expect(findRecurringRide(rides, { ...trip, viaStationId: 4600 })).toBeUndefined()
 })
 
-test("a one-time ride is found on its date, the weekly ride on other dates", () => {
-  const rides = [ride("weekly"), { ...ride("once"), days: [], date: "2026-11-17" }]
-  expect(findRecurringRide(rides, 680, 9600, "07:39", undefined, "2026-11-17")?.id).toBe("once")
-  expect(findRecurringRide(rides, 680, 9600, "07:39", undefined, "2026-11-18")?.id).toBe("weekly")
-  expect(findRecurringRide([rides[1]], 680, 9600, "07:39", undefined, "2026-11-18")).toBeUndefined()
+test("the route menu shows the one-time ride on its date, the weekly ride on other dates", () => {
+  const rides = [ride("weekly"), once("once", "2026-11-17")]
+  expect(findRecurringRide(rides, trip, "2026-11-17")?.id).toBe("once")
+  expect(findRecurringRide(rides, trip, "2026-11-18")?.id).toBe("weekly")
+})
+
+// A save that picks the wrong ride leaves two rides of a kind, and the train starts twice
+test("a save replaces the ride of the kind and date picked", () => {
+  const rides = [ride("weekly"), once("once", "2026-11-17")]
+  expect(rideToSaveOver(rides, trip, "2026-11-17")?.id).toBe("once")
+  expect(rideToSaveOver([ride("weekly")], trip, "2026-11-17")).toBeUndefined()
+  expect(rideToSaveOver(rides, trip)?.id).toBe("weekly")
 })
 
 test("a one-time ride is past once its train left", () => {
-  const once = { ...ride("once"), days: [], date: "2026-11-17" }
-  expect(isPastOneTimeRide(once, new Date(2026, 10, 17, 7, 38).getTime())).toBe(false)
-  expect(isPastOneTimeRide(once, new Date(2026, 10, 17, 7, 39).getTime())).toBe(true)
+  const oneTime = once("once", "2026-11-17")
+  expect(isPastOneTimeRide(oneTime, new Date(2026, 10, 17, 7, 38).getTime())).toBe(false)
+  expect(isPastOneTimeRide(oneTime, new Date(2026, 10, 17, 7, 39).getTime())).toBe(true)
   expect(isPastOneTimeRide(ride("weekly"), new Date(2027, 0, 1).getTime())).toBe(false)
-})
-
-test("a one-time ride whose train left frees its place", () => {
-  resetRecurringRidesStore()
-  const past = { ...ride("past"), days: [], date: "2020-01-01" }
-  useRecurringRidesStore.setState({ rides: [ride("weekly"), past] })
-  useRecurringRidesStore.getState().save(ride("new"))
-  expect(useRecurringRidesStore.getState().rides.map((r) => r.id)).toEqual(["weekly", "new"])
-
-  useRecurringRidesStore.setState({ rides: [ride("weekly"), past] })
-  useRecurringRidesStore.getState().pruneExpired()
-  expect(useRecurringRidesStore.getState().rides.map((r) => r.id)).toEqual(["weekly"])
-  resetRecurringRidesStore()
 })

@@ -9,9 +9,3 @@ export interface RideDatePickerProps {
   onChange: (date: string) => void
   testID?: string
 }
-
-/** Noon on a "YYYY-MM-DD" date, so a time zone shift can't move it to another day */
-export const toPickerDate = (date: string) => {
-  const [year, month, day] = date.split("-").map(Number)
-  return new Date(year, month - 1, day, 12)
-}

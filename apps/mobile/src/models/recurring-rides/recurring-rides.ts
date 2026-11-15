@@ -53,27 +53,22 @@ export const useRecurringRidesStore = create<RecurringRidesState & RecurringRide
   },
 }))
 
-/**
- * The saved ride for this route, via station and departure time: the one-time ride on `date` if there is one,
- * else the weekly ride.
- */
-export const findRecurringRide = (
-  rides: RecurringRide[],
-  originId: number,
-  destinationId: number,
-  departureTime: string,
-  viaStationId?: number,
-  date?: string,
-) => {
-  const sameRoute = rides.filter(
-    (ride) =>
-      ride.originId === originId &&
-      ride.destinationId === destinationId &&
-      ride.departureTime === departureTime &&
-      ride.viaStationId === viaStationId,
-  )
-  return sameRoute.find((ride) => date && ride.date === date) ?? sameRoute.find((ride) => !ride.date)
-}
+/** A route, via station and departure time: what a weekly ride and a one-time ride can share */
+export type Trip = Pick<RecurringRide, "originId" | "destinationId" | "viaStationId" | "departureTime">
+
+const isTrip = (ride: RecurringRide, trip: Trip) =>
+  ride.originId === trip.originId &&
+  ride.destinationId === trip.destinationId &&
+  ride.viaStationId === trip.viaStationId &&
+  ride.departureTime === trip.departureTime
+
+/** The saved ride a save for `trip` replaces: the one-time ride on `date`, or without a date, the weekly ride. */
+export const rideToSaveOver = (rides: RecurringRide[], trip: Trip, date?: string) =>
+  rides.find((ride) => isTrip(ride, trip) && (date ? ride.date === date : !ride.date))
+
+/** The saved ride for this trip's train on `date`: its one-time ride if there is one, else the weekly ride. */
+export const findRecurringRide = (rides: RecurringRide[], trip: Trip, date?: string) =>
+  (date && rideToSaveOver(rides, trip, date)) || rideToSaveOver(rides, trip)
 
 /** Whether a one-time ride's train already left (Israel's clock, `now` as `israelNow` gives it). */
 export const isPastOneTimeRide = (ride: RecurringRide, now = israelNow()) =>

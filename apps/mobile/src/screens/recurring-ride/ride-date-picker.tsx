@@ -1,12 +1,11 @@
 import { useState } from "react"
 import { Pressable, View } from "react-native"
-import { format } from "date-fns"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 import { StyleSheet } from "react-native-unistyles"
 import { Text } from "@/components"
 import { dateLocale } from "@/i18n"
-import { rideDateShort } from "./recurring-ride-format"
-import { toPickerDate, type RideDatePickerProps } from "./ride-date-picker.types"
+import { calendarDate, dateKey, rideDateShort } from "./recurring-ride-format"
+import type { RideDatePickerProps } from "./ride-date-picker.types"
 
 /** The date as a row; tapping it opens the system date picker dialog */
 export function RideDatePicker({ label, value, minimumDate, maximumDate, onChange, testID }: RideDatePickerProps) {
@@ -30,13 +29,13 @@ export function RideDatePicker({ label, value, minimumDate, maximumDate, onChang
       <DateTimePickerModal
         isVisible={open}
         mode="date"
-        date={toPickerDate(value)}
-        minimumDate={toPickerDate(minimumDate)}
-        maximumDate={toPickerDate(maximumDate)}
+        date={calendarDate(value)}
+        minimumDate={calendarDate(minimumDate)}
+        maximumDate={calendarDate(maximumDate)}
         locale={dateLocale}
         onConfirm={(date) => {
           setOpen(false)
-          onChange(format(date, "yyyy-MM-dd"))
+          onChange(dateKey(date))
         }}
         onCancel={() => setOpen(false)}
       />

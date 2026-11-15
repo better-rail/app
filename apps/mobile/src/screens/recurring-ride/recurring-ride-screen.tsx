@@ -15,7 +15,9 @@ import { formatClockTime, israelNow } from "@/utils/helpers/date-helpers"
 import { trackEvent } from "@/services/analytics"
 import {
   findRecurringRide,
+  isPastOneTimeRide,
   MAX_RECURRING_RIDES,
+  rideToSaveOver,
   useRecurringRidesStore,
   type RecurringRide,
 } from "@/models/recurring-rides/recurring-rides"
@@ -26,20 +28,26 @@ import { headingFontStyle } from "@/theme/theme-fonts"
 
 import { useDateHasTrain, useDayAvailability } from "./day-availability"
 import { RideDatePicker } from "./ride-date-picker"
-import { leadTimeLabel, weekdayFullName, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
+import { calendarDate, dateKey, leadTimeLabel, weekdayFullName, weekdayName, WEEKDAYS, WORKWEEK } from "./recurring-ride-format"
 
 const LEAD_MINUTES = [15, 30, 45, 60]
 const DEFAULT_LEAD_MINUTES = 15
 // How far ahead a one-time ride can be set: the timetable isn't published much further
 const MAX_ONCE_DAYS_AHEAD = 30
 
-/** A saved ride's departure at an "HH:mm" time: on its date for a one-time ride, else today */
-const savedDepartureAt = (time: string, date?: string) => {
+/** The departure at an "HH:mm" time on a "YYYY-MM-DD" date, or today */
+const departureOn = (time: string, date?: string) => {
   const [hours, minutes] = time.split(":").map(Number)
-  const departure = date ? new Date(`${date}T00:00:00`) : new Date()
+  const departure = date ? calendarDate(date) : new Date()
   departure.setHours(hours, minutes, 0, 0)
   return departure.getTime()
 }
+
+/** The start times still ahead of a departure */
+const leadsAhead = (departureAt: number, now: number) => LEAD_MINUTES.filter((minutes) => departureAt - minutes * 60_000 > now)
+
+/** The wanted start time if it's an option, else the earliest one listed; undefined when none is */
+const pickLead = (options: number[], wanted: number) => (options.includes(wanted) ? wanted : options.at(-1))
 
 export function RecurringRideScreen() {
   // Opened from a route (its stations and departure) or from Settings (a saved ride's id)
@@ -54,59 +62,56 @@ export function RecurringRideScreen() {
   const saved = params.rideId ? rides.find((ride) => ride.id === params.rideId) : undefined
 
   // Schedule times hold Israel's wall clock read in the device's zone, so the device's clock formats them.
-  const departureAt = saved ? savedDepartureAt(saved.departureTime, saved.date) : Number(params.departureAt)
+  const departureAt = saved ? departureOn(saved.departureTime, saved.date) : Number(params.departureAt)
   // Deleting the ride re-renders with neither a saved ride nor a departure before the sheet closes
   const departureTime = saved?.departureTime ?? (Number.isFinite(departureAt) ? format(departureAt, "HH:mm") : "")
   const origin = getStationById(saved ? String(saved.originId) : (params.originId ?? ""))
   const destination = getStationById(saved ? String(saved.destinationId) : (params.destinationId ?? ""))
   // A route searched through a via station keeps it: without it the server could start a different itinerary
   const viaStationId = saved ? saved.viaStationId : params.viaStationId ? Number(params.viaStationId) : undefined
-  // The date of the train the sheet was opened from, for a one-time ride
-  const rideDate = saved?.date ?? (!saved && Number.isFinite(departureAt) ? format(departureAt, "yyyy-MM-dd") : undefined)
-  const existing =
-    saved ?? findRecurringRide(rides, Number(origin?.id), Number(destination?.id), departureTime, viaStationId, rideDate)
+  const trip = { originId: Number(origin?.id), destinationId: Number(destination?.id), viaStationId, departureTime }
+  // The date of the train the sheet was opened from
+  const openedDate = saved ? saved.date : Number.isFinite(departureAt) ? dateKey(departureAt) : undefined
+  // What the sheet starts from: the saved ride, or the one the route menu shows for this train
+  const initial = saved ?? findRecurringRide(rides, trip, openedDate)
 
   // A one-time ride runs on a date the rider picks: from today, while today's train is still far enough ahead
   const now = israelNow()
-  const today = format(now, "yyyy-MM-dd")
-  const todayTooLate = savedDepartureAt(departureTime, today) - Math.min(...LEAD_MINUTES) * 60_000 <= now
-  const firstOnceDate = todayTooLate ? format(addDays(now, 1), "yyyy-MM-dd") : today
-  const lastOnceDate = format(addDays(now, MAX_ONCE_DAYS_AHEAD), "yyyy-MM-dd")
-  // Opened from a route or a saved one-time ride; a weekly ride edited from Settings has no date to start from
-  const canRunOnce = Boolean(rideDate)
-  const [once, setOnce] = useState(Boolean(existing?.date))
+  const today = dateKey(now)
+  const firstOnceDate = leadsAhead(departureOn(departureTime, today), now).length > 0 ? today : dateKey(addDays(now, 1))
+  const lastOnceDate = dateKey(addDays(now, MAX_ONCE_DAYS_AHEAD))
+  const [once, setOnce] = useState(Boolean(initial?.date))
   const [onceDate, setOnceDate] = useState(() =>
-    rideDate && (existing?.date || rideDate >= firstOnceDate) ? rideDate : firstOnceDate,
+    openedDate && (initial?.date || openedDate >= firstOnceDate) ? openedDate : firstOnceDate,
   )
-  const onceDepartureAt = savedDepartureAt(departureTime, onceDate)
-  // Start-time choices that still lie ahead of that train
-  const onceLeadMinutes = LEAD_MINUTES.filter((minutes) => onceDepartureAt - minutes * 60_000 > now)
+  const onceDepartureAt = departureOn(departureTime, onceDate)
   const onceHasTrain = useDateHasTrain(origin?.id, destination?.id, onceDepartureAt, viaStationId, once)
-  // The ride this sheet saves over. A one-time trip on a route with a weekly ride is a new ride beside it.
-  const editing = once && existing && !existing.date ? undefined : existing
+  // The ride a save replaces follows what's picked, so a trip never gets two rides of a kind on one date.
+  // A saved ride keeps its kind.
+  const editing = saved ?? rideToSaveOver(rides, trip, once ? onceDate : undefined)
 
   const [days, setDays] = useState<number[]>(() => {
-    if (existing?.days.length) return existing.days
+    if (initial?.days.length) return initial.days
     const weekday = new Date(departureAt).getDay()
     // A weekend ride is likely a one-day habit; a weekday one, the workweek.
     return WORKWEEK.includes(weekday) ? WORKWEEK : [weekday]
   })
-  const [leadMinutes, setLeadMinutes] = useState(existing?.leadMinutes ?? DEFAULT_LEAD_MINUTES)
-  const leadOptions = once ? (onceLeadMinutes.length > 0 ? onceLeadMinutes : [leadMinutes]) : LEAD_MINUTES
-  // A start time that passed falls back to the latest one still ahead
-  const effectiveLeadMinutes = leadOptions.includes(leadMinutes) ? leadMinutes : (leadOptions.at(-1) ?? leadMinutes)
+  const [leadMinutes, setLeadMinutes] = useState(initial?.leadMinutes ?? DEFAULT_LEAD_MINUTES)
+  // Once, only start times still ahead of the train; a passed one falls back to the earliest still ahead
+  const leadOptions = once ? leadsAhead(onceDepartureAt, now) : LEAD_MINUTES
+  const lead = pickLead(leadOptions, leadMinutes)
 
   // Weekdays without a train at this time can't be picked
   const availability = useDayAvailability(origin?.id, destination?.id, departureTime, viaStationId)
   const touchedDays = useRef(false)
   // A new ride starts without them, unless the rider already changed the days
   useEffect(() => {
-    if (existing?.days.length || touchedDays.current || availability.length === 0) return
+    if (initial?.days.length || touchedDays.current || availability.length === 0) return
     setDays((current) => {
       const available = current.filter((day) => availability[day] !== false)
       return available.length === current.length ? current : available
     })
-  }, [availability, existing])
+  }, [availability, initial])
 
   if (!origin || !destination || !Number.isFinite(departureAt)) return null
 
@@ -126,24 +131,19 @@ export function RecurringRideScreen() {
 
   const save = async () => {
     // A one-time ride whose train left no longer takes a place
-    useRecurringRidesStore.getState().pruneExpired()
-    if (!editing && useRecurringRidesStore.getState().rides.length >= MAX_RECURRING_RIDES) {
+    const active = useRecurringRidesStore.getState().rides.filter((ride) => !isPastOneTimeRide(ride))
+    if (!editing && active.length >= MAX_RECURRING_RIDES) {
       Alert.alert(translate("recurringRides.limitReached", { count: MAX_RECURRING_RIDES }) ?? "")
       return
     }
 
     const { granted } = await Notifications.requestPermissionsAsync()
 
-    // The sheet may have stayed open past the start time it shows; check it against the clock now
-    let startLeadMinutes = effectiveLeadMinutes
-    if (once) {
-      const now = israelNow()
-      const ahead = LEAD_MINUTES.filter((minutes) => onceDepartureAt - minutes * 60_000 > now)
-      if (ahead.length === 0) {
-        Alert.alert(translate("recurringRides.tooLate") ?? "")
-        return
-      }
-      if (!ahead.includes(startLeadMinutes)) startLeadMinutes = ahead.at(-1)!
+    // The sheet may have stayed open past the start time it shows, so check it against the clock now
+    const startLeadMinutes = once ? pickLead(leadsAhead(onceDepartureAt, israelNow()), leadMinutes) : leadMinutes
+    if (startLeadMinutes === undefined) {
+      Alert.alert(translate("recurringRides.tooLate") ?? "")
+      return
     }
 
     const ride: RecurringRide = {
@@ -207,7 +207,7 @@ export function RecurringRideScreen() {
         toStationId={Number(destination.id)}
       />
 
-      {canRunOnce && (
+      {!saved && (
         <SegmentedControl
           testID="recurring-ride-frequency"
           values={[translate("recurringRides.weekly") ?? "", translate("recurringRides.once") ?? ""]}
@@ -263,9 +263,12 @@ export function RecurringRideScreen() {
         <MenuPicker
           testID="recurring-ride-lead"
           label={translate("recurringRides.remindMe") ?? ""}
-          value={String(effectiveLeadMinutes)}
+          value={String(lead ?? leadMinutes)}
           onChange={(value) => setLeadMinutes(Number(value))}
-          options={leadOptions.map((minutes) => ({ value: String(minutes), label: leadTimeLabel(minutes) }))}
+          options={(lead === undefined ? [leadMinutes] : leadOptions).map((minutes) => ({
+            value: String(minutes),
+            label: leadTimeLabel(minutes),
+          }))}
         />
       </View>
 
@@ -286,7 +289,7 @@ export function RecurringRideScreen() {
       <Button
         testID="recurring-ride-save"
         title={translate(editing ? "recurringRides.update" : "recurringRides.save") ?? ""}
-        disabled={once ? onceHasTrain === false || onceLeadMinutes.length === 0 : days.length === 0}
+        disabled={once ? onceHasTrain === false || lead === undefined : days.length === 0}
         onPress={save}
       />
 
