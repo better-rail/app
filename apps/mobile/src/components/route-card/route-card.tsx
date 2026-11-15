@@ -333,17 +333,13 @@ const styles = StyleSheet.create((theme, rt) => ({
     flexShrink: 1,
   },
   headerText: {
-    fontFamily: theme.typography.primary,
-    fontSize: 11,
-    fontWeight: "600",
+    ...labelFontStyle(theme, 11, "600"),
     color: theme.colors.dim,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   trainNumberText: {
-    fontFamily: theme.typography.primary,
-    fontSize: 12,
-    fontWeight: "700",
+    ...labelFontStyle(theme, 12, "700"),
     color: theme.colors.text,
   },
   platformBadge: {
@@ -351,9 +347,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     alignItems: "center",
   },
   platformText: {
-    fontFamily: theme.typography.primary,
-    fontSize: 12,
-    fontWeight: "700",
+    ...labelFontStyle(theme, 12, "700"),
     color: theme.colors.text,
   },
   trainTypeText: {
