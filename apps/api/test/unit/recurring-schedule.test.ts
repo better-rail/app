@@ -58,6 +58,21 @@ describe("nextDueAt", () => {
   })
 })
 
+it("nextReminder lets a one-time ride replace the weekly ride on its route and time that day", () => {
+  const weekly = ride({ days: [1, 2], leadMinutes: 10 })
+  const once = ride({ days: [], date: "2026-11-16", leadMinutes: 30 })
+  // Monday: only the one-time ride, at its own lead time
+  expect(nextReminder([weekly, once], sundayMorning)).toEqual({ at: israelEpoch("2026-11-16T07:15:00"), rideIds: [once.id] })
+  // Tuesday: the weekly ride again
+  expect(nextReminder([weekly, once], israelEpoch("2026-11-16T08:00:00"))).toEqual({
+    at: israelEpoch("2026-11-17T07:35:00"),
+    rideIds: [weekly.id],
+  })
+  // A paused one-time ride, or one at another time, leaves the weekly ride alone
+  expect(nextReminder([weekly, { ...once, enabled: false }], sundayMorning)?.rideIds).toEqual([weekly.id])
+  expect(nextReminder([weekly, { ...once, departureTime: "09:00" }], sundayMorning)?.rideIds).toEqual([weekly.id])
+})
+
 it("nextReminder groups the rides due at the same time", () => {
   const a = ride()
   const b = ride({ departureTime: "07:50", leadMinutes: 15 })
