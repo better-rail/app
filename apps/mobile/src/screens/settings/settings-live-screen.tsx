@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { Image, Pressable, Switch, View } from "react-native"
 import { StyleSheet } from "react-native-unistyles"
 import { router } from "expo-router"
@@ -26,8 +27,11 @@ const textShadow = {
 
 /** Better Rail Live settings. Auto Start is its first section; other live ride settings can join it here. */
 export function LiveSettingsScreen() {
-  // A one-time ride whose train left is done; the store drops it at the next launch
+  // A one-time ride whose train left is done: hidden right away, and dropped from the store when the screen opens
   const rides = useRecurringRidesStore((state) => state.rides).filter((ride) => !isPastOneTimeRide(ride))
+  useEffect(() => {
+    useRecurringRidesStore.getState().pruneExpired()
+  }, [])
 
   return (
     <Screen testID="live-settings-screen" style={styles.root} preset="scroll" unsafe>

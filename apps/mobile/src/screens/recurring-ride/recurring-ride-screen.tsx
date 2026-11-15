@@ -82,6 +82,8 @@ export function RecurringRideScreen() {
   // Start-time choices that still lie ahead of that train
   const onceLeadMinutes = LEAD_MINUTES.filter((minutes) => onceDepartureAt - minutes * 60_000 > now)
   const onceHasTrain = useDateHasTrain(origin?.id, destination?.id, onceDepartureAt, viaStationId, once)
+  // The ride this sheet saves over. A one-time trip on a route with a weekly ride is a new ride beside it.
+  const editing = once && existing && !existing.date ? undefined : existing
 
   const [days, setDays] = useState<number[]>(() => {
     if (existing?.days.length) return existing.days
@@ -123,30 +125,45 @@ export function RecurringRideScreen() {
   }
 
   const save = async () => {
-    if (!existing && rides.length >= MAX_RECURRING_RIDES) {
+    // A one-time ride whose train left no longer takes a place
+    useRecurringRidesStore.getState().pruneExpired()
+    if (!editing && useRecurringRidesStore.getState().rides.length >= MAX_RECURRING_RIDES) {
       Alert.alert(translate("recurringRides.limitReached", { count: MAX_RECURRING_RIDES }) ?? "")
       return
     }
 
+    const { granted } = await Notifications.requestPermissionsAsync()
+
+    // The sheet may have stayed open past the start time it shows; check it against the clock now
+    let startLeadMinutes = effectiveLeadMinutes
+    if (once) {
+      const now = israelNow()
+      const ahead = LEAD_MINUTES.filter((minutes) => onceDepartureAt - minutes * 60_000 > now)
+      if (ahead.length === 0) {
+        Alert.alert(translate("recurringRides.tooLate") ?? "")
+        return
+      }
+      if (!ahead.includes(startLeadMinutes)) startLeadMinutes = ahead.at(-1)!
+    }
+
     const ride: RecurringRide = {
-      id: existing?.id ?? Crypto.randomUUID(),
+      id: editing?.id ?? Crypto.randomUUID(),
       originId: Number(origin.id),
       destinationId: Number(destination.id),
       ...(viaStationId && { viaStationId }),
       departureTime,
       ...(once ? { days: [], date: onceDate } : { days }),
-      leadMinutes: effectiveLeadMinutes,
+      leadMinutes: startLeadMinutes,
       mode: "auto",
       // Saving changes doesn't resume a paused ride
-      enabled: existing?.enabled ?? true,
-      skipDates: once ? [] : (existing?.skipDates ?? []),
+      enabled: editing?.enabled ?? true,
+      skipDates: once ? [] : (editing?.skipDates ?? []),
     }
 
-    const { granted } = await Notifications.requestPermissionsAsync()
     useRecurringRidesStore.getState().save(ride)
-    trackEvent(existing ? "recurring_ride_updated" : "recurring_ride_created", {
+    trackEvent(editing ? "recurring_ride_updated" : "recurring_ride_created", {
       days: once ? 0 : days.length,
-      leadMinutes: effectiveLeadMinutes,
+      leadMinutes: startLeadMinutes,
       once,
     })
 
@@ -162,14 +179,14 @@ export function RecurringRideScreen() {
   }
 
   const remove = () => {
-    if (!existing) return
+    if (!editing) return
     Alert.alert(translate("recurringRides.removeConfirm") ?? "", undefined, [
       { text: translate("common.cancel") ?? "", style: "cancel" },
       {
         text: translate("common.delete") ?? "",
         style: "destructive",
         onPress: () => {
-          useRecurringRidesStore.getState().remove(existing.id)
+          useRecurringRidesStore.getState().remove(editing.id)
           trackEvent("recurring_ride_removed")
           router.back()
         },
@@ -268,12 +285,12 @@ export function RecurringRideScreen() {
 
       <Button
         testID="recurring-ride-save"
-        title={translate(existing ? "recurringRides.update" : "recurringRides.save") ?? ""}
+        title={translate(editing ? "recurringRides.update" : "recurringRides.save") ?? ""}
         disabled={once ? onceHasTrain === false || onceLeadMinutes.length === 0 : days.length === 0}
         onPress={save}
       />
 
-      {existing && (
+      {editing && (
         <Pressable testID="recurring-ride-remove" onPress={remove} style={styles.removeButton}>
           <Text style={styles.removeText}>{translate("recurringRides.remove")}</Text>
         </Pressable>

@@ -17,6 +17,8 @@ export interface RecurringRidesActions {
   save: (ride: RecurringRide) => void
   setEnabled: (id: string, enabled: boolean) => void
   remove: (id: string) => void
+  /** Drops one-time rides whose train left. */
+  pruneExpired: () => void
 }
 
 const initialState: RecurringRidesState = { rides: [] }
@@ -26,9 +28,11 @@ export const useRecurringRidesStore = create<RecurringRidesState & RecurringRide
 
   save(ride) {
     set((state) => {
-      const index = state.rides.findIndex((existing) => existing.id === ride.id)
-      if (index === -1) return { rides: [...state.rides, ride].slice(0, MAX_RECURRING_RIDES) }
-      return { rides: state.rides.map((existing) => (existing.id === ride.id ? ride : existing)) }
+      // A one-time ride whose train left doesn't hold a place against the limit
+      const rides = state.rides.filter((existing) => !isPastOneTimeRide(existing))
+      const index = rides.findIndex((existing) => existing.id === ride.id)
+      if (index === -1) return { rides: [...rides, ride].slice(0, MAX_RECURRING_RIDES) }
+      return { rides: rides.map((existing) => (existing.id === ride.id ? ride : existing)) }
     })
   },
 
@@ -38,6 +42,14 @@ export const useRecurringRidesStore = create<RecurringRidesState & RecurringRide
 
   remove(id) {
     set((state) => ({ rides: state.rides.filter((ride) => ride.id !== id) }))
+  },
+
+  pruneExpired() {
+    set((state) => {
+      const rides = state.rides.filter((ride) => !isPastOneTimeRide(ride))
+      // Unchanged rides keep their identity, so nothing re-syncs
+      return rides.length === state.rides.length ? state : { rides }
+    })
   },
 }))
 

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test"
 import type { RecurringRide } from "@/services/api/device-api"
-import { findRecurringRide, isPastOneTimeRide } from "./recurring-rides"
+import { findRecurringRide, isPastOneTimeRide, resetRecurringRidesStore, useRecurringRidesStore } from "./recurring-rides"
 
 const ride = (id: string, viaStationId?: number): RecurringRide => ({
   id,
@@ -34,4 +34,17 @@ test("a one-time ride is past once its train left", () => {
   expect(isPastOneTimeRide(once, new Date(2026, 10, 17, 7, 38).getTime())).toBe(false)
   expect(isPastOneTimeRide(once, new Date(2026, 10, 17, 7, 39).getTime())).toBe(true)
   expect(isPastOneTimeRide(ride("weekly"), new Date(2027, 0, 1).getTime())).toBe(false)
+})
+
+test("a one-time ride whose train left frees its place", () => {
+  resetRecurringRidesStore()
+  const past = { ...ride("past"), days: [], date: "2020-01-01" }
+  useRecurringRidesStore.setState({ rides: [ride("weekly"), past] })
+  useRecurringRidesStore.getState().save(ride("new"))
+  expect(useRecurringRidesStore.getState().rides.map((r) => r.id)).toEqual(["weekly", "new"])
+
+  useRecurringRidesStore.setState({ rides: [ride("weekly"), past] })
+  useRecurringRidesStore.getState().pruneExpired()
+  expect(useRecurringRidesStore.getState().rides.map((r) => r.id)).toEqual(["weekly"])
+  resetRecurringRidesStore()
 })

@@ -496,6 +496,7 @@
     "date": "Date",
     "onceNote": "The ride starts once, then this auto-start is removed.",
     "noTrainOnDate": "No train around %{time} on this date",
+    "tooLate": "This train leaves too soon to start automatically. Pick another date.",
     "remindMe": "Start ride",
     "minutesBefore": "%{minutes} min before",
     "save": "Turn On Auto Start",
