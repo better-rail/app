@@ -15,7 +15,7 @@
     "exchange": {
       "waitTime": "Wait %{waitTime} for your next train.",
       "unsafeChange": "This change isn't guaranteed.",
-      "missedChange": "With current delays, the next train is expected to leave before you arrive.",
+      "missedChange": "With current delays, you may miss the next train. It sometimes waits for a late train.",
       "stayOnPlatform": "Stay on Platform %{platform}.",
       "changePlatform": "Change to Platform %{platform}."
     },

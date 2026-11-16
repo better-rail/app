@@ -15,7 +15,7 @@
     "exchange": {
       "waitTime": "כ-%{waitTime} המתנה לנסיעה הבאה.",
       "unsafeChange": "החלפה זו אינה בטוחה.",
-      "missedChange": "בעקבות העיכובים, רכבת ההמשך צפויה לצאת לפני ההגעה לתחנה.",
+      "missedChange": "בעקבות העיכוב, ייתכן שלא תספיקו את רכבת ההמשך. לעיתים היא ממתינה לרכבת המאחרת.",
       "stayOnPlatform": "השארו ברציף %{platform}.",
       "changePlatform": "עברו לרציף %{platform}."
     },

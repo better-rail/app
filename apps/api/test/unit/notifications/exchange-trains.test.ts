@@ -222,6 +222,6 @@ test("build exchange notification for a change the delays make impossible", () =
   const exchangeTrainText = exchangeTrainPrompt(missedChangeTrains, 0, ride.locale)
 
   expect(exchangeTrainText).toBe(
-    "With current delays, the next train is expected to leave before you arrive. Stay on Platform 3.",
+    "With current delays, you may miss the next train. It sometimes waits for a late train. Stay on Platform 3.",
   )
 })
