@@ -105,7 +105,7 @@ export const he = {
   "details.platformChange": "יש לעבור לרציף {platform}",
   "details.waitingTime": "זמן המתנה כ-{duration}",
   "details.unsafeChange": "החלפה זו אינה בטוחה",
-  "details.missedChange": "בעקבות העיכובים, רכבת ההמשך צפויה לצאת לפני ההגעה לתחנה",
+  "details.missedChange": "בעקבות העיכוב, ייתכן שלא תספיקו את רכבת ההמשך. לעיתים היא ממתינה לרכבת המאחרת",
   "details.trainCancelled": "הרכבת בוטלה",
   "details.trainCancelledText": "על פי עדכון רכבת ישראל, רכבת זו בוטלה. מומלץ לבחור מסלול אחר.",
   "details.routeChanged": "שינוי במסלול",
