@@ -70,8 +70,9 @@ struct BetterRailLiveActivity: Widget {
 // two or more Live Activities), the system proposes a 28 × 28 pt slot per compact view and
 // Apple asks for content that fits a 28 pt circle. On an iPhone 18 Pro showing three
 // activities, the narrow layouts above sat against the rounded ends and were clipped by
-// the curve, so in this mode each view fills that circle itself and centres its content
-// (see `limitedWidthCompactSlot()`).
+// the curve. Centring in the 28 pt circle wasn't enough either, because the hardware puts
+// the circle partly past the pill's end, so in this mode each view keeps its content in the
+// inner part of the slot (see `limitedWidthCompactSlot(outerEdge:)`).
 
 struct CompactLeadingView: View {
   var vm: ActivityViewModel
@@ -80,7 +81,7 @@ struct CompactLeadingView: View {
   var body: some View {
     DynamicIslandWidthReader { isLimitedInWidth in
       if isLimitedInWidth {
-        ring(size: 18).limitedWidthCompactSlot()
+        ring(size: 16).limitedWidthCompactSlot(outerEdge: .leading)
       } else {
         ViewThatFits(in: .horizontal) {
           ring(size: 20).padding(.horizontal, 6)
@@ -106,11 +107,11 @@ struct CompactTrailingView: View {
   var body: some View {
     DynamicIslandWidthReader { isLimitedInWidth in
       if isLimitedInWidth {
-        // Just the number, shrunk if needed to stay inside the circle (e.g. "120").
+        // Just the number, shrunk if needed to stay in the visible part of the slot (e.g. "120").
         label(showUnit: false)
           .minimumScaleFactor(0.5)
-          .padding(.horizontal, 3)
-          .limitedWidthCompactSlot()
+          .padding(.horizontal, 1)
+          .limitedWidthCompactSlot(outerEdge: .trailing)
       } else {
         ViewThatFits(in: .horizontal) {
           label(showUnit: true).padding(.horizontal, 6)
@@ -143,12 +144,26 @@ struct CompactTrailingView: View {
   }
 }
 
+/// How far the visible part of a limited-width compact slot starts from its outer edge.
+///
+/// Apple sizes each compact view of a limited-width island to a 28 pt circle, but an
+/// iPhone 18 Pro showing several activities centres that circle only ~10.7 pt from the
+/// pill's rounded end, so the slot hangs past the end and anything within ~5.3 pt of the
+/// end is cut off (measured on hardware, build 84 and later). The usable part is the inner
+/// ~19 pt of the slot, from 9 pt in to its camera-side edge. The simulator places the slot
+/// fully inside the pill, so this clipping doesn't reproduce there.
+private let limitedWidthOuterInset: CGFloat = 9
+private let limitedWidthSlotSize: CGFloat = 28
+
 private extension View {
-  /// Apple sizes each compact view of a limited-width island to fit a 28 pt circle. Taking
-  /// up that whole circle (or less, if the system offers less) centres the content in it,
-  /// instead of leaving a narrower view for the system to place against the rounded end.
-  func limitedWidthCompactSlot() -> some View {
-    frame(idealWidth: 28, maxWidth: 28, idealHeight: 28, maxHeight: 28)
+  /// Centres the content in the part of a 28 pt limited-width slot that stays visible, i.e.
+  /// away from the pill's rounded end. `outerEdge` is the slot's side facing that end:
+  /// `.leading` for the compact leading view, `.trailing` for the compact trailing one.
+  /// It follows the layout direction, as the island's compact slots do.
+  func limitedWidthCompactSlot(outerEdge: HorizontalEdge) -> some View {
+    let visibleWidth = limitedWidthSlotSize - limitedWidthOuterInset
+    return frame(idealWidth: visibleWidth, maxWidth: visibleWidth, idealHeight: limitedWidthSlotSize, maxHeight: limitedWidthSlotSize)
+      .padding(outerEdge == .leading ? .leading : .trailing, limitedWidthOuterInset)
   }
 }
 
