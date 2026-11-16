@@ -108,9 +108,11 @@ struct CompactTrailingView: View {
     DynamicIslandWidthReader { isLimitedInWidth in
       if isLimitedInWidth {
         // Just the number, shrunk if needed to stay in the visible part of the slot (e.g. "120").
+        // A stale arrival time ("14:36", ~43 pt at full size) needs the whole 19 pt and a
+        // smaller scale to fit without truncating.
         label(showUnit: false)
-          .minimumScaleFactor(0.5)
-          .padding(.horizontal, 1)
+          .minimumScaleFactor(vm.isStale ? 0.4 : 0.5)
+          .padding(.horizontal, vm.isStale ? 0 : 1)
           .limitedWidthCompactSlot(outerEdge: .trailing)
       } else {
         ViewThatFits(in: .horizontal) {
