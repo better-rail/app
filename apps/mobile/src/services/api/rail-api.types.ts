@@ -30,6 +30,10 @@ export interface ApiTrain {
 
 export interface TrainPosition {
   calcDiffMinutes: number
+  /** The last station the train reached. Absent when there's no live position. */
+  currentLastStation?: number
+  /** 0 while the train stands at currentLastStation; otherwise the station it's heading to. */
+  nextStation?: number
 }
 
 export interface StopStation {

@@ -11,6 +11,7 @@ import HapticFeedback from "react-native-haptic-feedback"
 import { trackEvent } from "@/services/analytics"
 import { alternativeChangeStations, easyPlatformChanges, trainStartStation } from "./alternative-change-stations"
 import { acrossTheIsland } from "@/data/island-platforms"
+import { connectionStatus } from "./connection-status"
 import { labelFontStyle, subheadingFontStyle } from "@/theme/theme-fonts"
 
 const importantIcon = require("../../../../assets/important.png")
@@ -96,6 +97,9 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
     return millisecondsToMinutes(exchangeMs) >= SAFE_DURATION_MINS
   })()
 
+  // The live positions replace the delay-based guess when they say more. Re-renders with each route refetch.
+  const liveStatus = isExchangeSafe ? "unknown" : connectionStatus(firstTrain, secondTrain, Date.now())
+
   return (
     <View style={[styles.wrapper, style]}>
       {alternatives.length === 0 && (
@@ -136,7 +140,7 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
               </Text>
             </View>
           )}
-          {!isExchangeMissed && (
+          {!isExchangeMissed && liveStatus === "unknown" && (
             <View
               style={[
                 styles.infoDetailWrapper,
@@ -151,11 +155,25 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
               </Text>
             </View>
           )}
-          {!isExchangeSafe && (
+          {liveStatus === "stillAtStation" && (
+            <View style={[styles.infoDetailWrapper, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
+              <Image style={[styles.infoIcon, styles.liveIcon]} source={infoIcon} />
+              <Text style={[styles.infoText, styles.liveText]} maxFontSizeMultiplier={1.2}>
+                {translate("routeDetails.connectionStillAtStation")}
+              </Text>
+            </View>
+          )}
+          {!isExchangeSafe && liveStatus !== "stillAtStation" && (
             <View style={[styles.infoDetailWrapper, { marginBottom: fontScale > 1 ? spacing[3] : 0 }]}>
               <Image style={[styles.infoIcon, { tintColor: color.error }]} source={infoIcon} />
               <Text style={[styles.infoText, styles.warningText]} maxFontSizeMultiplier={1.2}>
-                {translate(isExchangeMissed ? "routeDetails.missedChange" : "routeDetails.unsafeChange")}
+                {translate(
+                  liveStatus === "left"
+                    ? "routeDetails.connectionLeft"
+                    : isExchangeMissed
+                      ? "routeDetails.missedChange"
+                      : "routeDetails.unsafeChange",
+                )}
               </Text>
             </View>
           )}
@@ -165,7 +183,10 @@ export const RouteExchangeDetails = (props: RouteExchangeProps) => {
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+// Amber for "not settled yet": dark enough to read on the light card, bright on the dark one
+const warningColor = (themeName?: string) => (themeName === "dark" ? "#FFD60A" : "#9A5800")
+
+const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
     width: "100%",
     flexDirection: "row",
@@ -205,6 +226,13 @@ const styles = StyleSheet.create((theme) => ({
   warningText: {
     ...labelFontStyle(theme, 16, "bold"),
     color: theme.colors.error,
+  },
+  liveText: {
+    ...labelFontStyle(theme, 16, "bold"),
+    color: warningColor(rt.themeName),
+  },
+  liveIcon: {
+    tintColor: warningColor(rt.themeName),
   },
   infoIcon: {
     width: 25,
