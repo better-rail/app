@@ -29,8 +29,10 @@ export function connectionStatus(firstTrain: Train, secondTrain: Train, now: num
   if (!current) return "unknown"
 
   if (current === stationId) {
-    const isStanding = secondTrain.trainPosition.nextStation === 0
-    if (!isStanding) return "left"
+    const { nextStation } = secondTrain.trainPosition
+    // Without the next station we can't tell standing from leaving
+    if (nextStation === undefined || nextStation === null) return "unknown"
+    if (nextStation !== 0) return "left"
     // Standing there before its departure time is just the timetable
     return now >= secondTrain.departureTime ? "stillAtStation" : "unknown"
   }

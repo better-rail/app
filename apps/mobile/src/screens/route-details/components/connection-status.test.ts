@@ -51,6 +51,11 @@ describe("connectionStatus", () => {
     expect(connectionStatus(firstAt(3, 4), noPosition(secondAt(4)), AFTER_DEPARTURE)).toBe("unknown")
   })
 
+  it("says nothing when the connecting train's next station is missing", () => {
+    const second = train(4, [9, 4, 5, 6], { currentLastStation: 4 })
+    expect(connectionStatus(firstAt(3, 4), second, AFTER_DEPARTURE)).toBe("unknown")
+  })
+
   it("says nothing when a position isn't on the train's run", () => {
     expect(connectionStatus(firstAt(3, 4), secondAt(42), AFTER_DEPARTURE)).toBe("unknown")
     expect(connectionStatus(firstAt(42), secondAt(4, 5), AFTER_DEPARTURE)).toBe("unknown")
