@@ -39,7 +39,7 @@ export const DateScroll = function DateScroll(props: {
           <Text text={getDateString()} style={styles.text} />
           {isLoading ? (
             <View style={styles.indicatorContainer}>
-              <ActivityIndicator size="small" color={theme.colors.primary} />
+              <ActivityIndicator size="small" color={theme.colors.accentText} />
             </View>
           ) : (
             <Image source={require(ARROW_URL)} style={[styles.arrow, { transform: [{ rotate: "-90deg" }] }]} />
@@ -72,7 +72,7 @@ const styles = StyleSheet.create((theme) => ({
   arrow: {
     width: 7,
     height: 15,
-    tintColor: theme.colors.primary,
+    tintColor: theme.colors.accentText,
   },
   indicatorContainer: {
     width: 7,
@@ -89,6 +89,6 @@ const styles = StyleSheet.create((theme) => ({
   },
   text: {
     textAlign: "center",
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
 }))

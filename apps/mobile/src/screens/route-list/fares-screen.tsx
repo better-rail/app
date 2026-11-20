@@ -288,7 +288,7 @@ const styles = StyleSheet.create((theme) => ({
     marginTop: -theme.spacing[3],
     marginBottom: theme.spacing[4],
     fontWeight: "500",
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   priceRow: {
     flexDirection: "row",

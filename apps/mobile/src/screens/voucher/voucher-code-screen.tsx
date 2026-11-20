@@ -168,7 +168,7 @@ const styles = StyleSheet.create((theme, rt) => ({
   link: {
     fontSize: 15,
     fontWeight: "600",
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   linkDisabled: {
     color: theme.colors.label,

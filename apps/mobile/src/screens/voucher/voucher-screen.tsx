@@ -190,7 +190,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   // Pinned to the bottom of the sheet, below the scrollable voucher
   doneButton: {

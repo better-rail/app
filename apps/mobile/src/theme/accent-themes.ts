@@ -30,7 +30,8 @@ type SurfaceKey =
   | "dimmer"
 
 interface ThemeAppearance {
-  accents: Record<keyof AccentColors, string>
+  /** accentText is optional and falls back to primary */
+  accents: Record<keyof AccentColors, string> & { accentText?: string }
   surfaces: Record<SurfaceKey, string>
   skin?: ThemeSkin
 }
@@ -205,25 +206,27 @@ const themes: Record<Exclude<AccentThemeId, "default">, ThemeDefinition> = {
     timeFont: { family: "SecularOne", size: 24 },
     light: {
       accents: {
-        primary: "#0B8793",
-        primaryLighter: "#4DB6BF",
-        primaryDarker: "#086A73",
-        secondary: "#3E7B3A",
-        secondaryLighter: "#E3F0E0",
-        link: "#0B8793",
+        primary: "#087782",
+        primaryLighter: "#40969E",
+        primaryDarker: "#075D66",
+        secondary: "#356B50",
+        secondaryLighter: "#E4EEE7",
+        link: "#087782",
       },
-      surfaces: surfaces("#EEF5F5", "#FFFFFF", "#EEF5F5", "#DCEBEC", "#0F2A2D", "#4A6B6E", "#9AB3B5", "#D3E4E5", "#6F8C8F"),
+      surfaces: surfaces("#F1F4F2", "#FFFFFF", "#F1F4F2", "#E1E8E5", "#172C2D", "#526865", "#526865", "#D2DDD8", "#526865"),
     },
     dark: {
       accents: {
-        primary: "#1C96A2",
-        primaryLighter: "#5CC4CD",
-        primaryDarker: "#147680",
-        secondary: "#3F8A3A",
-        secondaryLighter: "#22352A",
-        link: "#5CC4CD",
+        primary: "#167782",
+        primaryLighter: "#75C4C9",
+        primaryDarker: "#105E67",
+        secondary: "#3B7462",
+        secondaryLighter: "#263631",
+        link: "#75C4C9",
+        // The deep sea teal keeps white button text readable, but is too dark for text and icons on the dark page
+        accentText: "#75C4C9",
       },
-      surfaces: surfaces("#0F1E21", "#17292D", "#1D3237", "#23393E", "#EAF6F7", "#93B3B6", "#5F7E82", "#28424A", "#87A4A8"),
+      surfaces: surfaces("#11191B", "#202D2F", "#29373A", "#29393B", "#F0F4F2", "#A6B9B5", "#9AAFAC", "#35494A", "#9AAFAC"),
     },
   },
   // Desert terracotta and sand

@@ -123,7 +123,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     width: 19.5,
     height: 19.5,
     marginEnd: theme.spacing[1],
-    tintColor: theme.colors.primary,
+    tintColor: theme.colors.accentText,
   },
   externalLinkIcon: {
     width: 19.5,

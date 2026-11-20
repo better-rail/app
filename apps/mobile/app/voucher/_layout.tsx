@@ -40,7 +40,7 @@ export default function VoucherLayout() {
       screenOptions={{
         headerShadowVisible: false,
         headerBackButtonDisplayMode: "minimal",
-        headerTintColor: appTheme.colors.primary as unknown as string,
+        headerTintColor: appTheme.colors.accentText as unknown as string,
         headerTitleStyle: headingFontStyle(appTheme, 17, "normal"),
         contentStyle: { backgroundColor: appTheme.colors.background },
       }}
