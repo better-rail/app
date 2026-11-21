@@ -122,7 +122,7 @@ const styles = StyleSheet.create((theme) => ({
     fontWeight: "500",
   },
   optionLabelSelected: {
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
     fontWeight: "700",
   },
   doneButton: {

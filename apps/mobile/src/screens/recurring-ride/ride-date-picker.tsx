@@ -62,7 +62,7 @@ const styles = StyleSheet.create((theme) => ({
     gap: theme.spacing[2],
   },
   selectedValue: {
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   chevron: {
     color: theme.colors.dim,

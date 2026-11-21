@@ -268,7 +268,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   wagonNumberText: {
     ...labelFontStyle(theme, 12, "600"),
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
     width: 50,
     textAlign: "center",
     marginBottom: theme.spacing[1],
@@ -296,7 +296,7 @@ const styles = StyleSheet.create((theme) => ({
   },
   directionArrow: {
     fontSize: 20,
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   legendContainer: {
     flexDirection: "row",

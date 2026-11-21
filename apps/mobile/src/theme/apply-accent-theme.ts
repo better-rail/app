@@ -16,6 +16,8 @@ export function applyAccentTheme(id: AccentThemeId, useAlternateTimeFont = false
         ...base.colors,
         ...(themed?.accents as Record<string, ColorValue> | undefined),
         ...(themed?.surfaces as Record<string, ColorValue> | undefined),
+        // Themes without their own accentText use their primary, so a theme's primary never leaks the system blue
+        accentText: themed?.accents.accentText ?? themed?.accents.primary ?? base.colors.accentText,
       },
       skin: {
         ...themed?.skin,

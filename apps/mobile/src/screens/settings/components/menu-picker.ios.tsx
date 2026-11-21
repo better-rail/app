@@ -9,7 +9,7 @@ import type { MenuPickerProps } from "./menu-picker.types"
 export function MenuPicker<T extends string>({ label, value, options, onChange, testID }: MenuPickerProps<T>) {
   const { theme } = useUnistyles()
   // Themed accents are hex strings; the system blue needs no tint
-  const accent = typeof theme.colors.primary === "string" ? theme.colors.primary : undefined
+  const accent = typeof theme.colors.accentText === "string" ? theme.colors.accentText : undefined
 
   return (
     <View style={styles.row} testID={testID}>

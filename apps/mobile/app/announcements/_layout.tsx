@@ -19,7 +19,7 @@ export default function AnnouncementsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTintColor: appTheme.colors.primary as unknown as string,
+        headerTintColor: appTheme.colors.accentText as unknown as string,
         headerBackButtonDisplayMode: "minimal",
       }}
     >

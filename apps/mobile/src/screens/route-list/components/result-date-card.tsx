@@ -14,14 +14,14 @@ export const ResultDateCard = function ResultDateCard(props: { date: string; isL
   return (
     <View testID="route-results-date" style={styles.dateContainer}>
       <Text text={localizedDate(props.date)} style={styles.dateText} accessibilityRole="header" />
-      {props.isLoading && <ActivityIndicator size="small" color={theme.colors.primary} style={styles.indicator} />}
+      {props.isLoading && <ActivityIndicator size="small" color={theme.colors.accentText} style={styles.indicator} />}
     </View>
   )
 }
 
 const styles = StyleSheet.create((theme) => ({
   dateText: {
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
     lineHeight: LINE_HEIGHT,
     ...headingFontStyle(theme, 16, "normal"),
   },

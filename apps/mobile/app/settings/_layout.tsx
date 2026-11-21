@@ -15,7 +15,7 @@ export default function SettingsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTintColor: appTheme.colors.primary as unknown as string,
+        headerTintColor: appTheme.colors.accentText as unknown as string,
         headerBackButtonDisplayMode: "minimal",
       }}
     >

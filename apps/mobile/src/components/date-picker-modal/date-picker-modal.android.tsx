@@ -74,7 +74,7 @@ export function DatePickerModal({ isVisible, onConfirm, onCancel, minimumDate }:
                 onPress={onCancel}
                 style={styles.cancelButton}
                 containerStyle={styles.cancelButtonContainer}
-                textStyle={{ color: isDarkMode ? color.dim : theme.colors.primary }}
+                textStyle={{ color: isDarkMode ? color.dim : theme.colors.accentText }}
                 size="small"
               />
               <Button title={translate("common.set")} onPress={() => onConfirm(modalDate)} size="small" />

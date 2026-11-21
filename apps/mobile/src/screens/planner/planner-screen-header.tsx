@@ -165,7 +165,7 @@ const styles = StyleSheet.create((theme, rt) => {
       width: headerIconSize,
       height: headerIconSize,
       marginStart: theme.spacing[3],
-      tintColor: theme.colors.primary,
+      tintColor: theme.colors.accentText,
       opacity: 0.7,
       transform: rt.rtl ? [{ rotateY: "180deg" }] : undefined,
     },

@@ -22,7 +22,7 @@ export default function MainLayout() {
             fontFamily: typography.primary,
           },
           headerBackTitleStyle: { fontFamily: typography.primary },
-          headerTintColor: appTheme.colors.primary as unknown as string,
+          headerTintColor: appTheme.colors.accentText as unknown as string,
           headerTitle: "",
         }}
       >

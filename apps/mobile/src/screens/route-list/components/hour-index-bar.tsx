@@ -275,7 +275,7 @@ const styles = StyleSheet.create((theme, rt) => ({
     fontFamily: theme.typography.primary,
     fontWeight: "600",
     fontVariant: ["tabular-nums"],
-    color: theme.colors.primary,
+    color: theme.colors.accentText,
   },
   bubble: {
     flex: 1,

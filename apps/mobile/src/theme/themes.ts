@@ -74,6 +74,8 @@ const createColors = (appearance: Appearance) => {
     tertiaryBackground: nativeColor(PlatformColor("tertiarySystemBackground"), android.background),
     modalBackground: nativeColor(PlatformColor(dark ? "systemBackground" : "secondarySystemBackground"), android.background),
     primary: nativeColor(PlatformColor("systemBlue"), android.primary),
+    // Text and icons in the accent color. Matches primary unless a theme's primary is too dark to read on its background.
+    accentText: nativeColor(PlatformColor("systemBlue"), android.primary),
     primaryLighter: palette.blueLighter as ColorValue,
     primaryDarker: palette.blueDarker as ColorValue,
     secondary: nativeColor(dark ? "#6F68DF" : palette.pinky, android.secondary),
