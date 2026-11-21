@@ -71,19 +71,15 @@ export function PlannerScreenHeader() {
     // and the user can run live activities (iOS only)
     if (origin && destination) {
       if (canRunLiveActivities) {
-        storage.load("seenLiveAnnouncement").then((hasSeenLiveAnnouncementScreen) => {
-          if (!hasSeenLiveAnnouncementScreen) setDisplayNewBadge(true)
-        })
+        if (!storage.load("seenLiveAnnouncement")) setDisplayNewBadge(true)
       }
     }
   }, [])
 
   useEffect(() => {
-    storage.load("appInstallDate").then((installDate) => {
-      if (!installDate) {
-        storage.save("appInstallDate", new Date().toISOString())
-      }
-    })
+    if (!storage.load("appInstallDate")) {
+      storage.save("appInstallDate", new Date().toISOString())
+    }
   }, [])
 
   const openAnnouncements = () => {

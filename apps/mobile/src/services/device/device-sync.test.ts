@@ -1,22 +1,12 @@
-import { afterAll, beforeEach, expect, spyOn, test } from "bun:test"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import { beforeEach, expect, spyOn, test } from "bun:test"
 
 import { mockSecureStore } from "../../../test/mock-expo-secure-store"
 import { MOCK_PUSH_TOKEN } from "../../../test/mock-expo-notifications"
 import { useRecurringRidesStore } from "@/models/recurring-rides/recurring-rides"
 import { deviceApi } from "@/services/api/device-api"
 import { clearDeviceIdentity, getDeviceIdentity, peekDeviceIdentity } from "@/services/device/identity"
+import * as storage from "@/utils/storage"
 import { syncDevice } from "./device-sync"
-
-// The shared AsyncStorage mock keeps nothing; this test needs what the sync saved.
-const saved = new Map<string, string>()
-const asyncStorage = AsyncStorage as unknown as Record<string, ReturnType<typeof spyOn>>
-asyncStorage.getItem.mockImplementation(async (key: string) => saved.get(key) ?? null)
-asyncStorage.setItem.mockImplementation(async (key: string, value: string) => void saved.set(key, value))
-asyncStorage.removeItem.mockImplementation(async (key: string) => void saved.delete(key))
-afterAll(() => {
-  for (const name of ["getItem", "setItem", "removeItem"]) asyncStorage[name].mockRestore?.()
-})
 
 const syncSpy = spyOn(deviceApi, "syncDevice").mockResolvedValue(undefined)
 const deleteSpy = spyOn(deviceApi, "deleteDevice").mockResolvedValue(undefined)
@@ -36,7 +26,7 @@ const ride = {
 beforeEach(async () => {
   await clearDeviceIdentity()
   mockSecureStore.reset()
-  saved.clear()
+  storage.remove("device_last_sync")
   useRecurringRidesStore.setState({ rides: [] })
   syncSpy.mockClear()
   deleteSpy.mockClear()
