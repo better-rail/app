@@ -27,6 +27,14 @@ const ALARMKIT_USAGE_DESCRIPTIONS = {
   ru: "Better Rail подаст сигнал за несколько минут до прибытия поезда в пункт назначения. Если поезд задерживается, сигнал сдвинется на более позднее время.",
 }
 
+// Shown only on iOS 16, the last version that needs calendar access to present the system "New Event" sheet.
+const CALENDAR_USAGE_DESCRIPTIONS = {
+  en: "Better Rail adds your train rides to your calendar.",
+  he: "בטר רייל מוסיפה את נסיעות הרכבת שלך ליומן.",
+  ar: "يضيف Better Rail رحلات القطار إلى تقويمك.",
+  ru: "Better Rail добавляет ваши поездки на поезде в календарь.",
+}
+
 // iOS registers fonts by the family name baked into each file ("Heebo"), selecting the weight
 // via `fontWeight`. The flat string array is all iOS needs.
 const HEEBO_FONTS_IOS = [
@@ -106,8 +114,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
       UIBackgroundModes: ["fetch", "remote-notification"],
-      NSCalendarsFullAccessUsageDescription: "We need calendar access to add train rides.",
-      NSCalendarsUsageDescription: "We need calendar access to add train rides.",
+      NSCalendarsUsageDescription: CALENDAR_USAGE_DESCRIPTIONS.en,
       NSContactsUsageDescription: "We need access to your contacts to import and manage contacts within our app.",
       NSRemindersFullAccessUsageDescription: "We need full access to reminders to create alerts for your train rides.",
       NSRemindersUsageDescription: "Allow $(PRODUCT_NAME) to access your reminders.",
@@ -127,7 +134,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
 
   locales: Object.fromEntries(
-    Object.entries(ALARMKIT_USAGE_DESCRIPTIONS).map(([locale, text]) => [locale, { ios: { NSAlarmKitUsageDescription: text } }]),
+    Object.entries(ALARMKIT_USAGE_DESCRIPTIONS).map(([locale, text]) => [
+      locale,
+      {
+        ios: {
+          NSAlarmKitUsageDescription: text,
+          NSCalendarsUsageDescription: CALENDAR_USAGE_DESCRIPTIONS[locale as keyof typeof CALENDAR_USAGE_DESCRIPTIONS],
+        },
+      },
+    ]),
   ),
 
   android: {
@@ -158,8 +173,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "android.permission.FOREGROUND_SERVICE",
       "android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED",
       "android.permission.USE_FULL_SCREEN_INTENT",
-      "android.permission.READ_CALENDAR",
-      "android.permission.WRITE_CALENDAR",
       "android.permission.POST_NOTIFICATIONS",
       "android.permission.POST_PROMOTED_NOTIFICATIONS",
     ],
