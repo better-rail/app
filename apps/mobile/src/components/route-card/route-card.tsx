@@ -206,7 +206,7 @@ export function RouteCard(props: RouteCardProps) {
 
       {/* Main route content */}
       <View style={styles.routeContent}>
-        <View style={{ marginEnd: spacing[3] }}>
+        <View style={styles.departureColumn}>
           <View style={styles.departureLabel}>
             <Text style={styles.timeTypeText} tx="routes.departure" />
             {hasVoucher && (
@@ -222,7 +222,7 @@ export function RouteCard(props: RouteCardProps) {
 
         {showDashedLine && <DashedLine />}
 
-        <View style={{ marginHorizontal: spacing[1] }}>
+        <View style={styles.middleColumn}>
           <View style={{ alignItems: "center", gap: spacing[0] }}>
             <Text style={styles.durationText} maxFontSizeMultiplier={1}>
               {duration}
@@ -243,7 +243,7 @@ export function RouteCard(props: RouteCardProps) {
 
         {showDashedLine && <DashedLine />}
 
-        <View style={{ alignItems: "flex-end", marginStart: spacing[3] }}>
+        <View style={styles.arrivalColumn}>
           <Text style={styles.timeTypeText} tx="routes.arrival" />
           <Text style={arrivalTimeStyle}>{formattedArrivalTime}</Text>
         </View>
@@ -326,6 +326,21 @@ const styles = StyleSheet.create((theme, rt) => ({
     flex: 1,
     // Without it the row grows to its content width and overflows the card
     flexShrink: 1,
+  },
+  // The times keep their width; the middle column gives way when wide label fonts crowd it
+  departureColumn: {
+    marginEnd: theme.spacing[3],
+    flexShrink: 0,
+  },
+  middleColumn: {
+    marginHorizontal: theme.spacing[1],
+    flexShrink: 1,
+    minWidth: 0,
+  },
+  arrivalColumn: {
+    alignItems: "flex-end",
+    marginStart: theme.spacing[3],
+    flexShrink: 0,
   },
   // In the stylesheet so it switches with the theme fonts, not a render later
   dashedLine: {

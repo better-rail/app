@@ -1,5 +1,5 @@
 import { Platform, View } from "react-native"
-import { StyleSheet } from "react-native-unistyles"
+import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { Text } from "@/components/text/text"
 import { CancelledBadge, DelayBadge } from "./delay-badge"
 import { userLocale } from "@/i18n"
@@ -18,6 +18,8 @@ export const RouteIndicators = ({
   hasChanges = false,
   isCancelled = false,
 }) => {
+  const { theme } = useUnistyles()
+
   if (isCancelled) {
     return <CancelledBadge />
   }
@@ -37,20 +39,33 @@ export const RouteIndicators = ({
     return <DelayBadge delay={delay} />
   }
 
-  // Several indicators share the row, so the delay shrinks to "+X", and with all three the badge too
-  const isCrowded = showShortRouteBadge && delay > 0 && hasChanges
+  // Several indicators share the row, so the delay shrinks to "+X", and with all three the badge too.
+  // Theme label fonts run wider than Heebo, so there the badge shrinks as soon as it sits next to the changes.
+  const isCrowded = showShortRouteBadge && hasChanges && (delay > 0 || Boolean(theme.skin.labelFont))
   return (
     <View style={styles.wrapper}>
       <View style={styles.badges}>
         {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
         {showShortRouteBadge && (
           <View style={[styles.shortRouteBadge, isRideActive && styles.shortRouteBadgeActive]}>
-            <Text style={styles.shortRouteBadgeText} tx={isCrowded ? "routes.shortRouteCompact" : "routes.shortRoute"} />
+            <Text
+              style={styles.shortRouteBadgeText}
+              tx={isCrowded ? "routes.shortRouteCompact" : "routes.shortRoute"}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+            />
           </View>
         )}
       </View>
       {hasChanges && (
-        <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
+        <Text
+          style={styles.stopsTextShrinkable}
+          maxFontSizeMultiplier={1}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.75}
+        >
           {stopsText}
         </Text>
       )}
@@ -60,17 +75,20 @@ export const RouteIndicators = ({
 
 const styles = StyleSheet.create((theme) => ({
   wrapper: {
+    flexShrink: 1,
     marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,
     flexDirection: "row",
     alignItems: "center",
     gap: theme.spacing[2],
   },
   badges: {
+    flexShrink: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: theme.spacing[1],
   },
   shortRouteBadge: {
+    flexShrink: 1,
     paddingVertical: 1,
     paddingHorizontal: theme.spacing[2],
     backgroundColor: theme.colors.greenBackground,
@@ -86,5 +104,10 @@ const styles = StyleSheet.create((theme) => ({
   stopsText: {
     ...labelFontStyle(theme, 14),
     color: theme.skin.routeCard?.text ?? theme.colors.text,
+  },
+  stopsTextShrinkable: {
+    ...labelFontStyle(theme, 14),
+    color: theme.skin.routeCard?.text ?? theme.colors.text,
+    flexShrink: 1,
   },
 }))
