@@ -8,10 +8,9 @@ import { searchViaOnRailApi } from "./rail-via"
  *
  * Out of Jerusalem-Yitzhak Navon, the xx:03 Modi'in train reaches Pa'ate Modi'in
  * at xx:18, and the Modi'in-Center train to the coast and the north leaves there
- * at xx:25. The rail API only offers the xx:26 and xx:56 via
- * Tel Aviv, so in the middle of the day someone who missed the xx:56 is told to
- * wait half an hour, when the xx:03 catches the very train the xx:56 changes onto
- * at Tel Aviv University and arrives at the same minute.
+ * at xx:25. The rail API only offers the xx:26 and xx:56 via Tel Aviv, so someone
+ * who missed the xx:56 is told to wait half an hour, when the xx:03 gets them
+ * there at the same time or soon after.
  *
  * The opposite direction gains nothing: the rail API already finds the best way
  * back to Jerusalem.
@@ -19,6 +18,11 @@ import { searchViaOnRailApi } from "./rail-via"
 
 const JERUSALEM_NAVON = 680
 const PAATE_MODIIN = 300
+
+// The extra search is optional, so it gets a small slice of the time a client
+// waits for its timetable (the website gives a whole search 12 seconds). Past it,
+// the rail API's own answer goes out unchanged.
+const SHORTCUT_BUDGET_MS = 3_000
 
 const epochMs = (time: string) => new Date(time).getTime()
 
@@ -31,26 +35,16 @@ const beats = (a: RailApiRouteItem, b: RailApiRouteItem) =>
   epochMs(a.arrivalTime) <= epochMs(b.arrivalTime) &&
   a.trains.length <= b.trains.length
 
-export type MergeOptions = {
-  /**
-   * Keep every rail API journey, even one an added change beats. For looking up a
-   * ride the rider already chose (live rides, auto-start), where the journey they
-   * saved has to stay findable.
-   */
-  keepRailTravels?: boolean
-}
-
 /**
  * The rail API's travels with the Pa'ate Modi'in changes it missed. A change is
  * added only as one train there and one train on, and only when nothing the rail
- * API offers already beats it. A rail API journey the change beats is dropped,
- * unless it is a direct train (those always stay) or `keepRailTravels` is set.
+ * API offers already beats it.
+ *
+ * Nothing the rail API offers is ever removed, even a journey an added change
+ * beats: apps look up a ride the rider already chose in these same results, by
+ * its exact trains, and it has to still be there.
  */
-export const mergePaateModiinTravels = (
-  railTravels: RailApiRouteItem[],
-  viaTravels: RailApiRouteItem[],
-  { keepRailTravels = false }: MergeOptions = {},
-): RailApiRouteItem[] => {
+export const mergePaateModiinTravels = (railTravels: RailApiRouteItem[], viaTravels: RailApiRouteItem[]): RailApiRouteItem[] => {
   const added = viaTravels.filter(
     (via) =>
       via.trains.length === 2 &&
@@ -60,33 +54,36 @@ export const mergePaateModiinTravels = (
   )
   if (added.length === 0) return railTravels
 
-  const kept = keepRailTravels
-    ? railTravels
-    : railTravels.filter((travel) => travel.trains.length === 1 || !added.some((via) => beats(via, travel)))
-  return [...kept, ...added].sort((a, b) => epochMs(a.departureTime) - epochMs(b.departureTime))
+  return [...railTravels, ...added].sort((a, b) => epochMs(a.departureTime) - epochMs(b.departureTime))
 }
 
 /**
  * `railResult` with the Pa'ate Modi'in changes added when the search leaves
- * Jerusalem-Yitzhak Navon. If finding them fails, `railResult` is returned as is:
- * the extra options are never worth failing the search over.
+ * Jerusalem-Yitzhak Navon. If finding them fails or takes too long, `railResult`
+ * is returned as is: the extra options are never worth failing the search over.
  */
 export const withPaateModiinChanges = async (
   search: RailTimetableSearch,
   railResult: RailApiGetRoutesResult,
-  options: MergeOptions = {},
+  budgetMs = SHORTCUT_BUDGET_MS,
 ): Promise<RailApiGetRoutesResult> => {
   const travels = railResult?.result?.travels
   if (!appliesTo(search) || !Array.isArray(travels)) return railResult
 
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const outOfTime = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new DOMException("The Pa'ate Modi'in search ran out of time", "TimeoutError")), budgetMs)
+  })
   try {
-    const via = await searchViaOnRailApi(search, PAATE_MODIIN)
+    const via = await Promise.race([searchViaOnRailApi(search, PAATE_MODIIN), outOfTime])
     return {
       ...railResult,
-      result: { ...railResult.result, travels: mergePaateModiinTravels(travels, via.result?.travels ?? [], options) },
+      result: { ...railResult.result, travels: mergePaateModiinTravels(travels, via.result?.travels ?? []) },
     }
   } catch (error) {
     logger.warn(logNames.railApi.paateModiinShortcutFailed, { error, search })
     return railResult
+  } finally {
+    clearTimeout(timer)
   }
 }
