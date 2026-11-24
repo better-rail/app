@@ -1,6 +1,8 @@
 import { logNames, logger } from "../logs"
 import { RailTimetableSearch, railApiFetch } from "../requests/rail-api"
+import { withPaateModiinChanges } from "../requests/rail-shortcuts"
 import { searchViaOnRailApi } from "../requests/rail-via"
+import { RailApiGetRoutesResult } from "../types/rail-response"
 
 /**
  * `/rail-api/*` served by proxying the Israel Railways API, the way the server
@@ -71,7 +73,18 @@ export const proxySearchTrainRequest = async (req: ProxyRequest): Promise<Reply>
       }),
     })
 
-    return { status: response.status, body: await response.json() }
+    const body = await response.json()
+    if (response.status !== 200) return { status: response.status, body }
+
+    const search: RailTimetableSearch = {
+      fromStation: parseInt(fromStation as string),
+      toStation: parseInt(toStation as string),
+      date: date as string,
+      hour: hour as string,
+      scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
+      languageId: languageId as string,
+    }
+    return { status: 200, body: await withPaateModiinChanges(search, body as RailApiGetRoutesResult) }
   } catch (error: any) {
     return failed(error, req.path)
   }
@@ -101,6 +114,23 @@ export const railProxy = async (req: ProxyRequest): Promise<Reply> => {
   }
 }
 
+/** A timetable search's POST body, in the rail API's own request shape. */
+const toTimetableSearch = (body: any): RailTimetableSearch => ({
+  fromStation: Number(body?.fromStation),
+  toStation: Number(body?.toStation),
+  date: String(body?.date),
+  hour: String(body?.hour),
+  scheduleType: body?.scheduleType === "ByArrival" ? "ByArrival" : "ByDeparture",
+  languageId: String(body?.languageId ?? "Hebrew"),
+})
+
+/** A timetable search proxied upstream, with the changes the rail API misses added (requests/rail-shortcuts.ts). */
+export const proxyTimetableSearch = async (req: ProxyRequest): Promise<Reply> => {
+  const reply = await railProxy(req)
+  if (reply.status !== 200) return reply
+  return { status: 200, body: await withPaateModiinChanges(toTimetableSearch(req.body), reply.body as RailApiGetRoutesResult) }
+}
+
 type ViaSearch = { search: RailTimetableSearch; viaStation: number }
 
 // Proxying would drop `viaStation`, so change-station searches go through requests/rail-via.ts.
@@ -108,17 +138,7 @@ export const toViaSearch = (body: any): ViaSearch | undefined => {
   const viaStation = Number(body?.viaStation)
   if (!(viaStation > 0)) return undefined
 
-  return {
-    viaStation,
-    search: {
-      fromStation: Number(body.fromStation),
-      toStation: Number(body.toStation),
-      date: String(body.date),
-      hour: String(body.hour),
-      scheduleType: body.scheduleType === "ByArrival" ? "ByArrival" : "ByDeparture",
-      languageId: String(body.languageId ?? "Hebrew"),
-    },
-  }
+  return { viaStation, search: toTimetableSearch(body) }
 }
 
 export const proxyViaSearch = async ({ search, viaStation }: ViaSearch): Promise<Reply> => {

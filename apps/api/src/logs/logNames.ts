@@ -107,6 +107,7 @@ export const logNames = {
       failed: "Failed to proxy a request to the Israel Railways API",
       timedOut: "Israel Railways API request timed out",
     },
+    paateModiinShortcutFailed: "Failed to add the Pa'ate Modi'in change to a Jerusalem search",
   },
   db: {
     pool: {
