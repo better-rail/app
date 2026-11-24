@@ -4,6 +4,7 @@ import { config } from "../config"
 import { RouteItem, Station } from "../types/rail"
 import { searchTimetableOnRailApi } from "./rail-api"
 import { searchViaOnRailApi } from "./rail-via"
+import { withPaateModiinChanges } from "./rail-shortcuts"
 import { routeDurationInMs } from "../utils/date-utils"
 import { israelDateAndHour, israelEpoch } from "../utils/israel-time"
 import { LanguageCode, railApiLocales } from "../locales/i18n"
@@ -36,7 +37,7 @@ export const searchTravels = async (
       ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
       : options.viaStation
         ? await searchViaOnRailApi(railSearch, options.viaStation)
-        : await searchTimetableOnRailApi(railSearch)
+        : await withPaateModiinChanges(railSearch, await searchTimetableOnRailApi(railSearch))
 
   if (!response?.result) {
     throw new Error("Error fetching results")

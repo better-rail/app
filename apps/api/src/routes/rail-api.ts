@@ -2,7 +2,7 @@ import { Elysia } from "elysia"
 
 import { logNames, logger } from "../logs"
 import { config } from "../config"
-import { ProxyRequest, proxySearchTrainRequest, proxyViaSearch, railProxy, toViaSearch } from "./proxy"
+import { ProxyRequest, proxySearchTrainRequest, proxyTimetableSearch, proxyViaSearch, railProxy, toViaSearch } from "./proxy"
 import { searchTrain, ScheduleType } from "../requests/gtfs-route-api"
 import { createRateLimiter } from "../utils/rate-limiter"
 import { json, jsonBody, mountedPath, rateLimited } from "./helpers"
@@ -122,8 +122,14 @@ export const railApiRoutes = new Elysia()
       const body = jsonBody(ctx.body)
 
       if (config.railDataSource === "rail") {
-        const viaSearch = method === "POST" && isTimetableSearchPath(path) ? toViaSearch(body) : undefined
-        const reply = viaSearch ? await proxyViaSearch(viaSearch) : await railProxy(toProxyRequest(ctx.request, body, ctx.query))
+        const timetableSearch = method === "POST" && isTimetableSearchPath(path)
+        const viaSearch = timetableSearch ? toViaSearch(body) : undefined
+        const proxyRequest = toProxyRequest(ctx.request, body, ctx.query)
+        const reply = viaSearch
+          ? await proxyViaSearch(viaSearch)
+          : timetableSearch
+            ? await proxyTimetableSearch(proxyRequest)
+            : await railProxy(proxyRequest)
         return json(ctx, reply.status, reply.body)
       }
 
