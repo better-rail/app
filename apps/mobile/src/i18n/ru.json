@@ -62,7 +62,7 @@
     "updates": "Обновления из поезда",
     "updatesError": "Произошла ошибка при загрузке обновлений от Железных дорог Израиля",
     "shortRoute": "короткий маршрут",
-    "shortRouteCompact": "короткий",
+    "shortRouteCompact": "быстрый",
     "maxBackwardsDate": "Нельзя вернуться более чем на 3 дня",
     "routeDetails": "Детали маршрута",
     "routeActions": "Действия",
