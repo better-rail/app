@@ -69,6 +69,12 @@ describe("mergePaateModiinTravels", () => {
     expect(summary(mergePaateModiinTravels(rail, viaPaateModiin))).not.toContain("09:56 728-110")
   })
 
+  test("keeps every rail API journey for looking up a saved ride", () => {
+    const merged = summary(mergePaateModiinTravels(rail, viaPaateModiin, { keepRailTravels: true }))
+    expect(merged).toContain("09:56 728-110")
+    expect(merged).toContain("10:03 558-110")
+  })
+
   test("adds only one train to Pa'ate Modi'in and one train on", () => {
     expect(summary(mergePaateModiinTravels(rail, viaPaateModiin))).not.toContain("09:26 726-107-110")
   })

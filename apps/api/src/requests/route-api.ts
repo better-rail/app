@@ -37,7 +37,8 @@ export const searchTravels = async (
       ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
       : options.viaStation
         ? await searchViaOnRailApi(railSearch, options.viaStation)
-        : await withPaateModiinChanges(railSearch, await searchTimetableOnRailApi(railSearch))
+        : // Every caller looks up a ride already chosen, so no journey may drop out from under it.
+          await withPaateModiinChanges(railSearch, await searchTimetableOnRailApi(railSearch), { keepRailTravels: true })
 
   if (!response?.result) {
     throw new Error("Error fetching results")

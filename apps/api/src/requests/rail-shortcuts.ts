@@ -31,13 +31,26 @@ const beats = (a: RailApiRouteItem, b: RailApiRouteItem) =>
   epochMs(a.arrivalTime) <= epochMs(b.arrivalTime) &&
   a.trains.length <= b.trains.length
 
+export type MergeOptions = {
+  /**
+   * Keep every rail API journey, even one an added change beats. For looking up a
+   * ride the rider already chose (live rides, auto-start), where the journey they
+   * saved has to stay findable.
+   */
+  keepRailTravels?: boolean
+}
+
 /**
  * The rail API's travels with the Pa'ate Modi'in changes it missed. A change is
  * added only as one train there and one train on, and only when nothing the rail
  * API offers already beats it. A rail API journey the change beats is dropped,
- * unless it is a direct train: those always stay.
+ * unless it is a direct train (those always stay) or `keepRailTravels` is set.
  */
-export const mergePaateModiinTravels = (railTravels: RailApiRouteItem[], viaTravels: RailApiRouteItem[]): RailApiRouteItem[] => {
+export const mergePaateModiinTravels = (
+  railTravels: RailApiRouteItem[],
+  viaTravels: RailApiRouteItem[],
+  { keepRailTravels = false }: MergeOptions = {},
+): RailApiRouteItem[] => {
   const added = viaTravels.filter(
     (via) =>
       via.trains.length === 2 &&
@@ -47,7 +60,9 @@ export const mergePaateModiinTravels = (railTravels: RailApiRouteItem[], viaTrav
   )
   if (added.length === 0) return railTravels
 
-  const kept = railTravels.filter((travel) => travel.trains.length === 1 || !added.some((via) => beats(via, travel)))
+  const kept = keepRailTravels
+    ? railTravels
+    : railTravels.filter((travel) => travel.trains.length === 1 || !added.some((via) => beats(via, travel)))
   return [...kept, ...added].sort((a, b) => epochMs(a.departureTime) - epochMs(b.departureTime))
 }
 
@@ -59,6 +74,7 @@ export const mergePaateModiinTravels = (railTravels: RailApiRouteItem[], viaTrav
 export const withPaateModiinChanges = async (
   search: RailTimetableSearch,
   railResult: RailApiGetRoutesResult,
+  options: MergeOptions = {},
 ): Promise<RailApiGetRoutesResult> => {
   const travels = railResult?.result?.travels
   if (!appliesTo(search) || !Array.isArray(travels)) return railResult
@@ -67,7 +83,7 @@ export const withPaateModiinChanges = async (
     const via = await searchViaOnRailApi(search, PAATE_MODIIN)
     return {
       ...railResult,
-      result: { ...railResult.result, travels: mergePaateModiinTravels(travels, via.result?.travels ?? []) },
+      result: { ...railResult.result, travels: mergePaateModiinTravels(travels, via.result?.travels ?? [], options) },
     }
   } catch (error) {
     logger.warn(logNames.railApi.paateModiinShortcutFailed, { error, search })
