@@ -19,10 +19,16 @@ import { searchViaOnRailApi } from "./rail-via"
 const JERUSALEM_NAVON = 680
 const PAATE_MODIIN = 300
 
-// The extra search is optional, so it gets a small slice of the time a client
-// waits for its timetable (the website gives a whole search 12 seconds). Past it,
-// the rail API's own answer goes out unchanged.
+// The extra search is optional in a search a client is waiting on, so there it
+// gets a small slice of the client's patience (the website gives a whole search
+// 12 seconds). Past it, the rail API's own answer goes out unchanged.
 const SHORTCUT_BUDGET_MS = 3_000
+// Looking up a ride the rider already chose is another matter: a ride on a
+// Pa'ate Modi'in change can only be found in the extra search, so giving up on it
+// fails the ride. There it gets more than a rail API request's own 10-second
+// deadline, while staying with the main search (also 10 s at most) inside the 30
+// seconds the app waits for a ride to start.
+export const RIDE_LOOKUP_SHORTCUT_BUDGET_MS = 15_000
 
 const epochMs = (time: string) => new Date(time).getTime()
 
