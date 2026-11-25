@@ -42,7 +42,7 @@ const OVERDUE_MINUTES = 30
  * Whether the train leaves too long from now to track the ride yet. Its delay doesn't count: a late train keeps a rider
  * who's already waiting for it, and refusing their ride would freeze their Live Activity with no updates.
  */
-export const isRideTooFarAhead = (route: Pick<RouteItem, "departureTime">, now: number) =>
+const isRideTooFarAhead = (route: Pick<RouteItem, "departureTime">, now: number) =>
   dayjs(route.departureTime).diff(now, "minutes") > MAX_MINUTES_AHEAD
 
 /** A notification as stored: `time` is a Dayjs in memory and ISO text at rest. */
