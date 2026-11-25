@@ -1,8 +1,9 @@
 import { useRef, useEffect } from "react"
 import { Image, ImageBackground, Platform, View, Animated as RNAnimated, Pressable } from "react-native"
 import type { ViewStyle } from "react-native"
+import Animated, { SharedTransitionBoundary } from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
-import { useRouter, useNavigation, Stack } from "expo-router"
+import { useRouter, useNavigation, useIsFocused, Stack } from "expo-router"
 import { trackEvent } from "@/services/analytics"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import LinearGradient from "react-native-linear-gradient"
@@ -73,6 +74,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const isFilterActive = filterCount > 0
   const router = useRouter()
   const navigation = useNavigation()
+  const isFocused = useIsFocused()
   const insets = useSafeAreaInsets()
   const routeEditDisabled = screenName !== "routeList"
 
@@ -88,6 +90,13 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const isFavorite = favoriteRoutesData.some((fav) => fav.id === routeId)
   // A native header lets UIKit place the buttons, e.g. in the iPhone Duo's sidebar when unfolded.
   const useNativeToolbar = (screenName === "routeList" || screenName === "routeDetails") && Platform.OS === "ios"
+  // The route list and route details share these tags, so the header holds still while the screens slide.
+  // On iOS only the stations are shared: Reanimated draws a moving view above the native header, so a shared photo
+  // would hide the header buttons. Android draws its buttons itself, so they are shared along with the photo.
+  const sharedTagPrefix =
+    screenName === "routeList" || screenName === "routeDetails" ? `route-header-${originId}-${destinationId}` : undefined
+  const sharesWholeHeader = sharedTagPrefix && Platform.OS === "android"
+  const sharedTag = (part: string, shared = sharesWholeHeader) => (shared ? `${sharedTagPrefix}-${part}` : undefined)
 
   const scaleStationCards = () => {
     RNAnimated.sequence([
@@ -243,9 +252,11 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
   const renderHeaderRight = () => {
     if (screenName === "routeDetails") {
       return (
-        <ContextMenu mode="tap" actions={routeDetailsActions}>
-          <HeaderMenuIcon />
-        </ContextMenu>
+        <Animated.View sharedTransitionTag={sharedTag("menu")}>
+          <ContextMenu mode="tap" actions={routeDetailsActions}>
+            <HeaderMenuIcon />
+          </ContextMenu>
+        </Animated.View>
       )
     }
 
@@ -267,15 +278,19 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
     return (
       <>
         <StarIcon style={{ marginEnd: -spacing[3] }} filled={isFavorite} onPress={handleFavoritePress} />
-        <ContextMenu mode="tap" style={{ marginLeft: spacing[3] }} actions={routeListActions}>
-          <HeaderMenuIcon active={isFilterActive} />
-        </ContextMenu>
+        {/* Only the menu is on both screens, so the star isn't shared. */}
+        <Animated.View sharedTransitionTag={sharedTag("menu")} style={{ marginLeft: spacing[3] }}>
+          <ContextMenu mode="tap" actions={routeListActions}>
+            <HeaderMenuIcon active={isFilterActive} />
+          </ContextMenu>
+        </Animated.View>
       </>
     )
   }
 
   return (
-    <>
+    // Reanimated pairs shared views only between the screens' active boundaries.
+    <SharedTransitionBoundary isActive={isFocused}>
       {useNativeToolbar && (
         <Stack.Screen
           options={{
@@ -359,15 +374,18 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
         />
       )}
 
-      <ImageBackground
-        source={originStation?.image}
-        style={{
-          width: "100%",
-          height: screenName !== "activeRide" ? 200 : 155,
-          zIndex: 0,
-        }}
-      >
-        <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+      <View style={{ zIndex: 0 }}>
+        <Animated.View sharedTransitionTag={sharedTag("photo")}>
+          <ImageBackground
+            source={originStation?.image}
+            style={{
+              width: "100%",
+              height: screenName !== "activeRide" ? 200 : 155,
+            }}
+          >
+            <LinearGradient style={styles.gradient} colors={["rgba(0, 0, 0, 0.75)", "rgba(0, 0, 0, 0.05)"]} />
+          </ImageBackground>
+        </Animated.View>
 
         {screenName !== "activeRide" && !useNativeToolbar && (
           <View
@@ -386,7 +404,7 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityLabel={screenName === "routeDetails" ? translate("routes.routeDetails") : translate("plan.title")}
           >
             {/* Back Button */}
-            <HeaderBackButton />
+            <HeaderBackButton sharedTransitionTag={sharedTag("back")} />
 
             {/* Right Icons */}
             {/* TODO: Check this on iOS 18 & Android */}
@@ -395,9 +413,12 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             </View>
           </View>
         )}
-      </ImageBackground>
+      </View>
 
-      <View style={{ top: -20, marginBottom: -30, zIndex: 5 }}>
+      <Animated.View
+        sharedTransitionTag={sharedTag("stations", !!sharedTagPrefix)}
+        style={{ top: -20, marginBottom: -30, zIndex: 5 }}
+      >
         <View style={[styles.routeDetailsWrapper, style]}>
           <RouteStationNameButton
             disabled={routeEditDisabled}
@@ -439,8 +460,8 @@ export function RouteDetailsHeader(props: RouteDetailsHeaderProps) {
             accessibilityHint={translate("plan.selectStation")}
           />
         </View>
-      </View>
-    </>
+      </Animated.View>
+    </SharedTransitionBoundary>
   )
 }
 
