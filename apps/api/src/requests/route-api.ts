@@ -2,12 +2,42 @@ import { searchTrain } from "./gtfs-route-api"
 import { stationsObject } from "../data/stations"
 import { config } from "../config"
 import { RouteItem, Station } from "../types/rail"
-import { searchTimetableOnRailApi } from "./rail-api"
+import { RailTimetableSearch, searchTimetableOnRailApi } from "./rail-api"
 import { searchViaOnRailApi } from "./rail-via"
-import { RIDE_LOOKUP_SHORTCUT_BUDGET_MS, withPaateModiinChanges } from "./rail-shortcuts"
+import { RIDE_LOOKUP_SHORTCUT_BUDGET_MS, paateModiinChanges } from "./rail-shortcuts"
 import { routeDurationInMs } from "../utils/date-utils"
 import { israelDateAndHour, israelEpoch } from "../utils/israel-time"
 import { LanguageCode, railApiLocales } from "../locales/i18n"
+import { isEqual } from "lodash"
+
+/**
+ * The rail API's travels with the Pa'ate Modi'in changes added: every caller
+ * looks up a ride already chosen (live rides, auto-start), which may be on one.
+ *
+ * Given the ride's `trains`, the extra search runs only when the rail API's own
+ * answer lacks them. A live ride looks its route up every minute, and most rides
+ * from Jerusalem-Yitzhak Navon are on trains the rail API offers, so the two
+ * extra requests would be spent on every tick for nothing. A ride on a Pa'ate
+ * Modi'in change pays for the searches one after the other, which its budget
+ * allows (no one is waiting on a screen for it).
+ */
+const searchTimetableWithShortcuts = async (railSearch: RailTimetableSearch, trains?: number[]) => {
+  if (!trains) {
+    const shortcuts = paateModiinChanges(railSearch, RIDE_LOOKUP_SHORTCUT_BUDGET_MS)
+    return shortcuts.addTo(await searchTimetableOnRailApi(railSearch))
+  }
+
+  const railResult = await searchTimetableOnRailApi(railSearch)
+  const hasRide = railResult?.result?.travels?.some((travel) => isEqual(travel.trains.map((train) => train.trainNumber), trains))
+  if (hasRide) return railResult
+  return paateModiinChanges(railSearch, RIDE_LOOKUP_SHORTCUT_BUDGET_MS).addTo(railResult)
+}
+
+type SearchOptions = {
+  viaStation?: number
+  /** The trains of the ride being looked up, by number, when it is known. */
+  trains?: number[]
+}
 
 /** The timetable's raw travels (the rail API's shape, which the app and its Live Activity decode) around a departure. */
 export const searchTravels = async (
@@ -15,7 +45,7 @@ export const searchTravels = async (
   destinationId: number,
   departureDate: string | Date,
   locale: LanguageCode,
-  options: { viaStation?: number } = {},
+  options: SearchOptions = {},
 ) => {
   if (!originId || !destinationId) throw new Error("Missing origin / destination data")
 
@@ -37,8 +67,7 @@ export const searchTravels = async (
       ? await searchTrain(originId, destinationId, date, hour, "ByDeparture", { viaStation: options.viaStation })
       : options.viaStation
         ? await searchViaOnRailApi(railSearch, options.viaStation)
-        : // Every caller looks up a ride already chosen (live rides, auto-start), which may be on a Pa'ate Modi'in change.
-          await withPaateModiinChanges(railSearch, await searchTimetableOnRailApi(railSearch), RIDE_LOOKUP_SHORTCUT_BUDGET_MS)
+        : await searchTimetableWithShortcuts(railSearch, options.trains)
 
   if (!response?.result) {
     throw new Error("Error fetching results")
@@ -52,7 +81,7 @@ export class RouteApi {
     destinationId: number,
     departureDate: string | Date,
     locale: LanguageCode,
-    options: { viaStation?: number } = {},
+    options: SearchOptions = {},
   ): Promise<RouteItem[]> {
     const travels = await searchTravels(originId, destinationId, departureDate, locale, options)
 

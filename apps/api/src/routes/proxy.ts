@@ -1,6 +1,6 @@
 import { logNames, logger } from "../logs"
 import { RailTimetableSearch, railApiFetch } from "../requests/rail-api"
-import { withPaateModiinChanges } from "../requests/rail-shortcuts"
+import { paateModiinChanges } from "../requests/rail-shortcuts"
 import { searchViaOnRailApi } from "../requests/rail-via"
 import { RailApiGetRoutesResult } from "../types/rail-response"
 
@@ -52,18 +52,27 @@ const withoutServerOnlyParams = (body: unknown) => {
 export const proxySearchTrainRequest = async (req: ProxyRequest): Promise<Reply> => {
   try {
     const { fromStation, toStation, date, hour, scheduleType, systemType, languageId } = req.query
+    const search: RailTimetableSearch = {
+      fromStation: parseInt(fromStation as string),
+      toStation: parseInt(toStation as string),
+      date: date as string,
+      hour: hour as string,
+      scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
+      languageId: languageId as string,
+    }
+    const shortcuts = paateModiinChanges(search)
 
     const response = await railApiFetch("/rjpa/api/v1/timetable/searchTrainForMobile", {
       method: "POST",
       body: JSON.stringify({
         methodName: "searchTrainLuzForDateTime",
-        fromStation: parseInt(fromStation as string),
-        toStation: parseInt(toStation as string),
-        date: date as string,
-        hour: hour as string,
+        fromStation: search.fromStation,
+        toStation: search.toStation,
+        date: search.date,
+        hour: search.hour,
         systemType: systemType as string,
-        scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
-        languageId: languageId as string,
+        scheduleType: search.scheduleType,
+        languageId: search.languageId,
         requestLocation: '{"latitude":"0.0","longitude":"0.0"}',
         requestIP: req.ip || "147.236.228.2",
         userAgent:
@@ -75,16 +84,7 @@ export const proxySearchTrainRequest = async (req: ProxyRequest): Promise<Reply>
 
     const body = await response.json()
     if (response.status !== 200) return { status: response.status, body }
-
-    const search: RailTimetableSearch = {
-      fromStation: parseInt(fromStation as string),
-      toStation: parseInt(toStation as string),
-      date: date as string,
-      hour: hour as string,
-      scheduleType: scheduleType === "1" ? "ByDeparture" : "ByArrival",
-      languageId: languageId as string,
-    }
-    return { status: 200, body: await withPaateModiinChanges(search, body as RailApiGetRoutesResult) }
+    return { status: 200, body: await shortcuts.addTo(body as RailApiGetRoutesResult) }
   } catch (error: any) {
     return failed(error, req.path)
   }
@@ -126,9 +126,10 @@ const toTimetableSearch = (body: any): RailTimetableSearch => ({
 
 /** A timetable search proxied upstream, with the changes the rail API misses added (requests/rail-shortcuts.ts). */
 export const proxyTimetableSearch = async (req: ProxyRequest): Promise<Reply> => {
+  const shortcuts = paateModiinChanges(toTimetableSearch(req.body))
   const reply = await railProxy(req)
   if (reply.status !== 200) return reply
-  return { status: 200, body: await withPaateModiinChanges(toTimetableSearch(req.body), reply.body as RailApiGetRoutesResult) }
+  return { status: 200, body: await shortcuts.addTo(reply.body as RailApiGetRoutesResult) }
 }
 
 type ViaSearch = { search: RailTimetableSearch; viaStation: number }

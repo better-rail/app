@@ -67,7 +67,16 @@ export const stitchViaTravels = (toVia: RailApiRouteItem[], onward: RailApiRoute
     })
     .sort((a, b) => epochMs(a.departureTime) - epochMs(b.departureTime) || a.trains.length - b.trains.length)
 
-export const searchViaOnRailApi = async (search: RailTimetableSearch, viaStation: number): Promise<RailApiGetRoutesResult> => {
+type ViaOptions = {
+  /** Look in the next day's timetable for connections after midnight: a third rail API request, made after the first two. */
+  pastMidnight?: boolean
+}
+
+export const searchViaOnRailApi = async (
+  search: RailTimetableSearch,
+  viaStation: number,
+  { pastMidnight = true }: ViaOptions = {},
+): Promise<RailApiGetRoutesResult> => {
   if (viaStation === search.fromStation || viaStation === search.toStation) return searchTimetableOnRailApi(search)
 
   const [toVia, onward] = await Promise.all([
@@ -80,7 +89,7 @@ export const searchViaOnRailApi = async (search: RailTimetableSearch, viaStation
   // A late arrival can connect after midnight, which only the next day's timetable lists.
   const nextDay = dayjs(search.date).add(1, "day")
   const lastArrival = Math.max(...firstLegs.map((travel) => epochMs(travel.arrivalTime)))
-  if (lastArrival + CONNECTION_LIMITS.maxMs >= nextDay.valueOf()) {
+  if (pastMidnight && lastArrival + CONNECTION_LIMITS.maxMs >= nextDay.valueOf()) {
     const tomorrow = await searchTimetableOnRailApi({
       ...search,
       fromStation: viaStation,
