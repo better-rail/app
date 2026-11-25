@@ -304,6 +304,25 @@ describe("rides", () => {
     expect(await res.json()).toEqual({ success: false, reason: "ride_in_future" })
   })
 
+  it("takes a ride a little over an hour away, as a recurring ride started an hour ahead is", async () => {
+    // An hour's lead to a train that left the timetable 5 minutes later than the saved time.
+    const offsetSec = departureOffsetSec - 10 * 60 + 65 * 60
+    await seedFeed(makeFeed({ departureOffsetSec: offsetSec, serviceDate }))
+    const res = await SELF.fetch(
+      `${api}/ride`,
+      jsonInit("POST", {
+        token: "t",
+        provider: "ios",
+        locale: "en",
+        departureDate: naiveIso(serviceDate, offsetSec),
+        originId: 3700,
+        destinationId: 3500,
+        trains: [100],
+      }),
+    )
+    expect(await res.json()).toMatchObject({ success: true })
+  })
+
   it("answers the token and alarm routes for an unknown ride like before", async () => {
     expect(await (await SELF.fetch(`${api}/ride/updateToken`, jsonInit("PATCH", { rideId: "nope", token: "t" }))).json()).toEqual(
       {
