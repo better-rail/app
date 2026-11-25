@@ -8,6 +8,7 @@ export const getRouteForRide = async (ride: Ride) => {
     const routeApi = new RouteApi()
     const routes = await routeApi.getRoutes(ride.originId, ride.destinationId, ride.departureDate, ride.locale, {
       viaStation: ride.viaStationId,
+      trains: ride.trains,
     })
     const selected = getSelectedRide(routes, ride)
     if (!selected) {
