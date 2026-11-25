@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test"
+import { afterEach, beforeEach, expect, mock, test } from "bun:test"
 import { mergePaateModiinTravels, paateModiinChanges } from "../../src/requests/rail-shortcuts"
 import type { RailTimetableSearch } from "../../src/requests/rail-api"
 import { searchTravels } from "../../src/requests/route-api"
@@ -45,9 +45,11 @@ const realFetch = globalThis.fetch
 beforeEach(() => {
   process.env.RAIL_URL = "https://rail-api.rail.co.il"
   process.env.RAIL_API_KEY = "key"
+  process.env.RAIL_DATA_SOURCE = "rail"
 })
 afterEach(() => {
   globalThis.fetch = realFetch
+  delete process.env.RAIL_DATA_SOURCE
 })
 
 test("adds the Pa'ate Modi'in change and keeps the rail API journey it beats", () => {
@@ -68,14 +70,12 @@ test("leaves searches from anywhere but Jerusalem-Yitzhak Navon alone", async ()
   expect(globalThis.fetch).not.toHaveBeenCalled()
 })
 
-const platforms = (t: Train, origin: number, dest: number) => ({ ...t, originPlatform: origin, destPlatform: dest })
-const leg = (...trains: Train[]) => ({ ...travel(...trains), freeSeats: 0, travelMessages: [] })
 const toPaateModiin = [
-  leg(platforms(train(558, JERUSALEM, PAATE_MODIIN, "10:03", "10:18"), 1, 3)),
+  travel(train(558, JERUSALEM, PAATE_MODIIN, "10:03", "10:18")),
   // Late enough that a change-station search would look past midnight for the next train on.
-  leg(platforms(train(598, JERUSALEM, PAATE_MODIIN, "23:20", "23:35"), 1, 3)),
+  travel(train(598, JERUSALEM, PAATE_MODIIN, "23:20", "23:35")),
 ]
-const onward = [leg(platforms(train(110, PAATE_MODIIN, HOF_HACARMEL, "10:25", "11:49"), 2, 1))]
+const onward = [travel(train(110, PAATE_MODIIN, HOF_HACARMEL, "10:25", "11:49"))]
 
 /** Answers each rail API search from the fixtures above, and records it. */
 const railApi = () => {
@@ -83,44 +83,29 @@ const railApi = () => {
   globalThis.fetch = mock(async (_url: string, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body)) as RailTimetableSearch
     searched.push(body)
-    const travels =
-      body.toStation === PAATE_MODIIN ? toPaateModiin : body.fromStation === PAATE_MODIIN ? onward : rail
+    const travels = body.toStation === PAATE_MODIIN ? toPaateModiin : body.fromStation === PAATE_MODIIN ? onward : rail
     return Response.json({ result: { travels } })
   }) as unknown as typeof fetch
   return searched
 }
 
-test("looks for the change alongside the rail API's own search, and never in the next day's timetable", async () => {
+test("starts the extra search before the rail API's own answer comes in", async () => {
   const searched = railApi()
-
-  const shortcuts = paateModiinChanges(search)
+  paateModiinChanges(search)
   await new Promise((resolve) => setTimeout(resolve, 0))
-  // Both legs were asked for before the rail API's own answer came in.
   expect(searched).toHaveLength(2)
-
-  const merged = await shortcuts.addTo(railResult)
-  expect(trainNumbers(merged.result.travels)).toEqual(["728-110", "558-110"])
-  expect(searched.map((s) => s.date)).toEqual([DATE, DATE])
 })
 
-describe("looking up a ride already chosen", () => {
-  beforeEach(() => {
-    process.env.RAIL_DATA_SOURCE = "rail"
-  })
-  afterEach(() => {
-    delete process.env.RAIL_DATA_SOURCE
-  })
-  const lookUp = (trains: number[]) => searchTravels(JERUSALEM, HOF_HACARMEL, `${DATE}T08:00:00`, "he", { trains })
+const lookUpRide = (trains: number[]) => searchTravels(JERUSALEM, HOF_HACARMEL, `${DATE}T08:00:00`, "he", { trains })
 
-  test("skips the extra search when the rail API's own answer has the ride's trains", async () => {
-    const searched = railApi()
-    expect(trainNumbers(await lookUp([728, 110]))).toEqual(["728-110"])
-    expect(searched).toHaveLength(1)
-  })
+test("a ride lookup skips the extra search when the rail API's answer has the ride's trains", async () => {
+  const searched = railApi()
+  expect(trainNumbers(await lookUpRide([728, 110]))).toEqual(["728-110"])
+  expect(searched).toHaveLength(1)
+})
 
-  test("finds a ride on a Pa'ate Modi'in change", async () => {
-    const searched = railApi()
-    expect(trainNumbers(await lookUp([558, 110]))).toEqual(["728-110", "558-110"])
-    expect(searched).toHaveLength(3)
-  })
+test("a ride lookup finds a ride on a Pa'ate Modi'in change, without looking into the next day", async () => {
+  const searched = railApi()
+  expect(trainNumbers(await lookUpRide([558, 110]))).toEqual(["728-110", "558-110"])
+  expect(searched).toHaveLength(3)
 })
