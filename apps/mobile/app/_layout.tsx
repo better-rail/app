@@ -20,7 +20,8 @@ import { TipIAPProvider } from "@/services/iap/tip-iap-provider"
 
 import { initFonts } from "@/theme/fonts"
 import * as storage from "@/utils/storage"
-import { setupRootStore, RoutesNotFoundError } from "@/models"
+import { setupRootStore } from "@/models"
+import { isExpectedQueryOutcome } from "@/utils/helpers/query-errors"
 import { useRideStore } from "@/models/ride/ride"
 import { useFavoritesStore } from "@/models/favorites/favorites"
 import {
@@ -112,14 +113,10 @@ const networkErrorContext = (error: unknown) => {
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
-      // "No routes found" is an expected, app-handled outcome (offline or genuinely no
-      // trains for the date). It's thrown only to drive react-query's onError, so skip
-      // reporting it — it otherwise floods Sentry with tens of thousands of noise events.
-      if (
-        error instanceof RoutesNotFoundError ||
-        (error instanceof Error && (error.name === "RoutesNotFoundError" || error.message === "Not found"))
-      )
-        return
+      // "No routes found" is an expected, app-handled outcome (no trains for the searched days).
+      // It's thrown only to drive react-query's onError, so skip reporting it — it otherwise
+      // floods Sentry with noise events. Request failures are still reported below.
+      if (isExpectedQueryOutcome(error)) return
       // Most network errors come from requests the OS cut off while the app was suspended.
       if (isSuspendedNetworkError(error)) return
 
