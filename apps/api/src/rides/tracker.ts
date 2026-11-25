@@ -31,8 +31,19 @@ import { buildWaitForTrainNotiifcation, getNotificationToSend, rideUpdateSecond 
 
 const PRODUCTION_TICK_MS = 60_000
 const TEST_TICK_MS = 15_000
+// The app starts a ride up to an hour before its train. A recurring ride starts itself on the server's schedule as
+// early as that too (its longest lead time), to a train that may leave up to 5 minutes after the saved time, and
+// iOS takes a moment to launch the app that registers it. The slack covers both.
+const MAX_MINUTES_AHEAD = 75
 // The last notification goes out at the arrival, so a ride still tracked this long after it is stuck.
 const OVERDUE_MINUTES = 30
+
+/**
+ * Whether the train leaves too long from now to track the ride yet. Its delay doesn't count: a late train keeps a rider
+ * who's already waiting for it, and refusing their ride would freeze their Live Activity with no updates.
+ */
+const isRideTooFarAhead = (route: Pick<RouteItem, "departureTime">, now: number) =>
+  dayjs(route.departureTime).diff(now, "minutes") > MAX_MINUTES_AHEAD
 
 /** A notification as stored: `time` is a Dayjs in memory and ISO text at rest. */
 type StoredNotification = Omit<NotificationPayload, "time"> & { time: string }
@@ -83,7 +94,7 @@ export class RideTracker {
       throw new RideNotInTimeError(logNames.scheduler.rideInPast, "ride_in_past")
     }
 
-    if (config.env === "production" && dayjs(route.departureTime).add(route.delay, "minutes").diff(dayjs(), "minutes") > 60) {
+    if (config.env === "production" && isRideTooFarAhead(route, Date.now())) {
       logger.info(logNames.scheduler.rideInFuture, {
         date: ride.departureDate,
         origin: ride.originId,
