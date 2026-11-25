@@ -1,29 +1,36 @@
 import { GlassView } from "expo-glass-effect"
 import { isLiquidGlassSupported } from "@/utils/liquid-glass"
-import { Pressable, Image, Platform, View } from "react-native"
+import { Pressable, Image, Platform } from "react-native"
+import Animated from "react-native-reanimated"
 import { StyleSheet } from "react-native-unistyles"
 import { useRouter } from "expo-router"
 import { HeaderBackButton as BackButton } from "expo-router/react-navigation"
 
 const CHEVRON = require("../../../assets/chevron.png")
 
-export function HeaderBackButton() {
+/**
+ * @param sharedTransitionTag Tags the outermost view, so the shared view covers the whole button. A wrapper around
+ *   the button would cut off the part that its negative margin pulls outside, and with it that part of the touch area.
+ */
+export function HeaderBackButton({ sharedTransitionTag }: { sharedTransitionTag?: string }) {
   const router = useRouter()
 
   if (isLiquidGlassSupported) {
     return (
-      <Pressable testID="header-back-button" onPress={() => router.back()}>
-        <GlassView isInteractive colorScheme="dark" style={styles.liquidWrapper}>
-          <Image source={CHEVRON} style={styles.icon} />
-        </GlassView>
-      </Pressable>
+      <Animated.View sharedTransitionTag={sharedTransitionTag}>
+        <Pressable testID="header-back-button" onPress={() => router.back()}>
+          <GlassView isInteractive colorScheme="dark" style={styles.liquidWrapper}>
+            <Image source={CHEVRON} style={styles.icon} />
+          </GlassView>
+        </Pressable>
+      </Animated.View>
     )
   }
 
   return (
-    <View testID="header-back-button" style={styles.backButtonWrapper}>
+    <Animated.View testID="header-back-button" sharedTransitionTag={sharedTransitionTag} style={styles.backButtonWrapper}>
       <BackButton tintColor="rgba(211, 211, 211, 0.9)" onPress={() => router.back()} />
-    </View>
+    </Animated.View>
   )
 }
 
