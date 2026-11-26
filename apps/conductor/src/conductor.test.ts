@@ -15,6 +15,9 @@ import {
   formatEmailHtml,
   formatReplySubject,
   htmlToText,
+  REPLY_CANCELLED_PREFIX,
+  REPLY_PENDING_PREFIX,
+  REPLY_SENT_PREFIX,
 } from "./email-bridge"
 import { FORUM_CHANNEL, syncedStatusTags } from "./feedback-status"
 import worker from "./index"
@@ -440,6 +443,9 @@ class FakeResend extends ResendApi {
   receivedEmails = new Map<string, ResendReceivedEmail>()
   receivedAttachments = new Map<string, ResendReceivedAttachment[]>()
   sentEmails: ResendSendEmailOptions[] = []
+  cancelled: string[] = []
+  statuses = new Map<string, string>()
+  failCancel = false
 
   constructor() {
     super("test-resend-key")
@@ -457,7 +463,19 @@ class FakeResend extends ResendApi {
 
   override async sendEmail(options: ResendSendEmailOptions): Promise<{ id: string }> {
     this.sentEmails.push(options)
-    return { id: "re_test_sent_1" }
+    const id = `re_test_sent_${this.sentEmails.length}`
+    this.statuses.set(id, options.scheduled_at ? "scheduled" : "sent")
+    return { id }
+  }
+
+  override async getEmailStatus(emailId: string): Promise<string | undefined> {
+    return this.statuses.get(emailId)
+  }
+
+  override async cancelEmail(emailId: string): Promise<void> {
+    if (this.failCancel || this.statuses.get(emailId) !== "scheduled") throw new Error("Resend cancelEmail failed (422)")
+    this.cancelled.push(emailId)
+    this.statuses.set(emailId, "canceled")
   }
 }
 
@@ -498,6 +516,7 @@ function createEmailBridge(cfg = emailConfig, feedbackType = 0) {
   })
   const resend = new FakeResend()
   const bridge = new EmailBridge(cfg, discord, resend)
+  bridge.undo = { windowMs: 20, graceMs: 5 }
   const handler = createHandler(cfg, discord, new OnboardingRoles(cfg, discord), resend, bridge)
   return { discord, resend, bridge, handler }
 }
@@ -831,6 +850,11 @@ describe("resend email bridge", () => {
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
 
     const replyResponse = await waitForResponse(discord, 3)
+    expect(replyResponse.content).toStartWith(`${REPLY_PENDING_PREFIX} \`yael@example.com\` by **danny** in 0s:`)
+    expect(JSON.stringify(replyResponse.components)).toContain("conductor:undo-reply::re_test_sent_1")
+    const settled = await waitForResponse(discord, 4)
+    expect(settled.content).toStartWith(`${REPLY_SENT_PREFIX} \`yael@example.com\` by **danny**:\n> Fixed in the new update!`)
+    expect(settled.components).toEqual([])
     expect(resend.sentEmails).toHaveLength(1)
     expect(resend.sentEmails[0].to).toEqual(["yael@example.com"])
     expect(resend.sentEmails[0].subject).toBe("Re: Ticket purchase crash")
@@ -842,13 +866,16 @@ describe("resend email bridge", () => {
     expect(resend.sentEmails[0].headers?.["References"]).toContain("<CAD456@mail.gmail.com>")
     expect(resend.sentEmails[0].headers?.["References"]).not.toContain("<injected@evil.com>")
     expect(resend.sentEmails[0].headers?.["References"]).toContain(`<thread-${threadId}@better-rail.co.il>`)
-    expect(replyResponse.content).toContain("yael@example.com")
+    const scheduledIn = Date.parse(resend.sentEmails[0].scheduled_at!) - Date.now()
+    expect(scheduledIn).toBeLessThanOrEqual(20)
 
     const longCmd = replyCommand(threadId, "line\n".repeat(600), "cmd_reply_long")
     await handler(signedRequest(longCmd))
-    const longResponse = await waitForResponse(discord, 4)
-    expect(longResponse.content.length).toBeLessThanOrEqual(2000)
-    expect(longResponse.content).toContain("...")
+    for (const count of [5, 6]) {
+      const longResponse = await waitForResponse(discord, count)
+      expect(longResponse.content.length).toBeLessThanOrEqual(2000)
+      expect(longResponse.content).toContain("...")
+    }
   })
 
   test("forum posts track Open, Replied and Resolved through the email flow", async () => {
@@ -872,10 +899,11 @@ describe("resend email bridge", () => {
     expect((await waitForResponse(discord)).content).toContain("noa@example.com")
     expect(resend.sentEmails[0].headers?.["In-Reply-To"]).toBe("<noa-1@example.com>")
     expect(thread.applied_tags).toEqual([statusTagIds.replied, "1548800000000002000"])
+    expect((await waitForResponse(discord, 2)).content).toStartWith(REPLY_SENT_PREFIX)
 
     const resolve = { ...replyCommand(threadId, "", "cmd_forum_resolve"), data: { name: "resolve" } }
     expect(await (await handler(signedRequest(resolve))).json()).toEqual({ type: 5 })
-    expect((await waitForResponse(discord, 2)).content).toContain("Resolved")
+    expect((await waitForResponse(discord, 3)).content).toContain("Resolved")
     for (let attempt = 0; !thread.thread_metadata?.archived && attempt < 100; attempt++) await Bun.sleep(5)
     expect(thread.applied_tags).toEqual([statusTagIds.resolved, "1548800000000002000"])
     expect(thread.thread_metadata?.archived).toBe(true)
@@ -889,6 +917,68 @@ describe("resend email bridge", () => {
     })
     expect(thread.thread_metadata?.archived).toBe(false)
     expect(thread.applied_tags).toEqual([statusTagIds.open, "1548800000000002000"])
+  })
+
+  test("Undo cancels a pending /reply and restores the post's status, until the email is sent", async () => {
+    const { discord, resend, handler, bridge } = createEmailBridge(emailConfig, 15)
+    bridge.undo = { windowMs: 300, graceMs: 0 }
+    const { threadId } = await bridge.handleInboundEmail({
+      id: "email_undo",
+      from: "Noa <noa@example.com>",
+      to: ["feedback@better-rail.co.il"],
+      subject: "Widget is blank",
+      text: "The widget shows nothing.",
+    })
+    const thread = discord.channels.get(threadId)!
+    const reply = async (id: string) => {
+      await handler(signedRequest(replyCommand(threadId, "Fixed in 3.2\nPlease update", id)))
+      const pending = await waitForResponse(discord, discord.responses.length + 1)
+      expect(pending.content).toStartWith(`${REPLY_PENDING_PREFIX} \`noa@example.com\` by **danny** in 0s:`)
+      return pending as { content: string; components: { components: { custom_id: string }[] }[] }
+    }
+    const click = (id: string, pending: Awaited<ReturnType<typeof reply>>, permissions = "8192") => ({
+      id,
+      application_id: applicationId,
+      guild_id: guildId,
+      channel_id: threadId,
+      type: 3,
+      token: `tok_${id}`,
+      member: { user: { id: userId, username: "guy" }, permissions },
+      data: { custom_id: pending.components[0].components[0].custom_id },
+      message: { flags: 0, content: pending.content },
+    })
+
+    const pending = await reply("cmd_undo_reply")
+    expect(pending.components[0].components[0].custom_id).toBe("conductor:undo-reply:open:re_test_sent_1")
+    expect(thread.applied_tags).toEqual([statusTagIds.replied])
+
+    // Someone without Manage Messages can't undo.
+    expect(await (await handler(signedRequest(click("click_noperm", pending, "0")))).json()).toEqual({ type: 6 })
+    const refused = (await waitForResponse(discord, 2)) as unknown as { content: string; flags: number }
+    expect(refused).toMatchObject({ flags: 64 })
+    expect(refused.content).toContain("do not have permission")
+    expect(resend.cancelled).toEqual([])
+
+    expect(await (await handler(signedRequest(click("click_undo", pending)))).json()).toEqual({ type: 6 })
+    const cancelled = await waitForResponse(discord, 3)
+    expect(cancelled.content).toBe(`${REPLY_CANCELLED_PREFIX} \`noa@example.com\` by **guy**:\n> Fixed in 3.2\n> Please update`)
+    expect(cancelled.components).toEqual([])
+    expect(resend.cancelled).toEqual(["re_test_sent_1"])
+    expect(thread.applied_tags).toEqual([statusTagIds.open])
+
+    // Once sent, Undo reports it's too late and the post stays Replied.
+    const second = await reply("cmd_undo_reply_2")
+    resend.statuses.set("re_test_sent_2", "sent")
+    await handler(signedRequest(click("click_late", second)))
+    const late = (await waitForResponse(discord, 5)) as unknown as { content: string; flags: number }
+    expect(late).toMatchObject({ flags: 64, content: "Too late to undo: this reply has already been sent." })
+    expect(thread.applied_tags).toEqual([statusTagIds.replied])
+
+    // The window closes: the sent reply loses its button, the cancelled one keeps its message.
+    await Bun.sleep(400)
+    const settled = await waitForResponse(discord, 6)
+    expect(settled.content).toStartWith(`${REPLY_SENT_PREFIX} \`noa@example.com\``)
+    expect(settled.components).toEqual([])
   })
 
   test("/resolve reports a status it could not set, or a missing permission, without archiving", async () => {

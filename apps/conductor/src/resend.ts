@@ -54,6 +54,8 @@ export type ResendSendEmailOptions = {
   html?: string
   reply_to?: string
   headers?: Record<string, string>
+  /** ISO 8601 time to send at; until then the email can be cancelled. */
+  scheduled_at?: string
   attachments?: Array<{
     filename: string
     content: string // base64, or plain text
@@ -149,5 +151,29 @@ export class ResendApi {
       throw new Error(`Resend sendEmail failed (${response.status}): ${JSON.stringify(err)}`)
     }
     return (await response.json()) as { id: string }
+  }
+
+  /** The email's latest event, such as "scheduled", "sent" or "canceled". */
+  async getEmailStatus(emailId: string): Promise<string | undefined> {
+    const response = await this.fetchFn(`https://api.resend.com/emails/${encodeURIComponent(emailId)}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${this.apiKey}` },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!response.ok) throw new Error(`Resend getEmail failed (${response.status})`)
+    return ((await response.json()) as { last_event?: string }).last_event
+  }
+
+  /** Cancels a scheduled email; fails once it has been sent. */
+  async cancelEmail(emailId: string): Promise<void> {
+    const response = await this.fetchFn(`https://api.resend.com/emails/${encodeURIComponent(emailId)}/cancel`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${this.apiKey}` },
+      signal: AbortSignal.timeout(10_000),
+    })
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(`Resend cancelEmail failed (${response.status}): ${JSON.stringify(err)}`)
+    }
   }
 }

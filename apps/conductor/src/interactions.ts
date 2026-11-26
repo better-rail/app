@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/cloudflare"
 import { concatBytes, decodeUtf8, encodeUtf8, fromHex } from "./bytes"
 import { type ConductorConfig, isSnowflake } from "./config"
 import { DiscordApi } from "./discord"
-import { EmailBridge, type SlashCommandInteraction } from "./email-bridge"
+import { EmailBridge, parseUndoReply, type ReplyResult, type SlashCommandInteraction } from "./email-bridge"
 import { journeyComplete, platformPicker, platformPrefix } from "./messages"
 import { ResendApi, type ResendEmailReceivedEvent, verifyResendSignature } from "./resend"
 import { OnboardingRoles } from "./roles"
@@ -15,7 +15,7 @@ type Interaction = SlashCommandInteraction & {
     name?: string
     options?: Array<{ name: string; value: string | number | boolean }>
   }
-  message?: { flags?: number }
+  message?: { flags?: number; content?: string }
 }
 
 /** What the Worker's `ExecutionContext` offers: work that must outlive the response. */
@@ -71,23 +71,28 @@ export function createHandler(
       })
   }
 
+  const editOriginal = (token: string, message: object) =>
+    api.call(
+      "PATCH",
+      `/webhooks/${config.applicationId}/${token}/messages/@original`,
+      { allowed_mentions: { parse: [] }, ...message },
+      false,
+    )
+
   async function finishEmailCommand(interaction: SlashCommandInteraction) {
     const command = interaction.data?.name === "resolve" ? "resolve" : "reply"
+    let pending: ReplyResult["pending"]
     try {
-      const result =
+      const result: ReplyResult =
         command === "resolve"
           ? await emailBridge.handleResolveCommand(interaction)
           : await emailBridge.handleReplyCommand(interaction)
-      await api.call(
-        "PATCH",
-        `/webhooks/${config.applicationId}/${interaction.token}/messages/@original`,
-        { content: result.message, allowed_mentions: { parse: [] } },
-        false,
-      )
+      await editOriginal(interaction.token, { content: result.message, components: result.pending?.components ?? [] })
       // Archive only after responding, since an archived thread rejects the response edit.
       if (command === "resolve" && result.success) {
         await api.call("PATCH", `/channels/${interaction.channel_id}`, { archived: true })
       }
+      pending = result.pending
     } catch (error) {
       console.error(`Conductor: ${command} command failed:`, (error as Error).message)
       Sentry.captureException(error, {
@@ -105,6 +110,40 @@ export function createHandler(
           false,
         )
         .catch(() => {})
+    }
+    if (pending) await settleReply(interaction.token, pending)
+  }
+
+  // Once the undo window has passed, the message says the reply was sent, unless Undo cancelled it.
+  async function settleReply(token: string, pending: NonNullable<ReplyResult["pending"]>) {
+    const { windowMs, graceMs } = emailBridge.undo
+    await new Promise((resolve) => setTimeout(resolve, windowMs + graceMs))
+    const status = await resend.getEmailStatus(pending.emailId).catch((error: Error) => {
+      console.warn(`Conductor: could not read status of email ${pending.emailId}:`, error.message)
+      return undefined
+    })
+    if (status === "canceled") return
+    await editOriginal(token, { content: pending.sentMessage, components: [] }).catch((error: Error) =>
+      console.warn("Conductor: could not mark the reply as sent:", error.message),
+    )
+  }
+
+  async function finishUndo(interaction: Interaction, undo: NonNullable<ReturnType<typeof parseUndoReply>>) {
+    try {
+      const result = await emailBridge.handleUndoReply(interaction, undo)
+      if (result.success) {
+        await editOriginal(interaction.token, { content: result.message, components: [] })
+      } else {
+        await api.call(
+          "POST",
+          `/webhooks/${config.applicationId}/${interaction.token}`,
+          { content: result.message, flags: 64, allowed_mentions: { parse: [] } },
+          false,
+        )
+      }
+    } catch (error) {
+      console.error("Conductor: undo reply failed:", (error as Error).message)
+      Sentry.captureException(error, { tags: { command: "undo-reply" }, fingerprint: ["undo-reply", (error as Error).message] })
     }
   }
 
@@ -185,6 +224,18 @@ export function createHandler(
       const result = { type: 5 }
       handled.set(interaction.id, { at: Date.now(), result })
       background(finishEmailCommand(interaction))
+      return Response.json(result)
+    }
+
+    const undo = interaction.type === 3 ? parseUndoReply(interaction.data?.custom_id) : undefined
+    if (undo) {
+      if (interaction.guild_id !== config.guildId) {
+        return Response.json({ type: 4, data: { content: "Not allowed in this server.", flags: 64 } })
+      }
+      // Acknowledge the click; the message changes once Resend has cancelled the email.
+      const result = { type: 6 }
+      handled.set(interaction.id, { at: Date.now(), result })
+      background(finishUndo(interaction, undo))
       return Response.json(result)
     }
 
