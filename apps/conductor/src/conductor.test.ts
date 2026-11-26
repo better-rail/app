@@ -55,6 +55,8 @@ class FakeDiscord extends DiscordApi {
   memberRoles = [staffRole]
   mutations: { method: string; path: string }[] = []
   responses: object[] = []
+  // Each interaction's response message, by its webhook path
+  originals = new Map<string, object>()
   failAssignmentRole?: string
   failRemovalOnce?: string
   failAfterMutationOnce?: { method: string; roleId: string }
@@ -81,6 +83,8 @@ class FakeDiscord extends DiscordApi {
     if (path === `/guilds/${guildId}/members/${applicationId}`) return { roles: [botRole] } as T
     if (path === `/guilds/${guildId}/members/${userId}`) return { roles: [...this.memberRoles] } as T
     if (path.startsWith("/webhooks/")) {
+      if (method === "GET") return this.originals.get(path) as T
+      if (method === "PATCH") this.originals.set(path, body as object)
       this.responses.push(body as object)
       return undefined as T
     }
@@ -446,6 +450,7 @@ class FakeResend extends ResendApi {
   cancelled: string[] = []
   statuses = new Map<string, string>()
   failCancel = false
+  failStatus = new Set<string>()
 
   constructor() {
     super("test-resend-key")
@@ -469,6 +474,7 @@ class FakeResend extends ResendApi {
   }
 
   override async getEmailStatus(emailId: string): Promise<string | undefined> {
+    if (this.failStatus.has(emailId)) throw new Error("Resend getEmail failed (500)")
     return this.statuses.get(emailId)
   }
 
@@ -850,7 +856,7 @@ describe("resend email bridge", () => {
     expect(await (await handler(signedRequest(cmd))).json()).toEqual({ type: 5 })
 
     const replyResponse = await waitForResponse(discord, 3)
-    expect(replyResponse.content).toStartWith(`${REPLY_PENDING_PREFIX} \`yael@example.com\` by **danny** in 0s:`)
+    expect(replyResponse.content).toStartWith(`${REPLY_PENDING_PREFIX} \`yael@example.com\` by **danny** <t:`)
     expect(JSON.stringify(replyResponse.components)).toContain("conductor:undo-reply::re_test_sent_1")
     const settled = await waitForResponse(discord, 4)
     expect(settled.content).toStartWith(`${REPLY_SENT_PREFIX} \`yael@example.com\` by **danny**:\n> Fixed in the new update!`)
@@ -933,7 +939,7 @@ describe("resend email bridge", () => {
     const reply = async (id: string) => {
       await handler(signedRequest(replyCommand(threadId, "Fixed in 3.2\nPlease update", id)))
       const pending = await waitForResponse(discord, discord.responses.length + 1)
-      expect(pending.content).toStartWith(`${REPLY_PENDING_PREFIX} \`noa@example.com\` by **danny** in 0s:`)
+      expect(pending.content).toStartWith(`${REPLY_PENDING_PREFIX} \`noa@example.com\` by **danny** <t:`)
       return pending as { content: string; components: { components: { custom_id: string }[] }[] }
     }
     const click = (id: string, pending: Awaited<ReturnType<typeof reply>>, permissions = "8192") => ({
@@ -950,6 +956,8 @@ describe("resend email bridge", () => {
 
     const pending = await reply("cmd_undo_reply")
     expect(pending.components[0].components[0].custom_id).toBe("conductor:undo-reply:open:re_test_sent_1")
+    // The post turns Replied only after the button is up.
+    for (let attempt = 0; thread.applied_tags?.[0] !== statusTagIds.replied && attempt < 100; attempt++) await Bun.sleep(1)
     expect(thread.applied_tags).toEqual([statusTagIds.replied])
 
     // Someone without Manage Messages can't undo.
@@ -979,6 +987,12 @@ describe("resend email bridge", () => {
     const settled = await waitForResponse(discord, 6)
     expect(settled.content).toStartWith(`${REPLY_SENT_PREFIX} \`noa@example.com\``)
     expect(settled.components).toEqual([])
+
+    // When Resend can't say whether it was cancelled, the message and its button stay as they are.
+    await reply("cmd_undo_reply_3")
+    resend.failStatus.add("re_test_sent_3")
+    await Bun.sleep(400)
+    expect(discord.responses).toHaveLength(7)
   })
 
   test("/resolve reports a status it could not set, or a missing permission, without archiving", async () => {

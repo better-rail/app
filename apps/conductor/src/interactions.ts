@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/cloudflare"
 import { concatBytes, decodeUtf8, encodeUtf8, fromHex } from "./bytes"
 import { type ConductorConfig, isSnowflake } from "./config"
 import { DiscordApi } from "./discord"
-import { EmailBridge, parseUndoReply, type ReplyResult, type SlashCommandInteraction } from "./email-bridge"
+import { EmailBridge, parseUndoReply, REPLY_PENDING_PREFIX, type ReplyResult, type SlashCommandInteraction } from "./email-bridge"
 import { journeyComplete, platformPicker, platformPrefix } from "./messages"
 import { ResendApi, type ResendEmailReceivedEvent, verifyResendSignature } from "./resend"
 import { OnboardingRoles } from "./roles"
@@ -88,6 +88,7 @@ export function createHandler(
           ? await emailBridge.handleResolveCommand(interaction)
           : await emailBridge.handleReplyCommand(interaction)
       await editOriginal(interaction.token, { content: result.message, components: result.pending?.components ?? [] })
+      await result.pending?.markReplied()
       // Archive only after responding, since an archived thread rejects the response edit.
       if (command === "resolve" && result.success) {
         await api.call("PATCH", `/channels/${interaction.channel_id}`, { archived: true })
@@ -114,15 +115,19 @@ export function createHandler(
     if (pending) await settleReply(interaction.token, pending)
   }
 
-  // Once the undo window has passed, the message says the reply was sent, unless Undo cancelled it.
+  // Once the undo window has passed, the message says the reply was sent. It's left alone when Undo cancelled it, or
+  // when Resend can't confirm it wasn't cancelled; the button then answers for itself.
   async function settleReply(token: string, pending: NonNullable<ReplyResult["pending"]>) {
-    const { windowMs, graceMs } = emailBridge.undo
-    await new Promise((resolve) => setTimeout(resolve, windowMs + graceMs))
+    await new Promise((resolve) => setTimeout(resolve, Math.max(0, pending.sendAt + emailBridge.undo.graceMs - Date.now())))
+    const current = await api
+      .call<{ content?: string }>("GET", `/webhooks/${config.applicationId}/${token}/messages/@original`, undefined, false)
+      .catch(() => undefined)
+    if (!current?.content?.startsWith(REPLY_PENDING_PREFIX)) return
     const status = await resend.getEmailStatus(pending.emailId).catch((error: Error) => {
       console.warn(`Conductor: could not read status of email ${pending.emailId}:`, error.message)
       return undefined
     })
-    if (status === "canceled") return
+    if (!status || status === "canceled") return
     await editOriginal(token, { content: pending.sentMessage, components: [] }).catch((error: Error) =>
       console.warn("Conductor: could not mark the reply as sent:", error.message),
     )

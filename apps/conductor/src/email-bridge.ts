@@ -117,7 +117,15 @@ export type ReplyResult = {
   success: boolean
   message: string
   /** Set while the email waits to be sent and can still be undone. */
-  pending?: { emailId: string; sentMessage: string; components: object[] }
+  pending?: {
+    emailId: string
+    /** When Resend sends the email, in milliseconds since the epoch. */
+    sendAt: number
+    sentMessage: string
+    components: object[]
+    /** Marks the post Replied; run once the Undo button is up, so it doesn't eat into the window. */
+    markReplied: () => Promise<void>
+  }
 }
 
 function extractHeaderMessageId(content?: string): string | undefined {
@@ -508,8 +516,11 @@ export class EmailBridge {
     }
 
     const htmlBody = formatEmailHtml(replyText, channelId)
+    // Read before scheduling, since the undo window starts then.
+    const previous = await this.statusOf(channel)
 
     // Resend holds the email until then, so Undo can cancel it.
+    const sendAt = Date.now() + this.undo.windowMs
     const { id: emailId } = await this.resendApi.sendEmail({
       from: SUPPORT_EMAIL_FROM,
       to: [recipientEmail],
@@ -518,12 +529,10 @@ export class EmailBridge {
       html: htmlBody,
       reply_to: `feedback+${channelId}@better-rail.co.il`,
       headers,
-      scheduled_at: new Date(Date.now() + this.undo.windowMs).toISOString(),
+      scheduled_at: new Date(sendAt).toISOString(),
     })
-    const previous = await this.setStatus(channel, "replied")
 
     const senderName = interaction.member?.user?.username || "A team member"
-    const seconds = Math.round(this.undo.windowMs / 1000)
     const undoButton = {
       type: 2,
       style: 2,
@@ -534,12 +543,15 @@ export class EmailBridge {
     return {
       success: true,
       message: capMessage(
-        `${REPLY_PENDING_PREFIX} \`${recipientEmail}\` by **${senderName}** in ${seconds}s:\n${quoteReply(replyText)}`,
+        // Discord shows a relative timestamp as a live countdown, so it stays true however long posting the message took.
+        `${REPLY_PENDING_PREFIX} \`${recipientEmail}\` by **${senderName}** <t:${Math.ceil(sendAt / 1000)}:R>:\n${quoteReply(replyText)}`,
       ),
       pending: {
         emailId,
+        sendAt,
         sentMessage: capMessage(`${REPLY_SENT_PREFIX} \`${recipientEmail}\` by **${senderName}**:\n${quoteReply(replyText)}`),
         components: [{ type: 1, components: [undoButton] }],
+        markReplied: () => this.setStatus(channel, "replied"),
       },
     }
   }
@@ -581,24 +593,29 @@ export class EmailBridge {
     return { success: true, message: `${RESOLVED_PREFIX} **${senderName}**.` }
   }
 
-  // Only forum posts carry a status. Returns the status the post had before.
-  private async updateStatus(thread: DiscordChannel, status: FeedbackStatus): Promise<FeedbackStatus | undefined> {
+  // Only forum posts carry a status.
+  private async updateStatus(thread: DiscordChannel, status: FeedbackStatus) {
     const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`)
     if (forum.type !== FORUM_CHANNEL) return
     const applied = thread.applied_tags ?? []
-    const previous = feedbackStatuses.find((s) => applied.includes(findStatusTag(forum, s.id)?.id ?? ""))?.id
     const tags = statusTags(forum, applied, status)
-    if (tags.length === applied.length && tags.every((id) => applied.includes(id))) return previous
+    if (tags.length === applied.length && tags.every((id) => applied.includes(id))) return
     await this.discordApi.call("PATCH", `/channels/${thread.id}`, { applied_tags: tags })
-    return previous
   }
 
   // Emails and replies go through even when the status can't be updated.
   private async setStatus(thread: DiscordChannel, status: FeedbackStatus) {
-    return this.updateStatus(thread, status).catch((err: Error) => {
-      console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, err.message)
-      return undefined
-    })
+    await this.updateStatus(thread, status).catch((err: Error) =>
+      console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, err.message),
+    )
+  }
+
+  /** The post's status, or undefined outside a forum or when it can't be read. */
+  private async statusOf(thread: DiscordChannel): Promise<FeedbackStatus | undefined> {
+    const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`).catch(() => undefined)
+    if (forum?.type !== FORUM_CHANNEL) return undefined
+    const applied = thread.applied_tags ?? []
+    return feedbackStatuses.find((s) => applied.includes(findStatusTag(forum, s.id)?.id ?? ""))?.id
   }
 
   private async findStarterEmail(threadId: string): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {
