@@ -1,5 +1,7 @@
 import { Alert, Linking, Platform } from "react-native"
-import * as Calendar from "expo-calendar"
+// The legacy API's createEventInCalendarAsync presents the system sheet without requiring calendar permission
+// (iOS 17+ and Android). The object-oriented API's addEventWithForm always requires it.
+import * as Calendar from "expo-calendar/legacy"
 import { translate } from "@/i18n"
 import { trackEvent } from "@/services/analytics"
 import type { RouteItem } from "@/services/api"
@@ -49,44 +51,32 @@ export function createEventConfig(routeItem: RouteItem): CalendarEventConfig {
   }
 }
 
-// getDefaultCalendarSync is iOS-only, so on Android we pick the primary (or any modifiable) calendar
-async function getEventCalendar(): Promise<Calendar.ExpoCalendar> {
-  if (Platform.OS === "ios") {
-    const defaultCalendar = Calendar.getDefaultCalendarSync()
-    if (!defaultCalendar) {
-      throw new Error("No default calendar found on device")
-    }
-    return defaultCalendar
-  }
-
-  const calendars = await Calendar.getCalendars()
-  const eventCalendar =
-    calendars.find((calendar) => calendar.isPrimary && calendar.allowsModifications) ??
-    calendars.find((calendar) => calendar.allowsModifications)
-  if (!eventCalendar) {
-    throw new Error("No modifiable calendar found on device")
-  }
-  return eventCalendar
+// The system "New Event" sheet runs outside the app on iOS 17+ and Android, so it needs no calendar permission.
+// iOS 16 still requires calendar access before presenting it.
+function needsCalendarPermission(): boolean {
+  return Platform.OS === "ios" && Number.parseInt(String(Platform.Version), 10) < 17
 }
 
 export async function addRouteToCalendar(routeItem: RouteItem): Promise<boolean> {
   trackEvent("add_route_to_calendar")
 
-  const { status } = await Calendar.requestCalendarPermissions()
+  if (needsCalendarPermission()) {
+    const { status } = await Calendar.requestCalendarPermissionsAsync()
 
-  if (status !== "granted") {
-    Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
-      { style: "cancel", text: translate("common.cancel") },
-      { text: translate("settings.title"), onPress: () => Linking.openSettings() },
-    ])
-    return false
+    if (status !== "granted") {
+      Alert.alert(translate("routeDetails.noCalendarAccessTitle"), translate("routeDetails.noCalendarAccessMessage"), [
+        { style: "cancel", text: translate("common.cancel") },
+        { text: translate("settings.title"), onPress: () => Linking.openSettings() },
+      ])
+      return false
+    }
   }
 
   const eventConfig = createEventConfig(routeItem)
 
   try {
-    const eventCalendar = await getEventCalendar()
-    const { action } = await eventCalendar.addEventWithForm({
+    // On Android the action is always "done": the system doesn't report whether the event was saved.
+    const { action } = await Calendar.createEventInCalendarAsync({
       title: eventConfig.title,
       startDate: new Date(eventConfig.startDate),
       endDate: new Date(eventConfig.endDate),
