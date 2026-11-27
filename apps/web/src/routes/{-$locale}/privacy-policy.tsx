@@ -78,9 +78,8 @@ function PrivacyPage() {
         <p className="site-page-content-text">
           When you search in the app or on this website, our servers ask Israel Railways for the trains on that route, sending the
           origin and destination stations, the date and the time. The request comes from our servers, not from your device, and
-          contains no identifying information. App versions older than 2.5.0 search in an older way that also sends Israel Railways
-          your IP address; updating the app stops this. During a Better Rail Live ride, our servers send Israel Railways the same
-          route details to keep the ride up to date.
+          contains no identifying information. During a Better Rail Live ride, our servers send Israel Railways the same route
+          details to keep the ride up to date.
         </p>
         <p className="site-page-content-text">
           We don't store your searches. On the website, your recent searches are kept only in your own browser.
@@ -133,9 +132,8 @@ function PrivacyPage() {
       </p>
       <p className="site-page-content-text">
         בחיפוש באפליקציה או באתר, השרתים שלנו מבקשים מרכבת ישראל את הרכבות במסלול, ושולחים לה את תחנות המוצא והיעד, התאריך
-        והשעה. הבקשה נשלחת מהשרתים שלנו ולא מהמכשיר שלך, ואינה כוללת מידע מזהה. גרסאות של האפליקציה שקודמות לגרסה 2.5.0 מחפשות
-        בשיטה ישנה יותר, שבה נשלחת לרכבת ישראל גם כתובת ה-IP שלך; עדכון האפליקציה מפסיק זאת. במהלך נסיעה ב-Better Rail Live,
-        השרתים שלנו שולחים לרכבת ישראל את אותם פרטי מסלול כדי לעדכן את הנסיעה.
+        והשעה. הבקשה נשלחת מהשרתים שלנו ולא מהמכשיר שלך, ואינה כוללת מידע מזהה. במהלך נסיעה ב-Better Rail Live, השרתים שלנו
+        שולחים לרכבת ישראל את אותם פרטי מסלול כדי לעדכן את הנסיעה.
       </p>
       <p className="site-page-content-text">
         איננו שומרים את החיפושים שלך. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
