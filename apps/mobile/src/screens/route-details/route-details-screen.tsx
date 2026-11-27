@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
+import { isEqual } from "lodash"
 import { Platform, View } from "react-native"
 import { StyleSheet, useUnistyles } from "react-native-unistyles"
 import { ScrollView } from "react-native-gesture-handler"
@@ -13,6 +14,7 @@ import { RouteDetailsHeader, Screen, WebsiteHandoff } from "@/components"
 import {
   LiveRideSheet,
   LongRouteWarning,
+  OvertakenWarning,
   RouteChangeWarnings,
   RouteExchangeDetails,
   RouteLine,
@@ -61,6 +63,9 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
 
   const trainNumbers = paramsRouteItem.trains.map((t) => t.trainNumber)
 
+  // The day the refresh below fetched: the train a warning points to is in it, so it opens without another request
+  const dayRoutes = useRef<RouteItem[]>([])
+
   // Periodically refetch route data to catch platform changes and delays.
   // Skip when ride is active — the ride polling already handles updates.
   const { data: freshRouteItem } = useQuery(
@@ -70,6 +75,7 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
       const fromId = paramsRouteItem.trains[0].originStationId.toString()
       const toId = paramsRouteItem.trains[paramsRouteItem.trains.length - 1].destinationStationId.toString()
       const routes = await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId })
+      dayRoutes.current = routes
       // A change-station search isn't what the list shows
       if (!viaStationId && originId && destinationId) publishFreshRoutes(originId, destinationId, routes)
       const fresh = getSelectedRide(routes, trainNumbers)
@@ -88,6 +94,35 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
     if (isRideOnThisRoute) return rideRoute as unknown as RouteItem
     return freshRouteItem ?? paramsRouteItem
   })()
+
+  // Shows the later, faster train in this screen: the store swap is what openActiveRide does too
+  const openOvertakingRoute = async () => {
+    const target = routeItem?.overtakenBy
+    if (!target || !originId || !destinationId) return
+    const findTarget = (routes: RouteItem[]) =>
+      routes.find(
+        (route) =>
+          route.departureTime === target.departureTime &&
+          isEqual(
+            route.trains.map((train) => train.trainNumber),
+            target.trainNumbers,
+          ),
+      )
+    try {
+      let next = findTarget(dayRoutes.current)
+      if (!next) {
+        const [date, time] = formatDateForAPI(target.departureTime)
+        const fromId = routeItem.trains[0].originStationId.toString()
+        const toId = routeItem.trains[routeItem.trains.length - 1].destinationStationId.toString()
+        next = findTarget(await routeApi.getRoutes(fromId, toId, date, time, { viaStation: viaStationId }))
+      }
+      if (next) {
+        useNavigationParamsStore.getState().setRouteDetails({ routeItem: { ...next, viaStationId }, originId, destinationId })
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const progress = useRideProgress({ route: routeItem, enabled: isRideOnThisRoute })
   const { stations } = progress
@@ -139,7 +174,16 @@ export function RouteDetailsScreen({ screenName = "routeDetails" }: { screenName
             contentContainerStyle={{ paddingTop: spacing[4], paddingBottom: 80 + insets.bottom + liveActionsRowHeight }}
             showsVerticalScrollIndicator={false}
           >
-            {routeItem.isMuchLonger && screenName === "routeDetails" && <LongRouteWarning />}
+            {screenName === "routeDetails" &&
+              (routeItem?.overtakenBy ? (
+                <OvertakenWarning
+                  departureTime={routeItem.overtakenBy.departureTime}
+                  arrivalTime={routeItem.overtakenBy.arrivalTime}
+                  onPress={openOvertakingRoute}
+                />
+              ) : (
+                routeItem?.isMuchLonger && <LongRouteWarning />
+              ))}
             {routeItem.trains.map((train, index) => {
               // When showing the entire route, we need to organize all stations in order
               if (showEntireRoute && train.routeStations && train.routeStations.length > 0) {

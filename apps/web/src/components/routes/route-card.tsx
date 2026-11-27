@@ -4,7 +4,7 @@ import { formatClock } from "@/lib/time"
 import { formatDuration } from "@/lib/format"
 import { useLocale, useT } from "@/i18n"
 import { cn } from "@/lib/cn"
-import { CancelledBadge, DelayBadge, ShortRouteBadge, SlowTrainBadge, useChangesText } from "./route-badges"
+import { BetterToWaitBadge, CancelledBadge, DelayBadge, ShortRouteBadge, SlowTrainBadge, useChangesText } from "./route-badges"
 
 /**
  * A plain anchor rather than the router's `Link`, and memoised: a day lists a couple of hundred of these, and a
@@ -109,8 +109,10 @@ function TimeColumn({
 function RouteIndicators({ route, changesText }: { route: RouteItem; changesText: string }) {
   if (route.isCancelled) return <CancelledBadge />
   const badges = []
-  if (route.isMuchShorter && !route.isMuchLonger) badges.push(<ShortRouteBadge key="short" />)
-  if (route.isMuchLonger) badges.push(<SlowTrainBadge key="slow" />)
+  // A later train arrives sooner: say so instead of anything else about the route
+  if (route.overtakenBy) badges.push(<BetterToWaitBadge key="wait" />)
+  else if (route.isMuchLonger) badges.push(<SlowTrainBadge key="slow" />)
+  else if (route.isMuchShorter) badges.push(<ShortRouteBadge key="short" />)
   const delay = Math.max(route.delay, route.arrivalDelay)
   if (delay > 0) badges.push(<DelayBadge key="delay" minutes={delay} />)
   if (badges.length === 0) return <span className="text-[13.5px] text-muted">{changesText}</span>

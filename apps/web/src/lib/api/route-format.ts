@@ -78,6 +78,34 @@ function isMuchShorter(route: RouteItem, others: RouteItem[]): boolean {
   })
 }
 
+// A later train that gets there sooner, with no more changes: waiting for it beats taking this one. The timetable API
+// offers these (e.g. a change in Tel Aviv that arrives an hour after the next train), so the card says to wait.
+export function findOvertakingRoute(route: RouteItem, others: RouteItem[]): RouteItem["overtakenBy"] {
+  let best: RouteItem | undefined
+  for (const other of others) {
+    const overtakes =
+      other !== route &&
+      !other.isCancelled &&
+      other.trains.length <= route.trains.length &&
+      other.departureTime >= route.departureTime &&
+      other.arrivalTime <= route.arrivalTime &&
+      (other.departureTime > route.departureTime || other.arrivalTime < route.arrivalTime)
+    // The one to wait for arrives first, and of those, leaves first
+    if (
+      overtakes &&
+      (!best ||
+        other.arrivalTime < best.arrivalTime ||
+        (other.arrivalTime === best.arrivalTime && other.departureTime < best.departureTime))
+    ) {
+      best = other
+    }
+  }
+  return best && { id: best.id, departureTime: best.departureTime, arrivalTime: best.arrivalTime }
+}
+
+/** Hidden by the slow trains filter: much longer than a train around it, or beaten by a later one. */
+export const isSlowTrain = (route: RouteItem) => route.isMuchLonger || route.overtakenBy !== undefined
+
 export function formatTravels(travels: ApiTravel[], requestedDate: string): RouteItem[] {
   const routes: RouteItem[] = travels
     .filter((travel) => travel.trains.length > 0 && belongsToRequestedDay(parseNaive(travel.departureTime), requestedDate))
@@ -105,6 +133,7 @@ export function formatTravels(travels: ApiTravel[], requestedDate: string): Rout
     ...route,
     isMuchLonger: isMuchLonger(route, routes),
     isMuchShorter: isMuchShorter(route, routes),
+    overtakenBy: findOvertakingRoute(route, routes),
   }))
 }
 

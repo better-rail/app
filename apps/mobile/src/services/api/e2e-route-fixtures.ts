@@ -1,6 +1,7 @@
 import { parse } from "date-fns"
 import { stationLocale, stationsObject } from "@/data/stations"
 import type { RouteItem, RouteStation, Train, VisaWagonData } from "./rail-api.types"
+import { withDurationFlags } from "./route-duration-flags"
 
 const MINUTE = 60_000
 const TIMETABLE_INTERVAL_MINUTES = 30
@@ -209,7 +210,8 @@ export function getE2ERoutes(
     ),
   ].sort((a, b) => a.departureTime - b.departureTime)
 
+  // Flagged like the API results are, so the exchange shows that waiting for the later direct train is better
   const viaStation = options.viaStation ? Number(options.viaStation) : undefined
-  if (viaStation === undefined) return routes
-  return routes.filter((route) => route.trains.slice(0, -1).some((t) => t.destinationStationId === viaStation))
+  if (viaStation === undefined) return withDurationFlags(routes)
+  return withDurationFlags(routes.filter((route) => route.trains.slice(0, -1).some((t) => t.destinationStationId === viaStation)))
 }

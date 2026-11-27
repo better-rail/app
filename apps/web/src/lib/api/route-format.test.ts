@@ -8,6 +8,7 @@ import {
   isRouteInThePast,
   isDifferentHour,
   exchangeWaitMinutes,
+  isSlowTrain,
 } from "./route-format"
 import { parseNaive } from "@/lib/time"
 import type { ApiTravel, Train } from "./types"
@@ -77,6 +78,56 @@ describe("formatTravels", () => {
     // the 70-minute exchange route is much longer than the 36-minute direct one leaving within the hour
     expect(routes[1].isMuchLonger).toBe(true)
     expect(routes[0].isMuchShorter).toBe(true)
+  })
+
+  // Rehovot → Sderot on a Sunday night: the 22:24 changes in Tel Aviv and arrives at 00:48, after the 23:02 does.
+  test("points a route a later train beats at the one to wait for, and counts it as slow", () => {
+    const routes = formatTravels(
+      [
+        travel([
+          train(281, 5200, 5900, "2026-11-29T22:02:00", "2026-11-29T22:29:00"),
+          train(675, 5900, 9600, "2026-11-29T22:35:00", "2026-11-29T22:47:00"),
+        ]),
+        travel([
+          train(290, 5200, 4900, "2026-11-29T22:24:00", "2026-11-29T22:52:00"),
+          train(683, 4900, 9600, "2026-11-29T23:48:00", "2026-11-30T00:48:00"),
+        ]),
+        travel([
+          train(285, 5200, 5900, "2026-11-29T23:02:00", "2026-11-29T23:29:00"),
+          train(679, 5900, 9600, "2026-11-29T23:36:00", "2026-11-29T23:48:00"),
+        ]),
+      ],
+      "2026-11-29",
+    )
+    expect(routes.map((route) => route.overtakenBy)).toEqual([
+      undefined,
+      { id: "285-679", departureTime: parseNaive("2026-11-29T23:02:00"), arrivalTime: parseNaive("2026-11-29T23:48:00") },
+      undefined,
+    ])
+    expect(routes.map(isSlowTrain)).toEqual([false, true, false])
+  })
+
+  test("a later route doesn't beat an earlier one when it needs more changes or is cancelled", () => {
+    const [direct] = formatTravels(
+      [
+        travel([train(100, 5200, 9600, "2026-11-29T20:00:00", "2026-11-29T21:30:00")]),
+        travel([
+          train(101, 5200, 5900, "2026-11-29T20:10:00", "2026-11-29T20:40:00"),
+          train(102, 5900, 9600, "2026-11-29T20:45:00", "2026-11-29T21:00:00"),
+        ]),
+      ],
+      "2026-11-29",
+    )
+    expect(direct.overtakenBy).toBeUndefined()
+
+    const [early] = formatTravels(
+      [
+        travel([train(200, 5200, 9600, "2026-11-29T20:00:00", "2026-11-29T21:30:00")]),
+        travel([train(201, 5200, 9600, "2026-11-29T20:10:00", "2026-11-29T21:00:00", { isCancelled: true })]),
+      ],
+      "2026-11-29",
+    )
+    expect(early.overtakenBy).toBeUndefined()
   })
 
   test("drops trains from other days but keeps the small hours of the next day", () => {

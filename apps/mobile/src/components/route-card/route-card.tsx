@@ -33,6 +33,8 @@ export interface RouteCardProps extends TouchableScaleProps {
   duration: string
   isMuchShorter: boolean
   isMuchLonger: boolean
+  /** A later train arrives sooner, so the card says it's better to wait */
+  isOvertaken?: boolean
   stops: number
   delay: number
   /** Applied to the wrapper around the card, e.g. margins. */
@@ -64,6 +66,7 @@ export function RouteCard(props: RouteCardProps) {
     delay,
     isMuchShorter,
     isMuchLonger,
+    isOvertaken = false,
     onPress = null,
     style,
     shouldShowDashedLine = true,
@@ -95,8 +98,8 @@ export function RouteCard(props: RouteCardProps) {
 
   // More than one of short route badge, delay and changes crowds the row; cancelled cards show only their badge
   const isCancelled = routeItem?.isCancelled ?? false
-  const showShortRouteBadge = isMuchShorter && !isMuchLonger && !hideSlowTrains
-  const isBloatedIndicators = !isCancelled && [showShortRouteBadge, delay > 0, stops > 0].filter(Boolean).length > 1
+  const showRouteBadge = isOvertaken || (isMuchShorter && !isMuchLonger && !hideSlowTrains)
+  const isBloatedIndicators = !isCancelled && [showRouteBadge, delay > 0, stops > 0].filter(Boolean).length > 1
   // "12:08 PM" needs the room the dashed lines take at the default font size
   const showDashedLine = shouldShowDashedLine && !isBloatedIndicators && !use12HourClock
 
@@ -231,6 +234,7 @@ export function RouteCard(props: RouteCardProps) {
             <RouteIndicators
               isMuchShorter={isMuchShorter}
               isMuchLonger={isMuchLonger}
+              isOvertaken={isOvertaken}
               delay={delay}
               stopsText={stopsText}
               isRideActive={props.isActiveRide}

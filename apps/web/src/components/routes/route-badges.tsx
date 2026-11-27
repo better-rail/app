@@ -21,6 +21,11 @@ export function SlowTrainBadge({ className }: { className?: string }) {
   return <span className={cn("badge bg-warning-soft text-warning-text", className)}>{t("routes.slowTrain")}</span>
 }
 
+export function BetterToWaitBadge({ className }: { className?: string }) {
+  const t = useT()
+  return <span className={cn("badge bg-warning-soft text-warning-text", className)}>{t("routes.betterToWait")}</span>
+}
+
 export function useChangesText() {
   const t = useT()
   return (changes: number) =>

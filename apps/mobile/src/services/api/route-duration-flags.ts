@@ -10,7 +10,39 @@ export function withDurationFlags(routes: RouteItem[]): RouteItem[] {
     ...route,
     isMuchLonger: isRouteIsMuchLongerThanOtherRoutes(route, routes),
     isMuchShorter: isRouteMuchShorterThanOtherRoutes(route, routes),
+    overtakenBy: findOvertakingRoute(route, routes),
   }))
+}
+
+// A later train that gets there sooner, with no more changes: waiting for it beats taking this one. The timetable API
+// offers these (e.g. a change in Tel Aviv that arrives an hour after the next train), so the card says to wait.
+export function findOvertakingRoute(route: RouteItem, otherRoutes: RouteItem[]): RouteItem["overtakenBy"] {
+  let best: RouteItem | undefined
+  for (const other of otherRoutes) {
+    const overtakes =
+      other !== route &&
+      !other.isCancelled &&
+      other.trains.length <= route.trains.length &&
+      other.departureTime >= route.departureTime &&
+      other.arrivalTime <= route.arrivalTime &&
+      (other.departureTime > route.departureTime || other.arrivalTime < route.arrivalTime)
+    // The one to wait for arrives first, and of those, leaves first
+    if (
+      overtakes &&
+      (!best ||
+        other.arrivalTime < best.arrivalTime ||
+        (other.arrivalTime === best.arrivalTime && other.departureTime < best.departureTime))
+    ) {
+      best = other
+    }
+  }
+  return (
+    best && {
+      departureTime: best.departureTime,
+      arrivalTime: best.arrivalTime,
+      trainNumbers: best.trains.map((train) => train.trainNumber),
+    }
+  )
 }
 
 function isRouteIsMuchLongerThanOtherRoutes(route: RouteItem, otherRoutes: RouteItem[]): boolean {

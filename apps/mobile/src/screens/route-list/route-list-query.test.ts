@@ -103,4 +103,26 @@ describe("organizeRouteResults", () => {
     const kept = data.find((item): item is RouteItem => typeof item !== "string" && item.trains[0].trainNumber === 2)
     expect(kept?.isMuchLonger).toBe(true)
   })
+
+  test("points a route a later train beats at the one to wait for", () => {
+    const evening = new Date(2026, 10, 29, 22, 2).getTime()
+    const changing = (departureTime: number, minutes: number, trainNumbers: number[]) => ({
+      ...trip(departureTime, minutes, trainNumbers[0]),
+      isExchange: true,
+      trains: trainNumbers.map((trainNumber) => ({ trainNumber, departureTime }) as unknown as Train),
+    })
+    // Rehovot → Sderot: the 22:24 via Tel Aviv arrives at 00:48, an hour after the 23:02 does
+    const early = changing(evening, 45, [281, 675])
+    const viaTelAviv = changing(evening + 22 * MINUTE, 144, [290, 683])
+    const late = changing(evening + 60 * MINUTE, 46, [285, 679])
+    const results = [result(evening, [early, viaTelAviv, late])]
+
+    const routes = organizeRouteResults(results).filter((item): item is RouteItem => typeof item !== "string")
+    expect(routes.map((route) => route.trains[0].trainNumber)).toEqual([281, 290, 285])
+    expect(routes.map((route) => route.overtakenBy)).toEqual([
+      undefined,
+      { departureTime: late.departureTime, arrivalTime: late.arrivalTime, trainNumbers: [285, 679] },
+      undefined,
+    ])
+  })
 })

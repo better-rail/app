@@ -6,11 +6,12 @@ import { userLocale } from "@/i18n"
 import { labelFontStyle } from "@/theme/theme-fonts"
 
 /**
- * Displays route indicators (stops count, delay, cancellation, short route badge) in the route card.
+ * Displays route indicators (stops count, delay, cancellation, short route / better-to-wait badge) in the route card.
  */
 export const RouteIndicators = ({
   isMuchShorter,
   isMuchLonger,
+  isOvertaken = false,
   delay,
   stopsText,
   isRideActive,
@@ -24,10 +25,11 @@ export const RouteIndicators = ({
     return <CancelledBadge />
   }
 
-  // Show short route badge only when filter is off (hideShortRouteBadge is false)
-  const showShortRouteBadge = isMuchShorter && !isMuchLonger && !hideShortRouteBadge
+  // A later train arrives sooner: say so instead of anything else about the route.
+  // The short route badge shows only when the filter is off (hideShortRouteBadge is false).
+  const routeBadge = isOvertaken ? "wait" : isMuchShorter && !isMuchLonger && !hideShortRouteBadge ? "short" : null
 
-  if (!showShortRouteBadge && !(delay > 0)) {
+  if (!routeBadge && !(delay > 0)) {
     return (
       <Text style={styles.stopsText} maxFontSizeMultiplier={1}>
         {stopsText}
@@ -35,22 +37,33 @@ export const RouteIndicators = ({
     )
   }
 
-  if (!showShortRouteBadge && !hasChanges) {
+  if (!routeBadge && !hasChanges) {
     return <DelayBadge delay={delay} />
   }
 
   // Several indicators share the row, so the delay shrinks to "+X", and with all three the badge too.
   // Theme label fonts run wider than Heebo, so there the badge shrinks as soon as it sits next to the changes.
-  const isCrowded = showShortRouteBadge && hasChanges && (delay > 0 || Boolean(theme.skin.labelFont))
+  const isCrowded = routeBadge === "short" && hasChanges && (delay > 0 || Boolean(theme.skin.labelFont))
   return (
     <View style={styles.wrapper}>
       <View style={styles.badges}>
         {delay > 0 && <DelayBadge delay={delay} onlyNumber />}
-        {showShortRouteBadge && (
+        {routeBadge === "short" && (
           <View style={[styles.shortRouteBadge, isRideActive && styles.shortRouteBadgeActive]}>
             <Text
               style={styles.shortRouteBadgeText}
               tx={isCrowded ? "routes.shortRouteCompact" : "routes.shortRoute"}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+            />
+          </View>
+        )}
+        {routeBadge === "wait" && (
+          <View style={styles.waitBadge}>
+            <Text
+              style={styles.waitBadgeText}
+              tx="routes.betterToWait"
               numberOfLines={1}
               adjustsFontSizeToFit
               minimumFontScale={0.75}
@@ -73,7 +86,7 @@ export const RouteIndicators = ({
   )
 }
 
-const styles = StyleSheet.create((theme) => ({
+const styles = StyleSheet.create((theme, rt) => ({
   wrapper: {
     flexShrink: 1,
     marginTop: Platform.OS === "ios" ? (userLocale === "he" ? 4 : 2) : 6,
@@ -96,6 +109,17 @@ const styles = StyleSheet.create((theme) => ({
   },
   shortRouteBadgeActive: {
     backgroundColor: theme.colors.contrastedGreenBackground,
+  },
+  waitBadge: {
+    flexShrink: 1,
+    paddingVertical: 1,
+    paddingHorizontal: theme.spacing[2],
+    backgroundColor: rt.themeName === "dark" ? "#5a4523" : "#fff1d6",
+    borderRadius: 6,
+  },
+  waitBadgeText: {
+    ...labelFontStyle(theme, 14),
+    color: rt.themeName === "dark" ? "#f5c46b" : "#9a5b00",
   },
   shortRouteBadgeText: {
     ...labelFontStyle(theme, 14),

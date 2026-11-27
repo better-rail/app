@@ -107,6 +107,8 @@ export interface RouteItem {
   isCancelled: boolean
   isMuchLonger: boolean
   isMuchShorter: boolean
+  /** A later train that arrives sooner with no more changes: the rider is better off waiting for it */
+  overtakenBy?: { id: string; departureTime: NaiveTime; arrivalTime: NaiveTime }
   trains: Train[]
 }
 
