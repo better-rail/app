@@ -72,16 +72,19 @@ function PrivacyPage() {
         </p>
         <h2 className="site-page-content-subtitle">Where our data comes from</h2>
         <p className="site-page-content-text">
-          Train schedules and routes are calculated on our own servers, based on the Israeli Ministry of Transport's open public
-          transport data (GTFS). Real-time information about delays, cancellations and platform changes comes from the Ministry of
-          Transport's SIRI service.
+          Train schedules, routes and real-time information about delays, cancellations and platform changes come from Israel
+          Railways.
         </p>
         <p className="site-page-content-text">
-          Searches you make in the app or on this website are sent only to our servers, and are not forwarded to Israel Railways
-          (except for the voucher requests described above). These requests contain no identifying information, and we don't store
-          them. On the website, your recent searches are kept only in your own browser.
+          When you search in the app or on this website, our servers ask Israel Railways for the trains on that route, sending the
+          origin and destination stations, the date and the time. The request comes from our servers, not from your device, and
+          contains no identifying information. During a Better Rail Live ride, our servers send Israel Railways the same route
+          details to keep the ride up to date.
         </p>
-        <p className="site-page-content-last-updated">Last updated on October 16th, 2026</p>
+        <p className="site-page-content-text">
+          We don't store your searches. On the website, your recent searches are kept only in your own browser.
+        </p>
+        <p className="site-page-content-last-updated">Last updated on November 27th, 2026</p>
       </ContentPage>
     )
   }
@@ -98,8 +101,8 @@ function PrivacyPage() {
         (Session Replay) של הפעלות שבהן אירעה שגיאה. ההקלטות מתעדות את מסכי האפליקציה בלבד, ללא שמע, ואינן משויכות אליך.
       </p>
       <p className="site-page-content-text">
-        חיפושי המסלולים באפליקציה ובאתר מעובדים בשרתים שלנו, אך אינם נשמרים ואינם משויכים אליך. מידע אישי אשר מוזן באפליקציה לא
-        עובר אלינו.
+        חיפושי המסלולים באפליקציה ובאתר עוברים דרך השרתים שלנו לרכבת ישראל, אך אינם נשמרים אצלנו (ראו "מקורות המידע" למטה). מידע
+        אישי אשר מוזן באפליקציה לא עובר אלינו.
       </p>
       <p className="site-page-content-text">תמיד ניתן לבטל את איסוף הנתונים על ידי השבתת האפשרות "טלמטריה" בהגדרות האפליקציה</p>
       <h2 className="site-page-content-subtitle">Better Rail Live</h2>
@@ -125,14 +128,17 @@ function PrivacyPage() {
       </p>
       <h2 className="site-page-content-subtitle">מקורות המידע</h2>
       <p className="site-page-content-text">
-        לוחות הזמנים ומסלולי הנסיעה מחושבים בשרתים שלנו, על בסיס נתוני התחבורה הציבורית הפתוחים (GTFS) של משרד התחבורה. מידע על
-        עיכובים, ביטולים ושינויי רציף מתקבל בזמן אמת משירות ה-SIRI של משרד התחבורה.
+        לוחות הזמנים, מסלולי הנסיעה והמידע בזמן אמת על עיכובים, ביטולים ושינויי רציף מתקבלים מרכבת ישראל.
       </p>
       <p className="site-page-content-text">
-        החיפושים באפליקציה ובאתר נשלחים לשרתים שלנו בלבד, ואינם מועברים לרכבת ישראל (למעט בקשות השוברים שתוארו למעלה). בקשות
-        החיפוש אינן כוללות מידע מזהה, ואיננו שומרים אותן. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
+        בחיפוש באפליקציה או באתר, השרתים שלנו מבקשים מרכבת ישראל את הרכבות במסלול, ושולחים לה את תחנות המוצא והיעד, התאריך
+        והשעה. הבקשה נשלחת מהשרתים שלנו ולא מהמכשיר שלך, ואינה כוללת מידע מזהה. במהלך נסיעה ב-Better Rail Live, השרתים שלנו
+        שולחים לרכבת ישראל את אותם פרטי מסלול כדי לעדכן את הנסיעה.
       </p>
-      <p className="site-page-content-last-updated">עודכן לאחרונה ב-16 באוקטובר 2026</p>
+      <p className="site-page-content-text">
+        איננו שומרים את החיפושים שלך. באתר, החיפושים האחרונים נשמרים בדפדפן שלכם בלבד.
+      </p>
+      <p className="site-page-content-last-updated">עודכן לאחרונה ב-27 בנובמבר 2026</p>
     </ContentPage>
   )
 }
