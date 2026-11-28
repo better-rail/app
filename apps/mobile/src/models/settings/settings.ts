@@ -132,7 +132,8 @@ export const activeFilterCount = (state: Pick<SettingsState, "hideSlowTrains" | 
   (state.hideSlowTrains ? 1 : 0) + (state.maxChanges !== null ? 1 : 0)
 
 // Drops routes the filters hide and date headers left empty
-export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boolean }>(
+// Slow trains include ones a later train beats ("better to wait")
+export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boolean; overtakenBy?: unknown }>(
   data: (T | string)[],
   filters: Pick<SettingsState, "hideSlowTrains" | "maxChanges">,
 ) {
@@ -144,7 +145,10 @@ export function filterRouteData<T extends { trains: unknown[]; isMuchLonger: boo
   for (const item of data) {
     if (typeof item === "string") {
       pendingHeader = item
-    } else if (!(hideSlowTrains && item.isMuchLonger) && (maxChanges === null || item.trains.length - 1 <= maxChanges)) {
+    } else if (
+      !(hideSlowTrains && (item.isMuchLonger || item.overtakenBy)) &&
+      (maxChanges === null || item.trains.length - 1 <= maxChanges)
+    ) {
       if (pendingHeader !== null) result.push(pendingHeader)
       pendingHeader = null
       result.push(item)

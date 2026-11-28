@@ -8,7 +8,14 @@ import { RouteDetails } from "@/components/routes/route-details"
 import { getStationById, stationName, type Station } from "@/data/stations"
 import { useLocale, useT, resolveLocale, translate, localePath, type Locale } from "@/i18n"
 import { routesQueryOptions, ROUTES_REFETCH_INTERVAL_MS } from "@/lib/api/queries"
-import { arriveByRoute, firstArrival, summarizeRoutes, isDifferentHour, type RouteSummary } from "@/lib/api/route-format"
+import {
+  arriveByRoute,
+  firstArrival,
+  summarizeRoutes,
+  isDifferentHour,
+  isSlowTrain,
+  type RouteSummary,
+} from "@/lib/api/route-format"
 import type { RouteItem, RoutesResult, RoutesSearch } from "@/lib/api/types"
 import { heroImagePath, routeSeoText, tripFacts, type TripFacts } from "@/lib/route-seo"
 import { requestOrigin } from "@/lib/request-origin"
@@ -348,7 +355,7 @@ function RoutesPage() {
   // is what lets the list's `<ViewTransition>`s animate the cards it hides and brings back.
   const filterSlowTrains = useDeferredValue(hideSlowTrains)
   // With the filter on, a sparse day can lose every one of its trains; the list says so rather than going blank.
-  const visibleRoutes = filterSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === search.trip) : routes
+  const visibleRoutes = filterSlowTrains ? routes.filter((route) => !isSlowTrain(route) || route.id === search.trip) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
   // Arrive-by: the list draws the time asked for under the trip that makes it, and the page opens there. Not on another
   // day's timetable (the requested one had no service), where that time means nothing.
@@ -377,7 +384,7 @@ function RoutesPage() {
   // Counted over every day on the page, since the filter applies to all of them.
   const slowCount = [query, ...extraDayQueries].reduce(
     (sum, dayQuery) =>
-      sum + (dayQuery.data?.routes.filter((route) => route.isMuchLonger && route.id !== search.trip).length ?? 0),
+      sum + (dayQuery.data?.routes.filter((route) => isSlowTrain(route) && route.id !== search.trip).length ?? 0),
     0,
   )
 
@@ -841,7 +848,7 @@ function ExtraDay({
   const t = useT()
   const locale = useLocale()
   const routes = query.data?.routes ?? []
-  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !route.isMuchLonger || route.id === selectedId) : routes
+  const visibleRoutes = hideSlowTrains ? routes.filter((route) => !isSlowTrain(route) || route.id === selectedId) : routes
   const allSlowHidden = routes.length > 0 && visibleRoutes.length === 0
 
   return (

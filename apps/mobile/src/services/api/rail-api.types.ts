@@ -108,6 +108,8 @@ export type RouteItem = {
   arrivalTimeString: string
   isMuchLonger: boolean
   isMuchShorter: boolean
+  /** A later train that arrives sooner with no more changes: the rider is better off waiting for it */
+  overtakenBy?: { departureTime: number; arrivalTime: number; trainNumbers: number[] }
   isCancelled: boolean
   trains: Train[]
   // Change station the rider picked

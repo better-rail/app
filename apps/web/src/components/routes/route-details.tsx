@@ -1,4 +1,5 @@
 import { useId, useState, type ReactNode } from "react"
+import { Link } from "@tanstack/react-router"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -88,8 +89,31 @@ export function RouteDetails({
       </header>
 
       <div className="flex flex-col gap-3 px-3 py-4 sm:px-4">
-        {route.isMuchLonger && (
-          <Callout icon="🕰" tone="warning" title={t("details.longRoute")} text={t("details.longRouteText")} />
+        {route.overtakenBy ? (
+          <Callout
+            icon="⏳"
+            tone="warning"
+            title={t("details.overtaken")}
+            text={t("details.overtakenText", {
+              departure: formatClock(route.overtakenBy.departureTime),
+              arrival: formatClock(route.overtakenBy.arrivalTime),
+            })}
+          >
+            {/* Same list, same day: only the picked trip changes */}
+            <Link
+              to="."
+              search={(prev) => ({ ...prev, trip: route.overtakenBy?.id })}
+              resetScroll={false}
+              className="mt-2 inline-flex items-center gap-1 text-[14px] font-bold text-warning-text underline underline-offset-2"
+            >
+              {t("details.overtakenLink", { departure: formatClock(route.overtakenBy.departureTime) })}
+              <Arrow className="size-4" />
+            </Link>
+          </Callout>
+        ) : (
+          route.isMuchLonger && (
+            <Callout icon="🕰" tone="warning" title={t("details.longRoute")} text={t("details.longRouteText")} />
+          )
         )}
 
         {route.trains.map((train, index) => (
@@ -426,7 +450,19 @@ function ExchangeBlock({ first, second }: { first: Train; second: Train }) {
   )
 }
 
-function Callout({ icon, title, text, tone }: { icon: ReactNode; title: string; text: string; tone: "warning" | "danger" }) {
+function Callout({
+  icon,
+  title,
+  text,
+  tone,
+  children,
+}: {
+  icon: ReactNode
+  title: string
+  text: string
+  tone: "warning" | "danger"
+  children?: ReactNode
+}) {
   return (
     <div
       className={cn(
@@ -444,6 +480,7 @@ function Callout({ icon, title, text, tone }: { icon: ReactNode; title: string; 
       <div>
         <p className="font-bold">{title}</p>
         <p className="text-[14px] text-text-2">{text}</p>
+        {children}
       </div>
     </div>
   )

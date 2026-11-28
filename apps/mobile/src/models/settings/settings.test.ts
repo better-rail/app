@@ -108,3 +108,12 @@ test("filterRouteData hides slow trains", () => {
   expect(filterRouteData(data, { hideSlowTrains: true, maxChanges: null })).toEqual(["Mon", fast])
   expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: 0 })).toEqual(["Mon", fast, slow])
 })
+
+test("filterRouteData counts a route a later train beats as slow", () => {
+  const fast = { trains: [1, 2], isMuchLonger: false }
+  const overtaken = { trains: [1, 2], isMuchLonger: false, overtakenBy: { departureTime: 2, arrivalTime: 3, trainNumbers: [5] } }
+  const data = ["Mon", overtaken, fast]
+
+  expect(filterRouteData(data, { hideSlowTrains: true, maxChanges: null })).toEqual(["Mon", fast])
+  expect(filterRouteData(data, { hideSlowTrains: false, maxChanges: null })).toBe(data)
+})

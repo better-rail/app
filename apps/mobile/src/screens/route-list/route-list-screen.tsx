@@ -361,6 +361,7 @@ function RouteListResults({
         duration={item.duration}
         isMuchShorter={item.isMuchShorter}
         isMuchLonger={item.isMuchLonger}
+        isOvertaken={!!item.overtakenBy}
         stops={stops}
         departureTime={departureTime}
         arrivalTime={arrivalTime}
