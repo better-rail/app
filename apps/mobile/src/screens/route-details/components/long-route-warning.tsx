@@ -22,7 +22,7 @@ export const OvertakenWarning = ({
   onPress: () => void
 }) => (
   <View style={styles.wrapper}>
-    <Text style={{ fontSize: 48 }}>⏳</Text>
+    <Text style={{ fontSize: 48 }}>⚠️</Text>
     <Text style={styles.title} tx="routeDetails.overtakenWarning" />
     <Text
       style={styles.text}
