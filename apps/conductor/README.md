@@ -5,6 +5,15 @@ Discord bot that handles:
 1. Community onboarding: assigns `ios` or `android` roles from welcome buttons.
 2. Email feedback bridge: routes incoming customer emails to `#email-feedback` Discord threads and sends outbound replies via `/reply` through Resend.
 
+## Undoing a reply
+
+`/reply` doesn't send right away: Resend holds the email for 10 seconds (`scheduled_at`), and the thread message shows an
+**Undo** button meanwhile. Undo cancels the email in Resend, puts the post's status back to what it was before the reply,
+and leaves the reply text in the thread so it can be sent again. The message counts down with a Discord relative timestamp. Once the window passes, the message changes to "Email reply
+sent" and the button goes away, unless Resend can't confirm the email wasn't cancelled; then the message stays as it is.
+An Undo that arrives after Resend sent the email answers "Too late to undo".
+Anyone who can run `/reply` can undo.
+
 ## Feedback status
 
 When `#email-feedback` is a Forum channel, every post carries a status tag:

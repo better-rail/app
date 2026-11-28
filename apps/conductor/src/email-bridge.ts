@@ -1,7 +1,7 @@
 import { concatBytes } from "./bytes"
 import { type ConductorConfig, isSnowflake, SUPPORT_EMAIL_FROM } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
-import { type FeedbackStatus, FORUM_CHANNEL, findStatusTag, statusTags } from "./feedback-status"
+import { type FeedbackStatus, FORUM_CHANNEL, feedbackStatuses, findStatusTag, statusTags } from "./feedback-status"
 import type { ResendApi, ResendReceivedEmail } from "./resend"
 import { enforceRfcLineLength, formatEmailHtml } from "./templates/reply"
 
@@ -18,6 +18,8 @@ export type SlashCommandInteraction = {
     name?: string
     options?: Array<{ name: string; value: string | number | boolean }>
   }
+  /** The message a clicked button belongs to. */
+  message?: { content?: string }
 }
 
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024 // 10 MB Discord upload limit (unboosted)
@@ -92,8 +94,39 @@ function extractEmailMessageId(email: ResendReceivedEmail): string | undefined {
 export const isEmailHeader = (content?: string) => !!content && /^\*\*(?:New|Follow-up) Email from:\*\*/.test(content)
 
 // Start the messages /reply and /resolve leave in the thread.
+export const REPLY_PENDING_PREFIX = "**Sending email reply to**"
 export const REPLY_SENT_PREFIX = "**Email reply sent to**"
+export const REPLY_CANCELLED_PREFIX = "↩️ **Cancelled email reply to**"
 export const RESOLVED_PREFIX = "✅ **Resolved** by"
+
+// The Undo button's custom_id: the prefix, the post's status before the reply (empty when it had none), and the Resend email ID.
+const UNDO_REPLY_PREFIX = "conductor:undo-reply:"
+
+export function parseUndoReply(customId?: string): { emailId: string; previous?: FeedbackStatus } | undefined {
+  if (!customId?.startsWith(UNDO_REPLY_PREFIX)) return undefined
+  const [status, emailId] = customId.slice(UNDO_REPLY_PREFIX.length).split(":")
+  if (!emailId) return undefined
+  return { emailId, previous: feedbackStatuses.find((s) => s.id === status)?.id }
+}
+
+const quoteReply = (text: string) => `> ${text.replace(/\n/g, "\n> ")}`
+// Discord's 2000-character message limit
+const capMessage = (message: string) => (message.length > 2000 ? `${message.slice(0, 1997)}...` : message)
+
+export type ReplyResult = {
+  success: boolean
+  message: string
+  /** Set while the email waits to be sent and can still be undone. */
+  pending?: {
+    emailId: string
+    /** When Resend sends the email, in milliseconds since the epoch. */
+    sendAt: number
+    sentMessage: string
+    components: object[]
+    /** Marks the post Replied; run once the Undo button is up, so it doesn't eat into the window. */
+    markReplied: () => Promise<void>
+  }
+}
 
 function extractHeaderMessageId(content?: string): string | undefined {
   if (!content || !isEmailHeader(content)) return undefined
@@ -447,7 +480,10 @@ export class EmailBridge {
     return channel
   }
 
-  async handleReplyCommand(interaction: SlashCommandInteraction): Promise<{ success: boolean; message: string }> {
+  /** How long a /reply waits before Resend sends it, and how much longer Discord keeps showing Undo once it should be sent. */
+  undo = { windowMs: 10_000, graceMs: 2_000 }
+
+  async handleReplyCommand(interaction: SlashCommandInteraction): Promise<ReplyResult> {
     const channel = await this.feedbackThread(interaction)
     if (typeof channel === "string") return { success: false, message: channel }
     const channelId = channel.id
@@ -480,8 +516,12 @@ export class EmailBridge {
     }
 
     const htmlBody = formatEmailHtml(replyText, channelId)
+    // Read before scheduling, since the undo window starts then.
+    const previous = await this.statusOf(channel)
 
-    await this.resendApi.sendEmail({
+    // Resend holds the email until then, so Undo can cancel it.
+    const sendAt = Date.now() + this.undo.windowMs
+    const { id: emailId } = await this.resendApi.sendEmail({
       from: SUPPORT_EMAIL_FROM,
       to: [recipientEmail],
       subject,
@@ -489,16 +529,55 @@ export class EmailBridge {
       html: htmlBody,
       reply_to: `feedback+${channelId}@better-rail.co.il`,
       headers,
+      scheduled_at: new Date(sendAt).toISOString(),
     })
-    await this.setStatus(channel, "replied")
 
     const senderName = interaction.member?.user?.username || "A team member"
-    const quoted = replyText.replace(/\n/g, "\n> ")
-    const fullMessage = `${REPLY_SENT_PREFIX} \`${recipientEmail}\` by **${senderName}**:\n> ${quoted}`
-    const finalMessage = fullMessage.length > 2000 ? `${fullMessage.slice(0, 1997)}...` : fullMessage
+    const undoButton = {
+      type: 2,
+      style: 2,
+      label: "Undo",
+      emoji: { name: "↩️" },
+      custom_id: `${UNDO_REPLY_PREFIX}${previous ?? ""}:${emailId}`,
+    }
     return {
       success: true,
-      message: finalMessage,
+      message: capMessage(
+        // Discord shows a relative timestamp as a live countdown, so it stays true however long posting the message took.
+        `${REPLY_PENDING_PREFIX} \`${recipientEmail}\` by **${senderName}** <t:${Math.ceil(sendAt / 1000)}:R>:\n${quoteReply(replyText)}`,
+      ),
+      pending: {
+        emailId,
+        sendAt,
+        sentMessage: capMessage(`${REPLY_SENT_PREFIX} \`${recipientEmail}\` by **${senderName}**:\n${quoteReply(replyText)}`),
+        components: [{ type: 1, components: [undoButton] }],
+        markReplied: () => this.setStatus(channel, "replied"),
+      },
+    }
+  }
+
+  /** Cancels a pending /reply from its Undo button and puts the post's status back. */
+  async handleUndoReply(
+    interaction: SlashCommandInteraction,
+    undo: { emailId: string; previous?: FeedbackStatus },
+  ): Promise<{ success: boolean; message: string }> {
+    const channel = await this.feedbackThread(interaction)
+    if (typeof channel === "string") return { success: false, message: channel }
+    try {
+      await this.resendApi.cancelEmail(undo.emailId)
+    } catch (err) {
+      console.warn(`Conductor: could not cancel email ${undo.emailId}:`, (err as Error).message)
+      return { success: false, message: "Too late to undo: this reply has already been sent." }
+    }
+    if (undo.previous) await this.setStatus(channel, undo.previous)
+
+    // The pending message holds the recipient on its first line and the quoted reply after it.
+    const [firstLine, ...quote] = (interaction.message?.content ?? "").split("\n")
+    const recipient = firstLine.match(/`([^`]+)`/)?.[1] ?? "the customer"
+    const senderName = interaction.member?.user?.username || "A team member"
+    return {
+      success: true,
+      message: capMessage([`${REPLY_CANCELLED_PREFIX} \`${recipient}\` by **${senderName}**:`, ...quote].join("\n")),
     }
   }
 
@@ -529,6 +608,14 @@ export class EmailBridge {
     await this.updateStatus(thread, status).catch((err: Error) =>
       console.warn(`Conductor: could not set thread ${thread.id} to ${status}:`, err.message),
     )
+  }
+
+  /** The post's status, or undefined outside a forum or when it can't be read. */
+  private async statusOf(thread: DiscordChannel): Promise<FeedbackStatus | undefined> {
+    const forum = await this.discordApi.call<DiscordChannel>("GET", `/channels/${thread.parent_id}`).catch(() => undefined)
+    if (forum?.type !== FORUM_CHANNEL) return undefined
+    const applied = thread.applied_tags ?? []
+    return feedbackStatuses.find((s) => applied.includes(findStatusTag(forum, s.id)?.id ?? ""))?.id
   }
 
   private async findStarterEmail(threadId: string): Promise<{ recipientEmail?: string; subject?: string; messageId?: string }> {

@@ -1,6 +1,6 @@
 import type { ConductorConfig } from "./config"
 import type { DiscordApi, DiscordChannel, DiscordMessage } from "./discord"
-import { isEmailHeader, REPLY_SENT_PREFIX, RESOLVED_PREFIX } from "./email-bridge"
+import { isEmailHeader, REPLY_PENDING_PREFIX, REPLY_SENT_PREFIX, RESOLVED_PREFIX } from "./email-bridge"
 import { FORUM_CHANNEL, findStatusTag } from "./feedback-status"
 
 const NUDGE_AFTER_MS = 48 * 60 * 60 * 1000
@@ -15,7 +15,8 @@ function waitingSince(messages: DiscordMessage[], applicationId: string) {
   for (const message of messages) {
     if (!message.author?.bot || message.author.id !== applicationId) continue
     if (message.content.startsWith(NUDGE_MESSAGE)) return undefined
-    if (message.content.startsWith(REPLY_SENT_PREFIX) || message.content.startsWith(RESOLVED_PREFIX)) break
+    // A reply still marked as sending was sent once nothing settled its message; a cancelled one doesn't count.
+    if ([REPLY_PENDING_PREFIX, REPLY_SENT_PREFIX, RESOLVED_PREFIX].some((prefix) => message.content.startsWith(prefix))) break
     if (isEmailHeader(message.content)) since = snowflakeTime(message.id)
   }
   return since
