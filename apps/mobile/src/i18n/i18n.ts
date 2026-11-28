@@ -78,9 +78,8 @@ export function setInitialLanguage() {
 }
 
 export function changeUserLanguage(languageCode: LanguageCode) {
-  storage.save("appLanguage", languageCode).then(() => {
-    setUserLanguage(languageCode, true)
-  })
+  storage.save("appLanguage", languageCode)
+  setUserLanguage(languageCode, true)
 }
 
 export const isRTLLanguage = (languageCode: LanguageCode) => languageCode === "he" || languageCode === "ar"

@@ -39,13 +39,11 @@ export const WidgetStep3 = function WidgetStep3() {
             trackEvent("finished_widget_onboarding")
             navigation.getParent()?.goBack()
 
-            storage.load("lastInAppReview").then((value) => {
-              if (!value) {
-                requestStoreReview().then(() => {
-                  storage.save("lastInAppReview", new Date().toISOString())
-                })
-              }
-            })
+            if (!storage.load("lastInAppReview")) {
+              requestStoreReview().then(() => {
+                storage.save("lastInAppReview", new Date().toISOString())
+              })
+            }
           }}
           containerStyle={styles.button}
         />

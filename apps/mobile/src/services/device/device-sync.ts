@@ -38,16 +38,16 @@ const syncNow = async () => {
   if (useRecurringRidesStore.getState().rides.length === 0) {
     // Nothing to remind about: forget the device on the server too, if it was ever there.
     if (await peekDeviceIdentity()) await deviceApi.deleteDevice()
-    await storage.remove(LAST_SYNC_KEY)
+    storage.remove(LAST_SYNC_KEY)
     return
   }
 
   const state = await buildState()
   const hash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, JSON.stringify(state))
-  if (hash === (await storage.load(LAST_SYNC_KEY)) && (await peekDeviceIdentity())) return
+  if (hash === storage.load(LAST_SYNC_KEY) && (await peekDeviceIdentity())) return
 
   await deviceApi.syncDevice(state)
-  await storage.save(LAST_SYNC_KEY, hash)
+  storage.save(LAST_SYNC_KEY, hash)
 }
 
 let queue: Promise<void> = Promise.resolve()
